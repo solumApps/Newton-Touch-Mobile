@@ -5,9 +5,74 @@
 @import "@ionic/angular/css/padding.css";
 @import "@ionic/angular/css/flex-utils.css";
 
+/* ===== SOLUM design tokens (from wireframes) ===== */
 :root {
-  --ion-color-primary: #2F006D;          /* SOLUM Blue */
+  --ion-color-primary: #2F006D;       /* SOLUM purple */
   --ion-color-primary-rgb: 47, 0, 109;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-secondary: #001973;     /* SOLUM blue */
+  --ion-color-secondary-rgb: 0, 25, 115;
+  --ion-color-warning: #FFCD00;       /* SOLUM yellow */
+  --ion-color-warning-rgb: 255, 205, 0;
+  --ion-color-warning-contrast: #000000;
+
+  --nt-purple: #2F006D;
+  --nt-blue: #001973;
   --nt-yellow: #FFCD00;
+  --nt-gray: #EBEAEB;
+  --nt-text: #0F172A;
+  --nt-text-2: #64748B;
+  --nt-muted: #94A3B8;
+  --nt-border: #E2E8F0;
+  --nt-surface: #F8FAFC;
+  --nt-tint: #F8F5FF;
+
   --ion-font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --ion-background-color: #ffffff;
+  --ion-text-color: #0F172A;
 }
+
+/* ===== Branded chrome ===== */
+ion-toolbar {
+  --background: #2F006D;
+  --color: #ffffff;
+  --border-width: 0;
+}
+ion-tab-bar {
+  --background: #ffffff;
+  border-top: 1px solid var(--nt-border);
+  height: 56px;
+}
+ion-tab-button { --color: #94A3B8; --color-selected: #2F006D; font-size: 9px; }
+
+/* ===== Brand wordmark (SOLUM logo + Newton Touch subtitle) ===== */
+.nt-brand { display: flex; align-items: center; gap: 8px; }
+.nt-brand img { height: 22px; }
+.nt-brand .sub { font-size: 10px; color: var(--nt-muted); letter-spacing: .5px; text-transform: uppercase; }
+.nt-wordmark { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; letter-spacing: 1px; color: var(--nt-purple); }
+
+/* ===== Wireframe primitives ===== */
+.crd {
+  background: #fff; border: 1px solid var(--nt-border); border-radius: 8px; padding: 10px 12px;
+}
+.crd.sel { border: 2px solid var(--nt-purple); background: var(--nt-tint); }
+
+.chip {
+  display: inline-flex; align-items: center; padding: 5px 10px; border-radius: 20px;
+  font-size: 10px; font-weight: 600; border: 1.5px solid var(--nt-border);
+  color: var(--nt-text-2); background: var(--nt-surface);
+}
+.chip.act { background: var(--nt-purple); color: #fff; border-color: var(--nt-purple); }
+
+/* Button helpers (apply class on plain <button> or override ion-button via these) */
+.btn-y { background: var(--nt-yellow); color: #000; font-weight: 800; border: none; border-radius: 8px; padding: 12px; width: 100%; font-family: inherit; font-size: 14px; }
+.btn-g { background: var(--nt-purple); color: #fff; font-weight: 700; border: none; border-radius: 8px; padding: 12px; width: 100%; font-family: inherit; font-size: 14px; }
+.btn-o { background: #fff; color: var(--nt-purple); font-weight: 700; border: 2px solid var(--nt-purple); border-radius: 8px; padding: 11px; width: 100%; font-family: inherit; font-size: 14px; }
+
+/* Make the primary ion-button look like the yellow CTA, secondary = purple */
+ion-button.cta { --background: #FFCD00; --background-activated: #E6B800; --color: #000; --border-radius: 8px; font-weight: 800; text-transform: none; }
+ion-button.cta-purple { --background: #2F006D; --color: #fff; --border-radius: 8px; font-weight: 700; text-transform: none; }
+ion-button.cta-outline { --background: #fff; --color: #2F006D; --border-radius: 8px; --border-width: 2px; --border-style: solid; --border-color: #2F006D; font-weight: 700; text-transform: none; }
+
+/* Flat cards (kill heavy ion-card shadow to match wireframe) */
+ion-card { box-shadow: none; border: 1px solid var(--nt-border); border-radius: 8px; margin: 8px 0; }

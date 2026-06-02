@@ -18,6 +18,13 @@ import type { ResultProduct, CardItem } from '@contract/layout';
   selector: 'app-content-builder',
   standalone: true,
   imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonInput, IonLabel, IonList, IonListHeader, IonNote, IonSelect, IonSelectOption, IonCheckbox],
+  styles: [`
+    ion-list-header ion-label{font-size:11px !important;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--nt-text-2)}
+    .tband{display:flex;align-items:center;gap:10px;margin:0 0 8px}
+    .tband .sw{width:30px;height:30px;border-radius:7px;flex-shrink:0}
+    .tband .nm{font-size:13px;font-weight:700;color:var(--nt-text)}
+    .tband .ds{font-size:10px;color:var(--nt-muted);text-transform:uppercase;letter-spacing:.5px}
+  `],
   template: `
     <ion-header><ion-toolbar>
       <ion-buttons slot="start"><ion-button (click)="back()">‹</ion-button></ion-buttons>
@@ -26,12 +33,17 @@ import type { ResultProduct, CardItem } from '@contract/layout';
     </ion-toolbar></ion-header>
 
     <ion-content class="ion-padding" *ngIf="draft as d">
+      <div class="tband">
+        <div class="sw" [style.background]="d.themeTokens.background"></div>
+        <div><div class="nm">{{ d.themeName }}</div><div class="ds">{{ modeLabel }} · {{ d.themeTokens.homeLayout }}</div></div>
+      </div>
       <!-- CATEGORY (CAT-1): fetch from API → select subset → map -->
       <ion-list *ngIf="d.appMode === 'category'">
         <ion-list-header><ion-label>Category API</ion-label>
           <ion-button size="small" (click)="fetch()">{{ apiProducts.length ? 'Re-fetch' : 'Fetch products' }}</ion-button>
         </ion-list-header>
-        <ion-note color="medium" *ngIf="!apiProducts.length">Pull products from the server (name, price, IDs come from API · images are uploaded).</ion-note>
+        <ion-note color="medium" *ngIf="!apiProducts.length && !fetchError">Pull products from the server (name, price, IDs come from API · images are uploaded).</ion-note>
+        <ion-note color="danger" *ngIf="fetchError">{{ fetchError }}</ion-note>
         <ion-item *ngIf="apiProducts.length">
           <ion-select label="Hierarchy fields" [(ngModel)]="d.fieldSource" placeholder="choose">
             <ion-select-option value="category">Category fields (category1–4)</ion-select-option>
@@ -86,7 +98,7 @@ import type { ResultProduct, CardItem } from '@contract/layout';
         </ion-select>
       </ion-item>
 
-      <ion-button expand="block" (click)="saveAndDeploy()" style="margin-top:14px">Save &amp; Deploy →</ion-button>
+      <button class="btn-y" (click)="saveAndDeploy()" style="margin-top:14px">Save &amp; Deploy →</button>
     </ion-content>
   `,
 })
@@ -108,9 +120,17 @@ export class ContentBuilderComponent implements OnInit {
     if (dataUrl) item.image = dataUrl;
   }
 
+  fetchError = '';
   async fetch(): Promise<void> {
-    const creds = await this.workspace.creds();   // undefined → mock products
-    this.apiProducts = await this.categoryApi.fetchProducts(creds);
+    this.fetchError = '';
+    try {
+      const creds = await this.workspace.creds();
+      this.apiProducts = await this.categoryApi.fetchProducts(creds);
+      if (!this.apiProducts.length) this.fetchError = 'No products returned for this store.';
+    } catch (e: any) {
+      this.apiProducts = [];
+      this.fetchError = e?.message || 'Fetch failed';
+    }
   }
 
   toggle(id: string): void {

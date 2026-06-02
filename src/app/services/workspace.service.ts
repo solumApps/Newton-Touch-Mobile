@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
+import { CapacitorHttp } from '@capacitor/core';
 import type { ApiCreds } from './category-api.service';
+
+export interface Company { id: string; name: string; }
+export interface Store { id: string; name: string; code: string; }
 
 export interface Workspace {
   environment: string;   // e.g. 'Stage 00'
@@ -25,8 +29,7 @@ export const SERVERS: Record<string, string> = {
 
 const DEFAULT: Workspace = {
   environment: 'Stage 00', serverUrl: '', username: '', token: '',
-  companyId: 'RCI-001', companyName: 'RetailCo International',
-  storeId: 'STR-042', storeName: 'Main Street Store',
+  companyId: '', companyName: '', storeId: '', storeName: '',
 };
 
 /** Holds the signed-in workspace + Category API credentials (offline). */
@@ -53,7 +56,49 @@ export class WorkspaceService {
     await this.set({ environment: name, serverUrl: SERVERS[name] ?? '' });
   }
 
-  /** Creds for CategoryApiService; returns undefined if server not configured (→ mock). */
+  /**
+   * SOLUM login (SaaS) — POST {base}/common/api/v2/common/login (Bearer).
+   * No `company` param → returns all companies + the default company's stores.
+   * With `?company=` → returns that company's stores. Mirrors STI-Lcd-Wine.
+   */
+  async login(companyId?: string): Promise<{ companies: Company[]; stores: Store[] }> {
+    const w = await this.get();
+    if (!w.serverUrl || !w.token) throw new Error('Not signed in');
+    const url = `${w.serverUrl}/common/api/v2/common/login` + (companyId ? `?company=${encodeURIComponent(companyId)}` : '');
+    const res = await CapacitorHttp.post({ url, headers: { Authorization: `Bearer ${w.token}`, 'Content-Type': 'application/json' }, data: {} });
+    let body: any = res.data ?? {};
+    if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
+    const root: any = body.data ?? body;           // change-company returns at top level
+    const companies: Company[] = (root.company ?? root.companyList ?? []).map((c: any) => this.mapCompany(c));
+    const rawStores = root.managedStores ?? body.managedStores ?? root.storeList ?? [];
+    const stores: Store[] = rawStores.map((s: any) => this.mapStore(s));
+    return { companies, stores };
+  }
+
+  /** Company element may be a plain string (code) OR an object — handle both. */
+  private mapCompany(c: any): Company {
+    if (c == null) return { id: '', name: '' };
+    if (typeof c === 'string') return { id: c, name: c };
+    const id = String(c.company ?? c.companyId ?? c.code ?? c.id ?? '');
+    const name = String(c.companyName ?? c.name ?? c.label ?? c.displayName ?? (id || c));
+    return { id, name };
+  }
+
+  /** Store element may be a plain string (code) OR an object. */
+  private mapStore(s: any): Store {
+    if (s == null) return { id: '', code: '', name: '' };
+    if (typeof s === 'string') return { id: s, code: s, name: s };
+    const code = String(s.code ?? s.storeCode ?? s.store ?? s.storeId ?? s.id ?? '');
+    const name = String(s.name ?? s.storeName ?? s.label ?? s.displayName ?? code);
+    return { id: code, code, name };
+  }
+
+  /** Stores for a selected company. */
+  async fetchStores(companyId: string): Promise<Store[]> {
+    return (await this.login(companyId)).stores;
+  }
+
+  /** Creds for CategoryApiService; undefined if server/token not configured. */
   async creds(): Promise<ApiCreds | undefined> {
     const w = await this.get();
     if (!w.serverUrl || !w.token) return undefined;

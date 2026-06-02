@@ -37,13 +37,14 @@ export class CategoryApiService {
           `?company=${encodeURIComponent(creds.companyId)}&store=${encodeURIComponent(creds.storeId)}` +
           (category1 ? `&category1=${encodeURIComponent(category1)}` : '');
         const res = await CapacitorHttp.get({ url, headers: { Authorization: `Bearer ${creds.token}` } });
-        const parsed = this.parseLabelList(res.data);
-        if (parsed.length) return parsed;
+        return this.parseLabelList(res.data);
       } catch (e) {
-        console.warn('Category API fetch failed; using mock', e);
+        console.warn('Category API fetch failed', e);
+        throw e;
       }
     }
-    return this.mock();
+    // No creds configured → no dummy data; caller prompts to set Server Config.
+    throw new Error('No server credentials. Set them in Settings → Server / API Credentials.');
   }
 
   /** Flatten { labelList:[{ labelCode, category1..4, etc0..3, position[], articleList:[...] }] }. */
@@ -71,13 +72,4 @@ export class CategoryApiService {
     return out;
   }
 
-  private mock(): ApiProduct[] {
-    // Mirrors the real shape incl. category1..4 + etc0..3 so the field-source picker works offline.
-    return [
-      { productId: 'L1_w2021009', name: 'Casillero del Diablo', price: '9.09', zone: 'Wine', articleId: 'w2021009', labelId: '03793F04B295', shelf: 'B-1', category1: 'Beverages', category2: 'Wine', category3: 'Red', etc0: 'Wine', etc1: 'Red', etc2: 'Chile' },
-      { productId: 'L2_b1001', name: 'Artisan Sourdough', price: '4.50', zone: 'Bakery', articleId: 'b1001', labelId: '03793F04B296', shelf: 'A-3', category1: 'Food', category2: 'Bakery', category3: 'Bread', etc0: 'Bakery', etc1: 'Bread', etc2: 'Sourdough' },
-      { productId: 'L3_d2002', name: 'Whole Milk 1L', price: '1.20', zone: 'Dairy', articleId: 'd2002', labelId: '03793F04B297', shelf: 'C-2', category1: 'Food', category2: 'Dairy', category3: 'Milk', etc0: 'Dairy', etc1: 'Milk', etc2: 'Whole' },
-      { productId: 'L4_p3003', name: 'Gala Apples 1kg', price: '3.10', zone: 'Produce', articleId: 'p3003', labelId: '03793F04B298', shelf: 'D-1', category1: 'Food', category2: 'Produce', category3: 'Fruit', etc0: 'Produce', etc1: 'Fruit', etc2: 'Apple' },
-    ];
-  }
 }

@@ -17,10 +17,10 @@ import type { ThemeTokens, HomeLayout, CardStyle, IntermediateStyle, ResultTempl
   standalone: true,
   imports: [CommonModule, FormsModule, ColorPickerComponent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonInput, IonProgressBar],
   styles: [`
-    .prev{border-radius:8px;overflow:hidden;height:96px;display:flex;flex-direction:column;margin-bottom:12px}
-    .prev .hdr{font-family:'Barlow Condensed';font-weight:900;color:#fff;font-size:13px;padding:5px 9px}
-    .prev .grid{flex:1;display:flex;padding:6px}
-    .prev .c{flex:1;margin:0 3px;border-radius:4px;display:flex;align-items:flex-end;padding:3px;font-size:9px;font-weight:800}
+    .prev{border-radius:8px;overflow:hidden;aspect-ratio:1920/540;width:100%;display:flex;flex-direction:column;margin-bottom:12px;border:1px solid var(--nt-border)}
+    .prev .hdr{font-family:'Barlow Condensed';font-weight:900;color:#fff;font-size:13px;padding:6px 10px;height:20%;display:flex;align-items:center}
+    .prev .grid{flex:1;display:flex;padding:8px}
+    .prev .c{flex:1;margin:0 4px;border-radius:4px;display:flex;align-items:flex-end;padding:5px;font-size:10px;font-weight:800}
     .step-title{font-size:15px;font-weight:800;color:#0F172A;margin:4px 0 10px}
     .opts{display:flex;flex-wrap:wrap}
     .opt{border:1.5px solid #E2E8F0;border-radius:8px;padding:8px 12px;margin:0 8px 8px 0;font-size:12px;cursor:pointer;background:#fff;color:#475569}
