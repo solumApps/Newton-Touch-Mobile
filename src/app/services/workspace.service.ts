@@ -39,7 +39,7 @@ export class WorkspaceService {
       const { value } = await Preferences.get({ key: KEY });
       this.ws = value ? { ...DEFAULT, ...JSON.parse(value) } : { ...DEFAULT };
     }
-    return this.ws;
+    return this.ws!;
   }
 
   async set(patch: Partial<Workspace>): Promise<void> {

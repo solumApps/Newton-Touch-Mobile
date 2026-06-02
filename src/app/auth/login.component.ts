@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonContent, IonButton, IonInput, IonItem } from '@ionic/angular/standalone';
@@ -7,7 +8,7 @@ import { SessionService } from '../services/session.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, IonContent, IonButton, IonInput, IonItem],
+  imports: [CommonModule, FormsModule, IonContent, IonButton, IonInput, IonItem],
   template: `
     <ion-content class="ion-padding">
       <div style="height:50px"></div>

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonInput, IonLabel, IonProgressBar } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonInput, IonProgressBar } from '@ionic/angular/standalone';
 import { ColorPickerComponent } from '../shared/color-picker.component';
 import { ThemeService, SavedTheme } from '../services/theme.service';
 import type { ThemeTokens, HomeLayout, CardStyle, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition } from '@contract/layout';
@@ -15,7 +15,7 @@ import type { ThemeTokens, HomeLayout, CardStyle, IntermediateStyle, ResultTempl
 @Component({
   selector: 'app-theme-wizard',
   standalone: true,
-  imports: [CommonModule, FormsModule, ColorPickerComponent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonInput, IonLabel, IonProgressBar],
+  imports: [CommonModule, FormsModule, ColorPickerComponent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonInput, IonProgressBar],
   styles: [`
     .prev{border-radius:8px;overflow:hidden;height:96px;display:flex;flex-direction:column;margin-bottom:12px}
     .prev .hdr{font-family:'Barlow Condensed';font-weight:900;color:#fff;font-size:13px;padding:5px 9px}

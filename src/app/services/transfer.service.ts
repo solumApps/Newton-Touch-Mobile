@@ -28,22 +28,22 @@ export class TransferService {
     if (!this.isNative) return;
     this.found$.next([]);
     const { LanTransfer } = await import('capacitor-lan-transfer');
-    this.listeners.push(await LanTransfer.addListener('deviceFound', (e: any) => {
+    this.listeners.push(await (LanTransfer as any).addListener('deviceFound', (e: any) => {
       const dev: FoundDevice = { name: e.name, host: e.host, port: e.port, deviceName: e.deviceName, storeId: e.storeId };
       const list = this.found$.value.filter((d) => d.name !== dev.name);
       list.push(dev);
       this.found$.next(list);
     }));
-    this.listeners.push(await LanTransfer.addListener('deviceLost', (e: any) => {
+    this.listeners.push(await (LanTransfer as any).addListener('deviceLost', (e: any) => {
       this.found$.next(this.found$.value.filter((d) => d.name !== e.name));
     }));
-    await LanTransfer.startDiscovery();
+    await (LanTransfer as any).startDiscovery();
   }
 
   async stopScan(): Promise<void> {
     if (!this.isNative) return;
     const { LanTransfer } = await import('capacitor-lan-transfer');
-    try { await LanTransfer.stopDiscovery(); } catch { /* */ }
+    try { await (LanTransfer as any).stopDiscovery(); } catch { /* */ }
     for (const l of this.listeners) { try { await l.remove(); } catch { /* */ } }
     this.listeners = [];
   }

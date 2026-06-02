@@ -21,6 +21,7 @@ export interface ApiProduct {
 
 export interface ApiCreds {
   serverUrl: string;     // e.g. https://stage00.common.solumesl.com
+  username?: string;     // SOLUM username (optional — not needed for token-based calls)
   token: string;         // Bearer access_token
   companyId: string;
   storeId: string;
