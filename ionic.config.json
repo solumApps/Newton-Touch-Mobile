@@ -1,0 +1,7 @@
+{
+  "name": "newtontouch-mobile",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
