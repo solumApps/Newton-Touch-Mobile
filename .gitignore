@@ -1,8 +1,44 @@
-node_modules/
-www/
-dist/
-out-tsc/
-android/app/build/
-ios/App/Pods/
+# Specifies intentionally untracked files to ignore when using Git
+# http://git-scm.com/docs/gitignore
+
+*~
+*.sw[mnpcod]
 *.log
+*.tmp
+*.tmp.*
+log.txt
+*.sublime-project
+*.sublime-workspace
+.vscode/
+npm-debug.log*
+yarn-error.log*
+
+.idea/
 .DS_Store
+.sourcemaps/
+.sass-cache/
+.tmp/
+.versions/
+coverage/
+dist/
+node_modules/
+typings/
+node/
+.angular/
+out-tsc/
+www/
+
+# Capacitor
+ios/App/Pods/
+ios/App/App.xcworkspace/xcuserdata/
+ios/App/App/xcuserdata/
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/.idea/
+android/.project
+android/app/.cxx/
+
+# Ionic
+.ionic/
