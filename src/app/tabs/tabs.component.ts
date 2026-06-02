@@ -1,0 +1,25 @@
+import { Component } from '@angular/core';
+import { IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { colorPaletteOutline, documentsOutline, tvOutline, settingsOutline } from 'ionicons/icons';
+
+@Component({
+  selector: 'app-tabs',
+  standalone: true,
+  imports: [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel],
+  template: `
+    <ion-tabs>
+      <ion-tab-bar slot="bottom">
+        <ion-tab-button tab="themes"><ion-icon name="color-palette-outline"></ion-icon><ion-label>Themes</ion-label></ion-tab-button>
+        <ion-tab-button tab="content"><ion-icon name="documents-outline"></ion-icon><ion-label>Content</ion-label></ion-tab-button>
+        <ion-tab-button tab="devices"><ion-icon name="tv-outline"></ion-icon><ion-label>Devices</ion-label></ion-tab-button>
+        <ion-tab-button tab="settings"><ion-icon name="settings-outline"></ion-icon><ion-label>Settings</ion-label></ion-tab-button>
+      </ion-tab-bar>
+    </ion-tabs>
+  `,
+})
+export class TabsComponent {
+  constructor() {
+    addIcons({ colorPaletteOutline, documentsOutline, tvOutline, settingsOutline });
+  }
+}

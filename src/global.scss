@@ -1,0 +1,13 @@
+@import "@ionic/angular/css/core.css";
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+:root {
+  --ion-color-primary: #2F006D;          /* SOLUM Blue */
+  --ion-color-primary-rgb: 47, 0, 109;
+  --nt-yellow: #FFCD00;
+  --ion-font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}

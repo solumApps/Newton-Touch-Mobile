@@ -1,0 +1,48 @@
+{
+  "name": "newtontouch-mobile",
+  "version": "1.0.0",
+  "description": "Newton Touch — mobile companion app (iOS/Android). Designs themes, creates content, deploys layout.json to LCD over LAN.",
+  "author": "SOLUM",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "sync": "npm run build && npx cap sync",
+    "open:android": "npx cap open android",
+    "open:ios": "npx cap open ios",
+    "lint": "ng lint"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "^20.0.0",
+    "@angular/common": "^20.0.0",
+    "@angular/compiler": "^20.0.0",
+    "@angular/core": "^20.0.0",
+    "@angular/forms": "^20.0.0",
+    "@angular/platform-browser": "^20.0.0",
+    "@angular/router": "^20.0.0",
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/filesystem": "^7.0.0",
+    "@capacitor/haptics": "^7.0.0",
+    "@capacitor/keyboard": "^7.0.0",
+    "@capacitor/preferences": "^7.0.0",
+    "@capacitor/splash-screen": "^7.0.0",
+    "@capacitor/status-bar": "^7.0.0",
+    "@ionic/angular": "^8.4.0",
+    "@ionic/storage-angular": "^4.0.0",
+    "capacitor-lan-transfer": "file:../../../capacitor-lan-transfer",
+    "ionicons": "^7.4.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^20.0.0",
+    "@angular/cli": "^20.0.0",
+    "@angular/compiler-cli": "^20.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@ionic/angular-toolkit": "^12.0.0",
+    "typescript": "~5.6.0"
+  }
+}
