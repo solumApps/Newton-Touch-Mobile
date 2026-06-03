@@ -8,7 +8,7 @@ import { ContentService, ContentDraft } from '../services/content.service';
 import { DeviceService } from '../services/device.service';
 import { TransferService, FoundDevice } from '../services/transfer.service';
 import { WorkspaceService } from '../services/workspace.service';
-import type { LayoutJson } from '@contract/layout';
+import type { LayoutJson, CardItem } from '@contract/layout';
 
 @Component({
   selector: 'app-deploy',
@@ -64,13 +64,45 @@ export class DeployComponent implements OnInit, OnDestroy {
     this.targetName = name; this.targetHost = host; this.targetPort = port;
   }
 
+  /** Pull every data-URI image out of the layout into a separate list, replacing it
+   *  with a small `ntimg:<id>` reference — so layout.json stays tiny and images are
+   *  sent + stored as files (no base64 bloat → no renderer OOM on the LCD). */
+  private externalizeImages(src: LayoutJson): { layout: LayoutJson; images: { id: string; data: string }[] } {
+    const layout: LayoutJson = JSON.parse(JSON.stringify(src));
+    const images: { id: string; data: string }[] = [];
+    let n = 0;
+    const take = (v?: string): string | undefined => {
+      if (v && v.startsWith('data:')) { const id = 'img_' + (n++); images.push({ id, data: v }); return 'ntimg:' + id; }
+      return v;
+    };
+    const cards = (arr?: CardItem[]) => arr?.forEach((c) => { c.image = take(c.image); if (c.children) cards(c.children); });
+    cards(layout.home); cards(layout.intermediate);
+    layout.result.mapImage = take(layout.result.mapImage);
+    layout.result.products?.forEach((p) => (p.image = take(p.image)));
+    if (layout.screensaver?.media) layout.screensaver.media = layout.screensaver.media.map((m) => take(m) || m);
+    return { layout, images };
+  }
+
   async deploy(): Promise<void> {
     if (!this.draft || !this.payload || !this.targetHost) return;
-    const text = JSON.stringify(this.payload);
 
     this.sending = true; this.percent = 0; this.doneMsg = '';
     try {
-      await this.transfer.send(this.targetHost, this.targetPort, text, (p) => (this.percent = p));
+      if (!this.transfer.isNative) {
+        // Browser dev (relay): no filesystem on the LCD → send the layout inline.
+        await this.transfer.send(this.targetHost, this.targetPort, JSON.stringify(this.payload), (p) => (this.percent = p));
+      } else {
+        // Device: send each image as its own file payload first, then the tiny layout.
+        const { layout, images } = this.externalizeImages(this.payload);
+        const total = images.length + 1;
+        for (let i = 0; i < images.length; i++) {
+          await this.transfer.send(this.targetHost, this.targetPort,
+            JSON.stringify({ kind: 'image', id: images[i].id, data: images[i].data }), () => {});
+          this.percent = Math.round(((i + 1) / total) * 90);
+        }
+        await this.transfer.send(this.targetHost, this.targetPort, JSON.stringify(layout),
+          (p) => (this.percent = 90 + Math.round(p * 0.1)));
+      }
       // Category / +ESL need the server config on the LCD for runtime LED blink.
       if (this.draft.appMode !== 'prototype') {
         const creds = await this.workspace.creds();
