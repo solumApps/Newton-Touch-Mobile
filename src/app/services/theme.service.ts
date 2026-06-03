@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
-import type { ThemeTokens, HomeLayout, CardStyle } from '@contract/layout';
+import type { ThemeTokens, HomeLayout, CardStyle, CardShape, CardContent, CardTextPos } from '@contract/layout';
 import { DEFAULT_FONT, FONTS } from '../shared/fonts';
 
 export interface SavedTheme {
@@ -28,7 +28,9 @@ export class ThemeService {
       accent: '#FFCD00',
       logoPosition: 'left',
       homeLayout: 'grid-2x3',
-      cardStyle: 'image-text',
+      cardShape: 'rect',
+      cardContent: 'image-text',
+      cardTextPos: 'overlay-bottom',
       showHeader: true,
       includeIntermediate: true,
       intermediateStyle: 'accordion',
@@ -44,14 +46,36 @@ export class ThemeService {
   /** Migrate legacy/partial saved themes to the current shape (called on read). */
   static normalize(t: any): ThemeTokens {
     const d = ThemeService.defaultTokens();
-    const legacy: Record<string, { homeLayout: HomeLayout; cardStyle: CardStyle }> = {
+    const legacyLayout: Record<string, { homeLayout: HomeLayout; cardStyle: CardStyle }> = {
       hexagonal: { homeLayout: 'grid-2x3', cardStyle: 'hexagon' },
       circular: { homeLayout: 'grid-2x2', cardStyle: 'circle' },
       'pill-row': { homeLayout: 'list', cardStyle: 'pill' },
     };
+    // Legacy single-axis cardStyle → independent shape/content/text-position.
+    const legacyCard: Record<string, { shape: CardShape; content: CardContent; pos: CardTextPos }> = {
+      'image-text': { shape: 'rect', content: 'image-text', pos: 'overlay-bottom' },
+      'text-rect': { shape: 'rect', content: 'text-only', pos: 'center' },
+      'pill': { shape: 'pill', content: 'text-only', pos: 'center' },
+      'hexagon': { shape: 'hexagon', content: 'text-only', pos: 'center' },
+      'image-only': { shape: 'rect', content: 'image-only', pos: 'overlay-bottom' },
+      'circle': { shape: 'circle', content: 'text-only', pos: 'center' },
+      'icon-text': { shape: 'rect', content: 'icon-text', pos: 'center' },
+      'color-block': { shape: 'rect', content: 'color-block', pos: 'center' },
+      'gradient': { shape: 'rect', content: 'gradient', pos: 'overlay-bottom' },
+      'list-row': { shape: 'rect', content: 'image-text', pos: 'overlay-bottom' },
+    };
     const out: ThemeTokens = { ...d, ...t };
-    const map = legacy[(t?.homeLayout) as string];
-    if (map) { out.homeLayout = map.homeLayout; out.cardStyle = t.cardStyle ?? map.cardStyle; }
+    const lm = legacyLayout[(t?.homeLayout) as string];
+    let legacyStyle: string | undefined = t?.cardStyle;
+    if (lm) { out.homeLayout = lm.homeLayout; legacyStyle = legacyStyle ?? lm.cardStyle; }
+    // Card axes: prefer new fields; else derive from legacy cardStyle; else defaults.
+    if (!t?.cardShape || !t?.cardContent) {
+      const c = legacyCard[legacyStyle ?? ''] ?? { shape: d.cardShape, content: d.cardContent, pos: d.cardTextPos };
+      out.cardShape = t?.cardShape ?? c.shape;
+      out.cardContent = t?.cardContent ?? c.content;
+      out.cardTextPos = t?.cardTextPos ?? c.pos;
+    }
+    delete (out as any).cardStyle;
     out.showHeader = t?.showHeader ?? true;
     out.intermediate = { ...d.intermediate, ...(t?.intermediate || {}), showHeader: t?.intermediate?.showHeader ?? true };
     out.result = { ...d.result, ...(t?.result || {}), showHeader: t?.result?.showHeader ?? true };
@@ -75,12 +99,12 @@ export class ThemeService {
     return [
       { id: 'pre_retail', name: 'Retail Dark', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#2F006D', background: 'linear-gradient(135deg,#2F006D,#001973)', cardBackground: 'rgba(255,255,255,0.15)', cardText: '#FFFFFF', accent: '#FFCD00',
-        homeLayout: 'grid-2x3', cardStyle: 'image-text', intermediateStyle: 'accordion', resultTemplate: 'map-list',
+        homeLayout: 'grid-2x3', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-bottom', intermediateStyle: 'accordion', resultTemplate: 'map-list',
         typography: { ...d.typography, fontFamily: font('inter') },
       }) },
       { id: 'pre_fresh', name: 'Fresh Market', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#0F7B3F', background: 'linear-gradient(135deg,#0F7B3F,#065F46)', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#84CC16',
-        logoPosition: 'center', homeLayout: 'hero-list', cardStyle: 'image-only', intermediateStyle: 'image-grid', resultTemplate: 'cards-map',
+        logoPosition: 'center', homeLayout: 'hero-list', cardShape: 'rect', cardContent: 'image-only', cardTextPos: 'overlay-bottom', intermediateStyle: 'image-grid', resultTemplate: 'cards-map',
         intermediate: { headerColor: '#065F46', background: '#ECFDF5', cardBackground: '#FFFFFF', cardText: '#064E3B', accent: '#84CC16', itemSize: 'large', showHeader: true },
         result: { headerColor: '#0F7B3F', background: '#F0FDF4', cardBackground: '#FFFFFF', cardText: '#064E3B', accent: '#16A34A', pathColor: '#16A34A', pathStyle: 'solid', showHeader: true },
         animation: { transition: 'scale-up', speed: 'normal', applyToAll: true }, loader: { style: 'dot-pulse', color: '#16A34A' },
@@ -88,7 +112,7 @@ export class ThemeService {
       }) },
       { id: 'pre_bakery', name: 'Warm Bakery', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#B45309', background: 'linear-gradient(135deg,#B45309,#78350F)', cardBackground: 'rgba(255,255,255,0.92)', cardText: '#451A03', accent: '#F59E0B',
-        homeLayout: 'grid-2x2', cardStyle: 'circle', intermediateStyle: 'circular', resultTemplate: 'split-panel',
+        homeLayout: 'grid-2x2', cardShape: 'circle', cardContent: 'image-text', cardTextPos: 'below', intermediateStyle: 'circular', resultTemplate: 'split-panel',
         intermediate: { headerColor: '#78350F', background: '#FFFBEB', cardBackground: '#FFF7E6', cardText: '#7C2D12', accent: '#F59E0B', itemSize: 'medium', showHeader: true },
         result: { headerColor: '#B45309', background: '#FFFBEB', cardBackground: '#FFFFFF', cardText: '#7C2D12', accent: '#EA580C', pathColor: '#EA580C', pathStyle: 'dotted', showHeader: true },
         animation: { transition: 'fade-slide', speed: 'slow', applyToAll: true }, loader: { style: 'logo', color: '#F59E0B' },
@@ -96,7 +120,7 @@ export class ThemeService {
       }) },
       { id: 'pre_minimal', name: 'Minimal Mono', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#0F172A', background: '#FFFFFF', cardBackground: '#F8FAFC', cardText: '#0F172A', accent: '#0F172A',
-        logoPosition: 'center', homeLayout: 'col-4', cardStyle: 'text-rect', includeIntermediate: false, intermediateStyle: 'scroll-list', resultTemplate: 'minimal',
+        logoPosition: 'center', homeLayout: 'col-4', cardShape: 'rect', cardContent: 'text-only', cardTextPos: 'center', includeIntermediate: false, intermediateStyle: 'scroll-list', resultTemplate: 'minimal',
         intermediate: { headerColor: '#0F172A', background: '#FFFFFF', cardBackground: '#F1F5F9', cardText: '#0F172A', accent: '#0F172A', itemSize: 'small', showHeader: true },
         result: { headerColor: '#0F172A', background: '#FFFFFF', cardBackground: '#F8FAFC', cardText: '#0F172A', accent: '#0F172A', pathColor: '#0F172A', pathStyle: 'solid', showHeader: true },
         animation: { transition: 'slide-left', speed: 'fast', applyToAll: true }, loader: { style: 'progress', color: '#0F172A' },
@@ -104,7 +128,7 @@ export class ThemeService {
       }) },
       { id: 'pre_vivid', name: 'Vivid Pop', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#DB2777', background: 'linear-gradient(135deg,#DB2777,#7C3AED)', cardBackground: 'rgba(255,255,255,0.18)', cardText: '#FFFFFF', accent: '#22D3EE',
-        homeLayout: 'list', cardStyle: 'pill', intermediateStyle: 'pill-tabs', resultTemplate: 'card-grid',
+        homeLayout: 'list', cardShape: 'pill', cardContent: 'text-only', cardTextPos: 'center', intermediateStyle: 'pill-tabs', resultTemplate: 'card-grid',
         intermediate: { headerColor: '#7C3AED', background: '#2E1065', cardBackground: 'rgba(255,255,255,0.12)', cardText: '#FFFFFF', accent: '#22D3EE', itemSize: 'medium', showHeader: true },
         result: { headerColor: '#DB2777', background: '#1E1B4B', cardBackground: 'rgba(255,255,255,0.10)', cardText: '#FFFFFF', accent: '#22D3EE', pathColor: '#22D3EE', pathStyle: 'animated', showHeader: true },
         animation: { transition: 'shimmer', speed: 'normal', applyToAll: true }, loader: { style: 'skeleton', color: '#22D3EE' },

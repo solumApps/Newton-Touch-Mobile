@@ -26,12 +26,14 @@ export class ThemesPage implements OnInit {
   store = '';
   msg = '';
   msgErr = false;
+  loading = true;
 
   constructor(private themes: ThemeService, private ws: WorkspaceService, private router: Router) {}
 
   async ngOnInit(): Promise<void> {
     this.predefined = ThemeService.predefined();
     this.mine = await this.themes.list();
+    this.loading = false;
     const w = await this.ws.get();
     this.company = w.companyName || '';
     this.store = w.storeName || '';

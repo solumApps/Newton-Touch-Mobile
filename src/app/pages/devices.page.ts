@@ -24,6 +24,8 @@ export class DevicesPage implements OnInit {
   newName = '';
   newIp = '';
   addMsg = '';
+  loading = true;
+  skel = [1, 2];
 
   constructor(private deviceSvc: DeviceService, private transfer: TransferService, private ws: WorkspaceService, private router: Router) {}
 
@@ -33,6 +35,7 @@ export class DevicesPage implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.devices = await this.deviceSvc.list();
+    this.loading = false;
     const w = await this.ws.get();
     this.company = w.companyName || '';
     this.store = w.storeName || '';

@@ -9,57 +9,120 @@
 
 <ion-content>
   <div class="scroll">
-    <!-- ===== Dynamic live preview (reflects every selection) ===== -->
-    <div class="prev" [ngClass]="'fit-'+t.typography.textFit" [style.background]="t.background"
-         [style.fontFamily]="t.typography.fontFamily" [style.--prev-scale]="scaleNum" [ngSwitch]="previewPage">
-      <div class="hdr" *ngIf="headerVisible" [ngClass]="'logo-'+t.logoPosition" [style.background]="headerColorFor()">
-        <img src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-        <span class="nt">Newton Touch</span>
-      </div>
-
-      <!-- HOME -->
-      <div *ngSwitchCase="'home'" class="stage layout-{{t.homeLayout}}">
-        <div class="card card-{{t.cardStyle}}" *ngFor="let n of slots; let i = index" [class.featured]="i===0"
-             [style.background]="cardBg()" [style.color]="t.cardText" [style.borderColor]="t.accent">
-          <div class="img" [style.background]="t.accent"></div>
-          <div class="meta"><span class="name">{{ labels[i] }}</span></div>
+    <!-- ===== Reusable mini-LCD preview for any page ===== -->
+    <ng-template #pageView let-page="page">
+      <div class="prev" [ngClass]="'fit-'+t.typography.textFit" [style.background]="t.background"
+           [style.fontFamily]="t.typography.fontFamily" [style.--prev-scale]="scaleNum" [ngSwitch]="page">
+        <div class="hdr" *ngIf="headerVisibleFor(page)" [ngClass]="'logo-'+t.logoPosition" [style.background]="headerColorForPage(page)">
+          <img src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+          <span class="nt">Newton Touch</span>
         </div>
-      </div>
 
-      <!-- INTERMEDIATE -->
-      <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}}">
-        <div class="item" *ngFor="let n of slots; let i = index" [class.open]="i===0"
-             [style.background]="i===0 ? t.intermediate.accent : t.intermediate.cardBackground"
-             [style.color]="t.intermediate.cardText">
-          <div class="img" [style.background]="t.intermediate.accent"></div>
-          <span class="name">{{ labels[i] }}</span>
+        <!-- HOME -->
+        <div *ngSwitchCase="'home'" class="stage layout-{{t.homeLayout}}" [class.shape]="shapeCard">
+          <div class="card shape-{{t.cardShape}} content-{{t.cardContent}} pos-{{t.cardTextPos}}" *ngFor="let n of slots; let i = index" [class.featured]="i===0"
+               [style.background]="cardBg()" [style.color]="t.cardText" [style.borderColor]="t.accent">
+            <div class="img" [style.background]="t.accent"></div>
+            <div class="meta"><span class="name">{{ labels[i] }}</span></div>
+          </div>
         </div>
-      </div>
 
-      <!-- RESULT -->
-      <div *ngSwitchCase="'result'" class="stage result res-{{t.resultTemplate}}">
-        <div class="map" [style.borderColor]="t.result.pathColor">
-          <div class="path path-{{t.result.pathStyle}}" [style.background]="t.result.pathColor" [style.borderColor]="t.result.pathColor"></div>
+        <!-- INTERMEDIATE -->
+        <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}}"
+             [style.--int-card]="t.intermediate.cardBackground" [style.--int-accent]="t.intermediate.accent" [style.--int-text]="t.intermediate.cardText">
+          <div class="item" *ngFor="let n of slots; let i = index" [class.open]="i===0">
+            <div class="img"></div>
+            <span class="name">{{ labels[i] }}</span>
+          </div>
         </div>
-        <div class="list">
-          <div class="prod" *ngFor="let n of [0,1,2]; let i = index" [class.found]="i===0"
-               [style.background]="t.result.cardBackground" [style.color]="t.result.cardText"
-               [style.borderColor]="i===0 ? t.result.accent : 'transparent'">
-            <span class="dot" [style.background]="t.result.accent"></span>Product
+
+        <!-- RESULT -->
+        <div *ngSwitchCase="'result'" class="stage result res-{{t.resultTemplate}}">
+          <div class="map" [style.borderColor]="t.result.pathColor">
+            <div class="path path-{{t.result.pathStyle}}" [style.background]="t.result.pathColor" [style.borderColor]="t.result.pathColor"></div>
+          </div>
+          <div class="list">
+            <div class="prod" *ngFor="let n of [0,1,2]; let i = index" [class.found]="i===0"
+                 [style.background]="t.result.cardBackground" [style.color]="t.result.cardText"
+                 [style.borderColor]="i===0 ? t.result.accent : 'transparent'">
+              <span class="dot" [style.background]="t.result.accent"></span>Product
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREENSAVER -->
+        <div *ngSwitchCase="'saver'" class="stage saver saver-{{saverMode}}">
+          <div class="ss-media">
+            <span class="ss-slide" [style.background]="t.headerColor"></span>
+            <span class="ss-slide" [style.background]="t.accent"></span>
+            <span class="ss-slide" [style.background]="t.background"></span>
+          </div>
+          <span class="ss-play" *ngIf="saverMode==='video'">▶</span>
+          <span class="ss-badge">{{ saverMode==='single-image' ? 'Single image' : saverMode==='video' ? 'Video' : 'Slideshow' }}</span>
+          <div class="ss-overlay"></div>
+          <div class="ss-c">
+            <img src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+            <div class="nt">Newton Touch</div>
+            <div class="cta">Touch screen to begin</div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="prev-cap">{{ previewPage === 'inter' ? 'Intermediate' : previewPage === 'result' ? 'Result' : 'Home' }} preview</div>
+    </ng-template>
+
+    <!-- top single preview (with one-shot transition+loader demo on the anim step) -->
+    <ng-container *ngIf="step.key !== 'review'; else reviewSlider">
+      <div class="prev-wrap" [class.demo]="step.key==='anim'"
+           [ngClass]="step.key==='anim' ? ('anim-'+t.animation.transition) : ''"
+           [class.playing]="demoMode==='transition'"
+           [style.--demo-ms]="demoMs + 'ms'">
+        <ng-container *ngTemplateOutlet="pageView; context: { page: previewPage }"></ng-container>
+        <div class="demo-loader" *ngIf="demoMode==='loader'">
+          <div class="ldr ldr-{{t.loader.style}}" [style.--ldr]="t.loader.color"></div>
+        </div>
+      </div>
+      <div class="prev-cap">{{ pageCaption(previewPage) }} preview</div>
+    </ng-container>
+
+    <!-- review: swipeable slider of all pages -->
+    <ng-template #reviewSlider>
+      <div class="slider" #sl (scroll)="onSlideScroll(sl)">
+        <div class="slide" *ngFor="let p of reviewPages">
+          <ng-container *ngTemplateOutlet="pageView; context: { page: p }"></ng-container>
+          <div class="slide-cap">{{ pageCaption(p) }}</div>
+        </div>
+      </div>
+      <div class="dots">
+        <span class="dot" *ngFor="let p of reviewPages; let i = index" [class.on]="activeSlide===i" (click)="goSlide(sl, i)"></span>
+      </div>
+    </ng-template>
 
     <!-- ===== Step body ===== -->
     <ng-container [ngSwitch]="step.key">
       <div *ngSwitchCase="'home'">
-        <div class="step-title">Home layout</div>
-        <p class="hint">How cards are <b>arranged</b> on screen. The shape/look of each card is set next.</p>
+        <div class="step-title">Home design</div>
+        <div class="step-title sm">Arrangement</div>
+        <p class="hint">How cards are laid out on screen.</p>
         <div class="tiles">
-          <button class="tile" *ngFor="let o of homeLayouts" [class.sel]="t.homeLayout===o" (click)="t.homeLayout=o">{{ o }}</button>
+          <button class="tile" *ngFor="let o of homeLayouts" [class.sel]="t.homeLayout===o" (click)="pickLayout(o)">{{ layoutLabels[o] }}</button>
         </div>
+
+        <div class="step-title sm">Card shape</div>
+        <div class="tiles">
+          <button class="tile" *ngFor="let s of cardShapes" [class.sel]="t.cardShape===s.id" (click)="t.cardShape=s.id">{{ s.label }}</button>
+        </div>
+
+        <div class="step-title sm">Card content</div>
+        <div class="tiles">
+          <button class="tile" *ngFor="let c of cardContents" [class.sel]="t.cardContent===c.id" (click)="t.cardContent=c.id">{{ c.label }}</button>
+        </div>
+
+        <ng-container *ngIf="showTextPos">
+          <div class="step-title sm">Text position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of cardTextPositions" [class.sel]="t.cardTextPos===p.id" (click)="t.cardTextPos=p.id">{{ p.label }}</button>
+          </div>
+        </ng-container>
+
         <div class="step-title sm">Header bar</div>
         <div class="seg">
           <button class="tile" [class.sel]="t.showHeader" (click)="t.showHeader=true">Show</button>
@@ -71,14 +134,6 @@
           <button class="tile" [class.sel]="!t.includeIntermediate" (click)="t.includeIntermediate=false">Skip → Result</button>
         </div>
         <p class="hint">Skip if the app doesn't drill down — a Home tap goes straight to Result.</p>
-      </div>
-
-      <div *ngSwitchCase="'card'">
-        <div class="step-title">Card style</div>
-        <p class="hint">How <b>each card looks</b> — its shape &amp; content (e.g. choose Hexagon/Circle/Pill here for that shape).</p>
-        <div class="tiles">
-          <button class="tile" *ngFor="let o of cardStyles" [class.sel]="t.cardStyle===o" (click)="t.cardStyle=o">{{ o }}</button>
-        </div>
       </div>
 
       <div *ngSwitchCase="'colors'">
@@ -152,13 +207,18 @@
 
       <div *ngSwitchCase="'anim'">
         <div class="step-title">Animations &amp; loader</div>
-        <div class="step-title sm">Page transition</div>
-        <div class="seg"><button class="tile" *ngFor="let o of transitions" [class.sel]="t.animation.transition===o" (click)="t.animation.transition=o">{{ o }}</button></div>
+        <div class="step-title sm">Page transition <button class="replay" (click)="replayTransition()">▶ Preview</button></div>
+        <div class="seg"><button class="tile" *ngFor="let o of transitions" [class.sel]="t.animation.transition===o" (click)="t.animation.transition=o; replayTransition()">{{ o }}</button></div>
         <div class="step-title sm">Speed</div>
-        <div class="seg"><button class="tile" *ngFor="let o of speeds" [class.sel]="t.animation.speed===o" (click)="t.animation.speed=o">{{ o }}</button></div>
-        <div class="step-title sm">Loader style</div>
-        <div class="seg"><button class="tile" *ngFor="let o of loaders" [class.sel]="t.loader.style===o" (click)="t.loader.style=o">{{ o }}</button></div>
-        <app-color-picker label="Loader color" [value]="t.loader.color" (valueChange)="t.loader.color=$event"></app-color-picker>
+        <div class="seg"><button class="tile" *ngFor="let o of speeds" [class.sel]="t.animation.speed===o" (click)="t.animation.speed=o; replayTransition()">{{ o }}</button></div>
+        <div class="step-title sm">Loader style <button class="replay" (click)="replayLoader()">▶ Preview</button></div>
+        <div class="tiles ldr-tiles">
+          <button class="tile ldr-tile" *ngFor="let o of loaders" [class.sel]="t.loader.style===o" (click)="t.loader.style=o; replayLoader()">
+            <span class="ldr ldr-{{o}}" [style.--ldr]="t.loader.color"></span>
+            <span class="ldr-lbl">{{ o }}</span>
+          </button>
+        </div>
+        <app-color-picker label="Loader color" [value]="t.loader.color" (valueChange)="t.loader.color=$event; replayLoader()"></app-color-picker>
       </div>
 
       <div *ngSwitchCase="'saver'">
@@ -173,7 +233,7 @@
           <input class="inp" [(ngModel)]="name" placeholder="e.g. Holiday Dark" /></div>
         <table class="sum">
           <tr><td>Home layout</td><td>{{ t.homeLayout }}</td></tr>
-          <tr><td>Card style</td><td>{{ t.cardStyle }}</td></tr>
+          <tr><td>Card</td><td>{{ t.cardShape }} · {{ t.cardContent }}</td></tr>
           <tr><td>Intermediate</td><td>{{ t.includeIntermediate ? t.intermediateStyle : 'Skipped (Home → Result)' }}</td></tr>
           <tr><td>Result</td><td>{{ t.resultTemplate }}</td></tr>
           <tr><td>Animation</td><td>{{ t.animation.transition }} · {{ t.animation.speed }}</td></tr>

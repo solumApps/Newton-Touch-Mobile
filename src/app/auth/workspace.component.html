@@ -9,7 +9,12 @@
     <h2>Select workspace</h2>
     <p class="lede">Choose the company and store this device manages.</p>
 
-    <div *ngIf="loading" class="center"><ion-spinner></ion-spinner></div>
+    <ng-container *ngIf="loading">
+      <div class="step">Step 1 · Select company</div>
+      <div class="skel skel-row"></div>
+      <div class="step">Step 2 · Select store</div>
+      <div class="skel skel-row"></div>
+    </ng-container>
     <p class="err" *ngIf="error">{{ error }}</p>
 
     <ng-container *ngIf="!loading && !error">

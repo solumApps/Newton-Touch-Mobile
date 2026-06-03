@@ -7,7 +7,9 @@
       <input placeholder="Search content" [value]="q" (input)="q=$any($event.target).value||''" />
     </div>
 
-    <ion-list class="slides" lines="none">
+    <div *ngIf="loading"><div class="skel skel-row" *ngFor="let s of skel"></div></div>
+
+    <ion-list class="slides" lines="none" *ngIf="!loading">
       <ion-item-sliding *ngFor="let c of filtered()">
         <ion-item button detail="false" (click)="open(c)">
           <div class="item">
@@ -30,7 +32,7 @@
       </ion-item-sliding>
     </ion-list>
 
-    <div *ngIf="!filtered().length" class="empty">No content yet — tap below to create.</div>
+    <div *ngIf="!filtered().length && !loading" class="empty">No content yet — tap below to create.</div>
   </div>
 </ion-content>
 

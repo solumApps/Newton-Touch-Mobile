@@ -38,7 +38,7 @@ export class ContentCreateComponent implements OnInit {
   }
 
   get themeOpts(): SelectOption[] {
-    return this.themes.map((t) => ({ value: t.id, label: t.name, sub: `${t.tokens.homeLayout} · ${t.tokens.cardStyle}` }));
+    return this.themes.map((t) => ({ value: t.id, label: t.name, sub: `${t.tokens.homeLayout} · ${t.tokens.cardShape} ${t.tokens.cardContent}` }));
   }
   get modeOpts(): SelectOption[] { return this.modes.map((m) => ({ value: m.id, label: m.nm, sub: m.ds })); }
   get selectedTheme(): SavedTheme | undefined { return this.themes.find((t) => t.id === this.themeId); }

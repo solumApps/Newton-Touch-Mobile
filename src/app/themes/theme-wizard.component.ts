@@ -6,9 +6,9 @@ import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, Ion
 import { ColorPickerComponent } from '../shared/color-picker.component';
 import { ThemeService, SavedTheme } from '../services/theme.service';
 import { FONTS } from '../shared/fonts';
-import type { ThemeTokens, HomeLayout, CardStyle, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit } from '@contract/layout';
+import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit } from '@contract/layout';
 
-type PreviewPage = 'home' | 'inter' | 'result';
+type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 interface Step { key: string; page: PreviewPage; }
 
 /** Visual theme wizard. Live preview re-renders the selected layout/card/intermediate/result
@@ -29,7 +29,6 @@ export class ThemeWizardComponent implements OnInit {
 
   private allSteps: Step[] = [
     { key: 'home', page: 'home' },
-    { key: 'card', page: 'home' },
     { key: 'colors', page: 'home' },
     { key: 'type', page: 'home' },
     { key: 'intStyle', page: 'inter' },
@@ -37,16 +36,33 @@ export class ThemeWizardComponent implements OnInit {
     { key: 'resTemplate', page: 'result' },
     { key: 'resColors', page: 'result' },
     { key: 'anim', page: 'home' },
-    { key: 'saver', page: 'home' },
+    { key: 'saver', page: 'saver' },
     { key: 'review', page: 'home' },
   ];
 
   slots = [0, 1, 2, 3, 4, 5];
   labels = ['Bakery', 'Dairy', 'Produce', 'Meat', 'Frozen', 'Drinks'];
 
-  /** Arrangement only — card SHAPE comes from cardStyle (next step). */
   homeLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-4', 'hero-list', 'list', 'fullscreen'];
-  cardStyles: CardStyle[] = ['image-text', 'text-rect', 'pill', 'hexagon', 'image-only', 'circle', 'icon-text', 'color-block', 'gradient', 'list-row'];
+  layoutLabels: Record<HomeLayout, string> = {
+    'grid-2x3': 'Grid (3×2)', 'grid-2x2': 'Grid (2×2)', 'col-4': '4 columns',
+    'hero-list': 'Hero + list', 'list': 'List rows', 'fullscreen': 'Fullscreen',
+  };
+  /** Independent card axes — any shape × any content × any text position. */
+  cardShapes: { id: CardShape; label: string }[] = [
+    { id: 'rect', label: 'Rectangle' }, { id: 'pill', label: 'Pill' }, { id: 'circle', label: 'Circle' }, { id: 'hexagon', label: 'Hexagon' },
+  ];
+  cardContents: { id: CardContent; label: string }[] = [
+    { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' }, { id: 'text-only', label: 'Text only' },
+    { id: 'icon-text', label: 'Icon + Text' }, { id: 'color-block', label: 'Colour block' }, { id: 'gradient', label: 'Gradient' },
+  ];
+  cardTextPositions: { id: CardTextPos; label: string }[] = [
+    { id: 'overlay-top', label: 'Overlay top' }, { id: 'overlay-bottom', label: 'Overlay bottom' }, { id: 'below', label: 'Below' }, { id: 'center', label: 'Centered' },
+  ];
+  /** Text-position control only matters when the card shows both an image/icon AND text. */
+  get showTextPos(): boolean { return this.t.cardContent === 'image-text' || this.t.cardContent === 'icon-text'; }
+
+  pickLayout(l: HomeLayout): void { this.t.homeLayout = l; }
   fonts = FONTS;
   textScales: TextScale[] = ['compact', 'normal', 'large'];
   textFits: { id: TextFit; label: string }[] = [
@@ -83,29 +99,70 @@ export class ThemeWizardComponent implements OnInit {
   get step(): Step { return this.visibleSteps[this.stepIndex] ?? this.visibleSteps[0]; }
   get previewPage(): PreviewPage { return this.step.page; }
 
-  /** color-block / gradient cards paint with the accent instead of card bg. */
+  /** color-block / gradient content paints with the accent instead of card bg. */
   cardBg(): string {
-    if (this.t.cardStyle === 'color-block') return this.t.accent;
-    if (this.t.cardStyle === 'gradient') return `linear-gradient(135deg, ${this.t.accent}, ${this.t.cardBackground})`;
+    if (this.t.cardContent === 'color-block') return this.t.accent;
+    if (this.t.cardContent === 'gradient') return `linear-gradient(135deg, ${this.t.accent}, ${this.t.cardBackground})`;
     return this.t.cardBackground;
   }
+  get shapeCard(): boolean { return this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon'; }
 
   get scaleNum(): number { return this.t.typography.textScale === 'compact' ? 0.9 : this.t.typography.textScale === 'large' ? 1.14 : 1; }
-  /** Header visible on the current preview page (respects the per-page toggle). */
-  get headerVisible(): boolean {
-    return this.previewPage === 'inter' ? this.t.intermediate.showHeader
-      : this.previewPage === 'result' ? this.t.result.showHeader
+
+  /** Header visibility per page (saver never shows a header). */
+  headerVisibleFor(page: PreviewPage): boolean {
+    return page === 'inter' ? this.t.intermediate.showHeader
+      : page === 'result' ? this.t.result.showHeader
+      : page === 'saver' ? false
       : this.t.showHeader;
   }
-
-  headerColorFor(): string {
-    return this.previewPage === 'inter' ? this.t.intermediate.headerColor
-      : this.previewPage === 'result' ? this.t.result.headerColor
+  headerColorForPage(page: PreviewPage): string {
+    return page === 'inter' ? this.t.intermediate.headerColor
+      : page === 'result' ? this.t.result.headerColor
       : this.t.headerColor;
   }
+  pageCaption(page: PreviewPage): string {
+    return page === 'inter' ? 'Intermediate' : page === 'result' ? 'Result' : page === 'saver' ? 'Screensaver' : 'Home';
+  }
 
-  next(): void { if (this.stepIndex < this.visibleSteps.length - 1) this.stepIndex++; }
-  prev(): void { if (this.stepIndex > 0) this.stepIndex--; }
+  /** Pages shown in the Review slider (skip Intermediate when disabled). */
+  get reviewPages(): PreviewPage[] {
+    return (['home', 'inter', 'result', 'saver'] as PreviewPage[]).filter((p) => p !== 'inter' || this.t.includeIntermediate);
+  }
+  activeSlide = 0;
+  onSlideScroll(el: HTMLElement): void {
+    const w = el.clientWidth || 1;
+    this.activeSlide = Math.round(el.scrollLeft / w);
+  }
+  goSlide(el: HTMLElement, i: number): void { el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' }); }
+
+  // ----- isolated demos (anim step): transition OR loader, never both -----
+  playId = 0;
+  demoMode: 'idle' | 'transition' | 'loader' = 'idle';
+  private demoTimer: any = null;
+  get demoMs(): number { return this.t.animation.speed === 'slow' ? 520 : this.t.animation.speed === 'fast' ? 180 : 320; }
+
+  /** Play ONLY the page-entry transition (at the current speed). */
+  replayTransition(): void {
+    if (this.demoTimer) clearTimeout(this.demoTimer);
+    this.demoMode = 'idle'; this.playId++;            // drop 'playing' to restart the CSS anim
+    this.demoTimer = setTimeout(() => { this.demoMode = 'transition'; this.playId++; }, 30);
+  }
+  /** Play ONLY the chosen loader animation for a moment. */
+  replayLoader(): void {
+    if (this.demoTimer) clearTimeout(this.demoTimer);
+    this.demoMode = 'loader'; this.playId++;
+    this.demoTimer = setTimeout(() => { this.demoMode = 'idle'; this.playId++; }, 1800);
+  }
+
+  next(): void {
+    if (this.stepIndex < this.visibleSteps.length - 1) this.stepIndex++;
+    if (this.step.key === 'anim') this.replayTransition();
+  }
+  prev(): void {
+    if (this.stepIndex > 0) this.stepIndex--;
+    if (this.step.key === 'anim') this.replayTransition();
+  }
 
   canSave(): boolean { return !!this.name.trim(); }
 

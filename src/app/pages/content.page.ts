@@ -18,18 +18,21 @@ export class ContentPage implements OnInit {
   drafts: ContentDraft[] = [];
   company = '';
   store = '';
+  loading = true;
 
   constructor(private content: ContentService, private ws: WorkspaceService, private router: Router) {}
 
   async ngOnInit(): Promise<void> {
     this.drafts = await this.content.list();
+    this.loading = false;
     const w = await this.ws.get();
     this.company = w.companyName || '';
     this.store = w.storeName || '';
   }
 
-  ionViewWillEnter(): void { this.content.list().then((d) => (this.drafts = d)); }
+  ionViewWillEnter(): void { this.content.list().then((d) => { this.drafts = d; this.loading = false; }); }
 
+  skel = [1, 2, 3];
   filtered(): ContentDraft[] {
     const q = this.q.toLowerCase();
     return q ? this.drafts.filter((d) => d.name.toLowerCase().includes(q)) : this.drafts;

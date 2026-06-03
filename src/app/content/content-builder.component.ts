@@ -26,6 +26,7 @@ export class ContentBuilderComponent implements OnInit {
   apiProducts: ApiProduct[] = [];
   selected = new Set<string>();
   fetchError = '';
+  fetching = false;
 
   fieldSourceOpts: SelectOption[] = [
     { value: 'category', label: 'Category fields', sub: 'category1–4' },
@@ -36,10 +37,10 @@ export class ContentBuilderComponent implements OnInit {
     { value: 'label', label: 'Label ID' },
   ];
 
-  /** Card styles that render an image → image upload is required per item. */
-  private static IMAGE_STYLES = ['image-text', 'image-only', 'circle'];
+  /** Card content that renders an image → image upload is required per item. */
   get needsImage(): boolean {
-    return !!this.draft && ContentBuilderComponent.IMAGE_STYLES.includes(this.draft.themeTokens.cardStyle);
+    const c = this.draft?.themeTokens.cardContent;
+    return c === 'image-text' || c === 'image-only';
   }
 
   constructor(private content: ContentService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router) {}
@@ -51,6 +52,7 @@ export class ContentBuilderComponent implements OnInit {
 
   async fetch(): Promise<void> {
     this.fetchError = '';
+    this.fetching = true;
     try {
       const creds = await this.workspace.creds();
       this.apiProducts = await this.categoryApi.fetchProducts(creds);
@@ -58,6 +60,8 @@ export class ContentBuilderComponent implements OnInit {
     } catch (e: any) {
       this.apiProducts = [];
       this.fetchError = e?.message || 'Fetch failed';
+    } finally {
+      this.fetching = false;
     }
   }
 

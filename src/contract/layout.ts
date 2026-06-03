@@ -14,9 +14,15 @@ export type HomeLayout =
 export type TextScale = 'compact' | 'normal' | 'large';
 export type TextFit = 'shrink' | 'wrap' | 'clip';
 
+/** LEGACY single-axis card style — kept only for migration of old saved themes. */
 export type CardStyle =
   | 'image-text' | 'text-rect' | 'pill' | 'hexagon' | 'image-only'
   | 'circle' | 'icon-text' | 'color-block' | 'gradient' | 'list-row';
+
+/** Card = independent Shape × Content × Text-position. */
+export type CardShape = 'rect' | 'pill' | 'circle' | 'hexagon';
+export type CardContent = 'image-text' | 'image-only' | 'text-only' | 'icon-text' | 'color-block' | 'gradient';
+export type CardTextPos = 'overlay-top' | 'overlay-bottom' | 'below' | 'center';
 
 export type IntermediateStyle =
   | 'accordion' | 'pill-tabs' | 'image-grid' | 'hex-grid'
@@ -40,7 +46,11 @@ export interface ThemeTokens {
   accent: string;
   logoPosition: LogoPosition;
   homeLayout: HomeLayout;
-  cardStyle: CardStyle;
+  /** @deprecated legacy single-axis style; superseded by cardShape/cardContent/cardTextPos. */
+  cardStyle?: CardStyle;
+  cardShape: CardShape;
+  cardContent: CardContent;
+  cardTextPos: CardTextPos;
   /** Show the top header/brand bar on the Home page. */
   showHeader: boolean;
   /** When false, the LCD goes Home → Result directly (no intermediate page). */

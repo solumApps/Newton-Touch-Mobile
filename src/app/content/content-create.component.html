@@ -18,7 +18,7 @@
     <!-- chosen theme mini-preview -->
     <div class="tprev" *ngIf="selectedTheme as st">
       <div class="sw" [style.background]="st.tokens.background"></div>
-      <div class="ds">{{ st.tokens.homeLayout }} · {{ st.tokens.cardStyle }} · {{ st.tokens.resultTemplate }}</div>
+      <div class="ds">{{ st.tokens.homeLayout }} · {{ st.tokens.cardShape }} {{ st.tokens.cardContent }} · {{ st.tokens.resultTemplate }}</div>
     </div>
 
     <app-select-field label="Step 2 · App mode" placeholder="Choose a mode"

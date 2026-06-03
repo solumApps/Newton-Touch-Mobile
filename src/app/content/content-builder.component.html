@@ -18,8 +18,11 @@
       <span>Category API</span>
       <button class="mini" (click)="fetch()">{{ apiProducts.length ? 'Re-fetch' : 'Fetch products' }}</button>
     </div>
-    <p class="note" *ngIf="!apiProducts.length && !fetchError">Pull products from the server (name, price, IDs come from API · images are uploaded).</p>
+    <p class="note" *ngIf="!apiProducts.length && !fetchError && !fetching">Pull products from the server (name, price, IDs come from API · images are uploaded).</p>
     <p class="note err" *ngIf="fetchError">{{ fetchError }}</p>
+    <div *ngIf="fetching">
+      <div class="skel skel-row" *ngFor="let s of [1,2,3,4,5]"></div>
+    </div>
 
     <ng-container *ngIf="apiProducts.length">
       <app-select-field label="Hierarchy fields" placeholder="Choose field source"
@@ -39,7 +42,7 @@
     <input class="inp" [(ngModel)]="c.name" placeholder="Card name" />
     <button class="del" (click)="d.home.splice(i,1)">✕</button>
   </div>
-  <p class="note" *ngIf="needsImage">Card style “{{ d.themeTokens.cardStyle }}” shows an image — tap 📷 to upload one per card.</p>
+  <p class="note" *ngIf="needsImage">This theme’s cards show an image — tap 📷 to upload one per card.</p>
 
   <!-- RESULT PRODUCTS -->
   <div class="sec"><span>Result products ({{ d.result.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>

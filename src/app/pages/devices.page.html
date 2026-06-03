@@ -26,7 +26,9 @@
       <p class="note err" *ngIf="addMsg">{{ addMsg }}</p>
     </div>
 
-    <ion-list class="slides" lines="none">
+    <div *ngIf="loading"><div class="skel skel-row" *ngFor="let s of skel"></div></div>
+
+    <ion-list class="slides" lines="none" *ngIf="!loading">
       <ion-item-sliding *ngFor="let d of filtered()">
         <ion-item>
           <div class="dev">
@@ -48,6 +50,6 @@
       </ion-item-sliding>
     </ion-list>
 
-    <div class="empty" *ngIf="!filtered().length">No saved devices yet. Deploy content or tap Scan.</div>
+    <div class="empty" *ngIf="!filtered().length && !loading">No saved devices yet. Deploy content or tap Scan.</div>
   </div>
 </ion-content>

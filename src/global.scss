@@ -93,3 +93,14 @@ ion-searchbar {
   --placeholder-color: var(--nt-muted); padding: 0 0 8px;
 }
 .btn-y:disabled, .btn-g:disabled, .btn-o:disabled { opacity: .45; }
+
+/* ===== Skeleton loading ===== */
+.skel { position: relative; overflow: hidden; background: #EEF1F5; border-radius: 8px; }
+.skel::after {
+  content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent);
+  animation: nt-skel 1.2s infinite;
+}
+@keyframes nt-skel { 100% { transform: translateX(100%); } }
+.skel-row { height: 56px; margin-bottom: 8px; }
+.skel-line { height: 12px; border-radius: 6px; }
