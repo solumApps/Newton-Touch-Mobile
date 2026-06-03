@@ -9,11 +9,11 @@ import { Injectable } from '@angular/core';
  */
 @Injectable({ providedIn: 'root' })
 export class ImagePickerService {
-  /** Max longest-edge px and JPEG quality — sharp on the 1920×540 LCD while keeping
-   *  each image to a few hundred KB. (The LCD receives in file mode, so total payload
-   *  size is no longer a crash risk — this only avoids needlessly huge images.) */
-  private static MAX_EDGE = 1280;
-  private static QUALITY = 0.82;
+  /** Max longest-edge px and JPEG quality. Tuned for the 1920×540 LCD: each card is
+   *  only ~600–720 px wide, and the renderer decodes every image to a full bitmap, so
+   *  bigger sources just waste the low-RAM signage device's memory (renderer OOM). */
+  private static MAX_EDGE = 720;
+  private static QUALITY = 0.74;
 
   async pick(accept = 'image/*'): Promise<string | null> {
     const raw = await this.readFile(accept);
