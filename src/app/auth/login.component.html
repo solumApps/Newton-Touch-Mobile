@@ -1,0 +1,38 @@
+<ion-content>
+  <div class="login">
+    <app-brand variant="dark" class="brand-center"></app-brand>
+
+    <div class="env-pill">
+      <span class="dot"></span>{{ envName }} · {{ envUrl }}
+      <button type="button" class="change" (click)="changeEnv()">Change</button>
+    </div>
+
+    <h2>Sign in</h2>
+    <p class="lede">Use your SOLUM account to continue.</p>
+
+    <form (ngSubmit)="signIn()">
+      <div class="field">
+        <label>Email or username</label>
+        <input class="inp" [class.bad]="touched && !validUser()" type="text" autocomplete="username"
+               [(ngModel)]="username" name="username" (blur)="touched=true" placeholder="you@company.com" />
+        <p class="err" *ngIf="touched && !validUser()">Enter your email or username.</p>
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <div class="inp-wrap" [class.bad]="touched && !password">
+          <input class="inp bare" [type]="showPw ? 'text' : 'password'" autocomplete="current-password"
+                 [(ngModel)]="password" name="password" (blur)="touched=true" placeholder="Enter password" />
+          <button type="button" class="eye" (click)="showPw=!showPw">{{ showPw ? '🙈' : '👁' }}</button>
+        </div>
+        <p class="err" *ngIf="touched && !password">Password is required.</p>
+      </div>
+
+      <p class="err center" *ngIf="error">{{ error }}</p>
+
+      <button class="btn-y" type="submit" [disabled]="!canSubmit() || loading">
+        {{ loading ? 'Signing in…' : 'Sign In' }}
+      </button>
+    </form>
+  </div>
+</ion-content>

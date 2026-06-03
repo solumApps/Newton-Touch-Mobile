@@ -1,0 +1,10 @@
+<div class="cp">
+  <div class="lbl">{{ label }}<span class="hint" *ngIf="hint"> — {{ hint }}</span></div>
+  <div class="row">
+    <button *ngFor="let c of presets" class="sw" [class.sel]="c===value" [style.background]="c" (click)="pick(c)"></button>
+    <label class="sw custom" title="Custom — color wheel + hex">🎨
+      <input type="color" [value]="toHex(value)" (input)="pick($any($event.target).value)" />
+    </label>
+  </div>
+  <div class="hex">#<input [ngModel]="strip(value)" (ngModelChange)="onHex($event)" maxlength="6" placeholder="2F006D" /></div>
+</div>

@@ -1,0 +1,47 @@
+<ion-header class="blank-header">
+  <ion-toolbar>
+    <ion-buttons slot="start" *ngIf="privateServerPage">
+      <ion-button (click)="privateServerPage=false">‹</ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end" *ngIf="!privateServerPage">
+      <ion-button (click)="privateServerPage=true">Private server</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="wrap">
+    <app-brand variant="dark" class="brand-center"></app-brand>
+
+    <div class="top-section">
+      <h2>{{ privateServerPage ? 'Private server' : 'Choose environment' }}</h2>
+      <p>{{ privateServerPage ? 'Enter your organisation\'s server URL.' : 'Select the SOLUM server to connect to. You can change this later in Settings.' }}</p>
+    </div>
+
+    <!-- Server list -->
+    <ng-container *ngIf="!privateServerPage">
+      <div class="list-label">Server list ({{ envs.length }})</div>
+      <button type="button" class="server-row" *ngFor="let name of envs"
+              [class.selected]="selected===name" (click)="pick(name)">
+        <div class="srv">
+          <div class="srv-name">{{ name }}</div>
+          <div class="srv-url">{{ servers[name] }}</div>
+        </div>
+        <span class="chev">›</span>
+      </button>
+    </ng-container>
+
+    <!-- Private / custom URL -->
+    <div class="private" *ngIf="privateServerPage">
+      <label class="fld-label">Server URL</label>
+      <input class="fld" [(ngModel)]="customUrl" placeholder="https://your-server.example.com" />
+      <p class="err" *ngIf="customTouched && !validCustom()">Enter a valid http(s) URL.</p>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer class="ft">
+  <button class="btn-y" [disabled]="!canContinue()" (click)="continue()">
+    {{ privateServerPage ? 'Connect' : 'Continue' }} →
+  </button>
+</ion-footer>

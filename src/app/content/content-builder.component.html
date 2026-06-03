@@ -1,0 +1,71 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-button (click)="back()">‹</ion-button></ion-buttons>
+    <ion-title>{{ draft?.name }}</ion-title>
+    <ion-buttons slot="end"><ion-button (click)="save()">Save</ion-button></ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" *ngIf="draft as d">
+  <div class="tband">
+    <div class="sw" [style.background]="d.themeTokens.background"></div>
+    <div><div class="nm">{{ d.themeName }}</div><div class="ds">{{ modeLabel }} · {{ d.themeTokens.homeLayout }}</div></div>
+  </div>
+
+  <!-- CATEGORY: fetch → select subset → build -->
+  <ng-container *ngIf="d.appMode === 'category'">
+    <div class="sec">
+      <span>Category API</span>
+      <button class="mini" (click)="fetch()">{{ apiProducts.length ? 'Re-fetch' : 'Fetch products' }}</button>
+    </div>
+    <p class="note" *ngIf="!apiProducts.length && !fetchError">Pull products from the server (name, price, IDs come from API · images are uploaded).</p>
+    <p class="note err" *ngIf="fetchError">{{ fetchError }}</p>
+
+    <ng-container *ngIf="apiProducts.length">
+      <app-select-field label="Hierarchy fields" placeholder="Choose field source"
+        [options]="fieldSourceOpts" [value]="d.fieldSource || ''" (valueChange)="d.fieldSource=$any($event)"></app-select-field>
+      <label class="pick" *ngFor="let p of apiProducts">
+        <input type="checkbox" [checked]="selected.has(p.productId)" (change)="toggle(p.productId)" />
+        <span class="pn">{{ p.name }}<span class="pm">{{ p.price }}<span *ngIf="p.zone"> · {{ p.zone }}</span> · {{ p.articleId }}</span></span>
+      </label>
+      <button class="btn-o" (click)="applySelection()">Use {{ selected.size }} selected → build pages</button>
+    </ng-container>
+  </ng-container>
+
+  <!-- HOME CARDS -->
+  <div class="sec"><span>Home cards ({{ d.home.length }})</span><button class="mini" (click)="addCard()">+ Add</button></div>
+  <div class="erow" *ngFor="let c of d.home; let i = index">
+    <div class="thumb" *ngIf="needsImage" [style.background-image]="c.image ? 'url('+c.image+')' : null" (click)="pickImage(c)">{{ c.image ? '' : '📷' }}</div>
+    <input class="inp" [(ngModel)]="c.name" placeholder="Card name" />
+    <button class="del" (click)="d.home.splice(i,1)">✕</button>
+  </div>
+  <p class="note" *ngIf="needsImage">Card style “{{ d.themeTokens.cardStyle }}” shows an image — tap 📷 to upload one per card.</p>
+
+  <!-- RESULT PRODUCTS -->
+  <div class="sec"><span>Result products ({{ d.result.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>
+  <div class="pcard" *ngFor="let p of d.result.products; let i = index">
+    <div class="erow">
+      <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>
+      <input class="inp" [(ngModel)]="p.name" placeholder="Product name" />
+      <button class="del" (click)="d.result.products.splice(i,1)">✕</button>
+    </div>
+    <div class="prow">
+      <input class="inp" [(ngModel)]="p.price" placeholder="Price" />
+      <input class="inp" [(ngModel)]="p.aisle" placeholder="Aisle" />
+      <input class="inp" [(ngModel)]="p.shelf" placeholder="Shelf" />
+    </div>
+    <input class="inp" *ngIf="d.appMode === 'prototype-esl'"
+      [ngModel]="eslId(p.id)" (ngModelChange)="setEslId(p.id, $event)"
+      [placeholder]="(d.eslBlinkBy || 'article') === 'article' ? 'Article ID' : 'Label ID'" />
+  </div>
+
+  <ng-container *ngIf="d.appMode === 'prototype-esl'">
+    <div class="sec"><span>ESL blink by</span></div>
+    <app-select-field placeholder="Blink by" [options]="eslByOpts"
+      [value]="d.eslBlinkBy || 'article'" (valueChange)="setEslBy($any($event))"></app-select-field>
+  </ng-container>
+</ion-content>
+
+<ion-footer class="foot" *ngIf="draft">
+  <button class="btn-y" (click)="saveAndDeploy()">Save &amp; Deploy →</button>
+</ion-footer>

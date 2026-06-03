@@ -1,0 +1,68 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-button (click)="back()">‹</ion-button></ion-buttons>
+    <ion-title>{{ theme?.name }}</ion-title>
+    <ion-buttons slot="end"><ion-button (click)="edit()">Edit</ion-button></ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="theme as th">
+  <div class="wrap">
+    <div class="note">Theme = visuals only. Attach data &amp; deploy in Content.</div>
+
+    <div class="thumbs">
+      <div class="t">
+        <div class="lcd" [style.background]="th.tokens.background">
+          <div class="hdr" [style.background]="th.tokens.headerColor">SOLUM</div>
+          <div class="area">
+            <div class="cell" [style.background]="th.tokens.cardBackground" [style.border]="'1px solid '+th.tokens.accent"></div>
+            <div class="cell" [style.background]="th.tokens.cardBackground"></div>
+            <div class="cell" [style.background]="th.tokens.cardBackground"></div>
+          </div>
+        </div><div class="cap">Home</div>
+      </div>
+      <div class="t" *ngIf="th.tokens.includeIntermediate">
+        <div class="lcd" [style.background]="th.tokens.intermediate.background">
+          <div class="hdr" [style.background]="th.tokens.intermediate.headerColor">Bakery ›</div>
+          <div class="area" style="flex-direction:column">
+            <div class="cell" style="margin:1.5px 0" [style.background]="th.tokens.accent"></div>
+            <div class="cell" style="margin:1.5px 0" [style.background]="th.tokens.intermediate.cardBackground"></div>
+          </div>
+        </div><div class="cap">Intermediate</div>
+      </div>
+      <div class="t">
+        <div class="lcd" [style.background]="th.tokens.result.background">
+          <div class="hdr" [style.background]="th.tokens.result.headerColor">Result</div>
+          <div class="area">
+            <div class="cell" [style.background]="th.tokens.result.cardBackground"></div>
+            <div class="cell" [style.background]="th.tokens.result.accent"></div>
+          </div>
+        </div><div class="cap">Result</div>
+      </div>
+    </div>
+
+    <table class="sum">
+      <tr><td>Home layout</td><td>{{ th.tokens.homeLayout }}</td></tr>
+      <tr><td>Card style</td><td>{{ th.tokens.cardStyle }}</td></tr>
+      <tr><td>Intermediate</td><td>{{ th.tokens.includeIntermediate ? th.tokens.intermediateStyle : 'Skipped (Home → Result)' }}</td></tr>
+      <tr><td>Result</td><td>{{ th.tokens.resultTemplate }}</td></tr>
+    </table>
+
+    <div class="sw">
+      <div class="s" [style.background]="th.tokens.headerColor"></div>
+      <div class="s" [style.background]="th.tokens.background"></div>
+      <div class="s" [style.background]="th.tokens.accent"></div>
+      <div class="s" [style.background]="th.tokens.cardText"></div>
+    </div>
+
+    <div class="foot">
+      <button class="btn-y" (click)="useInContent()">Use in Content →</button>
+      <div class="exp">
+        <button class="btn-o" (click)="edit()">Edit</button>
+        <button class="btn-o" (click)="download()">⬇ Export</button>
+        <button class="btn-o" (click)="copy()">⧉ Copy</button>
+      </div>
+      <div class="note" *ngIf="msg">{{ msg }}</div>
+    </div>
+  </div>
+</ion-content>

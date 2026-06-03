@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-button (click)="back()">‹</ion-button></ion-buttons>
+    <ion-title>Server Configuration</ion-title>
+    <ion-buttons slot="end"><ion-button strong="true" (click)="save()">Save</ion-button></ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" *ngIf="ws as w">
+  <p class="note">Credentials for Category mode. Company ID &amp; Store ID come from your workspace.</p>
+
+  <div class="section-label">Environment</div>
+  <div class="grp">
+    <label class="fld"><span>Server URL</span><input [(ngModel)]="w.serverUrl" placeholder="https://stage00.common.solumesl.com" /></label>
+    <label class="fld"><span>API username</span><input [(ngModel)]="w.username" /></label>
+    <label class="fld"><span>API token</span><input type="password" [(ngModel)]="w.token" /></label>
+  </div>
+
+  <div class="section-label">Workspace (auto)</div>
+  <div class="grp">
+    <label class="fld"><span>Company ID</span><input [(ngModel)]="w.companyId" /></label>
+    <label class="fld"><span>Store ID</span><input [(ngModel)]="w.storeId" /></label>
+  </div>
+
+  <button class="btn-o" (click)="test()">Test connection</button>
+  <p class="note" [class.ok]="testOk" [class.err]="!testOk && testMsg" *ngIf="testMsg">{{ testMsg }}</p>
+</ion-content>

@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar>
+    <div class="hd"><app-brand variant="light"></app-brand></div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="wrap">
+    <h2>Select workspace</h2>
+    <p class="lede">Choose the company and store this device manages.</p>
+
+    <div *ngIf="loading" class="center"><ion-spinner></ion-spinner></div>
+    <p class="err" *ngIf="error">{{ error }}</p>
+
+    <ng-container *ngIf="!loading && !error">
+      <div class="step">Step 1 · Select company</div>
+      <app-select-field placeholder="Choose a company" [options]="companyOpts"
+        [value]="companyId" (valueChange)="selectCompany($event)"></app-select-field>
+
+      <div class="step">Step 2 · Select store <span class="sp" *ngIf="loadingStores">· loading…</span></div>
+      <app-select-field placeholder="Choose a store" emptyText="No stores for this company"
+        [options]="storeOpts" [value]="storeId" (valueChange)="storeId=$event"
+        [disabled]="loadingStores || !companyId"></app-select-field>
+    </ng-container>
+  </div>
+</ion-content>
+
+<ion-footer class="ft">
+  <button class="btn-y" [disabled]="!companyId || !storeId" (click)="enter()">Enter →</button>
+</ion-footer>

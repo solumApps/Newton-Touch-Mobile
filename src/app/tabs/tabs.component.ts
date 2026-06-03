@@ -7,16 +7,8 @@ import { colorPaletteOutline, documentsOutline, tvOutline, settingsOutline } fro
   selector: 'app-tabs',
   standalone: true,
   imports: [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel],
-  template: `
-    <ion-tabs>
-      <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="themes"><ion-icon name="color-palette-outline"></ion-icon><ion-label>Themes</ion-label></ion-tab-button>
-        <ion-tab-button tab="content"><ion-icon name="documents-outline"></ion-icon><ion-label>Content</ion-label></ion-tab-button>
-        <ion-tab-button tab="devices"><ion-icon name="tv-outline"></ion-icon><ion-label>Devices</ion-label></ion-tab-button>
-        <ion-tab-button tab="settings"><ion-icon name="settings-outline"></ion-icon><ion-label>Settings</ion-label></ion-tab-button>
-      </ion-tab-bar>
-    </ion-tabs>
-  `,
+  templateUrl: './tabs.component.html',
+  styleUrls: ['./tabs.component.scss'],
 })
 export class TabsComponent {
   constructor() {

@@ -1,0 +1,6 @@
+{
+  "/solum-proxy/stage00": { "target": "https://stage00.common.solumesl.com", "secure": true, "changeOrigin": true, "pathRewrite": { "^/solum-proxy/stage00": "" } },
+  "/solum-proxy/kr": { "target": "https://kr.common.solumesl.com", "secure": true, "changeOrigin": true, "pathRewrite": { "^/solum-proxy/kr": "" } },
+  "/solum-proxy/eu": { "target": "https://eu.common.solumesl.com", "secure": true, "changeOrigin": true, "pathRewrite": { "^/solum-proxy/eu": "" } },
+  "/solum-proxy/us": { "target": "https://eastus.common.solumesl.com", "secure": true, "changeOrigin": true, "pathRewrite": { "^/solum-proxy/us": "" } }
+}

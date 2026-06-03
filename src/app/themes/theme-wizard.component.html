@@ -1,0 +1,158 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-button (click)="cancel()">Cancel</ion-button></ion-buttons>
+    <ion-title>{{ name || 'New Theme' }} · {{ stepIndex + 1 }}/{{ visibleSteps.length }}</ion-title>
+    <ion-buttons slot="end"><ion-button strong="true" [disabled]="!canSave()" (click)="save()">Save</ion-button></ion-buttons>
+  </ion-toolbar>
+  <ion-progress-bar [value]="(stepIndex + 1) / visibleSteps.length"></ion-progress-bar>
+</ion-header>
+
+<ion-content>
+  <div class="scroll">
+    <!-- ===== Dynamic live preview (reflects every selection) ===== -->
+    <div class="prev" [style.background]="t.background" [ngSwitch]="previewPage">
+      <div class="hdr" [ngClass]="'logo-'+t.logoPosition" [style.background]="headerColorFor()">
+        <img src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+        <span class="nt">Newton Touch</span>
+      </div>
+
+      <!-- HOME -->
+      <div *ngSwitchCase="'home'" class="stage layout-{{t.homeLayout}}">
+        <div class="card card-{{t.cardStyle}}" *ngFor="let n of slots; let i = index" [class.featured]="i===0"
+             [style.background]="cardBg()" [style.color]="t.cardText" [style.borderColor]="t.accent">
+          <div class="img" [style.background]="t.accent"></div>
+          <div class="meta"><span class="name">{{ labels[i] }}</span></div>
+        </div>
+      </div>
+
+      <!-- INTERMEDIATE -->
+      <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}}">
+        <div class="item" *ngFor="let n of slots; let i = index" [class.open]="i===0"
+             [style.background]="i===0 ? t.intermediate.accent : t.intermediate.cardBackground"
+             [style.color]="t.intermediate.cardText">
+          <div class="img" [style.background]="t.intermediate.accent"></div>
+          <span class="name">{{ labels[i] }}</span>
+        </div>
+      </div>
+
+      <!-- RESULT -->
+      <div *ngSwitchCase="'result'" class="stage result res-{{t.resultTemplate}}">
+        <div class="map" [style.borderColor]="t.result.pathColor">
+          <div class="path path-{{t.result.pathStyle}}" [style.background]="t.result.pathColor" [style.borderColor]="t.result.pathColor"></div>
+        </div>
+        <div class="list">
+          <div class="prod" *ngFor="let n of [0,1,2]; let i = index" [class.found]="i===0"
+               [style.background]="t.result.cardBackground" [style.color]="t.result.cardText"
+               [style.borderColor]="i===0 ? t.result.accent : 'transparent'">
+            <span class="dot" [style.background]="t.result.accent"></span>Product
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="prev-cap">{{ previewPage === 'inter' ? 'Intermediate' : previewPage === 'result' ? 'Result' : 'Home' }} preview</div>
+
+    <!-- ===== Step body ===== -->
+    <ng-container [ngSwitch]="step.key">
+      <div *ngSwitchCase="'home'">
+        <div class="step-title">Home layout</div>
+        <div class="tiles">
+          <button class="tile" *ngFor="let o of homeLayouts" [class.sel]="t.homeLayout===o" (click)="t.homeLayout=o">{{ o }}</button>
+        </div>
+        <div class="step-title sm">Intermediate page</div>
+        <div class="seg">
+          <button class="tile" [class.sel]="t.includeIntermediate" (click)="t.includeIntermediate=true">Include</button>
+          <button class="tile" [class.sel]="!t.includeIntermediate" (click)="t.includeIntermediate=false">Skip → Result</button>
+        </div>
+        <p class="hint">Skip if the app doesn't drill down — a Home tap goes straight to Result.</p>
+      </div>
+
+      <div *ngSwitchCase="'card'">
+        <div class="step-title">Card style</div>
+        <div class="tiles">
+          <button class="tile" *ngFor="let o of cardStyles" [class.sel]="t.cardStyle===o" (click)="t.cardStyle=o">{{ o }}</button>
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'colors'">
+        <div class="step-title">Colors &amp; branding</div>
+        <app-color-picker label="Header" hint="top bar" [value]="t.headerColor" (valueChange)="t.headerColor=$event"></app-color-picker>
+        <app-color-picker label="Card area background" [value]="t.background" (valueChange)="t.background=$event" [presets]="bgPresets"></app-color-picker>
+        <app-color-picker label="Card background" [value]="t.cardBackground" (valueChange)="t.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
+        <app-color-picker label="Card text" [value]="t.cardText" (valueChange)="t.cardText=$event" [presets]="textPresets"></app-color-picker>
+        <app-color-picker label="Accent / highlight" [value]="t.accent" (valueChange)="t.accent=$event"></app-color-picker>
+        <div class="step-title sm">Logo position</div>
+        <div class="seg"><button class="tile" *ngFor="let o of logoPositions" [class.sel]="t.logoPosition===o" (click)="t.logoPosition=o">{{ o }}</button></div>
+      </div>
+
+      <div *ngSwitchCase="'intStyle'">
+        <div class="step-title">Intermediate style</div>
+        <div class="tiles"><button class="tile" *ngFor="let o of intStyles" [class.sel]="t.intermediateStyle===o" (click)="t.intermediateStyle=o">{{ o }}</button></div>
+      </div>
+
+      <div *ngSwitchCase="'intColors'">
+        <div class="step-title">Intermediate colors</div>
+        <app-color-picker label="Header / breadcrumb" [value]="t.intermediate.headerColor" (valueChange)="t.intermediate.headerColor=$event"></app-color-picker>
+        <app-color-picker label="Page background" [value]="t.intermediate.background" (valueChange)="t.intermediate.background=$event" [presets]="bgPresets"></app-color-picker>
+        <app-color-picker label="Row / card background" [value]="t.intermediate.cardBackground" (valueChange)="t.intermediate.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
+        <app-color-picker label="Card text" [value]="t.intermediate.cardText" (valueChange)="t.intermediate.cardText=$event" [presets]="textPresets"></app-color-picker>
+        <app-color-picker label="Accent / active" [value]="t.intermediate.accent" (valueChange)="t.intermediate.accent=$event"></app-color-picker>
+        <div class="step-title sm">Sub-item size</div>
+        <div class="seg"><button class="tile" *ngFor="let o of sizes" [class.sel]="t.intermediate.itemSize===o" (click)="t.intermediate.itemSize=o">{{ o }}</button></div>
+      </div>
+
+      <div *ngSwitchCase="'resTemplate'">
+        <div class="step-title">Result template</div>
+        <div class="tiles"><button class="tile" *ngFor="let o of resultTemplates" [class.sel]="t.resultTemplate===o" (click)="t.resultTemplate=o">{{ o }}</button></div>
+      </div>
+
+      <div *ngSwitchCase="'resColors'">
+        <div class="step-title">Result colors &amp; path</div>
+        <app-color-picker label="Header" [value]="t.result.headerColor" (valueChange)="t.result.headerColor=$event"></app-color-picker>
+        <app-color-picker label="Page background" [value]="t.result.background" (valueChange)="t.result.background=$event" [presets]="bgPresets"></app-color-picker>
+        <app-color-picker label="Product card background" [value]="t.result.cardBackground" (valueChange)="t.result.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
+        <app-color-picker label="Card text" [value]="t.result.cardText" (valueChange)="t.result.cardText=$event" [presets]="textPresets"></app-color-picker>
+        <app-color-picker label="Accent / highlight" [value]="t.result.accent" (valueChange)="t.result.accent=$event"></app-color-picker>
+        <app-color-picker label="Path routing color" [value]="t.result.pathColor" (valueChange)="t.result.pathColor=$event"></app-color-picker>
+        <div class="step-title sm">Path style</div>
+        <div class="seg"><button class="tile" *ngFor="let o of pathStyles" [class.sel]="t.result.pathStyle===o" (click)="t.result.pathStyle=o">{{ o }}</button></div>
+      </div>
+
+      <div *ngSwitchCase="'anim'">
+        <div class="step-title">Animations &amp; loader</div>
+        <div class="step-title sm">Page transition</div>
+        <div class="seg"><button class="tile" *ngFor="let o of transitions" [class.sel]="t.animation.transition===o" (click)="t.animation.transition=o">{{ o }}</button></div>
+        <div class="step-title sm">Speed</div>
+        <div class="seg"><button class="tile" *ngFor="let o of speeds" [class.sel]="t.animation.speed===o" (click)="t.animation.speed=o">{{ o }}</button></div>
+        <div class="step-title sm">Loader style</div>
+        <div class="seg"><button class="tile" *ngFor="let o of loaders" [class.sel]="t.loader.style===o" (click)="t.loader.style=o">{{ o }}</button></div>
+        <app-color-picker label="Loader color" [value]="t.loader.color" (valueChange)="t.loader.color=$event"></app-color-picker>
+      </div>
+
+      <div *ngSwitchCase="'saver'">
+        <div class="step-title">Screensaver</div>
+        <p class="hint">Screensaver media is attached later in Content. The theme just notes the intended mode.</p>
+        <div class="seg"><button class="tile" *ngFor="let o of saverModes" [class.sel]="saverMode===o" (click)="saverMode=o">{{ o }}</button></div>
+      </div>
+
+      <div *ngSwitchCase="'review'">
+        <div class="step-title">Review &amp; save</div>
+        <div class="fld"><label>Theme name</label>
+          <input class="inp" [(ngModel)]="name" placeholder="e.g. Holiday Dark" /></div>
+        <table class="sum">
+          <tr><td>Home layout</td><td>{{ t.homeLayout }}</td></tr>
+          <tr><td>Card style</td><td>{{ t.cardStyle }}</td></tr>
+          <tr><td>Intermediate</td><td>{{ t.includeIntermediate ? t.intermediateStyle : 'Skipped (Home → Result)' }}</td></tr>
+          <tr><td>Result</td><td>{{ t.resultTemplate }}</td></tr>
+          <tr><td>Animation</td><td>{{ t.animation.transition }} · {{ t.animation.speed }}</td></tr>
+          <tr><td>Loader</td><td>{{ t.loader.style }}</td></tr>
+        </table>
+      </div>
+    </ng-container>
+
+    <div class="nav">
+      <button class="btn-o bk" [disabled]="stepIndex===0" (click)="prev()">‹ Back</button>
+      <button class="btn-y" *ngIf="stepIndex < visibleSteps.length - 1" (click)="next()">Next ›</button>
+      <button class="btn-y" *ngIf="stepIndex === visibleSteps.length - 1" [disabled]="!canSave()" (click)="save()">Save Theme</button>
+    </div>
+  </div>
+</ion-content>

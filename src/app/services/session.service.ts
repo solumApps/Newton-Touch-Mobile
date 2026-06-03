@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 import { CapacitorHttp } from '@capacitor/core';
-import { WorkspaceService } from './workspace.service';
+import { WorkspaceService, httpBase } from './workspace.service';
 
 export interface Session {
   token: string;
@@ -44,8 +44,8 @@ export class SessionService {
   /** Real SOLUM login: POST {base}/common/api/v2/token → store access/refresh token. */
   async signIn(username: string, password: string): Promise<void> {
     const w = await this.ws.get();
-    const base = w.serverUrl;
-    if (!base) throw new Error('No server selected');
+    if (!w.serverUrl) throw new Error('No server selected');
+    const base = httpBase(w.serverUrl);
     const res = await CapacitorHttp.post({
       url: `${base}/common/api/v2/token`,
       headers: { 'Content-Type': 'application/json' },

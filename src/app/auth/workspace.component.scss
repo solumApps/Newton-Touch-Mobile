@@ -1,0 +1,9 @@
+.hd { padding: 6px 14px; --brand-logo-h: 22px; --brand-sub-size: 11px; }
+.wrap { padding: 16px 20px; }
+h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 24px; color: var(--nt-text); margin: 6px 0 4px; }
+.lede { font-size: 13px; color: var(--nt-text-2); margin: 0 0 20px; }
+.step { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--nt-text-2); margin: 14px 0 8px; }
+.step .sp { color: var(--nt-muted); font-weight: 400; text-transform: none; }
+.center { text-align: center; padding: 30px; }
+.err { color: #DC2626; font-size: 13px; }
+.ft { padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid var(--nt-border); }

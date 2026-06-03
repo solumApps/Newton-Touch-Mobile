@@ -76,3 +76,20 @@ ion-button.cta-outline { --background: #fff; --color: #2F006D; --border-radius: 
 
 /* Flat cards (kill heavy ion-card shadow to match wireframe) */
 ion-card { box-shadow: none; border: 1px solid var(--nt-border); border-radius: 8px; margin: 8px 0; }
+
+/* ===== Header / page-title typography (consistent across pages) ===== */
+ion-title { font-weight: 700; }
+.page-title {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+  font-size: 22px; letter-spacing: .3px; color: var(--nt-text); margin: 4px 0 12px;
+}
+.section-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .6px; color: var(--nt-text-2); margin: 16px 0 8px;
+}
+/* Consistent searchbar look on list pages */
+ion-searchbar {
+  --background: var(--nt-surface); --border-radius: 10px; --box-shadow: none;
+  --placeholder-color: var(--nt-muted); padding: 0 0 8px;
+}
+.btn-y:disabled, .btn-g:disabled, .btn-o:disabled { opacity: .45; }

@@ -1,7 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
-import { CapacitorHttp } from '@capacitor/core';
+import { CapacitorHttp, Capacitor } from '@capacitor/core';
 import type { ApiCreds } from './category-api.service';
+
+/** Browser dev: route SOLUM calls through the Angular dev-proxy to dodge CORS.
+ *  On native (Android/iOS) CapacitorHttp bypasses CORS → use the real URL. */
+const WEB_PROXY: Record<string, string> = {
+  'https://stage00.common.solumesl.com': '/solum-proxy/stage00',
+  'https://kr.common.solumesl.com': '/solum-proxy/kr',
+  'https://eu.common.solumesl.com': '/solum-proxy/eu',
+  'https://eastus.common.solumesl.com': '/solum-proxy/us',
+};
+export function httpBase(serverUrl: string): string {
+  return Capacitor.getPlatform() === 'web' ? (WEB_PROXY[serverUrl] ?? serverUrl) : serverUrl;
+}
 
 export interface Company { id: string; name: string; }
 export interface Store { id: string; name: string; code: string; }
@@ -64,7 +76,7 @@ export class WorkspaceService {
   async login(companyId?: string): Promise<{ companies: Company[]; stores: Store[] }> {
     const w = await this.get();
     if (!w.serverUrl || !w.token) throw new Error('Not signed in');
-    const url = `${w.serverUrl}/common/api/v2/common/login` + (companyId ? `?company=${encodeURIComponent(companyId)}` : '');
+    const url = `${httpBase(w.serverUrl)}/common/api/v2/common/login` + (companyId ? `?company=${encodeURIComponent(companyId)}` : '');
     const res = await CapacitorHttp.post({ url, headers: { Authorization: `Bearer ${w.token}`, 'Content-Type': 'application/json' }, data: {} });
     let body: any = res.data ?? {};
     if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }

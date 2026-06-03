@@ -1,0 +1,11 @@
+<ion-header>
+  <ion-toolbar>
+    <div class="ph">
+      <app-brand variant="light" [sub]="true"></app-brand>
+      <div class="ws" *ngIf="company || store">
+        <div class="co">{{ company }}</div>
+        <div class="st" *ngIf="store">{{ store }}</div>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-header>

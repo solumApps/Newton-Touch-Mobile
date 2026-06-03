@@ -1,0 +1,35 @@
+<app-page-header [company]="company" [store]="store"></app-page-header>
+
+<ion-content>
+  <div class="wrap">
+    <div class="titlebar">
+      <div class="page-title">Devices</div>
+      <button class="scan" [class.on]="scanning" (click)="scan()">
+        <ion-spinner *ngIf="scanning" name="dots"></ion-spinner>
+        <span>{{ scanning ? 'Stop' : '🔍 Scan' }}</span>
+      </button>
+    </div>
+
+    <div class="srch">
+      <input placeholder="Search devices" [value]="q" (input)="q=$any($event.target).value||''" />
+    </div>
+
+    <p class="note" *ngIf="scanning">Searching the local network for SOLUM displays…</p>
+    <p class="note" *ngIf="!native">Live scan needs a device on Wi-Fi. In the browser, deploy by IP from Content.</p>
+
+    <div class="crd dev" *ngFor="let d of filtered()">
+      <div class="ic">🖥️</div>
+      <div class="meta">
+        <div class="nm">{{ d.name }}</div>
+        <div class="sub">{{ d.ip }}:{{ d.port }}</div>
+        <div class="sub2">
+          <span *ngIf="d.lastContentName">{{ d.lastContentName }} · {{ ago(d.lastDeployedAt) }}</span>
+          <span *ngIf="!d.lastContentName" class="muted">No content deployed</span>
+        </div>
+      </div>
+      <button class="push" (click)="push()">Push</button>
+    </div>
+
+    <div class="empty" *ngIf="!filtered().length">No saved devices yet. Deploy content or tap Scan.</div>
+  </div>
+</ion-content>

@@ -1,0 +1,17 @@
+.wrap { padding: 14px 16px 24px; }
+.note { font-size: 11px; color: var(--nt-muted); margin-bottom: 10px; }
+.thumbs { display: flex; gap: 8px; }
+.t { flex: 1; }
+.lcd { aspect-ratio: 1920/540; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--nt-border); }
+.lcd .hdr { height: 26%; font-family: 'Barlow Condensed'; font-weight: 900; color: #fff; font-size: 6px; display: flex; align-items: center; padding: 0 5px; }
+.lcd .area { flex: 1; display: flex; padding: 3px; }
+.cell { flex: 1; margin: 0 1.5px; border-radius: 2px; }
+.cap { font-size: 9px; color: var(--nt-text-2); text-align: center; margin-top: 4px; font-weight: 700; }
+.sum { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 16px; }
+.sum td { padding: 7px 0; border-top: 1px solid var(--nt-border); }
+.sum td:first-child { color: var(--nt-muted); width: 46%; }
+.sw { display: flex; gap: 6px; margin-top: 12px; }
+.sw .s { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--nt-border); }
+.foot { margin-top: 18px; }
+.exp { display: flex; gap: 8px; margin-top: 8px; }
+.exp button { flex: 1; }

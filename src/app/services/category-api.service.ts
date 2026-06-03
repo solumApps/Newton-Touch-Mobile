@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CapacitorHttp } from '@capacitor/core';
+import { httpBase } from './workspace.service';
 
 /**
  * A product flattened from the SOLUM Category API (`labelList[].articleList[]`).
@@ -33,7 +34,7 @@ export class CategoryApiService {
   async fetchProducts(creds?: ApiCreds, category1 = ''): Promise<ApiProduct[]> {
     if (creds?.serverUrl && creds.token) {
       try {
-        const url = `${creds.serverUrl}/common/api/v2/common/labels/category` +
+        const url = `${httpBase(creds.serverUrl)}/common/api/v2/common/labels/category` +
           `?company=${encodeURIComponent(creds.companyId)}&store=${encodeURIComponent(creds.storeId)}` +
           (category1 ? `&category1=${encodeURIComponent(category1)}` : '');
         const res = await CapacitorHttp.get({ url, headers: { Authorization: `Bearer ${creds.token}` } });

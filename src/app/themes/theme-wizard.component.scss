@@ -1,0 +1,173 @@
+.scroll { padding: 14px 16px 28px; }
+
+/* ===== Live preview frame (1920:540 LCD strip) ===== */
+.prev {
+  border-radius: 10px; overflow: hidden; aspect-ratio: 1920/540; width: 100%;
+  display: flex; flex-direction: column; border: 1px solid var(--nt-border);
+}
+.prev .hdr {
+  height: 22%; display: flex; align-items: center; padding: 0 10px;
+}
+.prev .hdr .logo { height: 52%; }
+.prev .hdr .nt { font-family: 'Inter', sans-serif; font-weight: 400; color: #fff; font-size: 8px; margin-left: 6px; letter-spacing: 1px; }
+.prev .hdr.logo-center { justify-content: center; }
+.prev .hdr.logo-right { justify-content: flex-end; }
+.prev .stage { flex: 1; padding: 5px; overflow: hidden; box-sizing: border-box; }
+.prev-cap { text-align: center; font-size: 10px; font-weight: 700; color: var(--nt-text-2); margin: 6px 0 14px; text-transform: uppercase; letter-spacing: .5px; }
+
+/* ----- card base (NO display/flex here — layout classes own that) ----- */
+.prev .stage .card {
+  box-sizing: border-box; border: 1.5px solid transparent; border-radius: 4px; overflow: hidden;
+  display: flex; flex-direction: column; min-width: 0;
+}
+.prev .stage .card .img { flex: 1; min-height: 0; opacity: .5; }
+.prev .stage .card .meta { padding: 1px 3px; }
+.prev .stage .card .name { font-size: 7px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+
+/* ===== HOME layouts — gap/space-distributed so rows NEVER overflow ===== */
+/* grids: distribute spare space as gaps; heights sized so all rows fit. */
+.prev .stage.layout-grid-2x3 { display: flex; flex-wrap: wrap; justify-content: space-between; align-content: space-between; }
+.prev .stage.layout-grid-2x3 .card { width: 32%; height: 48%; }
+.prev .stage.layout-grid-2x3 .card:nth-child(n+7) { display: none; }
+
+.prev .stage.layout-grid-2x2 { display: flex; flex-wrap: wrap; justify-content: space-between; align-content: space-between; }
+.prev .stage.layout-grid-2x2 .card { width: 48.5%; height: 48%; }
+.prev .stage.layout-grid-2x2 .card:nth-child(n+5) { display: none; }
+
+.prev .stage.layout-col-4 { display: flex; justify-content: space-between; }
+.prev .stage.layout-col-4 .card { width: 23.5%; height: 100%; }
+.prev .stage.layout-col-4 .card:nth-child(n+5) { display: none; }
+
+.prev .stage.layout-hero-list { display: flex; flex-wrap: wrap; align-content: space-between; justify-content: space-between; }
+.prev .stage.layout-hero-list .card.featured { flex: 0 0 100%; height: 56%; }
+.prev .stage.layout-hero-list .card:not(.featured) { flex: 0 0 32%; height: 38%; }
+.prev .stage.layout-hero-list .card:nth-child(n+5) { display: none; }
+
+.prev .stage.layout-pill-row { display: flex; flex-direction: column; justify-content: space-around; }
+.prev .stage.layout-pill-row .card { flex-direction: row; align-items: center; justify-content: center; border-radius: 999px; height: 20%; width: 100%; }
+.prev .stage.layout-pill-row .card .img { display: none; }
+.prev .stage.layout-pill-row .card:nth-child(n+5) { display: none; }
+
+.prev .stage.layout-fullscreen { display: flex; }
+.prev .stage.layout-fullscreen .card.featured { flex: 1; }
+.prev .stage.layout-fullscreen .card:not(.featured) { display: none; }
+
+.prev .stage.layout-circular { display: flex; align-items: center; justify-content: space-evenly; flex-wrap: wrap; align-content: center; }
+.prev .stage.layout-circular .card { width: 27%; height: 46%; border-radius: 50%; align-items: center; justify-content: center; }
+.prev .stage.layout-circular .card .img { width: 100%; height: 100%; border-radius: 50%; }
+.prev .stage.layout-circular .card:nth-child(n+6) { display: none; }
+
+.prev .stage.layout-hexagonal { display: flex; align-items: center; justify-content: space-evenly; flex-wrap: wrap; align-content: center; }
+.prev .stage.layout-hexagonal .card { width: 28%; height: 46%; clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); align-items: center; justify-content: center; }
+.prev .stage.layout-hexagonal .card:nth-child(n+7) { display: none; }
+
+/* ===== CARD style shape hints ===== */
+.prev .stage .card.card-image-only .meta { display: none; }
+.prev .stage .card.card-text-rect .img,
+.prev .stage .card.card-pill .img,
+.prev .stage .card.card-list-row .img,
+.prev .stage .card.card-icon-text .img,
+.prev .stage .card.card-color-block .img { display: none; }
+/* center the label for shaped / text-led styles so it never clips */
+.prev .stage .card.card-text-rect,
+.prev .stage .card.card-pill,
+.prev .stage .card.card-circle,
+.prev .stage .card.card-hexagon,
+.prev .stage .card.card-color-block,
+.prev .stage .card.card-icon-text { align-items: center; justify-content: center; }
+.prev .stage .card.card-text-rect .meta,
+.prev .stage .card.card-pill .meta,
+.prev .stage .card.card-circle .meta,
+.prev .stage .card.card-hexagon .meta,
+.prev .stage .card.card-color-block .meta,
+.prev .stage .card.card-icon-text .meta { text-align: center; width: 100%; }
+.prev .stage .card.card-pill { border-radius: 999px; }
+.prev .stage .card.card-circle { border-radius: 50%; }
+.prev .stage .card.card-hexagon { clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
+
+/* ===== INTERMEDIATE ===== */
+.prev .stage.int { display: flex; flex-direction: column; }
+.prev .stage.int .item { display: flex; align-items: center; flex: 1; margin: 1.5px; border-radius: 4px; padding: 0 5px; overflow: hidden; }
+.prev .stage.int .item .img { width: 14%; height: 70%; border-radius: 2px; opacity: .55; margin-right: 4px; }
+.prev .stage.int .item .name { font-size: 7px; font-weight: 700; white-space: nowrap; }
+.prev .stage.int.int-pill-tabs { flex-direction: row; align-items: flex-start; flex-wrap: wrap; align-content: flex-start; }
+.prev .stage.int.int-pill-tabs .item { flex: 0 0 auto; border-radius: 14px; padding: 2px 8px; height: 22%; }
+.prev .stage.int.int-pill-tabs .item .img { display: none; }
+.prev .stage.int.int-card-strip { flex-direction: row; }
+.prev .stage.int.int-image-grid, .prev .stage.int.int-hex-grid { flex-direction: row; flex-wrap: wrap; align-content: flex-start; }
+.prev .stage.int.int-image-grid .item, .prev .stage.int.int-hex-grid .item { flex: 0 0 31%; height: 46%; flex-direction: column; }
+.prev .stage.int.int-image-grid .item .img, .prev .stage.int.int-hex-grid .item .img { width: 100%; height: 50%; }
+.prev .stage.int.int-hex-grid .item { clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
+.prev .stage.int.int-circular { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; }
+.prev .stage.int.int-circular .item { flex: 0 0 26%; aspect-ratio: 1; border-radius: 50%; flex-direction: column; justify-content: center; }
+.prev .stage.int.int-circular .item .img { display: none; }
+/* accordion: first row expanded, rest collapsed strips */
+.prev .stage.int.int-accordion .item { flex: 0 0 18%; }
+.prev .stage.int.int-accordion .item.open { flex: 1 1 auto; align-items: flex-start; padding-top: 4px; }
+/* scroll-list: equal flat rows (all same height) */
+.prev .stage.int.int-scroll-list .item { flex: 0 0 15%; }
+/* fullscreen: first item fills, rest hidden */
+.prev .stage.int.int-fullscreen .item { display: none; }
+.prev .stage.int.int-fullscreen .item.open { display: flex; flex: 1; justify-content: center; }
+.prev .stage.int.int-fullscreen .item.open .img { display: none; }
+/* card-strip: horizontal cards */
+.prev .stage.int.int-card-strip .item { flex: 1; flex-direction: column; margin: 2px; }
+.prev .stage.int.int-card-strip .item .img { width: 100%; height: 55%; margin: 0 0 3px; }
+
+/* ===== RESULT ===== */
+.prev .stage.result { display: flex; gap: 4px; }
+.prev .stage.result .map { flex: 1; border: 1.5px dashed; border-radius: 4px; position: relative; }
+.prev .stage.result .map .path { position: absolute; left: 15%; top: 50%; width: 60%; height: 3px; border-radius: 2px; }
+.prev .stage.result .map .path.path-dotted { background: none !important; border-top: 3px dotted; height: 0; }
+.prev .stage.result .map .path.path-dashed { background: none !important; border-top: 3px dashed; height: 0; }
+.prev .stage.result .list { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.prev .stage.result .list .prod { display: flex; align-items: center; font-size: 7px; font-weight: 700; padding: 2px 5px; border-radius: 3px; border: 1.5px solid transparent; }
+.prev .stage.result .list .prod .dot { width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; flex-shrink: 0; }
+/* map-full: map only */
+.prev .stage.result.res-map-full .list { display: none; }
+/* list-only / minimal: no map, single column list */
+.prev .stage.result.res-list-only .map, .prev .stage.result.res-minimal .map { display: none; }
+/* dual-list: no map, two columns of products */
+.prev .stage.result.res-dual-list .map { display: none; }
+.prev .stage.result.res-dual-list .list { flex-direction: row; flex-wrap: wrap; align-content: flex-start; gap: 3px; }
+.prev .stage.result.res-dual-list .list .prod { flex: 0 0 48%; }
+/* split-panel: map on top, list row below */
+.prev .stage.result.res-split-panel { flex-direction: column; }
+.prev .stage.result.res-split-panel .map { flex: 0 0 48%; }
+.prev .stage.result.res-split-panel .list { flex-direction: row; flex-wrap: wrap; align-content: flex-start; gap: 3px; }
+.prev .stage.result.res-split-panel .list .prod { flex: 0 0 31%; }
+/* cards-map: product cards grid beside a smaller map */
+.prev .stage.result.res-cards-map .map { flex: 0 0 34%; }
+.prev .stage.result.res-cards-map .list { flex-direction: row; flex-wrap: wrap; align-content: flex-start; gap: 3px; }
+.prev .stage.result.res-cards-map .list .prod { flex: 0 0 48%; }
+/* card-grid: full grid of product cards */
+.prev .stage.result.res-card-grid .list { display: flex; flex-direction: row; flex-wrap: wrap; align-content: flex-start; gap: 3px; }
+.prev .stage.result.res-card-grid .list .prod { flex: 0 0 47%; }
+/* esl-focus: emphasized hero product (the found one) + map */
+.prev .stage.result.res-esl-focus .list .prod.found { flex: 0 0 auto; min-height: 40%; font-size: 9px; border-width: 2px; }
+
+/* ===== Step body ===== */
+.step-title { font-family: 'Barlow Condensed'; font-size: 18px; font-weight: 800; color: var(--nt-text); margin: 4px 0 10px; }
+.step-title.sm { font-size: 12px; font-family: 'Inter'; text-transform: uppercase; letter-spacing: .5px; color: var(--nt-text-2); margin-top: 16px; }
+.tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.seg { display: flex; flex-wrap: wrap; gap: 8px; }
+.tile {
+  border: 1.5px solid var(--nt-border); border-radius: 8px; padding: 11px 12px; font-size: 12px;
+  background: #fff; color: var(--nt-text-2); font-family: inherit; cursor: pointer; text-align: center; text-transform: capitalize;
+}
+.tile.sel { border-color: var(--nt-purple); background: var(--nt-tint); color: var(--nt-purple); font-weight: 700; }
+.hint { font-size: 11px; color: var(--nt-muted); margin-top: 8px; }
+
+.fld label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--nt-text-2); letter-spacing: .5px; margin-bottom: 6px; }
+.inp { width: 100%; border: 1.5px solid var(--nt-border); border-radius: 10px; padding: 12px 14px; font-size: 15px; font-family: inherit; outline: none; }
+.inp:focus { border-color: var(--nt-purple); }
+table.sum { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 14px; }
+table.sum td { padding: 7px 0; border-top: 1px solid var(--nt-border); }
+table.sum td:first-child { color: var(--nt-muted); width: 46%; }
+
+.nav {
+  position: sticky; bottom: 0;
+  display: flex; gap: 10px; margin: 18px -16px -28px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: #fff; border-top: 1px solid var(--nt-border);
+}
+.nav .bk { flex: 0 0 110px; }

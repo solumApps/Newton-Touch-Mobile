@@ -1,0 +1,46 @@
+<app-page-header [company]="ws?.companyName || ''" [store]="ws?.storeName || ''"></app-page-header>
+
+<ion-content>
+  <div class="wrap">
+    <div class="page-title">Settings</div>
+
+    <div class="acct">
+      <div class="ava">{{ initials }}</div>
+      <div class="who">
+        <div class="u">{{ session?.username || 'Not signed in' }}</div>
+        <div class="c">{{ ws?.companyName || '—' }}</div>
+      </div>
+    </div>
+
+    <div class="section-label">Workspace</div>
+    <div class="grp">
+      <button class="row" (click)="changeWorkspace()">
+        <span class="ico">🏢</span>
+        <span class="rl"><span class="t">Company</span><span class="s">{{ ws?.companyName }} ({{ ws?.companyId }})</span></span>
+        <span class="chev">›</span>
+      </button>
+      <button class="row" (click)="changeWorkspace()">
+        <span class="ico">🏬</span>
+        <span class="rl"><span class="t">Store</span><span class="s">{{ ws?.storeName }} ({{ ws?.storeId }})</span></span>
+        <span class="chev">›</span>
+      </button>
+    </div>
+
+    <div class="section-label">Environment</div>
+    <div class="grp">
+      <button class="row" (click)="changeEnv()">
+        <span class="ico">🌐</span>
+        <span class="rl"><span class="t">Server</span><span class="s">{{ ws?.environment }} · {{ ws?.serverUrl || 'not set' }}</span></span>
+        <span class="chev">›</span>
+      </button>
+      <button class="row" (click)="serverConfig()">
+        <span class="ico">🔑</span>
+        <span class="rl"><span class="t">Server / API credentials</span><span class="s">{{ ws?.token ? 'Configured' : 'Set token for Category mode' }}</span></span>
+        <span class="chev">›</span>
+      </button>
+    </div>
+
+    <button class="btn-o danger" (click)="signOut()">Sign Out</button>
+    <p class="ver">Newton Touch · v1.0.0</p>
+  </div>
+</ion-content>

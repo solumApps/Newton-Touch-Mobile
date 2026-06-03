@@ -1,0 +1,26 @@
+.tband { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
+.tband .sw { width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0; }
+.tband .nm { font-size: 14px; font-weight: 700; color: var(--nt-text); }
+.tband .ds { font-size: 10px; color: var(--nt-muted); text-transform: uppercase; letter-spacing: .5px; }
+
+.sec { display: flex; align-items: center; justify-content: space-between; margin: 18px 0 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--nt-text-2); }
+.mini { border: 1.5px solid var(--nt-purple); color: var(--nt-purple); background: #fff; border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.note { font-size: 11px; color: var(--nt-muted); margin: 4px 0; }
+.note.err { color: #DC2626; }
+
+.pick { display: flex; align-items: center; gap: 10px; padding: 9px 4px; border-bottom: 1px solid var(--nt-border); }
+.pick input { width: 18px; height: 18px; }
+.pn { font-size: 13px; font-weight: 600; color: var(--nt-text); }
+.pm { display: block; font-size: 10px; color: var(--nt-muted); font-weight: 400; }
+
+.erow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.thumb { width: 42px; height: 42px; border-radius: 8px; border: 1.5px dashed #cbd5e1; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; flex-shrink: 0; }
+.inp { flex: 1; min-width: 0; border: 1.5px solid var(--nt-border); border-radius: 9px; padding: 11px 12px; font-size: 14px; font-family: inherit; outline: none; }
+.inp:focus { border-color: var(--nt-purple); }
+.del { border: none; background: none; color: var(--nt-muted); font-size: 15px; cursor: pointer; padding: 6px; }
+
+.pcard { border: 1px solid var(--nt-border); border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+.prow { display: flex; gap: 8px; margin-top: 8px; }
+
+.btn-o { margin-top: 6px; }
+.foot { padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid var(--nt-border); }

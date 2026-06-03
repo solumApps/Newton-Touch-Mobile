@@ -1,0 +1,13 @@
+.ph {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  --brand-logo-h: 20px;
+  --brand-sub-size: 10px;
+  --brand-sub-track: 2px;
+  --brand-sub-gap: 3px;
+}
+.ws { text-align: right; color: #fff; line-height: 1.15; }
+.ws .co { font-size: 14px; font-weight: 700; }
+.ws .st { font-size: 11px; font-weight: 400; color: rgba(255, 255, 255, 0.75); }

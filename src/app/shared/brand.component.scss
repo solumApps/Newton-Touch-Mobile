@@ -1,0 +1,19 @@
+.brand {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;      /* subtitle centers under the logo, like the LCD */
+  line-height: 1;
+}
+.brand img { height: var(--brand-logo-h, 26px); display: block; }
+.brand .sub {
+  /* match the LCD wordmark: Inter, proper case, wide tracking */
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 400;
+  font-size: var(--brand-sub-size, 13px);
+  letter-spacing: var(--brand-sub-track, 3px);
+  text-transform: none;          /* proper case: "Newton Touch" */
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: var(--brand-sub-gap, 5px);
+  white-space: nowrap;
+}
+.brand.dark .sub { color: var(--nt-text-2, #64748b); }

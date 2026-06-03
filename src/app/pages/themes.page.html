@@ -1,0 +1,50 @@
+<app-page-header [company]="company" [store]="store"></app-page-header>
+
+<ion-content>
+  <div class="wrap">
+    <div class="page-title">Themes</div>
+
+    <div class="srch">
+      <input placeholder="Search themes" [value]="q" (input)="q=$any($event.target).value||''" />
+      <button class="sort" (click)="cycleSort()">⇅ {{ sort }}</button>
+    </div>
+    <div class="chips">
+      <span class="chip" [class.act]="filter===f" *ngFor="let f of filters" (click)="filter=f">{{ f }}</span>
+    </div>
+
+    <div class="section-label">Predefined · swipe →</div>
+    <div class="hscroll">
+      <div class="thumb" *ngFor="let t of predefined" (click)="use(t)">
+        <div class="prev" [style.background]="t.tokens.background">
+          <div class="hd" [style.background]="t.tokens.headerColor"></div>
+          <div class="cells">
+            <div class="c" [style.background]="t.tokens.cardBackground" [style.border]="'1px solid '+t.tokens.accent"></div>
+            <div class="c" [style.background]="t.tokens.cardBackground"></div>
+            <div class="c" [style.background]="t.tokens.cardBackground"></div>
+          </div>
+        </div>
+        <div class="nm">{{ t.name }}</div>
+        <div class="ds">{{ t.tokens.homeLayout }} · {{ t.tokens.cardStyle }}</div>
+      </div>
+    </div>
+
+    <div class="section-label">My Themes ({{ filteredMine.length }})</div>
+    <div class="crd row" *ngFor="let t of filteredMine" (click)="use(t)">
+      <div class="sw" [style.background]="t.tokens.background"></div>
+      <div class="meta">
+        <div class="nm">{{ t.name }}</div>
+        <div class="ds">{{ t.tokens.homeLayout }} · {{ t.tokens.cardStyle }} · {{ t.tokens.resultTemplate }}</div>
+      </div>
+      <span class="chev">›</span>
+    </div>
+    <div *ngIf="!filteredMine.length" class="empty">No saved themes yet — create one below.</div>
+
+    <p class="msg" [class.err]="msgErr" *ngIf="msg">{{ msg }}</p>
+  </div>
+</ion-content>
+
+<ion-footer class="foot">
+  <button class="btn-y" (click)="createNew()">+ Create Theme</button>
+  <button class="btn-o imp" (click)="picker.click()">⬆ Import</button>
+  <input #picker type="file" accept=".solumtheme" hidden (change)="onImport($event)" />
+</ion-footer>

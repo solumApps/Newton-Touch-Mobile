@@ -1,0 +1,39 @@
+.blank-header ion-toolbar { --background: #ffffff; --color: var(--nt-text); }
+.wrap { padding: 8px 20px 24px; }
+.brand-center {
+  display: block; text-align: center; margin: 24px 0 8px;
+  --brand-logo-h: 30px;
+}
+:host ::ng-deep .brand-center .brand { align-items: center; }
+.top-section { margin: 18px 0 18px; }
+.top-section h2 {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+  font-size: 24px; color: var(--nt-text); margin: 0 0 4px;
+}
+.top-section p { font-size: 13px; color: var(--nt-text-2); margin: 0; line-height: 1.5; }
+
+.list-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; color: var(--nt-muted); margin-bottom: 8px;
+}
+.server-row {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  background: #fff; border: 1.5px solid var(--nt-border); border-radius: 10px;
+  padding: 14px; margin-bottom: 10px; font-family: inherit; cursor: pointer; text-align: left;
+}
+.server-row.selected { border-color: var(--nt-purple); background: var(--nt-tint); }
+.srv-name { font-size: 15px; font-weight: 700; color: var(--nt-text); }
+.srv-url { font-size: 11px; color: var(--nt-muted); margin-top: 2px; }
+.chev { color: var(--nt-purple); font-size: 22px; font-weight: 700; }
+
+.private { margin-top: 4px; }
+.fld-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--nt-text-2); letter-spacing: .5px; }
+.fld {
+  width: 100%; border: 1.5px solid var(--nt-border); border-radius: 10px;
+  padding: 13px 14px; font-size: 14px; font-family: inherit; margin-top: 6px; outline: none;
+}
+.fld:focus { border-color: var(--nt-purple); }
+.err { color: #DC2626; font-size: 12px; margin: 6px 0 0; }
+
+.ft ion-toolbar, .ft { --background: #fff; }
+.ft { padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid var(--nt-border); }

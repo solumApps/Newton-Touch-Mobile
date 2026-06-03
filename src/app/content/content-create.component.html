@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-button (click)="cancel()">Cancel</ion-button></ion-buttons>
+    <ion-title>New Content</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="wrap">
+    <div class="field">
+      <label>Content name</label>
+      <input class="inp" [(ngModel)]="name" placeholder="e.g. Holiday Campaign" />
+    </div>
+
+    <app-select-field label="Step 1 · Select theme" placeholder="Choose a theme"
+      [options]="themeOpts" [value]="themeId" (valueChange)="themeId=$event"></app-select-field>
+
+    <!-- chosen theme mini-preview -->
+    <div class="tprev" *ngIf="selectedTheme as st">
+      <div class="sw" [style.background]="st.tokens.background"></div>
+      <div class="ds">{{ st.tokens.homeLayout }} · {{ st.tokens.cardStyle }} · {{ st.tokens.resultTemplate }}</div>
+    </div>
+
+    <app-select-field label="Step 2 · App mode" placeholder="Choose a mode"
+      [options]="modeOpts" [value]="mode" (valueChange)="mode=$any($event)"></app-select-field>
+
+    <p class="hint" *ngIf="selectedMode">{{ selectedMode.ds }}</p>
+  </div>
+</ion-content>
+
+<ion-footer class="foot">
+  <button class="btn-y" [disabled]="!themeId || !mode" (click)="next()">
+    Continue to {{ mode === 'category' ? 'Fetch Products' : 'Builder' }} →
+  </button>
+</ion-footer>
