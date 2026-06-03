@@ -15,7 +15,7 @@ interface Step { key: string; page: PreviewPage; }
 @Component({
   selector: 'app-theme-wizard',
   standalone: true,
-  imports: [CommonModule, FormsModule, ColorPickerComponent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonProgressBar],
+  imports: [CommonModule, FormsModule, ColorPickerComponent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar],
   templateUrl: './theme-wizard.component.html',
   styleUrls: ['./theme-wizard.component.scss'],
 })
