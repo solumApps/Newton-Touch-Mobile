@@ -16,6 +16,8 @@ export interface ContentDraft {
   eslLinks?: EslLink[];
   eslBlinkBy?: EslBlinkBy;
   screensaver: Screensaver;
+  /** Per-deploy header text — fields shown depend on theme.headerStyle. */
+  header?: { title?: string; caption?: string };
   status: 'draft' | 'complete';
   deployedTo?: string;
   deployedAt?: number;
@@ -40,15 +42,21 @@ export class ContentService {
     await this.list();
     d.updatedAt = Date.now();
     const i = this.cache.findIndex((c) => c.id === d.id);
-    if (i >= 0) this.cache[i] = d; else this.cache.push(d);
-    await Preferences.set({ key: KEY, value: JSON.stringify(this.cache) });
+    // Replace cache reference (don't mutate in place) so list consumers see a new
+    // array identity and Angular re-renders without a manual refresh.
+    const next = [...this.cache];
+    if (i >= 0) next[i] = d; else next.push(d);
+    this.cache = next;
+    await Preferences.set({ key: KEY, value: JSON.stringify(next) });
   }
 
   /** Delete a content draft. */
   async remove(id: string): Promise<void> {
     await this.list();
-    this.cache = this.cache.filter((c) => c.id !== id);
-    await Preferences.set({ key: KEY, value: JSON.stringify(this.cache) });
+    // New array reference (not in-place mutation) so list consumers re-render.
+    const next = this.cache.filter((c) => c.id !== id);
+    this.cache = next;
+    await Preferences.set({ key: KEY, value: JSON.stringify(next) });
   }
 
   /** Compile a draft into the deployable layout.json (the contract LCD renders). */
@@ -63,6 +71,7 @@ export class ContentService {
       result: d.result,
       screensaver: d.screensaver,
     };
+    if (d.header && (d.header.title || d.header.caption)) payload.header = { ...d.header };
     if (d.appMode === 'prototype-esl') {
       payload.eslLinks = d.eslLinks ?? [];
       payload.eslBlinkBy = d.eslBlinkBy ?? 'article';

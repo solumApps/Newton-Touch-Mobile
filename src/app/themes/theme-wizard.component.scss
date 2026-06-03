@@ -2,6 +2,14 @@
 :host ::ng-deep ion-title { font-size: 16px; font-weight: 700; }
 .scroll { padding: 14px 16px 28px; }
 
+/* Sticky preview — preview stays pinned at top while the option list scrolls. */
+.scroll > .prev-wrap, .scroll > .slider {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--ion-background-color, #fff);
+  padding-top: 6px; padding-bottom: 4px;
+}
+.scroll > .prev-wrap .prev { max-height: 30vh; }
+
 /* ===== Live preview frame (1920:540 LCD strip) ===== */
 .prev {
   border-radius: 10px; overflow: hidden; aspect-ratio: 1920/540; width: 100%;
@@ -159,10 +167,17 @@
 .prev .stage .card.content-icon-text,
 .prev .stage .card.content-color-block,
 .prev .stage .card.content-gradient { align-items: center; justify-content: center; }
+/* icon-text: render a star glyph above the label so it's visibly different from text-only. */
+.prev .stage .card.content-icon-text .meta::before { content: '★'; display: block; font-size: calc(var(--prev-scale, 1) * 11px); line-height: 1; color: var(--prev-accent, #FFCD00); margin-bottom: 2px; }
 .prev .stage .card.content-text-only .meta,
 .prev .stage .card.content-icon-text .meta,
 .prev .stage .card.content-color-block .meta,
 .prev .stage .card.content-gradient .meta { text-align: center; width: 100%; }
+/* text-only vs color-block — match LCD rendering: minimal vs vivid full-bleed accent.
+   Inline styles in the template set background per-card; use !important to win. */
+.prev .stage .card.content-text-only .name { font-weight: 700; text-transform: none; letter-spacing: normal; }
+.prev .stage .card.content-color-block { background: var(--prev-accent, #FFCD00) !important; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
+.prev .stage .card.content-color-block .name { color: #111 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; }
 /* text position (image + text) — 'below' = default column flow (img top, label under) */
 .prev .stage .card.content-image-text.pos-overlay-bottom,
 .prev .stage .card.content-image-text.pos-overlay-top,
@@ -176,12 +191,18 @@
 
 /* Circle/Hexagon shapes → centred TRUE squares (any layout), never stretched. */
 .prev .stage.shape { display: flex !important; flex-wrap: wrap; align-items: center; align-content: center; justify-content: space-evenly; }
-.prev .stage.shape .card { flex: 0 0 auto !important; width: auto !important; height: 60% !important; aspect-ratio: 1; margin: 2px; position: relative; align-items: center !important; justify-content: center !important; }
+.prev .stage.shape .card { flex: 0 0 auto !important; width: auto !important; height: 72% !important; aspect-ratio: 1; margin: 2px; position: relative; align-items: center !important; justify-content: center !important; }
 .prev .stage.shape .card:nth-child(n+5) { display: none; }
 /* overlay/center label over the shape */
 .prev .stage.shape .card .img { position: absolute; inset: 0; width: 100%; height: 100%; }
-.prev .stage.shape .card .meta { position: relative; z-index: 1; padding: 0; width: 100%; }
-.prev .stage.shape .card .name { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.65); white-space: normal; text-align: center; }
+.prev .stage.shape .card .meta { position: relative; z-index: 1; padding: 0 4px; width: 100%; box-sizing: border-box; }
+/* Shape cards: single line, shrink-to-fit (no character-break). Long words ellipsis as last resort. */
+.prev .stage.shape .card .name { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.65); text-align: center;
+  font-size: calc(var(--prev-scale, 1) * 5px); line-height: 1.1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+/* Pill is wider than tall — same single-line rule with slightly larger font. */
+.prev .stage .layout-pill-row .card .name,
+.prev .stage .card.shape-pill .name { white-space: nowrap; font-size: calc(var(--prev-scale, 1) * 5.5px); overflow: hidden; text-overflow: ellipsis; }
 /* 'below' on a shape → shape clips only the IMAGE; label sits beneath (wine-circle look) */
 .prev .stage.shape .card.content-image-text.pos-below { clip-path: none !important; border-radius: 0 !important; flex-direction: column; }
 .prev .stage.shape .card.content-image-text.pos-below .img { position: static; flex: 1; width: 100%; }
@@ -207,8 +228,9 @@
 .prev .stage.int.int-image-grid .item .img { width: 100%; height: 50%; }
 /* hex-grid: square cells (sized by height) so hexagons keep their shape */
 .prev .stage.int.int-hex-grid { flex-direction: row; flex-wrap: wrap; align-items: center; align-content: center; justify-content: space-evenly; }
-.prev .stage.int.int-hex-grid .item { flex: 0 0 auto; width: auto; height: 42%; aspect-ratio: 1; flex-direction: column; justify-content: center; clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); }
+.prev .stage.int.int-hex-grid .item { flex: 0 0 auto; width: auto; height: 52%; aspect-ratio: 1; flex-direction: column; justify-content: center; clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); padding: 0 6px; }
 .prev .stage.int.int-hex-grid .item .img { display: none; }
+.prev .stage.int.int-hex-grid .item .name { font-size: 5.5px; line-height: 1.1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 /* circular: round cells sized to the strip height so they never overflow */
 .prev .stage.int.int-circular { flex-direction: row; flex-wrap: wrap; align-items: center; align-content: center; justify-content: space-evenly; }
 .prev .stage.int.int-circular .item { flex: 0 0 auto; width: auto; height: 72%; aspect-ratio: 1; border-radius: 50%; flex-direction: column; justify-content: center; }

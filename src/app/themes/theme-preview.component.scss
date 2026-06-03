@@ -1,6 +1,7 @@
 .wrap { padding: 14px 16px 24px; }
 .note { font-size: 11px; color: var(--nt-muted); margin-bottom: 10px; }
-.thumbs { display: flex; gap: 8px; }
+/* Keep the 3-page thumbnail strip pinned while the summary table scrolls. */
+.thumbs { display: flex; gap: 8px; position: sticky; top: 0; z-index: 5; background: var(--ion-background-color, #fff); padding: 6px 0 8px; }
 .t { flex: 1; }
 .lcd { aspect-ratio: 1920/540; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--nt-border); }
 .lcd .hdr { height: 26%; font-family: 'Barlow Condensed'; font-weight: 900; color: #fff; font-size: 6px; display: flex; align-items: center; padding: 0 5px; }

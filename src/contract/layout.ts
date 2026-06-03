@@ -38,6 +38,9 @@ export type LoaderStyle = 'spinner' | 'dot-pulse' | 'progress' | 'logo' | 'skele
 export type ScreensaverMode = 'slideshow' | 'single-image' | 'video';
 export type EslBlinkBy = 'article' | 'label';
 
+/** Header composition. Selected in theme wizard; text fields filled in content-builder. */
+export type HeaderStyle = 'logo+title+caption' | 'logo-only' | 'title+caption' | 'title-only';
+
 export interface ThemeTokens {
   headerColor: string;
   background: string;          // solid | css gradient string
@@ -53,6 +56,8 @@ export interface ThemeTokens {
   cardTextPos: CardTextPos;
   /** Show the top header/brand bar on the Home page. */
   showHeader: boolean;
+  /** Header composition. Defaults to 'logo-only' for backward compat. */
+  headerStyle?: HeaderStyle;
   /** When false, the LCD goes Home → Result directly (no intermediate page). */
   includeIntermediate: boolean;
   intermediateStyle: IntermediateStyle;
@@ -113,6 +118,8 @@ export interface LayoutJson {
   /** Category mode only: which API field set drove the hierarchy. */
   fieldSource?: FieldSource;
   theme: ThemeTokens;
+  /** Per-deploy header text — fields shown depend on theme.headerStyle. */
+  header?: { title?: string; caption?: string; };
   home: CardItem[];
   intermediate: CardItem[];
   result: { mapImage?: string; products: ResultProduct[]; };

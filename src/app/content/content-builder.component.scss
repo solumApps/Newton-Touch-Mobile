@@ -1,4 +1,5 @@
-.tband { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
+/* Theme band — scrolls with content; the sticky element below is the live preview. */
+.tband { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; padding: 4px 0; }
 .tband .sw { width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0; }
 .tband .nm { font-size: 14px; font-weight: 700; color: var(--nt-text); }
 .tband .ds { font-size: 10px; color: var(--nt-muted); text-transform: uppercase; letter-spacing: .5px; }
@@ -15,6 +16,9 @@
 
 .erow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .thumb { width: 42px; height: 42px; border-radius: 8px; border: 1.5px dashed #cbd5e1; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; flex-shrink: 0; }
+/* Wide upload tile (e.g. Result map image) — full-width drop area, generous tap target. */
+.thumb.wide { width: 100%; height: auto; min-height: 130px; border-radius: 10px; border: 2px dashed var(--nt-border); background: var(--nt-tint, #F8F5FF); font-size: 13px; font-weight: 600; color: var(--nt-muted); flex-shrink: 1; }
+.thumb.wide[style*="url("] { background-color: transparent; border-style: solid; border-color: var(--nt-border); color: transparent; }
 .inp { flex: 1; min-width: 0; border: 1.5px solid var(--nt-border); border-radius: 9px; padding: 11px 12px; font-size: 14px; font-family: inherit; outline: none; }
 .inp:focus { border-color: var(--nt-purple); }
 .del { border: none; background: none; color: var(--nt-muted); font-size: 15px; cursor: pointer; padding: 6px; }
@@ -23,4 +27,17 @@
 .prow { display: flex; gap: 8px; margin-top: 8px; }
 
 .btn-o { margin-top: 6px; }
+
+/* Step-wizard chrome */
+.progress { height: 3px; background: rgba(0,0,0,.08); }
+.progress .bar { height: 100%; background: var(--nt-yellow, #FFCD00); transition: width .2s ease; }
+.step-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; color: var(--nt-text); margin: 6px 0 12px; }
+.preview-block { position: sticky; top: 0; z-index: 5; background: var(--ion-background-color, #fff); padding: 4px 0 6px; margin-bottom: 8px; }
+.preview-block app-content-preview-strip { display: block; max-height: 30vh; overflow: hidden; }
+
 .foot { padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid var(--nt-border); }
+/* Grid forces exact 50/50 split regardless of intrinsic button width / border math. */
+.foot .nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; box-sizing: border-box; }
+.foot .nav .btn-o,
+.foot .nav .btn-y { width: 100%; min-width: 0; padding: 12px 8px; box-sizing: border-box; margin: 0; }
+.foot .nav button[disabled] { opacity: .45; }

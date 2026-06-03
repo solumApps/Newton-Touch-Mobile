@@ -8,7 +8,12 @@ import { CategoryApiService, ApiProduct } from '../services/category-api.service
 import { WorkspaceService } from '../services/workspace.service';
 import { ImagePickerService } from '../services/image-picker.service';
 import { SelectFieldComponent, SelectOption } from '../shared/select-field.component';
+import { CardTreeEditorComponent } from './card-tree-editor.component';
+import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
 import type { ResultProduct, CardItem } from '@contract/layout';
+
+type StepKey = 'home' | 'inter' | 'result' | 'saver' | 'review';
+interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' | 'saver'; }
 
 /**
  * Prototype / Prototype+ESL data entry + Category fetch/map. Add/remove home cards &
@@ -17,7 +22,7 @@ import type { ResultProduct, CardItem } from '@contract/layout';
 @Component({
   selector: 'app-content-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, SelectFieldComponent],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, SelectFieldComponent, CardTreeEditorComponent, ContentPreviewStripComponent],
   templateUrl: './content-builder.component.html',
   styleUrls: ['./content-builder.component.scss'],
 })
@@ -27,6 +32,27 @@ export class ContentBuilderComponent implements OnInit {
   selected = new Set<string>();
   fetchError = '';
   fetching = false;
+  stepIndex = 0;
+
+  private allSteps: Step[] = [
+    { key: 'home',   label: 'Home',         page: 'home' },
+    { key: 'inter',  label: 'Intermediate', page: 'inter' },
+    { key: 'result', label: 'Result',       page: 'result' },
+    { key: 'saver',  label: 'Screensaver',  page: 'saver' },
+    { key: 'review', label: 'Review',       page: 'home' },
+  ];
+
+  /** Skip the Intermediate step when the theme has includeIntermediate=false. */
+  get visibleSteps(): Step[] {
+    return this.allSteps.filter(s => s.key !== 'inter' || this.draft?.themeTokens.includeIntermediate !== false);
+  }
+  get step(): Step { return this.visibleSteps[this.stepIndex] || this.visibleSteps[0]; }
+  get isFirst(): boolean { return this.stepIndex <= 0; }
+  get isLast(): boolean { return this.stepIndex >= this.visibleSteps.length - 1; }
+  get progressPct(): number { return ((this.stepIndex + 1) / this.visibleSteps.length) * 100; }
+  next(): void { if (!this.isLast) { this.stepIndex++; this.save(); } }
+  prev(): void { if (!this.isFirst) this.stepIndex--; }
+  goto(i: number): void { if (i >= 0 && i < this.visibleSteps.length) this.stepIndex = i; }
 
   fieldSourceOpts: SelectOption[] = [
     { value: 'category', label: 'Category fields', sub: 'category1–4' },
@@ -41,6 +67,42 @@ export class ContentBuilderComponent implements OnInit {
   get needsImage(): boolean {
     const c = this.draft?.themeTokens.cardContent;
     return c === 'image-text' || c === 'image-only';
+  }
+
+  /** Intermediate styles that render an image per item — drives image upload UI. */
+  get intermediateNeedsImage(): boolean {
+    const s = this.draft?.themeTokens.intermediateStyle;
+    return s === 'image-grid' || s === 'circular' || s === 'card-strip' || s === 'fullscreen';
+  }
+
+  /** Show the flat intermediate editor only when the theme includes an intermediate page
+   *  AND the user hasn't built per-card children (free-form drill-down takes precedence). */
+  get showIntermediateEditor(): boolean {
+    if (!this.draft || this.draft.themeTokens.includeIntermediate === false) return false;
+    return !this.draft.home.some(c => c.children && c.children.length > 0);
+  }
+
+  /** Max drill-down depth: Category mode is API-bound (4 levels: category1–4 or etc0–3);
+   *  Prototype / Prototype-ESL are free-form, no cap. */
+  get maxDepth(): number { return this.draft?.appMode === 'category' ? 4 : Infinity; }
+
+  /** Result templates that render a map image — drives the map upload UI. */
+  get resultNeedsMap(): boolean {
+    const t = this.draft?.themeTokens.resultTemplate;
+    return t === 'map-list' || t === 'cards-map' || t === 'split-panel' || t === 'map-full';
+  }
+
+  /** Header style derived from the theme — determines which header text inputs to show. */
+  get headerStyle(): string { return this.draft?.themeTokens.headerStyle || 'logo-only'; }
+  get needsHeaderTitle(): boolean { return this.headerStyle !== 'logo-only'; }
+  get needsHeaderCaption(): boolean { return this.headerStyle === 'title+caption' || this.headerStyle === 'logo+title+caption'; }
+  get headerStyleLabel(): string {
+    const m: Record<string, string> = { 'logo-only': 'Logo only', 'title-only': 'Title only', 'title+caption': 'Title + Caption', 'logo+title+caption': 'Logo + Title + Caption' };
+    return m[this.headerStyle] || this.headerStyle;
+  }
+  setHeader(field: 'title' | 'caption', value: string): void {
+    if (!this.draft) return;
+    this.draft.header = { ...(this.draft.header || {}), [field]: value };
   }
 
   constructor(private content: ContentService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router) {}
@@ -91,6 +153,25 @@ export class ContentBuilderComponent implements OnInit {
 
   addCard(): void { this.draft!.home.push({ id: 'c' + Date.now(), name: '' }); }
   addProduct(): void { this.draft!.result.products.push({ id: 'p' + Date.now(), name: '' }); }
+  addIntermediate(): void { this.draft!.intermediate.push({ id: 'i' + Date.now(), name: '' }); }
+
+  /** Pick the result map background image. */
+  async pickMap(): Promise<void> {
+    const dataUrl = await this.picker.pick();
+    if (dataUrl) this.draft!.result.mapImage = dataUrl;
+  }
+
+  /** Append a screensaver media item (image or video frame). */
+  async addSaverMedia(): Promise<void> {
+    const dataUrl = await this.picker.pick();
+    if (!dataUrl) return;
+    this.draft!.screensaver.media = [...(this.draft!.screensaver.media || []), dataUrl];
+  }
+  removeSaverMedia(i: number): void {
+    const arr = this.draft!.screensaver.media || [];
+    arr.splice(i, 1);
+    this.draft!.screensaver.media = arr;
+  }
 
   eslId(productId: string): string {
     const link = this.draft!.eslLinks?.find((l) => l.productId === productId);

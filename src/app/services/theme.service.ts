@@ -32,6 +32,7 @@ export class ThemeService {
       cardContent: 'image-text',
       cardTextPos: 'overlay-bottom',
       showHeader: true,
+      headerStyle: 'logo-only',
       includeIntermediate: true,
       intermediateStyle: 'accordion',
       resultTemplate: 'map-list',
@@ -77,6 +78,7 @@ export class ThemeService {
     }
     delete (out as any).cardStyle;
     out.showHeader = t?.showHeader ?? true;
+    out.headerStyle = t?.headerStyle ?? 'logo-only';
     out.intermediate = { ...d.intermediate, ...(t?.intermediate || {}), showHeader: t?.intermediate?.showHeader ?? true };
     out.result = { ...d.result, ...(t?.result || {}), showHeader: t?.result?.showHeader ?? true };
     out.typography = { ...d.typography, ...(t?.typography || {}) };
@@ -152,17 +154,23 @@ export class ThemeService {
 
   async save(theme: SavedTheme): Promise<void> {
     await this.list();
-    const i = this.cache.findIndex((t) => t.id === theme.id);
     theme.updatedAt = Date.now();
-    if (i >= 0) this.cache[i] = theme; else this.cache.push(theme);
-    await Preferences.set({ key: KEY, value: JSON.stringify(this.cache) });
+    const i = this.cache.findIndex((t) => t.id === theme.id);
+    // Replace cache reference so consumers (e.g. themes.page) see a new identity
+    // and Angular CD picks it up — otherwise in-place mutation goes unnoticed.
+    const next = [...this.cache];
+    if (i >= 0) next[i] = theme; else next.push(theme);
+    this.cache = next;
+    await Preferences.set({ key: KEY, value: JSON.stringify(next) });
   }
 
   /** Delete a saved theme (predefined themes are read-only and cannot be deleted). */
   async remove(id: string): Promise<void> {
     await this.list();
-    this.cache = this.cache.filter((t) => t.id !== id);
-    await Preferences.set({ key: KEY, value: JSON.stringify(this.cache) });
+    // New array reference (not in-place mutation) so list consumers re-render.
+    const next = this.cache.filter((t) => t.id !== id);
+    this.cache = next;
+    await Preferences.set({ key: KEY, value: JSON.stringify(next) });
   }
 
   /** Editing a predefined theme creates a copy in My Themes. */

@@ -32,13 +32,23 @@ export class ContentCreateComponent implements OnInit {
   constructor(private themeSvc: ThemeService, private content: ContentService, private route: ActivatedRoute, private router: Router) {}
 
   async ngOnInit(): Promise<void> {
-    this.themes = [...ThemeService.predefined(), ...(await this.themeSvc.list())];
+    await this.refreshThemes();
     const pre = this.route.snapshot.queryParamMap.get('theme');
     if (pre && this.themes.some((t) => t.id === pre)) this.themeId = pre;
   }
+  /** Ionic page reuse: re-read user themes whenever this page becomes active so
+   *  freshly-saved themes show up without an app refresh. */
+  async ionViewWillEnter(): Promise<void> { await this.refreshThemes(); }
+
+  private async refreshThemes(): Promise<void> {
+    this.themes = [...ThemeService.predefined(), ...(await this.themeSvc.list())];
+  }
 
   get themeOpts(): SelectOption[] {
-    return this.themes.map((t) => ({ value: t.id, label: t.name, sub: `${t.tokens.homeLayout} · ${t.tokens.cardShape} ${t.tokens.cardContent}` }));
+    return this.themes.map((t) => {
+      const badge = t.predefined ? '★ Predefined' : '✎ My theme';
+      return { value: t.id, label: t.name, sub: `${badge} · ${t.tokens.homeLayout} · ${t.tokens.cardShape} ${t.tokens.cardContent}` };
+    });
   }
   get modeOpts(): SelectOption[] { return this.modes.map((m) => ({ value: m.id, label: m.nm, sub: m.ds })); }
   get selectedTheme(): SavedTheme | undefined { return this.themes.find((t) => t.id === this.themeId); }

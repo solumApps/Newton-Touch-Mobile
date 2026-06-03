@@ -6,7 +6,7 @@ import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, Ion
 import { ColorPickerComponent } from '../shared/color-picker.component';
 import { ThemeService, SavedTheme } from '../services/theme.service';
 import { FONTS } from '../shared/fonts';
-import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit } from '@contract/layout';
+import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, HeaderStyle } from '@contract/layout';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 interface Step { key: string; page: PreviewPage; }
@@ -74,6 +74,12 @@ export class ThemeWizardComponent implements OnInit {
   speeds: AnimSpeed[] = ['slow', 'normal', 'fast'];
   loaders: LoaderStyle[] = ['spinner', 'dot-pulse', 'progress', 'logo', 'skeleton'];
   logoPositions: LogoPosition[] = ['left', 'center', 'right'];
+  headerStyles: { id: HeaderStyle; label: string }[] = [
+    { id: 'logo-only', label: 'Logo only' },
+    { id: 'title-only', label: 'Title only' },
+    { id: 'title+caption', label: 'Title + Caption' },
+    { id: 'logo+title+caption', label: 'Logo + Title + Caption' },
+  ];
   sizes: Array<'small' | 'medium' | 'large'> = ['small', 'medium', 'large'];
   pathStyles: Array<'dashed' | 'solid' | 'dotted' | 'animated'> = ['dashed', 'solid', 'dotted', 'animated'];
   saverModes = ['slideshow', 'single-image', 'video'];
