@@ -2,7 +2,14 @@
 .srch { margin-bottom: 10px; }
 .srch input { width: 100%; border: 1.5px solid var(--nt-border); border-radius: 10px; padding: 10px 12px; font-size: 13px; font-family: inherit; outline: none; }
 .srch input:focus { border-color: var(--nt-purple); }
-.item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px; cursor: pointer; }
+.slides { background: transparent; }
+.slides ion-item-sliding { margin-bottom: 8px; }
+.slides ion-item {
+  --background: #fff; --border-radius: 8px; --padding-start: 12px; --inner-padding-end: 12px;
+  --min-height: 0; border: 1px solid var(--nt-border); border-radius: 8px;
+}
+.slides ion-item-option { font-weight: 700; }
+.item { display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 10px 0; }
 .item .sw { width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0; }
 .item .meta { flex: 1; min-width: 0; }
 .item .nm { font-size: 14px; font-weight: 700; color: var(--nt-text); }
@@ -10,7 +17,6 @@
 .chips { display: flex; gap: 5px; margin-top: 6px; }
 .chip.ok { background: #ECFDF5; color: #065F46; border-color: #A7F3D0; }
 .dep { font-size: 9px; color: var(--nt-muted); margin-top: 4px; }
-.item .chev { color: var(--nt-muted); font-size: 18px; align-self: center; }
-.del { border: none; background: none; font-size: 16px; cursor: pointer; padding: 4px 6px; align-self: center; opacity: .7; }
+.item .chev { color: var(--nt-muted); font-size: 10px; align-self: center; text-transform: uppercase; letter-spacing: .5px; }
 .empty { text-align: center; color: var(--nt-muted); font-size: 13px; padding: 28px; }
 .foot { padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid var(--nt-border); }

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { IonContent, IonFooter } from '@ionic/angular/standalone';
+import { IonContent, IonFooter, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/angular/standalone';
 import { ThemeService, SavedTheme } from '../services/theme.service';
 import { WorkspaceService } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
@@ -11,7 +11,7 @@ type Sort = 'Name' | 'Recent';
 @Component({
   selector: 'app-themes',
   standalone: true,
-  imports: [CommonModule, IonContent, IonFooter, PageHeaderComponent],
+  imports: [CommonModule, IonContent, IonFooter, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, PageHeaderComponent],
   templateUrl: './themes.page.html',
   styleUrls: ['./themes.page.scss'],
 })

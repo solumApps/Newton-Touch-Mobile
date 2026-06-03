@@ -7,20 +7,28 @@
       <input placeholder="Search content" [value]="q" (input)="q=$any($event.target).value||''" />
     </div>
 
-    <div class="crd item" *ngFor="let c of filtered()" (click)="open(c)">
-      <div class="sw" [style.background]="c.themeTokens.background || '#2F006D'"></div>
-      <div class="meta">
-        <div class="nm">{{ c.name }}</div>
-        <div class="th">Theme: {{ c.themeName }}</div>
-        <div class="chips">
-          <span class="chip act">{{ modeLabel(c.appMode) }}</span>
-          <span class="chip" [class.ok]="c.deployedTo">{{ c.deployedTo ? 'Deployed' : (c.status | titlecase) }}</span>
-        </div>
-        <div class="dep" *ngIf="c.deployedTo">→ {{ c.deployedTo }}</div>
-      </div>
-      <button class="del" title="Delete content" (click)="$event.stopPropagation(); del(c)">🗑</button>
-      <span class="chev">›</span>
-    </div>
+    <ion-list class="slides" lines="none">
+      <ion-item-sliding *ngFor="let c of filtered()">
+        <ion-item button detail="false" (click)="open(c)">
+          <div class="item">
+            <div class="sw" [style.background]="c.themeTokens.background || '#2F006D'"></div>
+            <div class="meta">
+              <div class="nm">{{ c.name }}</div>
+              <div class="th">Theme: {{ c.themeName }}</div>
+              <div class="chips">
+                <span class="chip act">{{ modeLabel(c.appMode) }}</span>
+                <span class="chip" [class.ok]="c.deployedTo">{{ c.deployedTo ? 'Deployed' : (c.status | titlecase) }}</span>
+              </div>
+              <div class="dep" *ngIf="c.deployedTo">→ {{ c.deployedTo }}</div>
+            </div>
+            <span class="chev">‹ swipe</span>
+          </div>
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="del(c)">Delete</ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
 
     <div *ngIf="!filtered().length" class="empty">No content yet — tap below to create.</div>
   </div>

@@ -26,19 +26,27 @@
       <p class="note err" *ngIf="addMsg">{{ addMsg }}</p>
     </div>
 
-    <div class="crd dev" *ngFor="let d of filtered()">
-      <div class="ic">🖥️</div>
-      <div class="meta">
-        <div class="nm">{{ d.name }}</div>
-        <div class="sub">{{ d.ip }}:{{ d.port }}</div>
-        <div class="sub2">
-          <span *ngIf="d.lastContentName">{{ d.lastContentName }} · {{ ago(d.lastDeployedAt) }}</span>
-          <span *ngIf="!d.lastContentName" class="muted">No content deployed</span>
-        </div>
-      </div>
-      <button class="push" (click)="push()">Push</button>
-      <button class="del" title="Remove device" (click)="del(d)">🗑</button>
-    </div>
+    <ion-list class="slides" lines="none">
+      <ion-item-sliding *ngFor="let d of filtered()">
+        <ion-item>
+          <div class="dev">
+            <div class="ic">🖥️</div>
+            <div class="meta">
+              <div class="nm">{{ d.name }}</div>
+              <div class="sub">{{ d.ip }}:{{ d.port }}</div>
+              <div class="sub2">
+                <span *ngIf="d.lastContentName">{{ d.lastContentName }} · {{ ago(d.lastDeployedAt) }}</span>
+                <span *ngIf="!d.lastContentName" class="muted">No content deployed</span>
+              </div>
+            </div>
+            <button class="push" (click)="push()">Push</button>
+          </div>
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="del(d)">Delete</ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
 
     <div class="empty" *ngIf="!filtered().length">No saved devices yet. Deploy content or tap Scan.</div>
   </div>

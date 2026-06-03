@@ -29,15 +29,23 @@
     </div>
 
     <div class="section-label">My Themes ({{ filteredMine.length }})</div>
-    <div class="crd row" *ngFor="let t of filteredMine" (click)="use(t)">
-      <div class="sw" [style.background]="t.tokens.background"></div>
-      <div class="meta">
-        <div class="nm">{{ t.name }}</div>
-        <div class="ds">{{ t.tokens.homeLayout }} · {{ t.tokens.cardStyle }} · {{ t.tokens.resultTemplate }}</div>
-      </div>
-      <button class="del" title="Delete theme" (click)="$event.stopPropagation(); del(t)">🗑</button>
-      <span class="chev">›</span>
-    </div>
+    <ion-list class="slides" lines="none">
+      <ion-item-sliding *ngFor="let t of filteredMine">
+        <ion-item button detail="false" (click)="use(t)">
+          <div class="row">
+            <div class="sw" [style.background]="t.tokens.background"></div>
+            <div class="meta">
+              <div class="nm">{{ t.name }}</div>
+              <div class="ds">{{ t.tokens.homeLayout }} · {{ t.tokens.cardStyle }} · {{ t.tokens.resultTemplate }}</div>
+            </div>
+            <span class="chev">‹ swipe</span>
+          </div>
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="del(t)">Delete</ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
     <div *ngIf="!filteredMine.length" class="empty">No saved themes yet — create one below.</div>
 
     <p class="msg" [class.err]="msgErr" *ngIf="msg">{{ msg }}</p>

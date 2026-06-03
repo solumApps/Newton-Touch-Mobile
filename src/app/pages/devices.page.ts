@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonContent, IonSpinner } from '@ionic/angular/standalone';
+import { IonContent, IonSpinner, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/angular/standalone';
 import { DeviceService, SavedDevice } from '../services/device.service';
 import { TransferService } from '../services/transfer.service';
 import { WorkspaceService } from '../services/workspace.service';
@@ -11,7 +11,7 @@ import { PageHeaderComponent } from '../shared/page-header.component';
 @Component({
   selector: 'app-devices',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonSpinner, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, IonContent, IonSpinner, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, PageHeaderComponent],
   templateUrl: './devices.page.html',
   styleUrls: ['./devices.page.scss'],
 })
