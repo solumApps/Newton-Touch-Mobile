@@ -7,9 +7,12 @@
 export type AppMode = 'category' | 'prototype' | 'prototype-esl';
 export type LogoPosition = 'left' | 'center' | 'right';
 
+/** Arrangement only — the SHAPE/look of each card is set by CardStyle. */
 export type HomeLayout =
-  | 'grid-2x3' | 'hero-list' | 'grid-2x2' | 'col-4'
-  | 'hexagonal' | 'circular' | 'pill-row' | 'fullscreen';
+  | 'grid-2x3' | 'grid-2x2' | 'col-4' | 'hero-list' | 'list' | 'fullscreen';
+
+export type TextScale = 'compact' | 'normal' | 'large';
+export type TextFit = 'shrink' | 'wrap' | 'clip';
 
 export type CardStyle =
   | 'image-text' | 'text-rect' | 'pill' | 'hexagon' | 'image-only'
@@ -38,14 +41,18 @@ export interface ThemeTokens {
   logoPosition: LogoPosition;
   homeLayout: HomeLayout;
   cardStyle: CardStyle;
+  /** Show the top header/brand bar on the Home page. */
+  showHeader: boolean;
   /** When false, the LCD goes Home → Result directly (no intermediate page). */
   includeIntermediate: boolean;
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
-  intermediate: { headerColor: string; background: string; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; };
-  result: { headerColor: string; background: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; };
+  intermediate: { headerColor: string; background: string; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; showHeader: boolean; };
+  result: { headerColor: string; background: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; };
   animation: { transition: TransitionType; speed: AnimSpeed; applyToAll: boolean; };
   loader: { style: LoaderStyle; color: string; };
+  /** Shared typography/appearance — applied consistently across ALL rendered pages. */
+  typography: { fontFamily: string; textScale: TextScale; textFit: TextFit; baseTextColor: string; };
 }
 
 export interface CardItem {

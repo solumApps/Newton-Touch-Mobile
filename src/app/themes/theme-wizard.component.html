@@ -10,8 +10,9 @@
 <ion-content>
   <div class="scroll">
     <!-- ===== Dynamic live preview (reflects every selection) ===== -->
-    <div class="prev" [style.background]="t.background" [ngSwitch]="previewPage">
-      <div class="hdr" [ngClass]="'logo-'+t.logoPosition" [style.background]="headerColorFor()">
+    <div class="prev" [ngClass]="'fit-'+t.typography.textFit" [style.background]="t.background"
+         [style.fontFamily]="t.typography.fontFamily" [style.--prev-scale]="scaleNum" [ngSwitch]="previewPage">
+      <div class="hdr" *ngIf="headerVisible" [ngClass]="'logo-'+t.logoPosition" [style.background]="headerColorFor()">
         <img src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
         <span class="nt">Newton Touch</span>
       </div>
@@ -55,8 +56,14 @@
     <ng-container [ngSwitch]="step.key">
       <div *ngSwitchCase="'home'">
         <div class="step-title">Home layout</div>
+        <p class="hint">How cards are <b>arranged</b> on screen. The shape/look of each card is set next.</p>
         <div class="tiles">
           <button class="tile" *ngFor="let o of homeLayouts" [class.sel]="t.homeLayout===o" (click)="t.homeLayout=o">{{ o }}</button>
+        </div>
+        <div class="step-title sm">Header bar</div>
+        <div class="seg">
+          <button class="tile" [class.sel]="t.showHeader" (click)="t.showHeader=true">Show</button>
+          <button class="tile" [class.sel]="!t.showHeader" (click)="t.showHeader=false">Hide</button>
         </div>
         <div class="step-title sm">Intermediate page</div>
         <div class="seg">
@@ -68,6 +75,7 @@
 
       <div *ngSwitchCase="'card'">
         <div class="step-title">Card style</div>
+        <p class="hint">How <b>each card looks</b> — its shape &amp; content (e.g. choose Hexagon/Circle/Pill here for that shape).</p>
         <div class="tiles">
           <button class="tile" *ngFor="let o of cardStyles" [class.sel]="t.cardStyle===o" (click)="t.cardStyle=o">{{ o }}</button>
         </div>
@@ -84,6 +92,21 @@
         <div class="seg"><button class="tile" *ngFor="let o of logoPositions" [class.sel]="t.logoPosition===o" (click)="t.logoPosition=o">{{ o }}</button></div>
       </div>
 
+      <div *ngSwitchCase="'type'">
+        <div class="step-title">Typography &amp; appearance</div>
+        <p class="hint">Applied consistently across every rendered page.</p>
+        <div class="step-title sm">Font</div>
+        <div class="tiles">
+          <button class="tile" *ngFor="let f of fonts" [class.sel]="t.typography.fontFamily===f.stack"
+                  [style.fontFamily]="f.stack" (click)="t.typography.fontFamily=f.stack">{{ f.label }}</button>
+        </div>
+        <div class="step-title sm">Text size</div>
+        <div class="seg"><button class="tile" *ngFor="let s of textScales" [class.sel]="t.typography.textScale===s" (click)="t.typography.textScale=s">{{ s }}</button></div>
+        <div class="step-title sm">Text fit</div>
+        <div class="seg"><button class="tile" *ngFor="let f of textFits" [class.sel]="t.typography.textFit===f.id" (click)="t.typography.textFit=f.id">{{ f.label }}</button></div>
+        <app-color-picker label="Base text color" [value]="t.typography.baseTextColor" (valueChange)="t.typography.baseTextColor=$event" [presets]="textPresets"></app-color-picker>
+      </div>
+
       <div *ngSwitchCase="'intStyle'">
         <div class="step-title">Intermediate style</div>
         <div class="tiles"><button class="tile" *ngFor="let o of intStyles" [class.sel]="t.intermediateStyle===o" (click)="t.intermediateStyle=o">{{ o }}</button></div>
@@ -98,6 +121,11 @@
         <app-color-picker label="Accent / active" [value]="t.intermediate.accent" (valueChange)="t.intermediate.accent=$event"></app-color-picker>
         <div class="step-title sm">Sub-item size</div>
         <div class="seg"><button class="tile" *ngFor="let o of sizes" [class.sel]="t.intermediate.itemSize===o" (click)="t.intermediate.itemSize=o">{{ o }}</button></div>
+        <div class="step-title sm">Header bar</div>
+        <div class="seg">
+          <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
+          <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
+        </div>
       </div>
 
       <div *ngSwitchCase="'resTemplate'">
@@ -115,6 +143,11 @@
         <app-color-picker label="Path routing color" [value]="t.result.pathColor" (valueChange)="t.result.pathColor=$event"></app-color-picker>
         <div class="step-title sm">Path style</div>
         <div class="seg"><button class="tile" *ngFor="let o of pathStyles" [class.sel]="t.result.pathStyle===o" (click)="t.result.pathStyle=o">{{ o }}</button></div>
+        <div class="step-title sm">Header bar</div>
+        <div class="seg">
+          <button class="tile" [class.sel]="t.result.showHeader" (click)="t.result.showHeader=true">Show</button>
+          <button class="tile" [class.sel]="!t.result.showHeader" (click)="t.result.showHeader=false">Hide</button>
+        </div>
       </div>
 
       <div *ngSwitchCase="'anim'">

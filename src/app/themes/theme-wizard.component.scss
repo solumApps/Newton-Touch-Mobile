@@ -24,7 +24,10 @@
 }
 .prev .stage .card .img { flex: 1; min-height: 0; opacity: .5; }
 .prev .stage .card .meta { padding: 1px 3px; }
-.prev .stage .card .name { font-size: 7px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.prev .stage .card .name { font-size: calc(var(--prev-scale, 1) * 7px); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+/* text-fit in preview */
+.prev.fit-wrap .name, .prev.fit-shrink .name { white-space: normal; }
+.prev.fit-shrink .name { font-size: calc(var(--prev-scale, 1) * 6px); }
 
 /* ===== HOME layouts — gap/space-distributed so rows NEVER overflow ===== */
 /* grids: distribute spare space as gaps; heights sized so all rows fit. */
@@ -39,6 +42,12 @@
 .prev .stage.layout-col-4 { display: flex; justify-content: space-between; }
 .prev .stage.layout-col-4 .card { width: 23.5%; height: 100%; }
 .prev .stage.layout-col-4 .card:nth-child(n+5) { display: none; }
+
+.prev .stage.layout-list { display: flex; flex-direction: column; justify-content: space-between; }
+.prev .stage.layout-list .card { width: 100%; height: 22%; flex-direction: row; align-items: center; }
+.prev .stage.layout-list .card .img { flex: 0 0 18%; height: 80%; }
+.prev .stage.layout-list .card .meta { flex: 1; }
+.prev .stage.layout-list .card:nth-child(n+5) { display: none; }
 
 .prev .stage.layout-hero-list { display: flex; flex-wrap: wrap; align-content: space-between; justify-content: space-between; }
 .prev .stage.layout-hero-list .card.featured { flex: 0 0 100%; height: 56%; }
@@ -91,6 +100,14 @@
 .prev .stage .card.card-pill { border-radius: 999px; }
 .prev .stage .card.card-circle { border-radius: 50%; }
 .prev .stage .card.card-hexagon { clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
+/* Shape cards only suit ~square grid cells — degrade to a rounded card in
+   row/column/fullscreen layouts so they never look stretched. */
+.prev .stage.layout-list .card.card-circle, .prev .stage.layout-col-4 .card.card-circle,
+.prev .stage.layout-hero-list .card.card-circle, .prev .stage.layout-fullscreen .card.card-circle,
+.prev .stage.layout-list .card.card-hexagon, .prev .stage.layout-col-4 .card.card-hexagon,
+.prev .stage.layout-hero-list .card.card-hexagon, .prev .stage.layout-fullscreen .card.card-hexagon {
+  clip-path: none; border-radius: 6px;
+}
 
 /* ===== INTERMEDIATE ===== */
 .prev .stage.int { display: flex; flex-direction: column; }

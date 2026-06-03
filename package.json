@@ -15,6 +15,11 @@
   },
   "private": true,
   "dependencies": {
+    "@fontsource/inter": "^5.0.0",
+    "@fontsource/nunito": "^5.0.0",
+    "@fontsource/bebas-neue": "^5.0.0",
+    "@fontsource/source-sans-3": "^5.0.0",
+    "@fontsource/roboto-slab": "^5.0.0",
     "@angular/animations": "^20.0.0",
     "@angular/common": "^20.0.0",
     "@angular/compiler": "^20.0.0",

@@ -5,7 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar } from '@ionic/angular/standalone';
 import { ColorPickerComponent } from '../shared/color-picker.component';
 import { ThemeService, SavedTheme } from '../services/theme.service';
-import type { ThemeTokens, HomeLayout, CardStyle, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition } from '@contract/layout';
+import { FONTS } from '../shared/fonts';
+import type { ThemeTokens, HomeLayout, CardStyle, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit } from '@contract/layout';
 
 type PreviewPage = 'home' | 'inter' | 'result';
 interface Step { key: string; page: PreviewPage; }
@@ -30,6 +31,7 @@ export class ThemeWizardComponent implements OnInit {
     { key: 'home', page: 'home' },
     { key: 'card', page: 'home' },
     { key: 'colors', page: 'home' },
+    { key: 'type', page: 'home' },
     { key: 'intStyle', page: 'inter' },
     { key: 'intColors', page: 'inter' },
     { key: 'resTemplate', page: 'result' },
@@ -42,8 +44,14 @@ export class ThemeWizardComponent implements OnInit {
   slots = [0, 1, 2, 3, 4, 5];
   labels = ['Bakery', 'Dairy', 'Produce', 'Meat', 'Frozen', 'Drinks'];
 
-  homeLayouts: HomeLayout[] = ['grid-2x3', 'hero-list', 'grid-2x2', 'col-4', 'hexagonal', 'circular', 'pill-row', 'fullscreen'];
+  /** Arrangement only — card SHAPE comes from cardStyle (next step). */
+  homeLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-4', 'hero-list', 'list', 'fullscreen'];
   cardStyles: CardStyle[] = ['image-text', 'text-rect', 'pill', 'hexagon', 'image-only', 'circle', 'icon-text', 'color-block', 'gradient', 'list-row'];
+  fonts = FONTS;
+  textScales: TextScale[] = ['compact', 'normal', 'large'];
+  textFits: { id: TextFit; label: string }[] = [
+    { id: 'shrink', label: 'Auto-shrink' }, { id: 'wrap', label: 'Wrap 2 lines' }, { id: 'clip', label: 'Clip …' },
+  ];
   intStyles: IntermediateStyle[] = ['accordion', 'pill-tabs', 'image-grid', 'hex-grid', 'circular', 'scroll-list', 'card-strip', 'fullscreen'];
   resultTemplates: ResultTemplate[] = ['map-list', 'cards-map', 'dual-list', 'split-panel', 'list-only', 'map-full', 'card-grid', 'minimal', 'esl-focus'];
   transitions: TransitionType[] = ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'];
@@ -64,7 +72,7 @@ export class ThemeWizardComponent implements OnInit {
     this.id = this.route.snapshot.paramMap.get('id');
     if (this.id) {
       const existing = (await this.themes.list()).find((x) => x.id === this.id);
-      if (existing) { this.name = existing.name; this.t = JSON.parse(JSON.stringify(existing.tokens)); }
+      if (existing) { this.name = existing.name; this.t = ThemeService.normalize(JSON.parse(JSON.stringify(existing.tokens))); }
     }
   }
 
@@ -80,6 +88,14 @@ export class ThemeWizardComponent implements OnInit {
     if (this.t.cardStyle === 'color-block') return this.t.accent;
     if (this.t.cardStyle === 'gradient') return `linear-gradient(135deg, ${this.t.accent}, ${this.t.cardBackground})`;
     return this.t.cardBackground;
+  }
+
+  get scaleNum(): number { return this.t.typography.textScale === 'compact' ? 0.9 : this.t.typography.textScale === 'large' ? 1.14 : 1; }
+  /** Header visible on the current preview page (respects the per-page toggle). */
+  get headerVisible(): boolean {
+    return this.previewPage === 'inter' ? this.t.intermediate.showHeader
+      : this.previewPage === 'result' ? this.t.result.showHeader
+      : this.t.showHeader;
   }
 
   headerColorFor(): string {
