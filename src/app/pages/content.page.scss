@@ -17,6 +17,6 @@
 .chips { display: flex; gap: 5px; margin-top: 6px; }
 .chip.ok { background: #ECFDF5; color: #065F46; border-color: #A7F3D0; }
 .dep { font-size: 9px; color: var(--nt-muted); margin-top: 4px; }
-.item .chev { color: var(--nt-muted); font-size: 10px; align-self: center; text-transform: uppercase; letter-spacing: .5px; }
+.item .chev { color: var(--nt-muted); font-size: 18px; align-self: center; }
 .empty { text-align: center; color: var(--nt-muted); font-size: 13px; padding: 28px; }
 .foot { padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid var(--nt-border); }
