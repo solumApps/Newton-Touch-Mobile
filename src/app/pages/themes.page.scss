@@ -21,6 +21,8 @@
 .row .nm { font-size: 13px; font-weight: 700; color: var(--nt-text); }
 .row .ds { font-size: 10px; color: var(--nt-muted); }
 .row .chev { color: var(--nt-muted); font-size: 18px; }
+.del { border: none; background: none; font-size: 16px; cursor: pointer; padding: 4px 6px; opacity: .7; }
+.del:active { opacity: 1; }
 .empty { font-size: 13px; color: var(--nt-muted); padding: 6px 0; }
 .msg { font-size: 12px; color: #16A34A; margin-top: 10px; }
 .msg.err { color: #DC2626; }

@@ -11,5 +11,6 @@
 .chip.ok { background: #ECFDF5; color: #065F46; border-color: #A7F3D0; }
 .dep { font-size: 9px; color: var(--nt-muted); margin-top: 4px; }
 .item .chev { color: var(--nt-muted); font-size: 18px; align-self: center; }
+.del { border: none; background: none; font-size: 16px; cursor: pointer; padding: 4px 6px; align-self: center; opacity: .7; }
 .empty { text-align: center; color: var(--nt-muted); font-size: 13px; padding: 28px; }
 .foot { padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid var(--nt-border); }

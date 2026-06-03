@@ -18,6 +18,7 @@
         </div>
         <div class="dep" *ngIf="c.deployedTo">→ {{ c.deployedTo }}</div>
       </div>
+      <button class="del" title="Delete content" (click)="$event.stopPropagation(); del(c)">🗑</button>
       <span class="chev">›</span>
     </div>
 

@@ -54,6 +54,12 @@ export class ThemesPage implements OnInit {
     return list;
   }
 
+  async del(t: SavedTheme): Promise<void> {
+    if (!confirm(`Delete theme "${t.name}"? This cannot be undone.`)) return;
+    await this.themes.remove(t.id);
+    this.mine = await this.themes.list();
+  }
+
   use(t: SavedTheme): void { this.router.navigateByUrl('/theme-preview/' + t.id); }
   createNew(): void { this.router.navigateByUrl('/theme-wizard'); }
 

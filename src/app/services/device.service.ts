@@ -45,6 +45,13 @@ export class DeviceService {
     return dev;
   }
 
+  /** Remove a saved device. */
+  async remove(id: string): Promise<void> {
+    await this.list();
+    this.cache = this.cache.filter((x) => x.id !== id);
+    await Preferences.set({ key: KEY, value: JSON.stringify(this.cache) });
+  }
+
   async recordDeploy(deviceId: string, contentName: string): Promise<void> {
     await this.list();
     const dev = this.cache.find((x) => x.id === deviceId);

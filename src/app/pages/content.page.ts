@@ -39,6 +39,12 @@ export class ContentPage implements OnInit {
     return m === 'category' ? 'Category' : m === 'prototype' ? 'Prototype' : 'Prototype + ESL';
   }
 
+  async del(c: ContentDraft): Promise<void> {
+    if (!confirm(`Delete content "${c.name}"? This cannot be undone.`)) return;
+    await this.content.remove(c.id);
+    this.drafts = await this.content.list();
+  }
+
   create(): void { this.router.navigateByUrl('/content-create'); }
   open(c: ContentDraft): void { this.router.navigateByUrl('/content-builder/' + c.id); }
 }

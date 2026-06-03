@@ -37,6 +37,7 @@
         </div>
       </div>
       <button class="push" (click)="push()">Push</button>
+      <button class="del" title="Remove device" (click)="del(d)">🗑</button>
     </div>
 
     <div class="empty" *ngIf="!filtered().length">No saved devices yet. Deploy content or tap Scan.</div>

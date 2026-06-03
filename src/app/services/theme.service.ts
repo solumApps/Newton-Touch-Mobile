@@ -130,6 +130,13 @@ export class ThemeService {
     await Preferences.set({ key: KEY, value: JSON.stringify(this.cache) });
   }
 
+  /** Delete a saved theme (predefined themes are read-only and cannot be deleted). */
+  async remove(id: string): Promise<void> {
+    await this.list();
+    this.cache = this.cache.filter((t) => t.id !== id);
+    await Preferences.set({ key: KEY, value: JSON.stringify(this.cache) });
+  }
+
   /** Editing a predefined theme creates a copy in My Themes. */
   async cloneFrom(src: SavedTheme, name: string): Promise<SavedTheme> {
     const copy: SavedTheme = { id: 'thm_' + Date.now(), name, tokens: JSON.parse(JSON.stringify(src.tokens)), updatedAt: Date.now() };

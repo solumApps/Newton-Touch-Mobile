@@ -35,6 +35,7 @@
         <div class="nm">{{ t.name }}</div>
         <div class="ds">{{ t.tokens.homeLayout }} · {{ t.tokens.cardStyle }} · {{ t.tokens.resultTemplate }}</div>
       </div>
+      <button class="del" title="Delete theme" (click)="$event.stopPropagation(); del(t)">🗑</button>
       <span class="chev">›</span>
     </div>
     <div *ngIf="!filteredMine.length" class="empty">No saved themes yet — create one below.</div>

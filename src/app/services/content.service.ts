@@ -44,6 +44,13 @@ export class ContentService {
     await Preferences.set({ key: KEY, value: JSON.stringify(this.cache) });
   }
 
+  /** Delete a content draft. */
+  async remove(id: string): Promise<void> {
+    await this.list();
+    this.cache = this.cache.filter((c) => c.id !== id);
+    await Preferences.set({ key: KEY, value: JSON.stringify(this.cache) });
+  }
+
   /** Compile a draft into the deployable layout.json (the contract LCD renders). */
   build(d: ContentDraft): LayoutJson {
     const payload: LayoutJson = {

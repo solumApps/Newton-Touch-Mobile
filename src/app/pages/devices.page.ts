@@ -56,6 +56,12 @@ export class DevicesPage implements OnInit {
     setTimeout(async () => { this.scanning = false; sub.unsubscribe(); await this.transfer.stopScan(); this.devices = await this.deviceSvc.list(); }, 8000);
   }
 
+  async del(d: SavedDevice): Promise<void> {
+    if (!confirm(`Remove device "${d.name}"?`)) return;
+    await this.deviceSvc.remove(d.id);
+    this.devices = await this.deviceSvc.list();
+  }
+
   validIp(): boolean { return /^\d{1,3}(\.\d{1,3}){3}$/.test(this.newIp.trim()); }
 
   async addManual(): Promise<void> {

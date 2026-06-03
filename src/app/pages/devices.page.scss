@@ -22,4 +22,5 @@
 .dev .sub2 { font-size: 10px; color: var(--nt-muted); margin-top: 1px; }
 .muted { color: var(--nt-muted); }
 .push { background: var(--nt-purple); color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.del { border: none; background: none; font-size: 16px; cursor: pointer; padding: 4px 6px; opacity: .7; }
 .empty { color: var(--nt-muted); font-size: 13px; text-align: center; padding: 24px; }
