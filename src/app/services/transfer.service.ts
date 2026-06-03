@@ -17,15 +17,44 @@ export interface FoundDevice {
  * Manual IP is just deploy() with a typed host. Native-only; web throws (deploy screen
  * falls back to downloading the payload).
  */
+const RELAY_URL = 'ws://localhost:8090';   // DEV browser-pairing relay (tools/dev-relay.mjs)
+
 @Injectable({ providedIn: 'root' })
 export class TransferService {
   readonly found$ = new BehaviorSubject<FoundDevice[]>([]);
   private listeners: Array<{ remove: () => Promise<void> }> = [];
+  private ws?: WebSocket;
+  private ackResolve?: () => void;
 
   get isNative(): boolean { return Capacitor.isNativePlatform(); }
 
+  /** DEV: connect to the local relay (browser pairing). Rejects if it isn't running. */
+  private ensureRelay(): Promise<WebSocket> {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) return Promise.resolve(this.ws);
+    return new Promise((resolve, reject) => {
+      let ws: WebSocket;
+      try { ws = new WebSocket(RELAY_URL); } catch { reject(new Error('relay unavailable')); return; }
+      const to = setTimeout(() => { try { ws.close(); } catch { /* */ } reject(new Error('Dev relay not running on ws://localhost:8090')); }, 2500);
+      ws.onopen = () => { clearTimeout(to); this.ws = ws; ws.send(JSON.stringify({ type: 'hello', role: 'sender' })); resolve(ws); };
+      ws.onerror = () => { clearTimeout(to); reject(new Error('Cannot reach dev relay on ws://localhost:8090')); };
+      ws.onclose = () => { if (this.ws === ws) this.ws = undefined; };
+      ws.onmessage = (m) => {
+        let msg: any; try { msg = JSON.parse(m.data); } catch { return; }
+        if (msg.type === 'devices') {
+          this.found$.next((msg.devices || []).map((d: any) => ({ name: d.id, host: d.id, port: 8090, deviceName: d.deviceName, storeId: d.code })));
+        } else if (msg.type === 'deploy_ack') {
+          this.ackResolve?.(); this.ackResolve = undefined;
+        }
+      };
+    });
+  }
+
   async startScan(): Promise<void> {
-    if (!this.isNative) return;
+    if (!this.isNative) {
+      this.found$.next([]);
+      try { const ws = await this.ensureRelay(); ws.send(JSON.stringify({ type: 'list' })); } catch { /* relay not running → list stays empty */ }
+      return;
+    }
     this.found$.next([]);
     const { LanTransfer } = await import('capacitor-lan-transfer');
     this.listeners.push(await (LanTransfer as any).addListener('deviceFound', (e: any) => {
@@ -41,7 +70,7 @@ export class TransferService {
   }
 
   async stopScan(): Promise<void> {
-    if (!this.isNative) return;
+    if (!this.isNative) return;   // relay scan is passive (push-based); nothing to stop
     const { LanTransfer } = await import('capacitor-lan-transfer');
     try { await (LanTransfer as any).stopDiscovery(); } catch { /* */ }
     for (const l of this.listeners) { try { await l.remove(); } catch { /* */ } }
@@ -50,7 +79,17 @@ export class TransferService {
 
   /** Connect + send a string payload (layout.json or serverConfig). Resolves on send_complete. */
   async send(host: string, port: number, text: string, onPercent: (p: number) => void): Promise<void> {
-    if (!this.isNative) throw new Error('LAN transfer requires a native device.');
+    if (!this.isNative) {
+      // Browser dev: push through the relay to the target receiver id (host == LCD id).
+      const ws = await this.ensureRelay();
+      onPercent(20);
+      return new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(() => { this.ackResolve = undefined; reject(new Error('No ack from display — is the LCD tab open & connected to the relay?')); }, 8000);
+        this.ackResolve = () => { clearTimeout(timer); onPercent(100); resolve(); };
+        try { ws.send(JSON.stringify({ type: 'deploy', to: host, payload: text })); onPercent(60); }
+        catch (e) { clearTimeout(timer); reject(e as Error); }
+      });
+    }
     const { LanTransfer } = await import('capacitor-lan-transfer');
     return new Promise<void>(async (resolve, reject) => {
       const subs: Array<{ remove: () => Promise<void> }> = [];

@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start"><ion-button (click)="cancel()">Cancel</ion-button></ion-buttons>
-    <ion-title>{{ name || 'New Theme' }} · {{ stepIndex + 1 }}/{{ visibleSteps.length }}</ion-title>
+    <ion-title>Step {{ stepIndex + 1 }} / {{ visibleSteps.length }}</ion-title>
     <ion-buttons slot="end"><ion-button strong="true" [disabled]="!canSave()" (click)="save()">Save</ion-button></ion-buttons>
   </ion-toolbar>
   <ion-progress-bar [value]="(stepIndex + 1) / visibleSteps.length"></ion-progress-bar>

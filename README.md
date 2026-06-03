@@ -112,16 +112,39 @@ src/app/
 
 ```bash
 npm install
-npm start   # browser preview at localhost:4200
+ionic serve            # browser preview at http://localhost:8100
 ```
+
+**SOLUM API / CORS:** the app ships an Angular dev proxy (`src/proxy.conf.json`, wired in `angular.json`).
+A `httpBase()` helper (`services/workspace.service.ts`) routes API calls through `/solum-proxy/*` **on web**
+to dodge CORS, and uses the real URL directly **on native** (`CapacitorHttp`, no CORS). Restart `ionic serve`
+after editing the proxy config.
+
+### Pairing & deploying in the browser (dev relay)
+
+Browser tabs can't run TCP/NSD, so to test deploy **mobile-tab → LCD-tab** on one machine, run the
+dependency-free dev relay (bundled with the app, no npm install needed):
+
+```bash
+npm run relay        # → node tools/dev-relay.mjs → ws://localhost:8090
+```
+
+Run **one** relay per machine — both the mobile and LCD apps connect to it.
+
+Then in the app: **Devices** (or **Content → Deploy**) → **Scan** → select the LCD → **Deploy**.
+Without the relay, Deploy falls back to downloading `layout.json`. On real devices the relay is **not**
+used — NSD + TCP handle pairing natively (or use **Add by IP**).
 
 ### Build for devices
 
+Angular's `application` builder outputs to `www/` (flattened via `"outputPath": { "base": "www", "browser": "" }`
+in `angular.json`). **Always build before syncing**, or `cap` fails with *"www must contain an index.html"*:
+
 ```bash
-npm run build
-npx cap add ios && npx cap add android
-npm run sync
-npm run open:ios       # or open:android
+npx ng build                       # generates www/index.html
+npx cap add android                # first time only
+npx cap sync android
+npx cap open android               # or open ios
 ```
 
 ---

@@ -68,8 +68,6 @@ export class DeployComponent implements OnInit, OnDestroy {
     if (!this.draft || !this.payload || !this.targetHost) return;
     const text = JSON.stringify(this.payload);
 
-    if (!this.transfer.isNative) { this.download(); this.doneOk = true; this.doneMsg = 'Web preview — payload downloaded (LAN transfer needs a device).'; return; }
-
     this.sending = true; this.percent = 0; this.doneMsg = '';
     try {
       await this.transfer.send(this.targetHost, this.targetPort, text, (p) => (this.percent = p));
@@ -88,7 +86,14 @@ export class DeployComponent implements OnInit, OnDestroy {
       await this.content.save(this.draft);
       this.doneOk = true; this.doneMsg = '✓ Deployed to ' + this.targetName;
     } catch (e: any) {
-      this.doneOk = false; this.doneMsg = 'Deploy failed: ' + (e?.message || e);
+      // Browser with no relay running → fall back to downloading the payload.
+      if (!this.transfer.isNative) {
+        this.download();
+        this.doneOk = false;
+        this.doneMsg = (e?.message || 'Relay unavailable') + ' — payload downloaded instead. Start the dev relay (node tools/dev-relay.mjs) to deploy in-browser.';
+      } else {
+        this.doneOk = false; this.doneMsg = 'Deploy failed: ' + (e?.message || e);
+      }
     } finally {
       this.sending = false;
     }

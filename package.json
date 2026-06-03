@@ -6,6 +6,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "relay": "node tools/dev-relay.mjs",
     "build": "ng build",
     "sync": "npm run build && npx cap sync",
     "open:android": "npx cap open android",

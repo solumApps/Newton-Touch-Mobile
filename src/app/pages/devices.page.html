@@ -15,7 +15,16 @@
     </div>
 
     <p class="note" *ngIf="scanning">Searching the local network for SOLUM displays…</p>
-    <p class="note" *ngIf="!native">Live scan needs a device on Wi-Fi. In the browser, deploy by IP from Content.</p>
+    <p class="note" *ngIf="!native">Live scan only works on a physical device on Wi-Fi (not in a browser). Add a display by IP below.</p>
+
+    <div class="addbox">
+      <div class="addrow">
+        <input class="inp" [(ngModel)]="newName" placeholder="Display name" />
+        <input class="inp" [(ngModel)]="newIp" placeholder="192.168.x.x" />
+      </div>
+      <button class="btn-o" [disabled]="!validIp()" (click)="addManual()">+ Add by IP</button>
+      <p class="note err" *ngIf="addMsg">{{ addMsg }}</p>
+    </div>
 
     <div class="crd dev" *ngFor="let d of filtered()">
       <div class="ic">🖥️</div>
