@@ -105,12 +105,6 @@ export class ThemeWizardComponent implements OnInit {
   get step(): Step { return this.visibleSteps[this.stepIndex] ?? this.visibleSteps[0]; }
   get previewPage(): PreviewPage { return this.step.page; }
 
-  /** color-block / gradient content paints with the accent instead of card bg. */
-  cardBg(): string {
-    if (this.t.cardContent === 'color-block') return this.t.accent;
-    if (this.t.cardContent === 'gradient') return `linear-gradient(135deg, ${this.t.accent}, ${this.t.cardBackground})`;
-    return this.t.cardBackground;
-  }
   get shapeCard(): boolean { return this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon'; }
 
   get scaleNum(): number { return this.t.typography.textScale === 'compact' ? 0.9 : this.t.typography.textScale === 'large' ? 1.14 : 1; }

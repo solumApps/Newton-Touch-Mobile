@@ -95,8 +95,10 @@
 .prev .stage .card {
   box-sizing: border-box; border: 1.5px solid transparent; border-radius: 4px; overflow: hidden;
   display: flex; flex-direction: column; min-width: 0;
+  background: var(--prev-card);
 }
-.prev .stage .card .img { flex: 1; min-height: 0; opacity: .5; }
+.prev .stage .card .img { flex: 1; min-height: 0; opacity: .85; }
+.prev .stage .card .img.placeholder { opacity: .15; }
 .prev .stage .card .meta { padding: 1px 3px; }
 .prev .stage .card .name { font-size: calc(var(--prev-scale, 1) * 7px); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
 /* text-fit in preview */
@@ -178,6 +180,7 @@
 .prev .stage .card.content-text-only .name { font-weight: 700; text-transform: none; letter-spacing: normal; }
 .prev .stage .card.content-color-block { background: var(--prev-accent, #FFCD00) !important; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
 .prev .stage .card.content-color-block .name { color: #111 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; }
+.prev .stage .card.content-gradient { background: linear-gradient(135deg, var(--prev-accent), var(--prev-card)) !important; }
 /* text position (image + text) — 'below' = default column flow (img top, label under) */
 .prev .stage .card.content-image-text.pos-overlay-bottom,
 .prev .stage .card.content-image-text.pos-overlay-top,

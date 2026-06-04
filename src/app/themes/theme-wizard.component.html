@@ -22,8 +22,8 @@
         <!-- HOME -->
         <div *ngSwitchCase="'home'" class="stage layout-{{t.homeLayout}}" [class.shape]="shapeCard">
           <div class="card shape-{{t.cardShape}} content-{{t.cardContent}} pos-{{t.cardTextPos}}" *ngFor="let n of slots; let i = index" [class.featured]="i===0"
-               [style.background]="cardBg()" [style.color]="t.cardText" [style.borderColor]="t.accent">
-            <div class="img" [style.background]="t.accent"></div>
+               [style.color]="t.cardText" [style.borderColor]="t.accent">
+            <div class="img placeholder" [style.background]="t.accent"></div>
             <div class="meta"><span class="name">{{ labels[i] }}</span></div>
           </div>
         </div>
