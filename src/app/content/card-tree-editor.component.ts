@@ -32,6 +32,13 @@ import type { CardItem } from '@contract/layout';
     .nest { margin-left: 8px; }
     .sub-add { display: inline-block; margin: 4px 0 10px; font-size: 12px; }
     .sub-add[disabled] { opacity: .5; }
+    .inp { flex: 1; min-width: 0; border: 1.5px solid var(--nt-border); border-radius: 9px; padding: 11px 12px; font-size: 14px; font-family: inherit; outline: none; }
+    .inp:focus { border-color: var(--nt-purple); }
+    .del { border: none; background: none; color: var(--nt-muted); font-size: 15px; cursor: pointer; padding: 6px; }
+    .thumb { width: 42px; height: 42px; border-radius: 8px; border: 1.5px dashed #cbd5e1; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; flex-shrink: 0; }
+    .thumb.wide { width: 100%; height: auto; min-height: 130px; border-radius: 10px; border: 2px dashed var(--nt-border); background: var(--nt-tint, #F8F5FF); font-size: 13px; font-weight: 600; color: var(--nt-muted); flex-shrink: 1; }
+    .erow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .mini { border: 1.5px solid var(--nt-purple); color: var(--nt-purple); background: #fff; border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; }
   `],
 })
 export class CardTreeEditorComponent {
