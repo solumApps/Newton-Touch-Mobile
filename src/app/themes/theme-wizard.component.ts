@@ -53,8 +53,8 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'rect', label: 'Rectangle' }, { id: 'pill', label: 'Pill' }, { id: 'circle', label: 'Circle' }, { id: 'hexagon', label: 'Hexagon' },
   ];
   cardContents: { id: CardContent; label: string }[] = [
-    { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' }, { id: 'text-only', label: 'Text only' },
-    { id: 'icon-text', label: 'Icon + Text' }, { id: 'color-block', label: 'Colour block' }, { id: 'gradient', label: 'Gradient' },
+    { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' },
+    { id: 'icon-text', label: 'Icon + Text' }, { id: 'color-block', label: 'Colour block + Text' }, { id: 'gradient', label: 'Gradient' },
   ];
   cardTextPositions: { id: CardTextPos; label: string }[] = [
     { id: 'overlay-top', label: 'Overlay top' }, { id: 'overlay-bottom', label: 'Overlay bottom' }, { id: 'below', label: 'Below' }, { id: 'center', label: 'Centered' },
@@ -94,7 +94,13 @@ export class ThemeWizardComponent implements OnInit {
     this.id = this.route.snapshot.paramMap.get('id');
     if (this.id) {
       const existing = (await this.themes.list()).find((x) => x.id === this.id);
-      if (existing) { this.name = existing.name; this.t = ThemeService.normalize(JSON.parse(JSON.stringify(existing.tokens))); }
+      if (existing) {
+        this.name = existing.name;
+        this.t = ThemeService.normalize(JSON.parse(JSON.stringify(existing.tokens)));
+        if (this.t.cardContent === 'text-only') {
+          this.t.cardContent = 'color-block';
+        }
+      }
     }
   }
 

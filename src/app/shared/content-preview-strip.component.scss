@@ -97,8 +97,8 @@
 .prev .stage .card.content-color-block .meta,
 .prev .stage .card.content-gradient .meta { text-align: center; width: 100%; }
 .prev .stage .card.content-text-only .name { font-weight: 700; }
-.prev .stage .card.content-color-block { background: var(--prev-accent, #FFCD00) !important; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
-.prev .stage .card.content-color-block .name { color: #111 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; }
+.prev .stage .card.content-color-block { box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
+.prev .stage .card.content-color-block .name { font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; }
 .prev .stage .card.content-gradient { background: linear-gradient(135deg, var(--prev-accent), var(--prev-card)) !important; }
 .prev .stage .card.content-image-text.pos-overlay-bottom,
 .prev .stage .card.content-image-text.pos-overlay-top,
