@@ -149,6 +149,18 @@
 .prev .stage.int.int-card-strip .item { flex: 1; flex-direction: column; margin: 2px; }
 .prev .stage.int.int-card-strip .item .img { width: 100%; height: 55%; margin: 0 0 3px; }
 
+/* drill-stair preview */
+.prev .stage.int.int-drill-stair { flex-direction: row; padding: 0; margin: 0; }
+.prev .stage.int.int-drill-stair .item { flex: 1 1 0; min-width: 0; margin: 0; padding: 6px 4px; border-radius: 0;
+  background: var(--int-accent); color: rgba(255,255,255,.55);
+  flex-direction: column; justify-content: center; align-items: center; text-align: center;
+  border-right: 1px solid rgba(255,255,255,.12); }
+.prev .stage.int.int-drill-stair .item:nth-child(even) { filter: brightness(.92); }
+.prev .stage.int.int-drill-stair .item .img { display: none; }
+.prev .stage.int.int-drill-stair .item .name { font-size: 6px; font-weight: 800; white-space: normal; }
+.prev .stage.int.int-drill-stair .item.open { color: #fff; }
+.prev .stage.int.int-drill-stair .item.open .name { font-size: 8px; font-weight: 900; }
+
 /* ===== RESULT ===== */
 .prev .stage.result { display: flex; gap: 4px; }
 .prev .stage.result .map { flex: 1; border: 1.5px dashed; border-radius: 4px; position: relative; background-size: cover; background-position: center; }
@@ -173,3 +185,18 @@
 .prev .stage.result.res-card-grid .list { display: flex; flex-direction: row; flex-wrap: wrap; align-content: flex-start; gap: 3px; }
 .prev .stage.result.res-card-grid .list .prod { flex: 0 0 47%; }
 .prev .stage.result.res-esl-focus .list .prod.found { flex: 0 0 auto; min-height: 40%; font-size: 9px; border-width: 2px; }
+
+/* drill-stair result preview: breadcrumb columns + product card */
+.prev .stage.result.res-drill-stair { padding: 0; margin: 0; gap: 0; }
+.prev .stage.result.res-drill-stair .map { display: none; }
+.prev .stage.result.res-drill-stair .list { flex: 1; flex-direction: row !important; flex-wrap: nowrap !important; gap: 0; align-items: stretch; }
+.prev .stage.result.res-drill-stair .list .prod {
+  flex: 1 1 0; min-width: 0; border-radius: 0; padding: 4px; border: 0;
+  background: var(--prev-accent, #FFCD00) !important; color: rgba(255,255,255,.55); justify-content: center;
+  border-right: 1px solid rgba(255,255,255,.12); font-size: 6px;
+}
+.prev .stage.result.res-drill-stair .list .prod:nth-child(even) { filter: brightness(.92); }
+.prev .stage.result.res-drill-stair .list .prod .dot { display: none; }
+.prev .stage.result.res-drill-stair .list .prod.found {
+  flex: 1.5 1 0; background: var(--prev-card, #fff) !important; color: var(--prev-text, #111) !important; font-weight: 900; font-size: 8px; filter: none !important;
+}

@@ -26,11 +26,18 @@ export type CardTextPos = 'overlay-top' | 'overlay-bottom' | 'below' | 'center';
 
 export type IntermediateStyle =
   | 'accordion' | 'pill-tabs' | 'image-grid' | 'hex-grid'
-  | 'circular' | 'scroll-list' | 'card-strip' | 'fullscreen';
+  | 'circular' | 'scroll-list' | 'card-strip' | 'fullscreen'
+  /** drill-stair: side-by-side columns showing every visited level at once,
+   *  with the picked option per column highlighted. Right-most column reveals
+   *  the result. Inspired by retail kiosk drill-down UIs (Staples-style). */
+  | 'drill-stair';
 
 export type ResultTemplate =
   | 'map-list' | 'cards-map' | 'dual-list' | 'split-panel' | 'list-only'
-  | 'map-full' | 'card-grid' | 'minimal' | 'esl-focus';
+  | 'map-full' | 'card-grid' | 'minimal' | 'esl-focus'
+  /** drill-stair: side-by-side breadcrumb columns showing the drill path that
+   *  led to this product, with the product detail in the right-most column. */
+  | 'drill-stair';
 
 export type TransitionType = 'fade-slide' | 'scale-up' | 'slide-left' | 'shimmer' | 'none';
 export type AnimSpeed = 'slow' | 'normal' | 'fast';

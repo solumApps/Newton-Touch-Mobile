@@ -67,12 +67,22 @@ export class DeployComponent implements OnInit, OnDestroy {
   /** Pull every data-URI image out of the layout into a separate list, replacing it
    *  with a small `ntimg:<id>` reference — so layout.json stays tiny and images are
    *  sent + stored as files (no base64 bloat → no renderer OOM on the LCD). */
-  private externalizeImages(src: LayoutJson): { layout: LayoutJson; images: { id: string; data: string }[] } {
+  private externalizeImages(src: LayoutJson): { layout: LayoutJson; images: { id: string; data: string; ext: string }[] } {
     const layout: LayoutJson = JSON.parse(JSON.stringify(src));
-    const images: { id: string; data: string }[] = [];
+    const images: { id: string; data: string; ext: string }[] = [];
     let n = 0;
+    /** Parse extension from a data URI ("data:image/png;base64,..." → "png").
+     *  Default to "png" if MIME is missing/unknown — the LCD WebView refuses to
+     *  serve files without an extension under the `_capacitor_file_` scheme. */
+    const extFrom = (uri: string): string => {
+      const m = /^data:image\/([a-zA-Z0-9.+-]+)/.exec(uri);
+      let raw = (m && m[1] ? m[1] : 'png').toLowerCase();
+      if (raw === 'jpeg') raw = 'jpg';
+      if (raw === 'svg+xml') raw = 'svg';
+      return raw;
+    };
     const take = (v?: string): string | undefined => {
-      if (v && v.startsWith('data:')) { const id = 'img_' + (n++); images.push({ id, data: v }); return 'ntimg:' + id; }
+      if (v && v.startsWith('data:')) { const id = 'img_' + (n++); images.push({ id, data: v, ext: extFrom(v) }); return 'ntimg:' + id; }
       return v;
     };
     const cards = (arr?: CardItem[]) => arr?.forEach((c) => { c.image = take(c.image); if (c.children) cards(c.children); });
@@ -97,7 +107,7 @@ export class DeployComponent implements OnInit, OnDestroy {
         const total = images.length + 1;
         for (let i = 0; i < images.length; i++) {
           await this.transfer.send(this.targetHost, this.targetPort,
-            JSON.stringify({ kind: 'image', id: images[i].id, data: images[i].data }), () => {});
+            JSON.stringify({ kind: 'image', id: images[i].id, ext: images[i].ext, data: images[i].data }), () => {});
           this.percent = Math.round(((i + 1) / total) * 90);
         }
         await this.transfer.send(this.targetHost, this.targetPort, JSON.stringify(layout),
