@@ -1,14 +1,14 @@
 /* keep the wizard title compact so it never overflows / truncates */
 :host ::ng-deep ion-title { font-size: 16px; font-weight: 700; }
-.scroll { padding: 14px 16px 28px; }
+.scroll { padding: 0 16px 28px; }
 
 /* Sticky preview — preview stays pinned at top while the option list scrolls. */
-.scroll > .prev-wrap, .scroll > .slider {
+.scroll > .sticky-preview, .scroll > .slider {
   position: sticky; top: 0; z-index: 5;
   background: var(--ion-background-color, #fff);
-  padding-top: 6px; padding-bottom: 4px;
+  padding-top: 20px; padding-bottom: 4px;
 }
-.scroll > .prev-wrap .prev { max-height: 30vh; }
+.scroll > .sticky-preview .prev { max-height: 30vh; }
 
 /* ===== Live preview frame (1920:540 LCD strip) ===== */
 .prev {
