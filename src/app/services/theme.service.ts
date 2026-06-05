@@ -26,6 +26,8 @@ export class ThemeService {
       cardBackground: 'rgba(255,255,255,0.15)',
       cardText: '#FFFFFF',
       accent: '#FFCD00',
+      cardSurface: 'flat',
+      navStyle: 'floating',
       logoPosition: 'left',
       homeLayout: 'grid-2x3',
       cardShape: 'rect',
@@ -79,6 +81,8 @@ export class ThemeService {
     delete (out as any).cardStyle;
     out.showHeader = t?.showHeader ?? true;
     out.headerStyle = t?.headerStyle ?? 'logo-only';
+    out.cardSurface = t?.cardSurface ?? 'flat';
+    out.navStyle = t?.navStyle ?? 'floating';
     out.intermediate = { ...d.intermediate, ...(t?.intermediate || {}), showHeader: t?.intermediate?.showHeader ?? true };
     out.result = { ...d.result, ...(t?.result || {}), showHeader: t?.result?.showHeader ?? true };
     out.typography = { ...d.typography, ...(t?.typography || {}) };

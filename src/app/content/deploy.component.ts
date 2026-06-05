@@ -94,7 +94,11 @@ export class DeployComponent implements OnInit, OnDestroy {
     };
     const cards = (arr?: CardItem[]) => arr?.forEach((c) => { c.image = take(c.image); if (c.children) cards(c.children); });
     cards(layout.home); cards(layout.intermediate);
+    layout.theme.backgroundImage = take(layout.theme.backgroundImage);
+    layout.theme.intermediate.backgroundImage = take(layout.theme.intermediate.backgroundImage);
+    layout.theme.result.backgroundImage = take(layout.theme.result.backgroundImage);
     layout.result.mapImage = take(layout.result.mapImage);
+    layout.result.promoImage = take(layout.result.promoImage);
     layout.result.products?.forEach((p) => (p.image = take(p.image)));
     if (layout.screensaver?.media) layout.screensaver.media = layout.screensaver.media.map((m) => take(m) || m);
     // Externalize the header logo if it's a data URI.

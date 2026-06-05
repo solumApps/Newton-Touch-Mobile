@@ -130,6 +130,15 @@
         <p class="note">Template <b>{{ d.themeTokens.resultTemplate }}</b> shows a store map.</p>
       </ng-container>
 
+      <ng-container *ngIf="resultNeedsPromo">
+        <div class="sec"><span>Promo / selection panel image</span></div>
+        <div class="erow">
+          <div class="thumb wide" [style.background-image]="d.result.promoImage ? 'url('+d.result.promoImage+')' : null" (click)="pickPromo()">{{ d.result.promoImage ? '' : '📷 Upload promo or QR panel' }}</div>
+          <button class="del" *ngIf="d.result.promoImage" (click)="d.result.promoImage=undefined">✕</button>
+        </div>
+        <p class="note">Use this for wine/pet promotion panels, QR-code panels, or branded result artwork.</p>
+      </ng-container>
+
       <div class="sec"><span>Result products ({{ d.result.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>
       <div class="pcard" *ngFor="let p of d.result.products; let i = index">
         <div class="erow">

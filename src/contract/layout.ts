@@ -9,7 +9,13 @@ export type LogoPosition = 'left' | 'center' | 'right';
 
 /** Arrangement only — the SHAPE/look of each card is set by CardStyle. */
 export type HomeLayout =
-  | 'grid-2x3' | 'grid-2x2' | 'col-4' | 'hero-list' | 'list' | 'fullscreen';
+  | 'grid-2x3' | 'grid-2x2' | 'col-4' | 'hero-list' | 'list' | 'fullscreen'
+  /** image-strip: full-height image category strips, used by catalog/beauty entry pages. */
+  | 'image-strip'
+  /** hero-start: landing screen with one hero image/background and a start action. */
+  | 'hero-start'
+  /** promo-categories: large promotional copy/visual area plus category choices. */
+  | 'promo-categories';
 
 export type TextScale = 'compact' | 'normal' | 'large';
 export type TextFit = 'shrink' | 'wrap' | 'clip';
@@ -27,6 +33,12 @@ export type CardTextPos = 'overlay-top' | 'overlay-bottom' | 'below' | 'center';
 export type IntermediateStyle =
   | 'accordion' | 'pill-tabs' | 'image-grid' | 'hex-grid'
   | 'circular' | 'scroll-list' | 'card-strip' | 'fullscreen'
+  /** side-rail: persistent left rail/sidebar + large selectable cards/grid. */
+  | 'side-rail'
+  /** center-tiles: centered large tiles with explicit back/home navigation affordance. */
+  | 'center-tiles'
+  /** brand-grid: logo/product-brand tiles with optional alphabet-style footer. */
+  | 'brand-grid'
   /** drill-stair: side-by-side columns showing every visited level at once,
    *  with the picked option per column highlighted. Right-most column reveals
    *  the result. Inspired by retail kiosk drill-down UIs (Staples-style). */
@@ -41,7 +53,15 @@ export type ResultTemplate =
   /** filter-list: product list with top filter tabs (popular / alphabetical / custom).
    *  Designed for ETC apps that skip intermediate — the user goes Home → Result and
    *  can filter/sort products on the result page itself. */
-  | 'filter-list';
+  | 'filter-list'
+  /** map-filter-list: map/floorplan beside filters and a ranked product list. */
+  | 'map-filter-list'
+  /** promo-list: promotional/QR/content panel plus product list and selected tags. */
+  | 'promo-list'
+  /** catalog-grid: side category image with product catalog grid/cards. */
+  | 'catalog-grid'
+  /** product-focus: one hero product with image, price, benefit copy, and find action. */
+  | 'product-focus';
 
 export type TransitionType = 'fade-slide' | 'scale-up' | 'slide-left' | 'shimmer' | 'none';
 export type AnimSpeed = 'slow' | 'normal' | 'fast';
@@ -51,13 +71,18 @@ export type EslBlinkBy = 'article' | 'label';
 
 /** Header composition. Selected in theme wizard; text fields filled in content-builder. */
 export type HeaderStyle = 'logo+title+caption' | 'logo-only' | 'title+caption' | 'title-only';
+export type CardSurface = 'flat' | 'glass' | 'raised' | 'outlined' | 'glow';
+export type NavStyle = 'floating' | 'edge' | 'bottom-center' | 'hidden';
 
 export interface ThemeTokens {
   headerColor: string;
   background: string;          // solid | css gradient string
+  backgroundImage?: string;    // optional page background image/data URI
   cardBackground: string;
   cardText: string;
   accent: string;
+  cardSurface?: CardSurface;
+  navStyle?: NavStyle;
   logoPosition: LogoPosition;
   homeLayout: HomeLayout;
   /** @deprecated legacy single-axis style; superseded by cardShape/cardContent/cardTextPos. */
@@ -73,8 +98,8 @@ export interface ThemeTokens {
   includeIntermediate: boolean;
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
-  intermediate: { headerColor: string; background: string; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; showHeader: boolean; };
-  result: { headerColor: string; background: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; };
+  intermediate: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; showHeader: boolean; };
+  result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; };
   animation: { transition: TransitionType; speed: AnimSpeed; applyToAll: boolean; };
   loader: { style: LoaderStyle; color: string; };
   /** Shared typography/appearance — applied consistently across ALL rendered pages. */
@@ -127,6 +152,12 @@ export interface Screensaver {
   ctaText?: string;
 }
 
+export interface ResultContent {
+  mapImage?: string;
+  promoImage?: string;
+  products: ResultProduct[];
+}
+
 export interface LayoutJson {
   schemaVersion: 1;
   contentName: string;
@@ -140,7 +171,7 @@ export interface LayoutJson {
   header?: { title?: string; caption?: string; logo?: string; };
   home: CardItem[];
   intermediate: CardItem[];
-  result: { mapImage?: string; products: ResultProduct[]; };
+  result: ResultContent;
   eslLinks?: EslLink[];        // present only for prototype-esl
   eslBlinkBy?: EslBlinkBy;
   screensaver: Screensaver;

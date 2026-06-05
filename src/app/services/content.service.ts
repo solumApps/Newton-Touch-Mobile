@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
-import type { LayoutJson, AppMode, ThemeTokens, CardItem, ResultProduct, EslLink, EslBlinkBy, Screensaver, FieldSource } from '@contract/layout';
+import type { LayoutJson, AppMode, ThemeTokens, CardItem, ResultProduct, EslLink, EslBlinkBy, Screensaver, FieldSource, ResultContent } from '@contract/layout';
 
 export interface ContentDraft {
   id: string;
@@ -12,7 +12,7 @@ export interface ContentDraft {
   fieldSource?: FieldSource;   // Category mode: 'category' (category1–4) or 'etc' (etc0–3)
   home: CardItem[];
   intermediate: CardItem[];
-  result: { mapImage?: string; products: ResultProduct[] };
+  result: ResultContent;
   eslLinks?: EslLink[];
   eslBlinkBy?: EslBlinkBy;
   screensaver: Screensaver;
@@ -87,7 +87,11 @@ export class ContentService {
     const manifest = {
       kind: 'solumcontent', version: 1, name: d.name, appMode: d.appMode, themeId: d.themeId,
       home: strip(d.home), intermediate: strip(d.intermediate),
-      result: { products: d.result.products.map((p) => ({ ...p, image: p.image ? '«ref»' : undefined })) },
+      result: {
+        mapImage: d.result.mapImage ? '«ref»' : undefined,
+        promoImage: d.result.promoImage ? '«ref»' : undefined,
+        products: d.result.products.map((p) => ({ ...p, image: p.image ? '«ref»' : undefined })),
+      },
       eslLinks: d.eslLinks, eslBlinkBy: d.eslBlinkBy,
       note: 'Media excluded by design — re-attach images/video on import (Category mode re-fetches from API).',
     };

@@ -89,7 +89,11 @@ export class ContentBuilderComponent implements OnInit {
   /** Result templates that render a map image — drives the map upload UI. */
   get resultNeedsMap(): boolean {
     const t = this.draft?.themeTokens.resultTemplate;
-    return t === 'map-list' || t === 'cards-map' || t === 'split-panel' || t === 'map-full';
+    return t === 'map-list' || t === 'cards-map' || t === 'split-panel' || t === 'map-full' || t === 'map-filter-list';
+  }
+
+  get resultNeedsPromo(): boolean {
+    return this.draft?.themeTokens.resultTemplate === 'promo-list';
   }
 
   /** Header style derived from the theme — determines which header text inputs to show. */
@@ -164,6 +168,11 @@ export class ContentBuilderComponent implements OnInit {
   async pickMap(): Promise<void> {
     const dataUrl = await this.picker.pick();
     if (dataUrl) this.draft!.result.mapImage = dataUrl;
+  }
+
+  async pickPromo(): Promise<void> {
+    const dataUrl = await this.picker.pick();
+    if (dataUrl) this.draft!.result.promoImage = dataUrl;
   }
 
   /** Append a screensaver media item (image or video frame). */

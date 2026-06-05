@@ -5,8 +5,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar } from '@ionic/angular/standalone';
 import { ColorPickerComponent } from '../shared/color-picker.component';
 import { ThemeService, SavedTheme } from '../services/theme.service';
+import { ImagePickerService } from '../services/image-picker.service';
 import { FONTS } from '../shared/fonts';
-import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, HeaderStyle } from '@contract/layout';
+import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, HeaderStyle, CardSurface, NavStyle } from '@contract/layout';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 interface Step { key: string; page: PreviewPage; }
@@ -43,10 +44,11 @@ export class ThemeWizardComponent implements OnInit {
   slots = [0, 1, 2, 3, 4, 5];
   labels = ['Bakery', 'Dairy', 'Produce', 'Meat', 'Frozen', 'Drinks'];
 
-  homeLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-4', 'hero-list', 'list', 'fullscreen'];
+  homeLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-4', 'hero-list', 'list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories'];
   layoutLabels: Record<HomeLayout, string> = {
     'grid-2x3': 'Grid (3×2)', 'grid-2x2': 'Grid (2×2)', 'col-4': '4 columns',
     'hero-list': 'Hero + list', 'list': 'List rows', 'fullscreen': 'Fullscreen',
+    'image-strip': 'Image strips', 'hero-start': 'Hero start', 'promo-categories': 'Promo categories',
   };
   /** Independent card axes — any shape × any content × any text position. */
   cardShapes: { id: CardShape; label: string }[] = [
@@ -68,8 +70,8 @@ export class ThemeWizardComponent implements OnInit {
   textFits: { id: TextFit; label: string }[] = [
     { id: 'shrink', label: 'Auto-shrink' }, { id: 'wrap', label: 'Wrap 2 lines' }, { id: 'clip', label: 'Clip …' },
   ];
-  intStyles: IntermediateStyle[] = ['accordion', 'pill-tabs', 'image-grid', 'hex-grid', 'circular', 'scroll-list', 'card-strip', 'fullscreen', 'drill-stair'];
-  resultTemplates: ResultTemplate[] = ['map-list', 'cards-map', 'dual-list', 'split-panel', 'list-only', 'map-full', 'card-grid', 'minimal', 'esl-focus', 'drill-stair', 'filter-list'];
+  intStyles: IntermediateStyle[] = ['accordion', 'pill-tabs', 'image-grid', 'hex-grid', 'circular', 'scroll-list', 'card-strip', 'fullscreen', 'center-tiles', 'side-rail', 'brand-grid', 'drill-stair'];
+  resultTemplates: ResultTemplate[] = ['map-list', 'cards-map', 'dual-list', 'split-panel', 'list-only', 'map-full', 'card-grid', 'minimal', 'esl-focus', 'drill-stair', 'filter-list', 'map-filter-list', 'promo-list', 'catalog-grid', 'product-focus'];
   transitions: TransitionType[] = ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'];
   speeds: AnimSpeed[] = ['slow', 'normal', 'fast'];
   loaders: LoaderStyle[] = ['spinner', 'dot-pulse', 'progress', 'logo', 'skeleton'];
@@ -80,6 +82,19 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'title+caption', label: 'Title + Caption' },
     { id: 'logo+title+caption', label: 'Logo + Title + Caption' },
   ];
+  cardSurfaces: { id: CardSurface; label: string }[] = [
+    { id: 'flat', label: 'Flat' },
+    { id: 'glass', label: 'Glass' },
+    { id: 'raised', label: 'Raised' },
+    { id: 'outlined', label: 'Outlined' },
+    { id: 'glow', label: 'Glow' },
+  ];
+  navStyles: { id: NavStyle; label: string }[] = [
+    { id: 'floating', label: 'Floating' },
+    { id: 'edge', label: 'Edge buttons' },
+    { id: 'bottom-center', label: 'Bottom center' },
+    { id: 'hidden', label: 'Hidden' },
+  ];
   sizes: Array<'small' | 'medium' | 'large'> = ['small', 'medium', 'large'];
   pathStyles: Array<'dashed' | 'solid' | 'dotted' | 'animated'> = ['dashed', 'solid', 'dotted', 'animated'];
   saverModes = ['slideshow', 'single-image', 'video'];
@@ -88,7 +103,7 @@ export class ThemeWizardComponent implements OnInit {
   cardPresets = ['rgba(255,255,255,0.15)', '#FFFFFF', '#1E293B', '#F1F5F9'];
   textPresets = ['#FFFFFF', '#0F172A', '#FFCD00'];
 
-  constructor(private themes: ThemeService, private route: ActivatedRoute, private router: Router) {}
+  constructor(private themes: ThemeService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router) {}
 
   async ngOnInit(): Promise<void> {
     this.id = this.route.snapshot.paramMap.get('id');
@@ -111,7 +126,10 @@ export class ThemeWizardComponent implements OnInit {
   get step(): Step { return this.visibleSteps[this.stepIndex] ?? this.visibleSteps[0]; }
   get previewPage(): PreviewPage { return this.step.page; }
 
-  get shapeCard(): boolean { return this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon'; }
+  get shapeCard(): boolean {
+    if (this.t.cardShape !== 'circle' && this.t.cardShape !== 'hexagon') return false;
+    return !['image-strip', 'fullscreen', 'hero-start', 'promo-categories'].includes(this.t.homeLayout);
+  }
 
   get scaleNum(): number { return this.t.typography.textScale === 'compact' ? 0.9 : this.t.typography.textScale === 'large' ? 1.14 : 1; }
 
@@ -128,9 +146,13 @@ export class ThemeWizardComponent implements OnInit {
       : this.t.headerColor;
   }
   backgroundForPage(page: PreviewPage): string {
-    return page === 'inter' ? this.t.intermediate.background
+    const bg = page === 'inter' ? this.t.intermediate.background
       : page === 'result' ? this.t.result.background
       : this.t.background;
+    const image = page === 'inter' ? this.t.intermediate.backgroundImage
+      : page === 'result' ? this.t.result.backgroundImage
+      : this.t.backgroundImage;
+    return image ? `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.28)), url("${image}") center/cover no-repeat, ${bg}` : bg;
   }
   pageCaption(page: PreviewPage): string {
     return page === 'inter' ? 'Intermediate' : page === 'result' ? 'Result' : page === 'saver' ? 'Screensaver' : 'Home';
@@ -167,6 +189,20 @@ export class ThemeWizardComponent implements OnInit {
     if (this.demoTimer) clearTimeout(this.demoTimer);
     this.demoMode = 'loader'; this.playId++;
     this.demoTimer = setTimeout(() => { this.demoMode = 'idle'; this.playId++; }, 1800);
+  }
+
+  async pickBackground(page: PreviewPage): Promise<void> {
+    const dataUrl = await this.picker.pick();
+    if (!dataUrl) return;
+    if (page === 'inter') this.t.intermediate.backgroundImage = dataUrl;
+    else if (page === 'result') this.t.result.backgroundImage = dataUrl;
+    else this.t.backgroundImage = dataUrl;
+  }
+
+  clearBackground(page: PreviewPage): void {
+    if (page === 'inter') this.t.intermediate.backgroundImage = undefined;
+    else if (page === 'result') this.t.result.backgroundImage = undefined;
+    else this.t.backgroundImage = undefined;
   }
 
   next(): void {

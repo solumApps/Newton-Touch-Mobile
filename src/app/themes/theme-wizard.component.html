@@ -11,7 +11,8 @@
   <div class="scroll">
     <!-- ===== Reusable mini-LCD preview for any page ===== -->
     <ng-template #pageView let-page="page">
-      <div class="prev" [ngClass]="'fit-'+t.typography.textFit" [style.background]="backgroundForPage(page)"
+      <div class="prev" [ngClass]="['fit-'+t.typography.textFit, 'surface-'+(t.cardSurface || 'flat'), 'nav-'+(t.navStyle || 'floating')]"
+           [style.background]="backgroundForPage(page)"
            [style.fontFamily]="t.typography.fontFamily" [style.--prev-scale]="scaleNum"
            [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [ngSwitch]="page">
         <div class="hdr" *ngIf="headerVisibleFor(page)" [ngClass]="['logo-'+t.logoPosition, 'hdr-style-'+(t.headerStyle || 'logo-only')]" [style.background]="headerColorForPage(page)">
@@ -22,6 +23,14 @@
 
         <!-- HOME -->
         <div *ngSwitchCase="'home'" class="stage layout-{{t.homeLayout}}" [class.shape]="shapeCard">
+          <div class="hero-copy" *ngIf="t.homeLayout==='hero-start'">
+            <span>Product Finder</span>
+            <b>Start Search</b>
+          </div>
+          <div class="promo-copy" *ngIf="t.homeLayout==='promo-categories'">
+            <b>Featured</b>
+            <span>Find the right product faster</span>
+          </div>
           <div class="card shape-{{t.cardShape}} content-{{t.cardContent}} pos-{{t.cardTextPos}}" *ngFor="let n of slots; let i = index" [class.featured]="i===0"
                [style.color]="t.cardText" [style.borderColor]="t.accent">
             <div class="img placeholder" [style.background]="t.accent"></div>
@@ -32,6 +41,9 @@
         <!-- INTERMEDIATE -->
         <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}}"
              [style.--int-card]="t.intermediate.cardBackground" [style.--int-accent]="t.intermediate.accent" [style.--int-text]="t.intermediate.cardText">
+          <div class="rail" *ngIf="t.intermediateStyle==='side-rail'">
+            <b>Finder</b><span>Category</span><span>Model</span><span>Year</span>
+          </div>
           <div class="item" *ngFor="let n of slots; let i = index" [class.open]="i===0">
             <div class="img"></div>
             <span class="name">{{ labels[i] }}</span>
@@ -47,6 +59,15 @@
             <span class="filter on" [style.background]="t.result.accent">Popular</span>
             <span class="filter">A-Z</span>
           </div>
+          <div class="promo" *ngIf="t.resultTemplate==='promo-list'"></div>
+          <div class="focus" *ngIf="t.resultTemplate==='product-focus'">
+            <b>Best Match</b>
+            <span>Find Me</span>
+          </div>
+          <div class="filters side" *ngIf="t.resultTemplate==='map-filter-list'">
+            <span class="filter on" [style.background]="t.result.accent">All</span>
+            <span class="filter">Care</span>
+          </div>
           <div class="list">
             <div class="prod" *ngFor="let n of [0,1,2]; let i = index" [class.found]="i===0"
                  [style.background]="t.result.cardBackground" [style.color]="t.result.cardText"
@@ -54,6 +75,9 @@
               <span class="dot" [style.background]="t.result.accent"></span>Product
             </div>
           </div>
+        </div>
+        <div class="mock-nav" *ngIf="page !== 'home' && page !== 'saver' && (t.navStyle || 'floating') !== 'hidden'">
+          <span>‹</span><span>⌂</span>
         </div>
 
         <!-- SCREENSAVER -->
@@ -124,6 +148,11 @@
           <button class="tile" *ngFor="let c of cardContents" [class.sel]="t.cardContent===c.id" (click)="t.cardContent=c.id">{{ c.label }}</button>
         </div>
 
+        <div class="step-title sm">Card surface</div>
+        <div class="seg">
+          <button class="tile" *ngFor="let s of cardSurfaces" [class.sel]="(t.cardSurface||'flat')===s.id" (click)="t.cardSurface=s.id">{{ s.label }}</button>
+        </div>
+
         <ng-container *ngIf="showTextPos">
           <div class="step-title sm">Text position</div>
           <div class="seg">
@@ -149,12 +178,20 @@
           <button class="tile" [class.sel]="!t.includeIntermediate" (click)="t.includeIntermediate=false">Skip → Result</button>
         </div>
         <p class="hint">Skip if the app doesn't drill down — a Home tap goes straight to Result.</p>
+        <div class="step-title sm">Navigation buttons</div>
+        <div class="seg">
+          <button class="tile" *ngFor="let n of navStyles" [class.sel]="(t.navStyle||'floating')===n.id" (click)="t.navStyle=n.id">{{ n.label }}</button>
+        </div>
       </div>
 
       <div *ngSwitchCase="'colors'">
         <div class="step-title">Colors &amp; branding</div>
         <app-color-picker label="Header" hint="top bar" [value]="t.headerColor" (valueChange)="t.headerColor=$event"></app-color-picker>
         <app-color-picker label="Card area background" [value]="t.background" (valueChange)="t.background=$event" [presets]="bgPresets"></app-color-picker>
+        <div class="media-row">
+          <button class="btn-o media-btn" (click)="pickBackground('home')">{{ t.backgroundImage ? 'Replace home background image' : 'Upload home background image' }}</button>
+          <button class="btn-o media-clear" *ngIf="t.backgroundImage" (click)="clearBackground('home')">Clear</button>
+        </div>
         <app-color-picker label="Card background" [value]="t.cardBackground" (valueChange)="t.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker label="Card text" [value]="t.cardText" (valueChange)="t.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker label="Accent / highlight" [value]="t.accent" (valueChange)="t.accent=$event"></app-color-picker>
@@ -186,6 +223,10 @@
         <div class="step-title">Intermediate colors</div>
         <app-color-picker label="Header / breadcrumb" [value]="t.intermediate.headerColor" (valueChange)="t.intermediate.headerColor=$event"></app-color-picker>
         <app-color-picker label="Page background" [value]="t.intermediate.background" (valueChange)="t.intermediate.background=$event" [presets]="bgPresets"></app-color-picker>
+        <div class="media-row">
+          <button class="btn-o media-btn" (click)="pickBackground('inter')">{{ t.intermediate.backgroundImage ? 'Replace intermediate background image' : 'Upload intermediate background image' }}</button>
+          <button class="btn-o media-clear" *ngIf="t.intermediate.backgroundImage" (click)="clearBackground('inter')">Clear</button>
+        </div>
         <app-color-picker label="Row / card background" [value]="t.intermediate.cardBackground" (valueChange)="t.intermediate.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker label="Card text" [value]="t.intermediate.cardText" (valueChange)="t.intermediate.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker label="Accent / active" [value]="t.intermediate.accent" (valueChange)="t.intermediate.accent=$event"></app-color-picker>
@@ -207,6 +248,10 @@
         <div class="step-title">Result colors &amp; path</div>
         <app-color-picker label="Header" [value]="t.result.headerColor" (valueChange)="t.result.headerColor=$event"></app-color-picker>
         <app-color-picker label="Page background" [value]="t.result.background" (valueChange)="t.result.background=$event" [presets]="bgPresets"></app-color-picker>
+        <div class="media-row">
+          <button class="btn-o media-btn" (click)="pickBackground('result')">{{ t.result.backgroundImage ? 'Replace result background image' : 'Upload result background image' }}</button>
+          <button class="btn-o media-clear" *ngIf="t.result.backgroundImage" (click)="clearBackground('result')">Clear</button>
+        </div>
         <app-color-picker label="Product card background" [value]="t.result.cardBackground" (valueChange)="t.result.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker label="Card text" [value]="t.result.cardText" (valueChange)="t.result.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker label="Accent / highlight" [value]="t.result.accent" (valueChange)="t.result.accent=$event"></app-color-picker>

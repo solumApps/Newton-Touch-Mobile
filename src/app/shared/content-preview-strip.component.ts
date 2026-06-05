@@ -22,8 +22,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
   styleUrls: ['./content-preview-strip.component.scss'],
   template: `
     <div class="cps-wrap">
-      <div class="prev" [ngClass]="'fit-'+(theme?.typography?.textFit||'shrink')"
-           [style.background]="theme?.background"
+      <div class="prev" [ngClass]="['fit-'+(theme?.typography?.textFit||'shrink'), 'surface-'+(theme?.cardSurface || 'flat'), 'nav-'+(theme?.navStyle || 'floating')]"
+           [style.background]="backgroundForPage"
            [style.fontFamily]="theme?.typography?.fontFamily"
            [style.--prev-scale]="scaleNum"
            [style.--prev-accent]="theme?.accent"
@@ -42,6 +42,14 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
         <!-- HOME -->
         <div *ngSwitchCase="'home'" class="stage layout-{{theme?.homeLayout}}" [class.shape]="shapeCard">
+          <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
+            <span>{{ titleText || 'Product Finder' }}</span>
+            <b>Start Search</b>
+          </div>
+          <div class="promo-copy" *ngIf="theme?.homeLayout==='promo-categories'">
+            <b>Featured</b>
+            <span>{{ titleText || 'Find the right product faster' }}</span>
+          </div>
           <ng-container *ngIf="(home?.length||0) > 0; else homePlaceholders">
             <div *ngFor="let c of homeSlice; let i = index"
                  class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
@@ -67,6 +75,9 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
              [style.--int-card]="theme?.intermediate?.cardBackground"
              [style.--int-accent]="theme?.intermediate?.accent"
              [style.--int-text]="theme?.intermediate?.cardText">
+          <div class="rail" *ngIf="theme?.intermediateStyle==='side-rail'">
+            <b>{{ titleText || 'Finder' }}</b><span>Category</span><span>Model</span><span>Result</span>
+          </div>
           <ng-container *ngIf="(intermediateSource?.length||0) > 0; else interPlaceholders">
             <div class="item" *ngFor="let it of intermediateSlice; let i = index" [class.open]="i===0">
               <div class="img" [style.background-image]="it.image ? 'url('+it.image+')' : null"></div>
@@ -86,6 +97,15 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <div class="map" [style.borderColor]="theme?.result?.pathColor" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
             <div class="path path-{{theme?.result?.pathStyle}}" [style.background]="theme?.result?.pathColor" [style.borderColor]="theme?.result?.pathColor"></div>
           </div>
+          <div class="promo" *ngIf="theme?.resultTemplate==='promo-list'" [style.background-image]="result?.promoImage ? 'url('+result?.promoImage+')' : null"></div>
+          <div class="focus" *ngIf="theme?.resultTemplate==='product-focus'">
+            <b>{{ (result?.products?.[0]?.price) || 'Best Match' }}</b>
+            <span>Find Me</span>
+          </div>
+          <div class="filters side" *ngIf="theme?.resultTemplate==='map-filter-list'">
+            <span class="filter on" [style.background]="theme?.result?.accent">All</span>
+            <span class="filter">Care</span>
+          </div>
           <div class="list">
             <ng-container *ngIf="(result?.products?.length||0) > 0; else prodPlaceholders">
               <div class="prod" *ngFor="let p of resultSlice; let i = index" [class.found]="i===0"
@@ -102,6 +122,9 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               </div>
             </ng-template>
           </div>
+        </div>
+        <div class="mock-nav" *ngIf="page !== 'home' && page !== 'saver' && (theme?.navStyle || 'floating') !== 'hidden'">
+          <span>‹</span><span>⌂</span>
         </div>
 
         <!-- SCREENSAVER -->
@@ -135,7 +158,7 @@ export class ContentPreviewStripComponent {
   @Input() page: PreviewPage = 'home';
   @Input() home: CardItem[] = [];
   @Input() intermediate: CardItem[] = [];
-  @Input() result?: { mapImage?: string; products: ResultProduct[] };
+  @Input() result?: { mapImage?: string; promoImage?: string; products: ResultProduct[] };
   @Input() screensaver?: Screensaver;
   @Input() header?: { title?: string; caption?: string };
   /** Optional caption override under the strip. */
@@ -153,7 +176,8 @@ export class ContentPreviewStripComponent {
   }
   get shapeCard(): boolean {
     const sh = this.theme?.cardShape;
-    return sh === 'circle' || sh === 'hexagon';
+    const layout = this.theme?.homeLayout;
+    return (sh === 'circle' || sh === 'hexagon') && !['image-strip', 'fullscreen', 'hero-start', 'promo-categories'].includes(layout || '');
   }
   get headerColor(): string | undefined {
     return this.page === 'inter' ? this.theme?.intermediate?.headerColor
@@ -165,6 +189,15 @@ export class ContentPreviewStripComponent {
     if (this.page === 'inter') return this.theme?.intermediate?.showHeader !== false;
     if (this.page === 'result') return this.theme?.result?.showHeader !== false;
     return this.theme?.showHeader !== false;
+  }
+  get backgroundForPage(): string | undefined {
+    const bg = this.page === 'inter' ? this.theme?.intermediate?.background
+      : this.page === 'result' ? this.theme?.result?.background
+      : this.theme?.background;
+    const image = this.page === 'inter' ? this.theme?.intermediate?.backgroundImage
+      : this.page === 'result' ? this.theme?.result?.backgroundImage
+      : this.theme?.backgroundImage;
+    return image ? `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.28)), url("${image}") center/cover no-repeat, ${bg || '#000'}` : bg;
   }
   get pageCaption(): string {
     return this.page === 'inter' ? 'Intermediate'
