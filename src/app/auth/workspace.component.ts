@@ -26,6 +26,8 @@ export class WorkspaceComponent implements OnInit {
   loadingStores = false;
   error = '';
   returnTo = '';
+  companyOpen = false;
+  storeOpen = false;
 
   constructor(private ws: WorkspaceService, private router: Router, private route: ActivatedRoute) {
     this.returnTo = this.route.snapshot.queryParamMap.get('returnTo') || '';
@@ -73,4 +75,18 @@ export class WorkspaceComponent implements OnInit {
   }
 
   back(): void { this.router.navigateByUrl(this.returnTo || '/tabs/settings'); }
+
+  onCompanyOpenChange(open: boolean): void {
+    this.companyOpen = open;
+    if (open) {
+      this.storeOpen = false;
+    }
+  }
+
+  onStoreOpenChange(open: boolean): void {
+    this.storeOpen = open;
+    if (open) {
+      this.companyOpen = false;
+    }
+  }
 }
