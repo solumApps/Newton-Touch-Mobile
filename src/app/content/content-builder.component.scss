@@ -30,6 +30,31 @@
 
 .btn-o { margin-top: 6px; }
 
+table.sum {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+table.sum td {
+  padding: 7px 0;
+  border-top: 1px solid var(--nt-border);
+  color: var(--nt-text);
+  vertical-align: middle;
+  word-break: break-word;
+}
+
+table.sum tr:first-child td {
+  border-top: none;
+}
+
+table.sum td:first-child {
+  width: 46%;
+  color: var(--nt-muted);
+}
+
 /* Step-wizard chrome */
 .progress { height: 3px; background: rgba(0,0,0,.08); }
 .progress .bar { height: 100%; background: var(--nt-yellow, #FFCD00); transition: width .2s ease; }

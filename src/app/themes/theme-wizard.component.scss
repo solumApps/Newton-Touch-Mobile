@@ -1,14 +1,14 @@
 /* keep the wizard title compact so it never overflows / truncates */
 :host ::ng-deep ion-title { font-size: 16px; font-weight: 700; }
-.scroll { padding: 14px 16px 28px; }
+.scroll { padding: 0 16px 28px; }
 
 /* Sticky preview — preview stays pinned at top while the option list scrolls. */
-.scroll > .prev-wrap, .scroll > .slider {
+.scroll > .sticky-preview, .scroll > .slider {
   position: sticky; top: 0; z-index: 5;
   background: var(--ion-background-color, #fff);
-  padding-top: 6px; padding-bottom: 4px;
+  padding-top: 20px; padding-bottom: 4px;
 }
-.scroll > .prev-wrap .prev { max-height: 30vh; }
+.scroll > .sticky-preview .prev { max-height: 30vh; }
 
 /* ===== Live preview frame (1920:540 LCD strip) ===== */
 .prev {
@@ -95,8 +95,10 @@
 .prev .stage .card {
   box-sizing: border-box; border: 1.5px solid transparent; border-radius: 4px; overflow: hidden;
   display: flex; flex-direction: column; min-width: 0;
+  background: var(--prev-card);
 }
-.prev .stage .card .img { flex: 1; min-height: 0; opacity: .5; }
+.prev .stage .card .img { flex: 1; min-height: 0; opacity: .85; }
+.prev .stage .card .img.placeholder { opacity: .15; }
 .prev .stage .card .meta { padding: 1px 3px; }
 .prev .stage .card .name { font-size: calc(var(--prev-scale, 1) * 7px); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
 /* text-fit in preview */
@@ -141,14 +143,14 @@
 .prev .stage.layout-circular .card { position: relative; height: 78%; aspect-ratio: 1; width: auto; border-radius: 50%; align-items: center; justify-content: center; }
 .prev .stage.layout-circular .card .img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; opacity: .8; }
 .prev .stage.layout-circular .card .meta { position: relative; z-index: 1; }
-.prev .stage.layout-circular .card .name { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.prev .stage.layout-circular .card .name { color: var(--prev-text, #fff); text-shadow: 0 1px 2px rgba(0,0,0,.6); }
 .prev .stage.layout-circular .card:nth-child(n+6) { display: none; }
 
 .prev .stage.layout-hexagonal { display: flex; align-items: center; justify-content: space-evenly; flex-wrap: wrap; align-content: center; }
 .prev .stage.layout-hexagonal .card { position: relative; height: 78%; aspect-ratio: 1; width: auto; clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); align-items: center; justify-content: center; }
 .prev .stage.layout-hexagonal .card .img { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .8; }
 .prev .stage.layout-hexagonal .card .meta { position: relative; z-index: 1; }
-.prev .stage.layout-hexagonal .card .name { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.prev .stage.layout-hexagonal .card .name { color: var(--prev-text, #fff); text-shadow: 0 1px 2px rgba(0,0,0,.6); }
 .prev .stage.layout-hexagonal .card:nth-child(n+7) { display: none; }
 
 /* ===== CARD = SHAPE × CONTENT × TEXT-POSITION ===== */
@@ -176,8 +178,9 @@
 /* text-only vs color-block — match LCD rendering: minimal vs vivid full-bleed accent.
    Inline styles in the template set background per-card; use !important to win. */
 .prev .stage .card.content-text-only .name { font-weight: 700; text-transform: none; letter-spacing: normal; }
-.prev .stage .card.content-color-block { background: var(--prev-accent, #FFCD00) !important; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
-.prev .stage .card.content-color-block .name { color: #111 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; }
+.prev .stage .card.content-color-block { box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
+.prev .stage .card.content-color-block .name { font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; }
+.prev .stage .card.content-gradient { background: linear-gradient(135deg, var(--prev-accent), var(--prev-card)) !important; }
 /* text position (image + text) — 'below' = default column flow (img top, label under) */
 .prev .stage .card.content-image-text.pos-overlay-bottom,
 .prev .stage .card.content-image-text.pos-overlay-top,
@@ -185,9 +188,9 @@
 .prev .stage .card.content-image-text.pos-overlay-bottom .img,
 .prev .stage .card.content-image-text.pos-overlay-top .img,
 .prev .stage .card.content-image-text.pos-center .img { position: absolute; inset: 0; flex: none; width: 100%; height: 100%; }
-.prev .stage .card.content-image-text.pos-overlay-bottom .meta { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(transparent, rgba(0,0,0,.6)); color: #fff; }
-.prev .stage .card.content-image-text.pos-overlay-top .meta { position: absolute; left: 0; right: 0; top: 0; background: linear-gradient(rgba(0,0,0,.6), transparent); color: #fff; }
-.prev .stage .card.content-image-text.pos-center .meta { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.prev .stage .card.content-image-text.pos-overlay-bottom .meta { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(transparent, rgba(0,0,0,.6)); color: var(--prev-text, #fff); }
+.prev .stage .card.content-image-text.pos-overlay-top .meta { position: absolute; left: 0; right: 0; top: 0; background: linear-gradient(rgba(0,0,0,.6), transparent); color: var(--prev-text, #fff); }
+.prev .stage .card.content-image-text.pos-center .meta { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--prev-text, #fff); text-shadow: 0 1px 2px rgba(0,0,0,.6); }
 
 /* Circle/Hexagon shapes → centred TRUE squares (any layout), never stretched. */
 .prev .stage.shape { display: flex !important; flex-wrap: wrap; align-items: center; align-content: center; justify-content: space-evenly; }
@@ -197,7 +200,7 @@
 .prev .stage.shape .card .img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .prev .stage.shape .card .meta { position: relative; z-index: 1; padding: 0 4px; width: 100%; box-sizing: border-box; }
 /* Shape cards: single line, shrink-to-fit (no character-break). Long words ellipsis as last resort. */
-.prev .stage.shape .card .name { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.65); text-align: center;
+.prev .stage.shape .card .name { color: var(--prev-text, #fff); text-shadow: 0 1px 2px rgba(0,0,0,.65); text-align: center;
   font-size: calc(var(--prev-scale, 1) * 5px); line-height: 1.1;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 /* Pill is wider than tall — same single-line rule with slightly larger font. */

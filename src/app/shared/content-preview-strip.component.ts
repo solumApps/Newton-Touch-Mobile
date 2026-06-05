@@ -46,8 +46,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div *ngFor="let c of homeSlice; let i = index"
                  class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
                  [class.featured]="i===0"
-                 [style.background]="cardBg" [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
-              <div class="img" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
+                 [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
+              <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
               <div class="meta"><span class="name">{{ c.name || 'Item' }}</span></div>
             </div>
           </ng-container>
@@ -55,8 +55,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div *ngFor="let n of placeholderSlots; let i = index"
                  class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
                  [class.featured]="i===0"
-                 [style.background]="cardBg" [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
-              <div class="img" [style.background]="theme?.accent"></div>
+                 [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
+              <div class="img placeholder" [style.background]="theme?.accent"></div>
               <div class="meta"><span class="name">{{ placeholderLabels[i] }}</span></div>
             </div>
           </ng-template>
@@ -154,12 +154,6 @@ export class ContentPreviewStripComponent {
   get shapeCard(): boolean {
     const sh = this.theme?.cardShape;
     return sh === 'circle' || sh === 'hexagon';
-  }
-  get cardBg(): string | null {
-    if (!this.theme) return null;
-    if (this.theme.cardContent === 'color-block') return this.theme.accent;
-    if (this.theme.cardContent === 'gradient') return `linear-gradient(160deg,${this.theme.headerColor},${this.theme.background})`;
-    return this.theme.cardBackground;
   }
   get headerColor(): string | undefined {
     return this.page === 'inter' ? this.theme?.intermediate?.headerColor

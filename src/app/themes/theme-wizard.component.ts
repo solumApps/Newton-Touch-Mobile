@@ -53,8 +53,8 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'rect', label: 'Rectangle' }, { id: 'pill', label: 'Pill' }, { id: 'circle', label: 'Circle' }, { id: 'hexagon', label: 'Hexagon' },
   ];
   cardContents: { id: CardContent; label: string }[] = [
-    { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' }, { id: 'text-only', label: 'Text only' },
-    { id: 'icon-text', label: 'Icon + Text' }, { id: 'color-block', label: 'Colour block' }, { id: 'gradient', label: 'Gradient' },
+    { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' },
+    { id: 'icon-text', label: 'Icon + Text' }, { id: 'color-block', label: 'Colour block + Text' }, { id: 'gradient', label: 'Gradient' },
   ];
   cardTextPositions: { id: CardTextPos; label: string }[] = [
     { id: 'overlay-top', label: 'Overlay top' }, { id: 'overlay-bottom', label: 'Overlay bottom' }, { id: 'below', label: 'Below' }, { id: 'center', label: 'Centered' },
@@ -94,7 +94,13 @@ export class ThemeWizardComponent implements OnInit {
     this.id = this.route.snapshot.paramMap.get('id');
     if (this.id) {
       const existing = (await this.themes.list()).find((x) => x.id === this.id);
-      if (existing) { this.name = existing.name; this.t = ThemeService.normalize(JSON.parse(JSON.stringify(existing.tokens))); }
+      if (existing) {
+        this.name = existing.name;
+        this.t = ThemeService.normalize(JSON.parse(JSON.stringify(existing.tokens)));
+        if (this.t.cardContent === 'text-only') {
+          this.t.cardContent = 'color-block';
+        }
+      }
     }
   }
 
@@ -105,12 +111,6 @@ export class ThemeWizardComponent implements OnInit {
   get step(): Step { return this.visibleSteps[this.stepIndex] ?? this.visibleSteps[0]; }
   get previewPage(): PreviewPage { return this.step.page; }
 
-  /** color-block / gradient content paints with the accent instead of card bg. */
-  cardBg(): string {
-    if (this.t.cardContent === 'color-block') return this.t.accent;
-    if (this.t.cardContent === 'gradient') return `linear-gradient(135deg, ${this.t.accent}, ${this.t.cardBackground})`;
-    return this.t.cardBackground;
-  }
   get shapeCard(): boolean { return this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon'; }
 
   get scaleNum(): number { return this.t.typography.textScale === 'compact' ? 0.9 : this.t.typography.textScale === 'large' ? 1.14 : 1; }
