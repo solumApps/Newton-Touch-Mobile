@@ -1,17 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { IonContent, IonFooter, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/angular/standalone';
+import { IonContent, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonModal } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { searchOutline, swapVerticalOutline, chevronForward, cloudUploadOutline, trashOutline, colorPaletteOutline } from 'ionicons/icons';
 import { ThemeService, SavedTheme } from '../services/theme.service';
 import { WorkspaceService } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
+import { NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderComponent } from '../shared/ui';
 
 type Sort = 'Name' | 'Recent';
 
 @Component({
   selector: 'app-themes',
   standalone: true,
-  imports: [CommonModule, IonContent, IonFooter, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, PageHeaderComponent],
+  imports: [CommonModule, IonContent, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonModal, PageHeaderComponent, NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderComponent],
   templateUrl: './themes.page.html',
   styleUrls: ['./themes.page.scss'],
 })
@@ -27,8 +30,13 @@ export class ThemesPage implements OnInit {
   msg = '';
   msgErr = false;
   loading = true;
+  confirmOpen = false;
+  confirmTheme: SavedTheme | null = null;
+  featuredIndex = 0;
 
-  constructor(private themes: ThemeService, private ws: WorkspaceService, private router: Router) {}
+  constructor(private themes: ThemeService, private ws: WorkspaceService, private router: Router) {
+    addIcons({ searchOutline, swapVerticalOutline, chevronForward, cloudUploadOutline, trashOutline, colorPaletteOutline });
+  }
 
   async ngOnInit(): Promise<void> {
     this.predefined = ThemeService.predefined();
@@ -41,6 +49,23 @@ export class ThemesPage implements OnInit {
   async ionViewWillEnter(): Promise<void> { this.mine = await this.themes.list(); }
 
   cycleSort(): void { this.sort = this.sort === 'Name' ? 'Recent' : 'Name'; }
+
+  onFeaturedScroll(el: HTMLElement): void {
+    const w = this.featuredStepWidth(el);
+    this.featuredIndex = Math.round(el.scrollLeft / w);
+  }
+
+  goFeatured(el: HTMLElement, i: number): void {
+    el.scrollTo({ left: i * this.featuredStepWidth(el), behavior: 'smooth' });
+    this.featuredIndex = i;
+  }
+
+  private featuredStepWidth(el: HTMLElement): number {
+    const card = el.querySelector<HTMLElement>('.pre-card');
+    if (!card) return el.clientWidth || 1;
+    const gap = parseFloat(getComputedStyle(el).columnGap || getComputedStyle(el).gap || '0');
+    return card.offsetWidth + (Number.isFinite(gap) ? gap : 0);
+  }
 
   get filteredMine(): SavedTheme[] {
     const q = this.q.toLowerCase();
@@ -56,10 +81,17 @@ export class ThemesPage implements OnInit {
     return list;
   }
 
-  async del(t: SavedTheme): Promise<void> {
-    if (!confirm(`Delete theme "${t.name}"? This cannot be undone.`)) return;
-    await this.themes.remove(t.id);
+  /** Open the modal confirm dialog (replaces blocking JS confirm). */
+  del(t: SavedTheme): void {
+    this.confirmTheme = t;
+    this.confirmOpen = true;
+  }
+  async doDelete(): Promise<void> {
+    if (!this.confirmTheme) return;
+    await this.themes.remove(this.confirmTheme.id);
     this.mine = await this.themes.list();
+    this.confirmOpen = false;
+    this.confirmTheme = null;
   }
 
   use(t: SavedTheme): void { this.router.navigateByUrl('/theme-preview/' + t.id); }

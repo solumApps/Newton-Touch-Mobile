@@ -2,16 +2,19 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonContent, IonSpinner, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonToast } from '@ionic/angular/standalone';
+import { IonContent, IonSpinner, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonToast, IonIcon, IonModal } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { searchOutline, addOutline, scanOutline, closeCircleOutline, trashOutline, tvOutline, sendOutline } from 'ionicons/icons';
 import { DeviceService, SavedDevice } from '../services/device.service';
 import { TransferService } from '../services/transfer.service';
 import { WorkspaceService } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
+import { NtButtonComponent, NtBadgeComponent, NtEmptyComponent } from '../shared/ui';
 
 @Component({
   selector: 'app-devices',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonSpinner, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonToast, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, IonContent, IonSpinner, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonToast, IonIcon, IonModal, PageHeaderComponent, NtButtonComponent, NtBadgeComponent, NtEmptyComponent],
   templateUrl: './devices.page.html',
   styleUrls: ['./devices.page.scss'],
 })
@@ -28,8 +31,20 @@ export class DevicesPage implements OnInit {
   skel = [1, 2];
   showToast = false;
   toastMsg = '';
+  addModalOpen = false;
+  confirmOpen = false;
+  confirmDev: SavedDevice | null = null;
 
-  constructor(private deviceSvc: DeviceService, private transfer: TransferService, private ws: WorkspaceService, private router: Router) {}
+  constructor(private deviceSvc: DeviceService, private transfer: TransferService, private ws: WorkspaceService, private router: Router) {
+    addIcons({ searchOutline, addOutline, scanOutline, closeCircleOutline, trashOutline, tvOutline, sendOutline });
+  }
+
+  /** Best-effort "recently active" indicator from deploy history.
+   *  Returns 'live' if deployed within last 24h, 'idle' otherwise. */
+  deviceState(d: SavedDevice): 'live' | 'offline' {
+    if (!d.lastDeployedAt) return 'offline';
+    return (Date.now() - d.lastDeployedAt) < 24 * 3.6e6 ? 'live' : 'offline';
+  }
 
   get native(): boolean { return this.transfer.isNative; }
 
@@ -75,10 +90,16 @@ export class DevicesPage implements OnInit {
     }, 8000);
   }
 
-  async del(d: SavedDevice): Promise<void> {
-    if (!confirm(`Remove device "${d.name}"?`)) return;
-    await this.deviceSvc.remove(d.id);
+  del(d: SavedDevice): void {
+    this.confirmDev = d;
+    this.confirmOpen = true;
+  }
+  async doDelete(): Promise<void> {
+    if (!this.confirmDev) return;
+    await this.deviceSvc.remove(this.confirmDev.id);
     this.devices = await this.deviceSvc.list();
+    this.confirmOpen = false;
+    this.confirmDev = null;
   }
 
   validIp(): boolean { return /^\d{1,3}(\.\d{1,3}){3}$/.test(this.newIp.trim()); }
@@ -90,6 +111,7 @@ export class DevicesPage implements OnInit {
     await this.deviceSvc.upsertReturning(name, this.newIp.trim(), 8082);
     this.devices = await this.deviceSvc.list();
     this.newName = ''; this.newIp = '';
+    this.addModalOpen = false;
   }
 
   ago(ts?: number): string {

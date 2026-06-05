@@ -1,0 +1,36 @@
+.nt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--nt-r-full);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: .2px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.nt-badge .d {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor;
+}
+
+.nt-badge.v-neutral     { background: var(--nt-surface);        color: var(--nt-text-2);  border-color: var(--nt-border); }
+.nt-badge.v-predefined  { background: var(--nt-tint);           color: var(--nt-purple);  border-color: rgba(47,0,109,0.15); }
+.nt-badge.v-draft       { background: var(--nt-surface);        color: var(--nt-text-2);  border-color: var(--nt-border); }
+.nt-badge.v-complete    { background: var(--nt-info-tint);      color: var(--nt-info);    border-color: rgba(14,165,233,0.2); }
+.nt-badge.v-deployed,
+.nt-badge.v-success     { background: var(--nt-success-tint);   color: var(--nt-success); border-color: rgba(22,163,74,0.2); }
+.nt-badge.v-live        { background: var(--nt-success-tint);   color: var(--nt-success); border-color: rgba(22,163,74,0.2); }
+.nt-badge.v-live .d     { animation: nt-pulse 1.6s ease-in-out infinite; }
+.nt-badge.v-offline     { background: var(--nt-surface);        color: var(--nt-muted);   border-color: var(--nt-border); }
+.nt-badge.v-info        { background: var(--nt-info-tint);      color: var(--nt-info);    border-color: rgba(14,165,233,0.2); }
+.nt-badge.v-warn        { background: var(--nt-warn-tint);      color: #B45309;           border-color: rgba(245,158,11,0.25); }
+.nt-badge.v-danger      { background: var(--nt-danger-tint);    color: var(--nt-danger);  border-color: rgba(220,38,38,0.2); }
+
+@keyframes nt-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: .5; transform: scale(1.4); }
+}

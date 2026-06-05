@@ -1,15 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonContent, IonFooter, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/angular/standalone';
+import { IonContent, IonFooter, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonModal } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { searchOutline, chevronForward, trashOutline, documentsOutline } from 'ionicons/icons';
 import { Router } from '@angular/router';
 import { ContentService, ContentDraft } from '../services/content.service';
 import { WorkspaceService } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
+import { NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderComponent } from '../shared/ui';
 
 @Component({
   selector: 'app-content',
   standalone: true,
-  imports: [CommonModule, IonContent, IonFooter, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, PageHeaderComponent],
+  imports: [CommonModule, IonContent, IonFooter, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonModal, PageHeaderComponent, NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderComponent],
   templateUrl: './content.page.html',
   styleUrls: ['./content.page.scss'],
 })
@@ -19,8 +22,13 @@ export class ContentPage implements OnInit {
   company = '';
   store = '';
   loading = true;
+  skel = [1, 2, 3];
+  confirmOpen = false;
+  confirmDraft: ContentDraft | null = null;
 
-  constructor(private content: ContentService, private ws: WorkspaceService, private router: Router) {}
+  constructor(private content: ContentService, private ws: WorkspaceService, private router: Router) {
+    addIcons({ searchOutline, chevronForward, trashOutline, documentsOutline });
+  }
 
   async ngOnInit(): Promise<void> {
     this.drafts = await this.content.list();
@@ -32,20 +40,50 @@ export class ContentPage implements OnInit {
 
   ionViewWillEnter(): void { this.content.list().then((d) => { this.drafts = d; this.loading = false; }); }
 
-  skel = [1, 2, 3];
   filtered(): ContentDraft[] {
     const q = this.q.toLowerCase();
     return q ? this.drafts.filter((d) => d.name.toLowerCase().includes(q)) : this.drafts;
+  }
+
+  /** Group filtered drafts by deployment status — Deployed first, then Drafts. */
+  get groups(): { label: string; drafts: ContentDraft[] }[] {
+    const list = this.filtered();
+    const deployed = list.filter(d => !!d.deployedTo);
+    const drafts = list.filter(d => !d.deployedTo);
+    const out = [];
+    if (deployed.length) out.push({ label: 'Deployed', drafts: deployed });
+    if (drafts.length) out.push({ label: 'Drafts', drafts });
+    return out;
   }
 
   modeLabel(m: ContentDraft['appMode']): string {
     return m === 'category' ? 'Category' : m === 'prototype' ? 'Prototype' : 'Prototype + ESL';
   }
 
-  async del(c: ContentDraft): Promise<void> {
-    if (!confirm(`Delete content "${c.name}"? This cannot be undone.`)) return;
-    await this.content.remove(c.id);
+  /** Human-readable "deployed N ago". */
+  ago(ts?: number): string {
+    if (!ts) return '';
+    const diff = Date.now() - ts;
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return 'just now';
+    if (m < 60) return m + 'm ago';
+    const h = Math.floor(m / 60);
+    if (h < 24) return h + 'h ago';
+    const d = Math.floor(h / 24);
+    return d + 'd ago';
+  }
+
+  /** Open the modal confirm (replaces blocking JS confirm). */
+  del(c: ContentDraft): void {
+    this.confirmDraft = c;
+    this.confirmOpen = true;
+  }
+  async doDelete(): Promise<void> {
+    if (!this.confirmDraft) return;
+    await this.content.remove(this.confirmDraft.id);
     this.drafts = await this.content.list();
+    this.confirmOpen = false;
+    this.confirmDraft = null;
   }
 
   create(): void { this.router.navigateByUrl('/content-create'); }

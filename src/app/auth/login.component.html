@@ -2,8 +2,9 @@
   <div class="login">
     <app-brand variant="dark" class="brand-center"></app-brand>
 
-    <div class="env-pill">
-      <span class="dot"></span>{{ envName }} · {{ envUrl }}
+    <div class="env-pill" aria-label="Current server environment">
+      <span class="env-status"><span class="dot"></span>{{ envName }}</span>
+      <span class="env-url">{{ envUrl }}</span>
       <button type="button" class="change" (click)="changeEnv()">Change</button>
     </div>
 

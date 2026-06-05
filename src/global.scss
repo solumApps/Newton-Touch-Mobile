@@ -27,9 +27,61 @@
   --nt-surface: #F8FAFC;
   --nt-tint: #F8F5FF;
 
-  --ion-font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --ion-background-color: #ffffff;
+  /* Semantic status colors (additive — never used as text on white < 14pt) */
+  --nt-success: #16A34A;
+  --nt-success-tint: #DCFCE7;
+  --nt-danger: #DC2626;
+  --nt-danger-tint: #FEE2E2;
+  --nt-warn: #F59E0B;
+  --nt-warn-tint: #FEF3C7;
+  --nt-info: #0EA5E9;
+  --nt-info-tint: #E0F2FE;
+
+  /* Elevation scale */
+  --nt-shadow-1: 0 1px 2px rgba(15,23,42,0.04);
+  --nt-shadow-2: 0 1px 2px rgba(15,23,42,0.04), 0 4px 12px rgba(15,23,42,0.05);
+  --nt-shadow-3: 0 4px 8px rgba(15,23,42,0.05), 0 12px 24px rgba(15,23,42,0.08);
+
+  /* Radius scale */
+  --nt-r-sm: 6px;
+  --nt-r: 10px;
+  --nt-r-lg: 14px;
+  --nt-r-full: 999px;
+
+  /* Spacing scale (4-px grid) */
+  --nt-s-1: 4px;
+  --nt-s-2: 8px;
+  --nt-s-3: 12px;
+  --nt-s-4: 16px;
+  --nt-s-5: 24px;
+  --nt-s-6: 32px;
+
+  --ion-font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --ion-background-color: #F8FAFC;
   --ion-text-color: #0F172A;
+}
+
+html {
+  background: var(--nt-surface);
+}
+
+body {
+  background: var(--nt-surface);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, textarea, select {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+ion-button:focus-visible {
+  outline: 3px solid rgba(255,205,0,.55);
+  outline-offset: 2px;
 }
 
 /* ===== Branded chrome ===== */
@@ -38,6 +90,13 @@ ion-toolbar {
   --color: #ffffff;
   --border-width: 0;
 }
+/* Toolbar action buttons (SAVE / CANCEL / ‹) — bright white & bold so they read as actionable. */
+ion-toolbar ion-buttons ion-button {
+  --color: #ffffff;
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+ion-toolbar ion-buttons ion-button.cta-y { --color: var(--nt-yellow); }
 ion-tab-bar {
   --background: #ffffff;
   border-top: 1px solid var(--nt-border);
@@ -49,44 +108,49 @@ ion-tab-button { --color: #94A3B8; --color-selected: #2F006D; font-size: 9px; }
 .nt-brand { display: flex; align-items: center; gap: 8px; }
 .nt-brand img { height: 22px; }
 .nt-brand .sub { font-size: 10px; color: var(--nt-muted); letter-spacing: .5px; text-transform: uppercase; }
-.nt-wordmark { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; letter-spacing: 1px; color: var(--nt-purple); }
+.nt-wordmark { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 900; letter-spacing: 1px; color: var(--nt-purple); }
 
-/* ===== Wireframe primitives ===== */
+/* ===== Wireframe primitives — unified radius (10px panels, 999px pills) + subtle elevation ===== */
 .crd {
-  background: #fff; border: 1px solid var(--nt-border); border-radius: 8px; padding: 10px 12px;
+  background: #fff; border: 1px solid var(--nt-border); border-radius: 10px; padding: 12px 14px;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 4px 12px rgba(15,23,42,0.05);
 }
 .crd.sel { border: 2px solid var(--nt-purple); background: var(--nt-tint); }
 
 .chip {
-  display: inline-flex; align-items: center; padding: 5px 10px; border-radius: 20px;
+  display: inline-flex; align-items: center; padding: 5px 10px; border-radius: 999px;
   font-size: 10px; font-weight: 600; border: 1.5px solid var(--nt-border);
   color: var(--nt-text-2); background: var(--nt-surface);
 }
 .chip.act { background: var(--nt-purple); color: #fff; border-color: var(--nt-purple); }
 
-/* Button helpers (apply class on plain <button> or override ion-button via these) */
-.btn-y { background: var(--nt-yellow); color: #000; font-weight: 800; border: none; border-radius: 8px; padding: 12px; width: 100%; font-family: inherit; font-size: 14px; }
-.btn-g { background: var(--nt-purple); color: #fff; font-weight: 700; border: none; border-radius: 8px; padding: 12px; width: 100%; font-family: inherit; font-size: 14px; }
-.btn-o { background: #fff; color: var(--nt-purple); font-weight: 700; border: 2px solid var(--nt-purple); border-radius: 8px; padding: 11px; width: 100%; font-family: inherit; font-size: 14px; }
+/* Button helpers — pill-shaped, consistent across the app */
+.btn-y { background: var(--nt-yellow); color: #000; font-weight: 800; border: none; border-radius: 999px; padding: 13px 16px; width: 100%; font-family: inherit; font-size: 14px; }
+.btn-g { background: var(--nt-purple); color: #fff; font-weight: 700; border: none; border-radius: 999px; padding: 13px 16px; width: 100%; font-family: inherit; font-size: 14px; }
+.btn-o { background: #fff; color: var(--nt-purple); font-weight: 700; border: 2px solid var(--nt-purple); border-radius: 999px; padding: 12px 16px; width: 100%; font-family: inherit; font-size: 14px; }
 
 /* Make the primary ion-button look like the yellow CTA, secondary = purple */
-ion-button.cta { --background: #FFCD00; --background-activated: #E6B800; --color: #000; --border-radius: 8px; font-weight: 800; text-transform: none; }
-ion-button.cta-purple { --background: #2F006D; --color: #fff; --border-radius: 8px; font-weight: 700; text-transform: none; }
-ion-button.cta-outline { --background: #fff; --color: #2F006D; --border-radius: 8px; --border-width: 2px; --border-style: solid; --border-color: #2F006D; font-weight: 700; text-transform: none; }
+ion-button.cta { --background: #FFCD00; --background-activated: #E6B800; --color: #000; --border-radius: 999px; font-weight: 800; text-transform: none; }
+ion-button.cta-purple { --background: #2F006D; --color: #fff; --border-radius: 999px; font-weight: 700; text-transform: none; }
+ion-button.cta-outline { --background: #fff; --color: #2F006D; --border-radius: 999px; --border-width: 2px; --border-style: solid; --border-color: #2F006D; font-weight: 700; text-transform: none; }
 
 /* Flat cards (kill heavy ion-card shadow to match wireframe) */
-ion-card { box-shadow: none; border: 1px solid var(--nt-border); border-radius: 8px; margin: 8px 0; }
+ion-card { box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 4px 12px rgba(15,23,42,0.05); border: 1px solid var(--nt-border); border-radius: 10px; margin: 8px 0; }
 
 /* ===== Header / page-title typography (consistent across pages) ===== */
-ion-title { font-weight: 700; }
+ion-title { font-weight: 700; letter-spacing: -.1px; }
+/* Wizard "Step X / Y" — accent the current step number so progress reads clearly. */
+ion-title .step-i { color: var(--nt-yellow); font-weight: 800; }
 .page-title {
-  font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
-  font-size: 22px; letter-spacing: .3px; color: var(--nt-text); margin: 4px 0 12px;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 800;
+  font-size: 24px; line-height: 1.2; letter-spacing: -.2px; color: var(--nt-text); margin: 6px 0 14px;
 }
 .section-label {
-  font-size: 11px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .6px; color: var(--nt-text-2); margin: 16px 0 8px;
+  font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .8px; color: var(--nt-text-2); margin: 22px 0 10px; line-height: 1.4;
 }
+/* Notes / hints — slightly more breathing room for readability. */
+.note, .hint { font-size: 12px; line-height: 1.5; color: var(--nt-muted); }
 /* Consistent searchbar look on list pages */
 ion-searchbar {
   --background: var(--nt-surface); --border-radius: 10px; --box-shadow: none;
@@ -106,4 +170,17 @@ ion-searchbar {
 .skel-line { height: 12px; border-radius: 6px; }
 input{
   background: #fff;
+}
+
+@media (min-width: 900px) {
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .page-title, .hero-title {
+    font-size: 24px;
+  }
 }

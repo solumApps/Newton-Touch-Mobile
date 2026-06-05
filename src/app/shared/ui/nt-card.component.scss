@@ -1,0 +1,17 @@
+.nt-card {
+  background: #fff;
+  border: 1px solid var(--nt-border);
+  border-radius: var(--nt-r);
+  padding: 14px;
+  transition: box-shadow 200ms ease, transform 200ms ease, border-color 150ms ease;
+}
+.nt-card.el-flat     { box-shadow: none; }
+.nt-card.el-raised   { box-shadow: var(--nt-shadow-2); }
+.nt-card.el-floating { box-shadow: var(--nt-shadow-3); }
+.nt-card.interactive { cursor: pointer; }
+.nt-card.interactive:hover {
+  box-shadow: var(--nt-shadow-3);
+  transform: translateY(-1px);
+  border-color: rgba(47,0,109,0.18);
+}
+.nt-card.interactive:active { transform: translateY(0); }

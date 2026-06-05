@@ -1,10 +1,25 @@
-<ion-header>
+<ion-header class="builder-header">
   <ion-toolbar>
-    <ion-buttons slot="start"><ion-button (click)="back()">‹</ion-button></ion-buttons>
-    <ion-title>{{ draft?.name }}</ion-title>
-    <ion-buttons slot="end"><ion-button (click)="save()">Save</ion-button></ion-buttons>
+    <ion-buttons slot="start"><ion-button class="ghost-action" (click)="back()" aria-label="Back">‹</ion-button></ion-buttons>
+    <ion-title>
+      <div class="title-stack">
+        <span class="tt-name">{{ draft?.name }}</span>
+        <span class="tt-sub" *ngIf="draft">{{ modeLabel }} · {{ draft.themeName }}</span>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end"><ion-button (click)="save()" class="save-btn">Save</ion-button></ion-buttons>
   </ion-toolbar>
-  <div class="progress" *ngIf="draft"><div class="bar" [style.width.%]="progressPct"></div></div>
+  <!-- Step indicator: dots + labels -->
+  <div class="stepper" *ngIf="draft">
+    <div class="stepper-track" #builderSteps>
+      <div class="step" *ngFor="let s of visibleSteps; let i = index"
+           [class.done]="i < stepIndex" [class.active]="i === stepIndex" (click)="goto(i)" role="button" [attr.aria-label]="'Go to step ' + (i+1) + ': ' + s.label" [attr.aria-current]="i === stepIndex ? 'step' : null">
+        <span class="step-dot">{{ i + 1 }}</span>
+        <span class="step-label">{{ s.label }}</span>
+      </div>
+    </div>
+    <div class="progress"><div class="bar" [style.width.%]="progressPct"></div></div>
+  </div>
 </ion-header>
 
 <ion-content class="ion-padding" *ngIf="draft as d">

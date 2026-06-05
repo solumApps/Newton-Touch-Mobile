@@ -2,8 +2,9 @@
 .lbl { font-size: 12px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
 .lbl .hint { font-weight: 400; text-transform: none; color: #94A3B8; }
 .row { display: flex; flex-wrap: wrap; align-items: center; }
-.sw { width: 30px; height: 30px; border-radius: 7px; border: 1px solid #E2E8F0; margin: 0 6px 6px 0; cursor: pointer; padding: 0; }
-.sw.sel { outline: 2.5px solid #2F006D; outline-offset: 1px; }
+.sw { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #E2E8F0; margin: 0 6px 6px 0; cursor: pointer; padding: 0; transition: transform .15s ease; }
+.sw:hover { transform: scale(1.08); }
+.sw.sel { outline: 2.5px solid #2F006D; outline-offset: 2px; box-shadow: 0 0 0 4px rgba(47,0,109,0.12); }
 .custom { position: relative; display: flex; align-items: center; justify-content: center; font-size: 14px;
   background: conic-gradient(from 90deg, #ef4444, #f59e0b, #fde047, #22c55e, #06b6d4, #3b82f6, #a855f7, #ef4444); }
 .custom input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }

@@ -2,46 +2,54 @@
 
 <ion-content>
   <div class="wrap">
-    <div class="titlebar">
-      <div class="page-title">Devices</div>
-      <button class="scan" [class.on]="scanning" (click)="scan()">
-        <ion-spinner *ngIf="scanning" name="dots"></ion-spinner>
-        <span>{{ scanning ? 'Stop' : '🔍 Scan' }}</span>
-      </button>
+    <div class="hero">
+      <div class="hero-row">
+        <div>
+          <h1 class="hero-title">Devices</h1>
+          <p class="hero-sub">Paired LCD displays in your store.</p>
+        </div>
+        <button class="scan" [class.on]="scanning" (click)="scan()" [attr.aria-label]="scanning ? 'Stop scanning' : 'Scan for displays'">
+          <ion-spinner *ngIf="scanning" name="dots"></ion-spinner>
+          <ion-icon *ngIf="!scanning" name="scan-outline" aria-hidden="true"></ion-icon>
+          <span>{{ scanning ? 'Stop' : 'Scan' }}</span>
+        </button>
+      </div>
     </div>
 
     <div class="srch">
-      <input placeholder="Search devices" [value]="q" (input)="q=$any($event.target).value||''" />
+      <span class="srch-ic"><ion-icon name="search-outline" aria-hidden="true"></ion-icon></span>
+      <input placeholder="Search devices" [value]="q" (input)="q=$any($event.target).value||''" aria-label="Search devices" />
     </div>
 
-    <p class="note" *ngIf="scanning">Searching the local network for SOLUM displays…</p>
-    <p class="note" *ngIf="!native">Live scan only works on a physical device on Wi-Fi (not in a browser). Add a display by IP below.</p>
-
-    <div class="addbox">
-      <div class="addrow">
-        <input class="inp" [(ngModel)]="newName" placeholder="Display name" />
-        <input class="inp" [(ngModel)]="newIp" placeholder="192.168.x.x" />
-      </div>
-      <button class="btn-o" [disabled]="!validIp()" (click)="addManual()">+ Add by IP</button>
-      <p class="note err" *ngIf="addMsg">{{ addMsg }}</p>
-    </div>
+    <p class="note info" *ngIf="scanning">Searching the local network for SOLUM displays…</p>
+    <p class="note" *ngIf="!native">Live scan only works on a physical device on Wi-Fi (not in a browser). Add a display by IP using the button below.</p>
 
     <div *ngIf="loading"><div class="skel skel-row" *ngFor="let s of skel"></div></div>
 
-    <ion-list class="slides" lines="none" *ngIf="!loading">
+    <ion-list class="slides" lines="none" *ngIf="!loading && filtered().length">
       <ion-item-sliding *ngFor="let d of filtered()">
-        <ion-item>
+        <ion-item button detail="false">
           <div class="dev">
-            <div class="ic">🖥️</div>
+            <div class="dev-ic">
+              <ion-icon name="tv-outline" aria-hidden="true"></ion-icon>
+              <span class="state-dot" [class.live]="deviceState(d) === 'live'"></span>
+            </div>
             <div class="meta">
-              <div class="nm">{{ d.name }}</div>
+              <div class="top">
+                <div class="nm">{{ d.name }}</div>
+                <nt-badge *ngIf="deviceState(d) === 'live'" variant="live" [dot]="true">Active</nt-badge>
+                <nt-badge *ngIf="deviceState(d) === 'offline'" variant="offline">Idle</nt-badge>
+              </div>
               <div class="sub">{{ d.ip }}:{{ d.port }}</div>
               <div class="sub2">
                 <span *ngIf="d.lastContentName">{{ d.lastContentName }} · {{ ago(d.lastDeployedAt) }}</span>
                 <span *ngIf="!d.lastContentName" class="muted">No content deployed</span>
               </div>
             </div>
-            <button class="push" (click)="push()">Push</button>
+            <button class="push" (click)="push()" aria-label="Push content to this device">
+              <ion-icon name="send-outline" aria-hidden="true"></ion-icon>
+              <span>Push</span>
+            </button>
           </div>
         </ion-item>
         <ion-item-options side="end">
@@ -50,9 +58,58 @@
       </ion-item-sliding>
     </ion-list>
 
-    <div class="empty" *ngIf="!filtered().length && !loading">No saved devices yet. Deploy content or tap Scan.</div>
+    <nt-empty *ngIf="!loading && !filtered().length"
+      icon="tv-outline"
+      title="No displays paired yet"
+      description="Tap Scan to discover SOLUM displays on Wi-Fi, or add one manually by IP."
+      actionLabel="+ Add display by IP"
+      (action)="addModalOpen=true"></nt-empty>
   </div>
 </ion-content>
+
+<!-- Floating Add button (visible when devices exist) -->
+<button class="fab" *ngIf="!loading && filtered().length" (click)="addModalOpen=true" aria-label="Add display by IP">
+  <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
+</button>
+
+<!-- Add by IP modal -->
+<ion-modal [isOpen]="addModalOpen" (didDismiss)="addModalOpen=false" class="nt-sheet-modal">
+  <ng-template>
+    <div class="nt-sheet">
+      <div class="nt-sheet-grab"></div>
+      <h3 class="nt-sheet-title">Add display by IP</h3>
+      <p class="nt-sheet-desc">For displays not auto-discovered on the local network.</p>
+      <label class="fld">
+        <span class="fld-l">Display name</span>
+        <input class="fld-i" [(ngModel)]="newName" placeholder="e.g. Storefront screen" />
+      </label>
+      <label class="fld">
+        <span class="fld-l">IPv4 address</span>
+        <input class="fld-i" [(ngModel)]="newIp" placeholder="192.168.x.x" inputmode="decimal" />
+      </label>
+      <p class="note err" *ngIf="addMsg">{{ addMsg }}</p>
+      <div class="nt-sheet-actions">
+        <nt-button variant="outline" size="md" [block]="true" (onClick)="addModalOpen=false">Cancel</nt-button>
+        <nt-button variant="primary" size="md" [block]="true" [disabled]="!validIp()" (onClick)="addManual()">Add display</nt-button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- Delete confirmation -->
+<ion-modal [isOpen]="confirmOpen" (didDismiss)="confirmOpen=false" class="nt-confirm-modal">
+  <ng-template>
+    <div class="nt-confirm">
+      <div class="nt-confirm-ic"><ion-icon name="trash-outline" aria-hidden="true"></ion-icon></div>
+      <h2>Remove device?</h2>
+      <p>"<b>{{ confirmDev?.name }}</b>" will be unpaired. The display itself isn't affected.</p>
+      <div class="nt-confirm-actions">
+        <nt-button variant="outline" size="md" [block]="true" (onClick)="confirmOpen=false">Cancel</nt-button>
+        <nt-button variant="danger" size="md" [block]="true" (onClick)="doDelete()">Remove</nt-button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
 
 <ion-toast
   [isOpen]="showToast"

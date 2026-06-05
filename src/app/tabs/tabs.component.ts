@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { colorPaletteOutline, documentsOutline, tvOutline, settingsOutline } from 'ionicons/icons';
+import { colorWandOutline, layersOutline, desktopOutline, optionsOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-tabs',
@@ -12,6 +12,6 @@ import { colorPaletteOutline, documentsOutline, tvOutline, settingsOutline } fro
 })
 export class TabsComponent {
   constructor() {
-    addIcons({ colorPaletteOutline, documentsOutline, tvOutline, settingsOutline });
+    addIcons({ colorWandOutline, layersOutline, desktopOutline, optionsOutline });
   }
 }

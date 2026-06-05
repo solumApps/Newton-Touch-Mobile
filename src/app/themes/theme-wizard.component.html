@@ -1,9 +1,21 @@
-<ion-header>
+<ion-header class="studio-header">
   <ion-toolbar>
-    <ion-buttons slot="start"><ion-button (click)="cancel()">Cancel</ion-button></ion-buttons>
-    <ion-title>Step {{ stepIndex + 1 }} / {{ visibleSteps.length }}</ion-title>
-    <ion-buttons slot="end"><ion-button strong="true" [disabled]="!canSave()" (click)="save()">Save</ion-button></ion-buttons>
+    <ion-buttons slot="start"><ion-button class="ghost-action" (click)="cancel()">Cancel</ion-button></ion-buttons>
+    <ion-title>
+      <div class="title-stack">
+        <span class="tt-name">{{ name || 'New theme' }}</span>
+        <span class="tt-sub">Theme studio · Step <span class="step-i">{{ stepIndex + 1 }}</span> of {{ visibleSteps.length }}</span>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end"><ion-button strong="true" class="save-btn" [disabled]="!canSave()" (click)="save()">Save</ion-button></ion-buttons>
   </ion-toolbar>
+  <div class="wizard-steps" #wizardSteps role="tablist" aria-label="Theme creation steps">
+    <button class="wizard-step" *ngFor="let s of visibleSteps; let i = index"
+      [class.done]="i < stepIndex" [class.active]="i === stepIndex"
+      (click)="goStep(i)" role="tab" [attr.aria-selected]="i === stepIndex">
+      <span>{{ i + 1 }}</span>{{ stepLabel(s.key) }}
+    </button>
+  </div>
   <ion-progress-bar [value]="(stepIndex + 1) / visibleSteps.length"></ion-progress-bar>
 </ion-header>
 
@@ -14,7 +26,7 @@
       <div class="prev" [ngClass]="['fit-'+t.typography.textFit, 'surface-'+(t.cardSurface || 'flat'), 'nav-'+(t.navStyle || 'floating')]"
            [style.background]="backgroundForPage(page)"
            [style.fontFamily]="t.typography.fontFamily" [style.--prev-scale]="scaleNum"
-           [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [ngSwitch]="page">
+           [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [style.--prev-overlay]="t.overlayColor || 'rgba(0,0,0,0.6)'" [ngSwitch]="page">
         <div class="hdr" *ngIf="headerVisibleFor(page)" [ngClass]="['logo-'+t.logoPosition, 'hdr-style-'+(t.headerStyle || 'logo-only')]" [style.background]="headerColorForPage(page)">
           <img *ngIf="showLogo" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
           <span class="nt title" *ngIf="showHeaderTitle">Newton Touch</span>
@@ -194,6 +206,7 @@
         </div>
         <app-color-picker label="Card background" [value]="t.cardBackground" (valueChange)="t.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker label="Card text" [value]="t.cardText" (valueChange)="t.cardText=$event" [presets]="textPresets"></app-color-picker>
+        <app-color-picker label="Text overlay" hint="background behind text on cards" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
         <app-color-picker label="Accent / highlight" [value]="t.accent" (valueChange)="t.accent=$event"></app-color-picker>
         <div class="step-title sm">Logo position</div>
         <div class="seg"><button class="tile" *ngFor="let o of logoPositions" [class.sel]="t.logoPosition===o" (click)="t.logoPosition=o">{{ o }}</button></div>
@@ -302,10 +315,13 @@
       </div>
     </ng-container>
 
-    <div class="nav">
-      <button class="btn-o bk" [disabled]="stepIndex===0" (click)="prev()">‹ Back</button>
-      <button class="btn-y" *ngIf="stepIndex < visibleSteps.length - 1" (click)="next()">Next ›</button>
-      <button class="btn-y" *ngIf="stepIndex === visibleSteps.length - 1" [disabled]="!canSave()" (click)="save()">Save Theme</button>
-    </div>
   </div>
 </ion-content>
+
+<ion-footer>
+  <div class="nav">
+    <button class="btn-o bk" [disabled]="stepIndex===0" (click)="prev()">‹ Back</button>
+    <button class="btn-y" *ngIf="stepIndex < visibleSteps.length - 1" (click)="next()">Next ›</button>
+    <button class="btn-y" *ngIf="stepIndex === visibleSteps.length - 1" [disabled]="!canSave()" (click)="save()">Save Theme</button>
+  </div>
+</ion-footer>

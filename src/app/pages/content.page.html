@@ -2,40 +2,75 @@
 
 <ion-content>
   <div class="wrap">
-    <div class="page-title">Content</div>
+    <div class="hero">
+      <h1 class="hero-title">Content</h1>
+      <p class="hero-sub">Build product collections and deploy them to your displays.</p>
+    </div>
+
     <div class="srch">
-      <input placeholder="Search content" [value]="q" (input)="q=$any($event.target).value||''" />
+      <span class="srch-ic"><ion-icon name="search-outline" aria-hidden="true"></ion-icon></span>
+      <input placeholder="Search content" [value]="q" (input)="q=$any($event.target).value||''" aria-label="Search content" />
     </div>
 
     <div *ngIf="loading"><div class="skel skel-row" *ngFor="let s of skel"></div></div>
 
-    <ion-list class="slides" lines="none" *ngIf="!loading">
-      <ion-item-sliding *ngFor="let c of filtered()">
-        <ion-item button detail="false" (click)="open(c)">
-          <div class="item">
-            <div class="sw" [style.background]="c.themeTokens.background || '#2F006D'"></div>
-            <div class="meta">
-              <div class="nm">{{ c.name }}</div>
-              <div class="th">Theme: {{ c.themeName }}</div>
-              <div class="chips">
-                <span class="chip act">{{ modeLabel(c.appMode) }}</span>
-                <span class="chip" [class.ok]="c.deployedTo">{{ c.deployedTo ? 'Deployed' : (c.status | titlecase) }}</span>
+    <!-- Grouped: Deployed first, then Drafts -->
+    <ng-container *ngIf="!loading">
+      <ng-container *ngFor="let g of groups">
+        <nt-section-header [title]="g.label" [subtitle]="g.drafts.length + (g.drafts.length === 1 ? ' item' : ' items')"></nt-section-header>
+        <ion-list class="slides" lines="none">
+          <ion-item-sliding *ngFor="let c of g.drafts">
+            <ion-item button detail="false" (click)="open(c)">
+              <div class="item">
+                <div class="sw" [style.background]="c.themeTokens.background || '#2F006D'"></div>
+                <div class="meta">
+                  <div class="top">
+                    <div class="nm">{{ c.name }}</div>
+                    <nt-badge *ngIf="c.deployedTo" variant="live" [dot]="true">Live</nt-badge>
+                    <nt-badge *ngIf="!c.deployedTo && c.status === 'complete'" variant="complete">Ready</nt-badge>
+                    <nt-badge *ngIf="!c.deployedTo && c.status !== 'complete'" variant="draft">Draft</nt-badge>
+                  </div>
+                  <div class="th">{{ c.themeName }} · {{ modeLabel(c.appMode) }}</div>
+                  <div class="dep" *ngIf="c.deployedTo">
+                    <ion-icon name="tv-outline" aria-hidden="true"></ion-icon>
+                    <span>{{ c.deployedTo }}<span *ngIf="c.deployedAt"> · {{ ago(c.deployedAt) }}</span></span>
+                  </div>
+                </div>
+                <ion-icon class="chev" name="chevron-forward" aria-hidden="true"></ion-icon>
               </div>
-              <div class="dep" *ngIf="c.deployedTo">→ {{ c.deployedTo }}</div>
-            </div>
-            <span class="chev">›</span>
-          </div>
-        </ion-item>
-        <ion-item-options side="end">
-          <ion-item-option color="danger" (click)="del(c)">Delete</ion-item-option>
-        </ion-item-options>
-      </ion-item-sliding>
-    </ion-list>
+            </ion-item>
+            <ion-item-options side="end">
+              <ion-item-option color="danger" (click)="del(c)">Delete</ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        </ion-list>
+      </ng-container>
+    </ng-container>
 
-    <div *ngIf="!filtered().length && !loading" class="empty">No content yet — tap below to create.</div>
+    <nt-empty *ngIf="!loading && !filtered().length"
+      icon="documents-outline"
+      title="No content yet"
+      [description]="q ? 'No matches for your search.' : 'Pick a theme and start building a collection for your displays.'"
+      [actionLabel]="q ? '' : '+ Create content'"
+      (action)="create()"></nt-empty>
   </div>
 </ion-content>
 
 <ion-footer class="foot">
-  <button class="btn-y" (click)="create()">+ Create Content</button>
+  <nt-button variant="primary" size="md" [block]="true" (onClick)="create()">+ Create Content</nt-button>
 </ion-footer>
+
+<!-- Delete confirmation modal -->
+<ion-modal [isOpen]="confirmOpen" (didDismiss)="confirmOpen=false" class="nt-confirm-modal">
+  <ng-template>
+    <div class="nt-confirm">
+      <div class="nt-confirm-ic"><ion-icon name="trash-outline" aria-hidden="true"></ion-icon></div>
+      <h2>Delete content?</h2>
+      <p>This will permanently remove "<b>{{ confirmDraft?.name }}</b>". This action cannot be undone.</p>
+      <div class="nt-confirm-actions">
+        <nt-button variant="outline" size="md" [block]="true" (onClick)="confirmOpen=false">Cancel</nt-button>
+        <nt-button variant="danger" size="md" [block]="true" (onClick)="doDelete()">Delete</nt-button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

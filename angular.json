@@ -24,6 +24,7 @@
               "@fontsource/bebas-neue/400.css",
               "@fontsource/source-sans-3/400.css", "@fontsource/source-sans-3/700.css",
               "@fontsource/roboto-slab/400.css", "@fontsource/roboto-slab/700.css",
+              "@fontsource/plus-jakarta-sans/400.css", "@fontsource/plus-jakarta-sans/500.css", "@fontsource/plus-jakarta-sans/600.css", "@fontsource/plus-jakarta-sans/700.css", "@fontsource/plus-jakarta-sans/800.css",
               "src/global.scss"
             ],
             "scripts": []
