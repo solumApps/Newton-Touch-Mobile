@@ -572,7 +572,7 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 
 /* ===== h-scroll layout preview ===== */
 .prev .stage.layout-h-scroll { display: flex; flex-direction: column; justify-content: center; padding: 0; overflow: hidden; }
-.prev .stage.layout-h-scroll .h-scroll-rail { display: flex; overflow-x: auto; scrollbar-width: none; align-items: center; height: 100%; padding: 4px 6px; gap: 5px; scroll-snap-type: x mandatory; }
+.prev .stage.layout-h-scroll .h-scroll-rail { display: flex; overflow-x: auto; scrollbar-width: none; align-items: center; height: 100%; padding: 4px 6px 4px 16px; gap: 5px; scroll-snap-type: x mandatory; }
 .prev .stage.layout-h-scroll .h-scroll-rail::-webkit-scrollbar { display: none; }
 .prev .stage.layout-h-scroll .h-scroll-rail .card { flex: 0 0 17%; height: 88%; scroll-snap-align: start; }
 
@@ -586,8 +586,8 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 /* ===== Styled mock-nav (colored buttons + position classes) ===== */
 .prev .mock-nav {
   position: absolute; z-index: 3; display: flex; gap: 5px;
-  /* default: bottom-left */
-  left: 6px; bottom: 5px;
+  /* default: bottom-left — matches nav-pos-bottom-left inset */
+  left: 12px; bottom: 8px;
 }
 .prev .mock-nav .mock-btn {
   width: 16px; height: 16px; border-radius: 50%;
@@ -595,12 +595,13 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
   font-size: 11px; line-height: 1;
   transition: opacity 150ms;
 }
-/* Positional variants */
-.prev .mock-nav.nav-pos-bottom-left  { left: 6px;    bottom: 5px;  flex-direction: row; }
-.prev .mock-nav.nav-pos-bottom-center{ left: 50%;    bottom: 5px;  transform: translateX(-50%); flex-direction: row; }
-.prev .mock-nav.nav-pos-bottom-right { right: 6px;   bottom: 5px;  left: auto; flex-direction: row; }
-.prev .mock-nav.nav-pos-side-left    { left: 5px;    top: 50%;     transform: translateY(-50%); flex-direction: column; }
-.prev .mock-nav.nav-pos-side-right   { right: 5px;   top: 50%;     left: auto; transform: translateY(-50%); flex-direction: column; }
+/* Positional variants — insets are intentionally generous to clear the
+   border-radius + overflow:hidden corner clip on .prev */
+.prev .mock-nav.nav-pos-bottom-left  { left: 12px;  bottom: 8px;  flex-direction: row; }
+.prev .mock-nav.nav-pos-bottom-center{ left: 50%;   bottom: 8px;  transform: translateX(-50%); flex-direction: row; }
+.prev .mock-nav.nav-pos-bottom-right { right: 12px; bottom: 8px;  left: auto; flex-direction: row; }
+.prev .mock-nav.nav-pos-side-left    { left: 8px;   top: 50%;     transform: translateY(-50%); flex-direction: column; }
+.prev .mock-nav.nav-pos-side-right   { right: 8px;  top: 50%;     left: auto; transform: translateY(-50%); flex-direction: column; }
 
 /* ===== Screensaver overlay position classes ===== */
 .saver .ss-c { position: absolute; left: 0; right: 0; text-align: center; padding: 4px 8px; border-radius: 4px; }
