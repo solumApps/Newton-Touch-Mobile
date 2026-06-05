@@ -37,11 +37,11 @@ export class ThemePreviewComponent implements OnInit {
     if (this.theme.predefined) {
       const copy = await this.themes.cloneFrom(this.theme, this.theme.name + ' Copy');
       this.router.navigate(['/theme-wizard', copy.id], {
-        queryParams: { from: 'theme-preview' },
+        queryParams: { from: 'theme-preview', returnTheme: this.theme.id },
       });
     } else {
       this.router.navigate(['/theme-wizard', this.theme.id], {
-        queryParams: { from: 'theme-preview' },
+        queryParams: { from: 'theme-preview', returnTheme: this.theme.id },
       });
     }
   }

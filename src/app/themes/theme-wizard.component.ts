@@ -26,6 +26,7 @@ export class ThemeWizardComponent implements OnInit {
   name = '';
   id: string | null = null;
   openedFromPreview = false;
+  previewReturnId: string | null = null;
   t: ThemeTokens = ThemeService.defaultTokens();
   saverMode = 'slideshow';
   stepIndex = 0;
@@ -154,6 +155,7 @@ export class ThemeWizardComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.id = this.route.snapshot.paramMap.get('id');
     this.openedFromPreview = this.route.snapshot.queryParamMap.get('from') === 'theme-preview';
+    this.previewReturnId = this.route.snapshot.queryParamMap.get('returnTheme');
     if (this.id) {
       const existing = (await this.themes.list()).find((x) => x.id === this.id);
       if (existing) {
@@ -335,7 +337,7 @@ export class ThemeWizardComponent implements OnInit {
 
   cancel(): void {
     if (this.openedFromPreview && this.id) {
-      this.router.navigateByUrl('/theme-preview/' + this.id);
+      this.router.navigateByUrl('/theme-preview/' + (this.previewReturnId || this.id));
       return;
     }
     this.router.navigateByUrl('/tabs/themes');
