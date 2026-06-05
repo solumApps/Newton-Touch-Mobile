@@ -53,3 +53,11 @@
     <div class="empty" *ngIf="!filtered().length && !loading">No saved devices yet. Deploy content or tap Scan.</div>
   </div>
 </ion-content>
+
+<ion-toast
+  [isOpen]="showToast"
+  [message]="toastMsg"
+  [duration]="4000"
+  color="danger"
+  (didDismiss)="showToast = false">
+</ion-toast>

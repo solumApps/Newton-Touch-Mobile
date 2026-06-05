@@ -52,7 +52,8 @@ export class TransferService {
   async startScan(): Promise<void> {
     if (!this.isNative) {
       this.found$.next([]);
-      try { const ws = await this.ensureRelay(); ws.send(JSON.stringify({ type: 'list' })); } catch { /* relay not running → list stays empty */ }
+      const ws = await this.ensureRelay();
+      ws.send(JSON.stringify({ type: 'list' }));
       return;
     }
     this.found$.next([]);

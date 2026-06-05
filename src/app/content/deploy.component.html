@@ -59,3 +59,11 @@
   <button class="btn-y" [disabled]="!targetHost || sending" (click)="deploy()">🚀 Deploy to selected</button>
   <button class="btn-o" (click)="download()">⬇ Download layout.json</button>
 </ion-footer>
+
+<ion-toast
+  [isOpen]="showToast"
+  [message]="toastMsg"
+  [duration]="4000"
+  color="danger"
+  (didDismiss)="showToast = false">
+</ion-toast>

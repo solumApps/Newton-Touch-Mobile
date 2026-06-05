@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonContent, IonSpinner, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/angular/standalone';
+import { IonContent, IonSpinner, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonToast } from '@ionic/angular/standalone';
 import { DeviceService, SavedDevice } from '../services/device.service';
 import { TransferService } from '../services/transfer.service';
 import { WorkspaceService } from '../services/workspace.service';
@@ -11,7 +11,7 @@ import { PageHeaderComponent } from '../shared/page-header.component';
 @Component({
   selector: 'app-devices',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonSpinner, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, IonContent, IonSpinner, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonToast, PageHeaderComponent],
   templateUrl: './devices.page.html',
   styleUrls: ['./devices.page.scss'],
 })
@@ -26,6 +26,8 @@ export class DevicesPage implements OnInit {
   addMsg = '';
   loading = true;
   skel = [1, 2];
+  showToast = false;
+  toastMsg = '';
 
   constructor(private deviceSvc: DeviceService, private transfer: TransferService, private ws: WorkspaceService, private router: Router) {}
 
@@ -55,8 +57,22 @@ export class DevicesPage implements OnInit {
       for (const f of list) await this.deviceSvc.upsertReturning(f.deviceName || f.name, f.host, f.port);
       this.devices = await this.deviceSvc.list();
     });
-    await this.transfer.startScan();
-    setTimeout(async () => { this.scanning = false; sub.unsubscribe(); await this.transfer.stopScan(); this.devices = await this.deviceSvc.list(); }, 8000);
+    try {
+      await this.transfer.startScan();
+    } catch (err: any) {
+      this.scanning = false;
+      sub.unsubscribe();
+      this.toastMsg = "WebSocket connection to 'ws://localhost:8090/' failed: Dev relay is not running.";
+      this.showToast = true;
+      return;
+    }
+    setTimeout(async () => {
+      if (!this.scanning) return;
+      this.scanning = false;
+      sub.unsubscribe();
+      await this.transfer.stopScan();
+      this.devices = await this.deviceSvc.list();
+    }, 8000);
   }
 
   async del(d: SavedDevice): Promise<void> {
