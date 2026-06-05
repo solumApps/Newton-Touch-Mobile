@@ -25,19 +25,20 @@
 .prev .stage { flex: 1; padding: 5px; overflow: hidden; box-sizing: border-box; }
 .prev .mock-nav {
   position: absolute; z-index: 3; display: flex; gap: 5px;
-  left: 6px; bottom: 5px;
+  left: 12px; bottom: 8px;
 }
 .prev .mock-nav .mock-btn {
   width: 16px; height: 16px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 11px; line-height: 1;
 }
-.prev .mock-nav.nav-pos-bottom-left  { left: 6px;  bottom: 5px; flex-direction: row; }
-.prev .mock-nav.nav-pos-bottom-center{ left: 50%;  bottom: 5px; transform: translateX(-50%); flex-direction: row; }
-.prev .mock-nav.nav-pos-bottom-right { right: 6px; bottom: 5px; left: auto; flex-direction: row; }
-.prev .mock-nav.nav-pos-side-left    { left: 5px;  top: 50%; transform: translateY(-50%); flex-direction: column; }
-.prev .mock-nav.nav-pos-side-right   { right: 5px; top: 50%; left: auto; transform: translateY(-50%); flex-direction: column; }
-.prev.nav-edge .mock-nav { left: auto; right: 7px; bottom: 50%; transform: translateY(50%); flex-direction: column; }
+/* Positional variants — insets generous enough to clear the border-radius + overflow:hidden corner clip */
+.prev .mock-nav.nav-pos-bottom-left  { left: 12px;  bottom: 8px; flex-direction: row; }
+.prev .mock-nav.nav-pos-bottom-center{ left: 50%;   bottom: 8px; transform: translateX(-50%); flex-direction: row; }
+.prev .mock-nav.nav-pos-bottom-right { right: 12px; bottom: 8px; left: auto; flex-direction: row; }
+.prev .mock-nav.nav-pos-side-left    { left: 8px;   top: 50%; transform: translateY(-50%); flex-direction: column; }
+.prev .mock-nav.nav-pos-side-right   { right: 8px;  top: 50%; left: auto; transform: translateY(-50%); flex-direction: column; }
+.prev.nav-edge .mock-nav { left: auto; right: 12px; bottom: 50%; transform: translateY(50%); flex-direction: column; }
 
 /* ===== Screensaver ===== */
 .prev .stage.saver { position: relative; padding: 0; }
@@ -372,7 +373,7 @@
 
 /* ===== h-scroll layout ===== */
 .prev .stage.layout-h-scroll { display: flex; flex-direction: column; justify-content: center; padding: 0; overflow: hidden; }
-.prev .stage.layout-h-scroll .h-scroll-rail { display: flex; overflow-x: auto; scrollbar-width: none; align-items: center; height: 100%; padding: 4px 6px; gap: 5px; }
+.prev .stage.layout-h-scroll .h-scroll-rail { display: flex; overflow-x: auto; scrollbar-width: none; align-items: center; height: 100%; padding: 4px 6px 4px 16px; gap: 5px; }
 .prev .stage.layout-h-scroll .h-scroll-rail::-webkit-scrollbar { display: none; }
 .prev .stage.layout-h-scroll .h-scroll-rail .card { flex: 0 0 17%; height: 88%; }
 
