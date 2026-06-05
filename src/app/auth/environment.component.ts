@@ -16,27 +16,45 @@ import { BrandComponent } from '../shared/brand.component';
 })
 export class EnvironmentComponent {
   servers = SERVERS;
-  envs = Object.keys(SERVERS);
+  envs = Object.keys(SERVERS).filter((name) => name !== 'Stage 00');
   selected = 'Korea';
   privateServerPage = false;
   customUrl = '';
+  customUrlValid = false;
   customTouched = false;
+  private readonly knownServerUrls = new Set(Object.values(SERVERS).map((url) => normalizeServerUrl(url)));
 
   constructor(private ws: WorkspaceService, private router: Router) {}
 
   pick(name: string): void { this.selected = name; }
 
-  validCustom(): boolean { return isValidServerUrl(this.customUrl); }
+  onCustomUrlChange(value: string): void {
+    this.customUrl = value;
+    this.customUrlValid = this.isKnownServerUrl(value);
+  }
+
+  validCustom(): boolean { return this.customUrlValid; }
 
   canContinue(): boolean {
     return this.privateServerPage ? this.validCustom() : !!this.selected;
   }
 
+  private isKnownServerUrl(value: string): boolean {
+    if (!isValidServerUrl(value)) return false;
+    return this.knownServerUrls.has(normalizeServerUrl(value));
+  }
+
+  private environmentForUrl(value: string): string {
+    const normalized = normalizeServerUrl(value);
+    return Object.entries(SERVERS).find(([, url]) => normalizeServerUrl(url) === normalized)?.[0] ?? 'Custom';
+  }
+
   async continue(): Promise<void> {
     if (this.privateServerPage) {
       this.customTouched = true;
-      if (!this.validCustom()) return;
-      await this.ws.set({ environment: 'Custom', serverUrl: normalizeServerUrl(this.customUrl) });
+      this.customUrlValid = this.isKnownServerUrl(this.customUrl);
+      if (!this.customUrlValid) return;
+      await this.ws.set({ environment: this.environmentForUrl(this.customUrl), serverUrl: normalizeServerUrl(this.customUrl) });
     } else {
       await this.ws.setEnvironment(this.selected);
     }
