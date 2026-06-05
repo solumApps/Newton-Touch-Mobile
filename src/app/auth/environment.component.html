@@ -4,7 +4,9 @@
       <ion-button (click)="privateServerPage=false">‹</ion-button>
     </ion-buttons>
     <ion-buttons slot="end" *ngIf="!privateServerPage">
-      <ion-button (click)="privateServerPage=true">Private server</ion-button>
+      <ion-button (click)="privateServerPage=true" class="private-server-btn">
+        <span>Private server</span>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -15,7 +17,7 @@
 
     <div class="top-section">
       <h2>{{ privateServerPage ? 'Private server' : 'Choose environment' }}</h2>
-      <p>{{ privateServerPage ? 'Enter your organisation\'s server URL.' : 'Select the SOLUM server to connect to. You can change this later in Settings.' }}</p>
+      <p>{{ privateServerPage ? 'Enter your organisation\'s server URL. HTTPS is used when no protocol is provided.' : 'Select the SOLUM server to connect to. You can change this later in Settings.' }}</p>
     </div>
 
     <!-- Server list -->
@@ -34,8 +36,8 @@
     <!-- Private / custom URL -->
     <div class="private" *ngIf="privateServerPage">
       <label class="fld-label">Server URL</label>
-      <input class="fld" [(ngModel)]="customUrl" placeholder="https://your-server.example.com" />
-      <p class="err" *ngIf="customTouched && !validCustom()">Enter a valid http(s) URL.</p>
+      <input class="fld" [(ngModel)]="customUrl" placeholder="your-server.example.com" />
+      <p class="err" *ngIf="customTouched && !validCustom()">Enter a valid server URL.</p>
     </div>
   </div>
 </ion-content>

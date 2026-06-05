@@ -37,3 +37,7 @@
 
 .ft ion-toolbar, .ft { --background: #fff; }
 .ft { padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid var(--nt-border); }
+ion-header { box-shadow: none; }
+.private-server-btn {
+  font-size:10px
+}

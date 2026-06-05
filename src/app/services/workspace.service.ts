@@ -12,7 +12,28 @@ const WEB_PROXY: Record<string, string> = {
   'https://eastus.common.solumesl.com': '/solum-proxy/us',
 };
 export function httpBase(serverUrl: string): string {
-  return Capacitor.getPlatform() === 'web' ? (WEB_PROXY[serverUrl] ?? serverUrl) : serverUrl;
+  const normalized = normalizeServerUrl(serverUrl);
+  return Capacitor.getPlatform() === 'web' ? (WEB_PROXY[normalized] ?? normalized) : normalized;
+}
+
+export function normalizeServerUrl(serverUrl: string): string {
+  const trimmed = serverUrl.trim();
+  if (!trimmed) return '';
+  const withProtocol = /^[a-z][a-z\d+\-.]*:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  const parsed = new URL(withProtocol);
+  if (!/^https?:$/i.test(parsed.protocol) || !parsed.hostname || parsed.username || parsed.password || parsed.search || parsed.hash) {
+    throw new Error('Invalid server URL');
+  }
+  return parsed.toString().replace(/\/+$/, '');
+}
+
+export function isValidServerUrl(serverUrl: string): boolean {
+  try {
+    normalizeServerUrl(serverUrl);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export interface Company { id: string; name: string; }
@@ -33,14 +54,14 @@ const KEY = 'nt.workspace';
 
 /** SOLUM environments (base URLs) — from the reference apps. */
 export const SERVERS: Record<string, string> = {
-  'Stage 00': 'https://stage00.common.solumesl.com',
+  // 'Stage 00': 'https://stage00.common.solumesl.com',
   'Korea': 'https://kr.common.solumesl.com',
   'Europe': 'https://eu.common.solumesl.com',
   'USA': 'https://eastus.common.solumesl.com',
 };
 
 const DEFAULT: Workspace = {
-  environment: 'Stage 00', serverUrl: '', username: '', token: '',
+  environment: 'Korea', serverUrl: '', username: '', token: '',
   companyId: '', companyName: '', storeId: '', storeName: '',
 };
 
