@@ -30,6 +30,13 @@ export class DeployComponent implements OnInit, OnDestroy {
   manualName = ''; manualIp = '';
   sending = false; percent = 0;
   doneMsg = ''; doneOk = false;
+  /** Per-step deploy log surfaced in the UI so users can see what's happening. */
+  steps: string[] = [];
+
+  private pushStep(msg: string): void {
+    const ts = new Date().toTimeString().slice(0, 8);
+    this.steps = [...this.steps, `${ts}  ${msg}`].slice(-30);
+  }
 
   constructor(
     private content: ContentService,
@@ -90,28 +97,50 @@ export class DeployComponent implements OnInit, OnDestroy {
     layout.result.mapImage = take(layout.result.mapImage);
     layout.result.products?.forEach((p) => (p.image = take(p.image)));
     if (layout.screensaver?.media) layout.screensaver.media = layout.screensaver.media.map((m) => take(m) || m);
+    // Externalize the header logo if it's a data URI.
+    if (layout.header?.logo) layout.header.logo = take(layout.header.logo);
     return { layout, images };
   }
+
+  /** Pause between sends so the LCD's LAN-transfer plugin can flush each file
+   *  to disk before the next payload arrives — otherwise the receiver sometimes
+   *  reads a 0-byte file on receiveComplete and the image is silently dropped. */
+  private readonly SEND_DELAY_MS = 350;
+  private sleep(ms: number): Promise<void> { return new Promise((r) => setTimeout(r, ms)); }
 
   async deploy(): Promise<void> {
     if (!this.draft || !this.payload || !this.targetHost) return;
 
-    this.sending = true; this.percent = 0; this.doneMsg = '';
+    this.sending = true; this.percent = 0; this.doneMsg = ''; this.steps = [];
     try {
       if (!this.transfer.isNative) {
         // Browser dev (relay): no filesystem on the LCD → send the layout inline.
+        this.pushStep('Sending layout (browser/relay mode)');
         await this.transfer.send(this.targetHost, this.targetPort, JSON.stringify(this.payload), (p) => (this.percent = p));
       } else {
         // Device: send each image as its own file payload first, then the tiny layout.
         const { layout, images } = this.externalizeImages(this.payload);
+        // Attach a manifest of expected image ids so the LCD can verify completeness.
+        (layout as any).imageManifest = images.map((im) => im.id);
         const total = images.length + 1;
+        this.pushStep(`Preparing ${images.length} image(s) + layout`);
         for (let i = 0; i < images.length; i++) {
+          const img = images[i];
+          const sizeKb = Math.round(img.data.length / 1024);
+          this.pushStep(`▸ ${img.id}.${img.ext}  (${sizeKb} KB)…`);
           await this.transfer.send(this.targetHost, this.targetPort,
-            JSON.stringify({ kind: 'image', id: images[i].id, ext: images[i].ext, data: images[i].data }), () => {});
+            JSON.stringify({ kind: 'image', id: img.id, ext: img.ext, data: img.data }), () => {});
+          this.pushStep(`  ✓ ${img.id} sent`);
           this.percent = Math.round(((i + 1) / total) * 90);
+          // CRITICAL: throttle so the receiver finishes flushing the previous
+          // file before we open a new TCP write. Without this, the plugin
+          // races and writes 0-byte files for some payloads.
+          await this.sleep(this.SEND_DELAY_MS);
         }
+        this.pushStep('▸ layout.json …');
         await this.transfer.send(this.targetHost, this.targetPort, JSON.stringify(layout),
           (p) => (this.percent = 90 + Math.round(p * 0.1)));
+        this.pushStep('  ✓ layout sent');
       }
       // Category / +ESL need the server config on the LCD for runtime LED blink.
       if (this.draft.appMode !== 'prototype') {

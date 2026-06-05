@@ -96,13 +96,18 @@ export class ContentBuilderComponent implements OnInit {
   get headerStyle(): string { return this.draft?.themeTokens.headerStyle || 'logo-only'; }
   get needsHeaderTitle(): boolean { return this.headerStyle !== 'logo-only'; }
   get needsHeaderCaption(): boolean { return this.headerStyle === 'title+caption' || this.headerStyle === 'logo+title+caption'; }
+  get showLogo(): boolean { return this.headerStyle === 'logo-only' || this.headerStyle === 'logo+title+caption'; }
   get headerStyleLabel(): string {
     const m: Record<string, string> = { 'logo-only': 'Logo only', 'title-only': 'Title only', 'title+caption': 'Title + Caption', 'logo+title+caption': 'Logo + Title + Caption' };
     return m[this.headerStyle] || this.headerStyle;
   }
-  setHeader(field: 'title' | 'caption', value: string): void {
+  setHeader(field: 'title' | 'caption' | 'logo', value: string): void {
     if (!this.draft) return;
     this.draft.header = { ...(this.draft.header || {}), [field]: value };
+  }
+  async pickLogo(): Promise<void> {
+    const dataUrl = await this.picker.pick();
+    if (dataUrl) this.setHeader('logo', dataUrl);
   }
 
   constructor(private content: ContentService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router) {}

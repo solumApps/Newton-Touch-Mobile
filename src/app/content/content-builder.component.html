@@ -35,13 +35,27 @@
     <div *ngSwitchCase="'home'">
       <h2 class="step-title">Home page</h2>
 
-      <!-- HEADER TEXT (per-deploy, only shown for the theme's header style) -->
-      <ng-container *ngIf="d.themeTokens.showHeader && needsHeaderTitle">
-        <div class="sec"><span>Header</span></div>
-        <div class="erow"><input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Header title (e.g. store name)" /></div>
-        <div class="erow" *ngIf="needsHeaderCaption"><input class="inp" [ngModel]="d.header?.caption || ''" (ngModelChange)="setHeader('caption', $event)" placeholder="Caption (subtitle)" /></div>
-        <p class="note">Header style: <b>{{ headerStyleLabel }}</b>.</p>
+      <!-- HEADER — conditional on showHeader; style drives which fields appear -->
+      <div class="sec"><span>Header</span><span class="chip" [class.on]="d.themeTokens.showHeader">{{ d.themeTokens.showHeader ? 'Visible' : 'Hidden' }}</span></div>
+      <ng-container *ngIf="d.themeTokens.showHeader">
+        <p class="note">Style: <b>{{ headerStyleLabel }}</b></p>
+        <!-- Logo upload (shown for logo-only and logo+title+caption) -->
+        <ng-container *ngIf="showLogo">
+          <div class="erow">
+            <div class="thumb" [style.background-image]="d.header?.logo ? 'url('+d.header!.logo+')' : null" (click)="pickLogo()">{{ d.header?.logo ? '' : '📷' }}</div>
+            <span class="inp" style="opacity:.6;pointer-events:none">Logo image (optional — defaults to SOLUM)</span>
+          </div>
+        </ng-container>
+        <!-- Title (shown for title-only, title+caption, logo+title+caption) -->
+        <div class="erow" *ngIf="needsHeaderTitle">
+          <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Title (default: content name)" />
+        </div>
+        <!-- Caption (shown for title+caption, logo+title+caption) -->
+        <div class="erow" *ngIf="needsHeaderCaption">
+          <input class="inp" [ngModel]="d.header?.caption || ''" (ngModelChange)="setHeader('caption', $event)" placeholder="Caption / subtitle (default: Welcome)" />
+        </div>
       </ng-container>
+      <p class="note" *ngIf="!d.themeTokens.showHeader">Header is hidden in this theme. Change it in the theme wizard.</p>
 
       <!-- CATEGORY: API fetch + selection -->
       <ng-container *ngIf="d.appMode === 'category'">
@@ -125,8 +139,13 @@
         </div>
         <div class="prow">
           <input class="inp" [(ngModel)]="p.price" placeholder="Price" />
-          <input class="inp" [(ngModel)]="p.aisle" placeholder="Aisle" />
+          <input class="inp" [(ngModel)]="p.aisle" placeholder="Aisle / Zone" />
           <input class="inp" [(ngModel)]="p.shelf" placeholder="Shelf" />
+        </div>
+        <!-- Per-product map marker position (only when a map-based result template is selected) -->
+        <div class="prow" *ngIf="resultNeedsMap">
+          <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapX" placeholder="Map X % (0–100)" />
+          <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapY" placeholder="Map Y % (0–100)" />
         </div>
         <input class="inp" *ngIf="d.appMode === 'prototype-esl'"
           [ngModel]="eslId(p.id)" (ngModelChange)="setEslId(p.id, $event)"

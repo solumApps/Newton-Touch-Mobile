@@ -37,7 +37,11 @@ export type ResultTemplate =
   | 'map-full' | 'card-grid' | 'minimal' | 'esl-focus'
   /** drill-stair: side-by-side breadcrumb columns showing the drill path that
    *  led to this product, with the product detail in the right-most column. */
-  | 'drill-stair';
+  | 'drill-stair'
+  /** filter-list: product list with top filter tabs (popular / alphabetical / custom).
+   *  Designed for ETC apps that skip intermediate — the user goes Home → Result and
+   *  can filter/sort products on the result page itself. */
+  | 'filter-list';
 
 export type TransitionType = 'fade-slide' | 'scale-up' | 'slide-left' | 'shimmer' | 'none';
 export type AnimSpeed = 'slow' | 'normal' | 'fast';
@@ -96,6 +100,11 @@ export interface ResultProduct {
   shelf?: string;
   articleId?: string;          // for ESL blink
   labelId?: string;
+  /** Per-product map marker position (percentage 0–100 from the top-left).
+   *  When set, the map template shows a dot at this location for the found product
+   *  so routing varies per product instead of a single fixed marker. */
+  mapX?: number;
+  mapY?: number;
 }
 
 /** Which Category-API fields drive the hierarchy/mapping (chosen per-content). */
@@ -125,12 +134,17 @@ export interface LayoutJson {
   /** Category mode only: which API field set drove the hierarchy. */
   fieldSource?: FieldSource;
   theme: ThemeTokens;
-  /** Per-deploy header text — fields shown depend on theme.headerStyle. */
-  header?: { title?: string; caption?: string; };
+  /** Per-deploy header content — fields shown depend on theme.headerStyle.
+   *  Title defaults to contentName if empty; caption defaults to 'Welcome';
+   *  logo defaults to the SOLUM logo if no custom image is uploaded. */
+  header?: { title?: string; caption?: string; logo?: string; };
   home: CardItem[];
   intermediate: CardItem[];
   result: { mapImage?: string; products: ResultProduct[]; };
   eslLinks?: EslLink[];        // present only for prototype-esl
   eslBlinkBy?: EslBlinkBy;
   screensaver: Screensaver;
+  /** Optional manifest of every ntimg id the LCD should expect to have on disk
+   *  after this deploy. Used by the receiver to log/verify completeness. */
+  imageManifest?: string[];
 }

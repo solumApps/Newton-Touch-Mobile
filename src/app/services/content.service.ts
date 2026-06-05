@@ -16,8 +16,8 @@ export interface ContentDraft {
   eslLinks?: EslLink[];
   eslBlinkBy?: EslBlinkBy;
   screensaver: Screensaver;
-  /** Per-deploy header text — fields shown depend on theme.headerStyle. */
-  header?: { title?: string; caption?: string };
+  /** Per-deploy header content — fields shown depend on theme.headerStyle. */
+  header?: { title?: string; caption?: string; logo?: string };
   status: 'draft' | 'complete';
   deployedTo?: string;
   deployedAt?: number;
