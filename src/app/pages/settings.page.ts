@@ -41,12 +41,19 @@ export class SettingsPage implements OnInit {
   serverConfig(): void { this.router.navigate(['/server-config'], { queryParams: { returnTo: '/tabs/settings' } }); }
 
   signOut(): void {
+    console.log('SignOut button clicked, setting showSignOutAlert to true');
     this.showSignOutAlert = true;
   }
 
   async confirmSignOut(): Promise<void> {
+    console.log('SignOut confirmed');
     this.showSignOutAlert = false;
     await this.sessionSvc.signOut();
     this.router.navigateByUrl('/auth/environment');
+  }
+
+  modalDismissed(): void {
+    console.log('Modal didDismiss event fired, setting showSignOutAlert to false');
+    this.showSignOutAlert = false;
   }
 }

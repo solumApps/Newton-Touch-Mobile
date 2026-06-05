@@ -118,19 +118,7 @@
 
 .ver { text-align: center; color: var(--nt-muted); font-size: 11px; margin-top: 16px; }
 
-/* Confirm modal — shared style */
-:host ::ng-deep ion-modal.nt-confirm-modal {
-  --background: rgba(15,23,42,0.5);
-  --width: min(420px, 92vw);
-  --height: auto;
-  --border-radius: var(--nt-r-lg);
-  --box-shadow: var(--nt-shadow-3);
-  align-items: center;
-}
-:host ::ng-deep ion-modal.nt-confirm-modal::part(content) {
-  border-radius: var(--nt-r-lg);
-  overflow: hidden;
-}
+
 .nt-confirm { background: #fff; padding: 24px 22px 22px; text-align: center; }
 .nt-confirm-ic {
   width: 56px; height: 56px;

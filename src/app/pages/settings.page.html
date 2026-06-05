@@ -61,7 +61,7 @@
   </div>
 </ion-content>
 
-<ion-modal [isOpen]="showSignOutAlert" (didDismiss)="showSignOutAlert = false" class="nt-confirm-modal">
+<ion-modal [isOpen]="showSignOutAlert" (didDismiss)="modalDismissed()" class="nt-confirm-modal">
   <ng-template>
     <div class="nt-confirm">
       <div class="nt-confirm-ic warn"><ion-icon name="warning-outline" aria-hidden="true"></ion-icon></div>
