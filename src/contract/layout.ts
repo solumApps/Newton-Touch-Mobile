@@ -98,12 +98,15 @@ export interface ThemeTokens {
   showHeader: boolean;
   /** Header composition. Defaults to 'logo-only' for backward compat. */
   headerStyle?: HeaderStyle;
+  /** When true the header background becomes transparent and the page background
+   *  (solid or image) extends behind the header. Great with backgroundImage. */
+  transparentHeader?: boolean;
   /** When false, the LCD goes Home → Result directly (no intermediate page). */
   includeIntermediate: boolean;
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
-  intermediate: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; showHeader: boolean; };
-  result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; };
+  intermediate: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; showHeader: boolean; transparentHeader?: boolean; };
+  result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; transparentHeader?: boolean; };
   animation: { transition: TransitionType; speed: AnimSpeed; applyToAll: boolean; };
   loader: { style: LoaderStyle; color: string; };
   /** Shared typography/appearance — applied consistently across ALL rendered pages. */

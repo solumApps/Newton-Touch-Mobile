@@ -183,6 +183,12 @@
             <button class="tile" *ngFor="let h of headerStyles" [class.sel]="(t.headerStyle||'logo-only')===h.id" (click)="t.headerStyle=h.id">{{ h.label }}</button>
           </div>
           <p class="hint">Text fields (title / caption) are filled in the content section.</p>
+          <div class="step-title sm">Transparent header</div>
+          <div class="seg">
+            <button class="tile" [class.sel]="t.transparentHeader" (click)="t.transparentHeader=true">On — image extends behind</button>
+            <button class="tile" [class.sel]="!t.transparentHeader" (click)="t.transparentHeader=false">Off — solid colour</button>
+          </div>
+          <p class="hint">Best with a background image. The header floats over the page background.</p>
         </ng-container>
         <div class="step-title sm">Intermediate page</div>
         <div class="seg">
@@ -250,6 +256,13 @@
           <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
           <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
         </div>
+        <ng-container *ngIf="t.intermediate.showHeader">
+          <div class="step-title sm">Transparent header</div>
+          <div class="seg">
+            <button class="tile" [class.sel]="t.intermediate.transparentHeader" (click)="t.intermediate.transparentHeader=true">On</button>
+            <button class="tile" [class.sel]="!t.intermediate.transparentHeader" (click)="t.intermediate.transparentHeader=false">Off</button>
+          </div>
+        </ng-container>
       </div>
 
       <div *ngSwitchCase="'resTemplate'">
@@ -276,6 +289,13 @@
           <button class="tile" [class.sel]="t.result.showHeader" (click)="t.result.showHeader=true">Show</button>
           <button class="tile" [class.sel]="!t.result.showHeader" (click)="t.result.showHeader=false">Hide</button>
         </div>
+        <ng-container *ngIf="t.result.showHeader">
+          <div class="step-title sm">Transparent header</div>
+          <div class="seg">
+            <button class="tile" [class.sel]="t.result.transparentHeader" (click)="t.result.transparentHeader=true">On</button>
+            <button class="tile" [class.sel]="!t.result.transparentHeader" (click)="t.result.transparentHeader=false">Off</button>
+          </div>
+        </ng-container>
       </div>
 
       <div *ngSwitchCase="'anim'">

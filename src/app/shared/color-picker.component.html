@@ -2,6 +2,9 @@
   <div class="lbl">{{ label }}<span class="hint" *ngIf="hint"> — {{ hint }}</span></div>
   <div class="row">
     <button *ngFor="let c of presets" class="sw" [class.sel]="c===value" [style.background]="c" (click)="pick(c)"></button>
+    <button class="sw transparent-sw" [class.sel]="value==='transparent'" (click)="pick('transparent')" title="Transparent">
+      <span class="checker"></span>
+    </button>
     <label class="sw custom" title="Custom — color wheel + hex">🎨
       <input type="color" [value]="toHex(value)" (input)="pick($any($event.target).value)" />
     </label>

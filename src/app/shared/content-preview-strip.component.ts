@@ -33,7 +33,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [ngSwitch]="page">
         <div class="hdr" *ngIf="headerVisible"
              [ngClass]="['logo-'+(theme?.logoPosition||'left'), 'hdr-style-'+(theme?.headerStyle||'logo-only')]"
-             [style.background]="headerColor">
+             [class.hdr-transparent]="isTransparentHeader"
+             [style.background]="isTransparentHeader ? 'transparent' : headerColor">
           <img *ngIf="showLogo" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
           <div class="brand-text" *ngIf="showTitle || showHeaderCaption">
             <span class="nt" *ngIf="showTitle">{{ titleText }}</span>
@@ -221,6 +222,7 @@ export class ContentPreviewStripComponent {
 
   // Header style logic mirrors the LCD home component.
   get headerStyle(): string { return this.theme?.headerStyle || 'logo-only'; }
+  get isTransparentHeader(): boolean { return this.headerStyle === 'transparent'; }
   get showLogo(): boolean { return this.headerStyle === 'logo-only' || this.headerStyle === 'logo+title+caption'; }
   get showTitle(): boolean { return this.headerStyle !== 'logo-only'; }
   get showHeaderCaption(): boolean { return this.headerStyle === 'title+caption' || this.headerStyle === 'logo+title+caption'; }
