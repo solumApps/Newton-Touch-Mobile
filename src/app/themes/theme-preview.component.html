@@ -18,7 +18,8 @@
         <h1 class="hero-title">{{ th.name }}</h1>
         <nt-badge *ngIf="th.predefined" variant="predefined">★ Featured</nt-badge>
       </div>
-      <p class="hero-sub">{{ th.tokens.homeLayout }} · {{ th.tokens.cardShape }} {{ th.tokens.cardContent }} · {{ th.tokens.resultTemplate }}</p>
+      <p class="hero-sub">{{ th.tokens.homeLayout }} · {{ th.tokens.cardShape }} {{ th.tokens.cardContent }} · {{
+        th.tokens.resultTemplate }}</p>
     </div>
 
     <!-- Page thumbnails -->
@@ -27,7 +28,8 @@
         <div class="lcd" [style.background]="th.tokens.background">
           <div class="hdr" [style.background]="th.tokens.headerColor"><span class="logo-bar"></span></div>
           <div class="area">
-            <div class="cell" [style.background]="th.tokens.cardBackground" [style.border]="'1px solid '+th.tokens.accent"></div>
+            <div class="cell" [style.background]="th.tokens.cardBackground"
+              [style.border]="'1px solid '+th.tokens.accent"></div>
             <div class="cell" [style.background]="th.tokens.cardBackground"></div>
             <div class="cell" [style.background]="th.tokens.cardBackground"></div>
           </div>
@@ -59,15 +61,42 @@
     <!-- Configuration summary -->
     <nt-section-header title="Configuration"></nt-section-header>
     <table class="sum">
-      <tr><td>Home layout</td><td>{{ th.tokens.homeLayout }}</td></tr>
-      <tr><td>Card</td><td>{{ th.tokens.cardShape }} · {{ th.tokens.cardContent }} · {{ th.tokens.cardTextPos }}</td></tr>
-      <tr><td>Intermediate</td><td>{{ th.tokens.includeIntermediate ? th.tokens.intermediateStyle : 'Skipped (Home → Result)' }}</td></tr>
-      <tr><td>Result</td><td>{{ th.tokens.resultTemplate }}</td></tr>
-      <tr><td>Header style</td><td>{{ th.tokens.headerStyle || 'logo-only' }}</td></tr>
-      <tr><td>Font</td><td>{{ th.tokens.typography.fontFamily.split(',')[0].replace('/g', '') }}</td></tr>
-      <tr><td>Animation</td><td>{{ th.tokens.animation.transition }} · {{ th.tokens.animation.speed }}</td></tr>
-      <tr><td>Loader</td><td>{{ th.tokens.loader.style }}</td></tr>
-      <tr><td>Screensaver</td><td>{{ th.tokens.intermediate.itemSize ? 'configurable' : 'default' }}</td></tr>
+      <tr>
+        <td>Home layout</td>
+        <td>{{ th.tokens.homeLayout }}</td>
+      </tr>
+      <tr>
+        <td>Card</td>
+        <td>{{ th.tokens.cardShape }} · {{ th.tokens.cardContent }} · {{ th.tokens.cardTextPos }}</td>
+      </tr>
+      <tr>
+        <td>Intermediate</td>
+        <td>{{ th.tokens.includeIntermediate ? th.tokens.intermediateStyle : 'Skipped (Home → Result)' }}</td>
+      </tr>
+      <tr>
+        <td>Result</td>
+        <td>{{ th.tokens.resultTemplate }}</td>
+      </tr>
+      <tr>
+        <td>Header style</td>
+        <td>{{ th.tokens.headerStyle || 'logo-only' }}</td>
+      </tr>
+      <tr>
+        <td>Font</td>
+        <td>{{ th.tokens.typography.fontFamily.split(',')[0].replace('/g', '') }}</td>
+      </tr>
+      <tr>
+        <td>Animation</td>
+        <td>{{ th.tokens.animation.transition }} · {{ th.tokens.animation.speed }}</td>
+      </tr>
+      <tr>
+        <td>Loader</td>
+        <td>{{ th.tokens.loader.style }}</td>
+      </tr>
+      <tr>
+        <td>Screensaver</td>
+        <td>{{ th.tokens.intermediate.itemSize ? 'configurable' : 'default' }}</td>
+      </tr>
     </table>
 
     <!-- Palette -->

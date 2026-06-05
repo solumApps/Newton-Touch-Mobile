@@ -198,3 +198,65 @@ ion-modal.nt-confirm-modal::part(content) {
   border-radius: var(--nt-r-lg);
   overflow: hidden;
 }
+
+/* Sheet modal — shared style */
+ion-modal.nt-sheet-modal {
+  --background: rgba(15,23,42,0.45);
+  --width: 100%;
+  --height: auto;
+  align-items: flex-end;
+}
+ion-modal.nt-sheet-modal::part(content) {
+  border-radius: var(--nt-r-lg) var(--nt-r-lg) 0 0;
+  max-width: 480px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+/* Sheet content styling */
+.nt-sheet {
+  background: #fff;
+  padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+}
+.nt-sheet-grab {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--nt-border);
+  margin: 0 auto 12px;
+}
+.nt-sheet-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 12px;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--nt-text);
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: var(--nt-r);
+  transition: background 150ms ease;
+}
+.nt-sheet-row:hover {
+  background: var(--nt-surface);
+}
+.nt-sheet-row ion-icon {
+  font-size: 22px;
+  color: var(--nt-text-2);
+}
+.nt-sheet-row.cancel {
+  justify-content: center;
+  margin-top: 12px;
+  background: var(--nt-purple);
+  color: #fff;
+  font-weight: 700;
+}
+.nt-sheet-row.cancel:hover {
+  background: #230052;
+  color: #fff;
+}

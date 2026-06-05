@@ -154,20 +154,8 @@
 .fab:hover { background: #3D0E89; transform: scale(1.05); }
 .fab ion-icon { font-size: 26px; }
 
-/* Bottom sheet — add by IP */
-:host ::ng-deep ion-modal.nt-sheet-modal {
-  --background: rgba(15,23,42,0.5);
-  --width: 100%;
-  --height: auto;
-  align-items: flex-end;
-}
-:host ::ng-deep ion-modal.nt-sheet-modal::part(content) {
-  border-radius: var(--nt-r-lg) var(--nt-r-lg) 0 0;
-  max-width: 480px;
-  margin: 0 auto;
-}
-.nt-sheet { background: #fff; padding: 8px 18px calc(18px + env(safe-area-inset-bottom)); }
-.nt-sheet-grab { width: 36px; height: 4px; border-radius: 2px; background: var(--nt-border); margin: 0 auto 12px; }
+
+
 .nt-sheet-title { margin: 0 0 4px; font-size: 18px; font-weight: 800; color: var(--nt-text); }
 .nt-sheet-desc { margin: 0 0 18px; font-size: 13px; color: var(--nt-muted); line-height: 1.4; }
 .fld { display: block; margin-bottom: 14px; }
@@ -187,19 +175,7 @@
 .fld-i:focus { border-color: var(--nt-purple); box-shadow: 0 0 0 3px rgba(47,0,109,0.1); }
 .nt-sheet-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
 
-/* Confirm modal */
-:host ::ng-deep ion-modal.nt-confirm-modal {
-  --background: rgba(15,23,42,0.5);
-  --width: min(420px, 92vw);
-  --height: auto;
-  --border-radius: var(--nt-r-lg);
-  --box-shadow: var(--nt-shadow-3);
-  align-items: center;
-}
-:host ::ng-deep ion-modal.nt-confirm-modal::part(content) {
-  border-radius: var(--nt-r-lg);
-  overflow: hidden;
-}
+
 .nt-confirm { background: #fff; padding: 24px 22px 22px; text-align: center; }
 .nt-confirm-ic {
   width: 56px; height: 56px;
