@@ -16,12 +16,14 @@
     <div class="grp">
       <button class="row" (click)="changeWorkspace()">
         <span class="ico">🏢</span>
-        <span class="rl"><span class="t">Company</span><span class="s">{{ ws?.companyName }} ({{ ws?.companyId }})</span></span>
+        <span class="rl"><span class="t">Company</span><span class="s">{{ ws?.companyName }} ({{ ws?.companyId
+            }})</span></span>
         <span class="chev">›</span>
       </button>
       <button class="row" (click)="changeWorkspace()">
         <span class="ico">🏬</span>
-        <span class="rl"><span class="t">Store</span><span class="s">{{ ws?.storeName }} ({{ ws?.storeId }})</span></span>
+        <span class="rl"><span class="t">Store</span><span class="s">{{ ws?.storeName }} ({{ ws?.storeId
+            }})</span></span>
         <span class="chev">›</span>
       </button>
     </div>
@@ -30,12 +32,14 @@
     <div class="grp">
       <button class="row" (click)="changeEnv()">
         <span class="ico">🌐</span>
-        <span class="rl"><span class="t">Server</span><span class="s">{{ ws?.environment }} · {{ ws?.serverUrl || 'not set' }}</span></span>
+        <span class="rl"><span class="t">Server</span><span class="s">{{ ws?.environment }} · {{ ws?.serverUrl || 'not
+            set' }}</span></span>
         <span class="chev">›</span>
       </button>
       <button class="row" (click)="serverConfig()">
         <span class="ico">🔑</span>
-        <span class="rl"><span class="t">Server / API credentials</span><span class="s">{{ ws?.token ? 'Configured' : 'Set token for Category mode' }}</span></span>
+        <span class="rl"><span class="t">Server / API credentials</span><span class="s">{{ ws?.token ? 'Configured' :
+            'Set token for Category mode' }}</span></span>
         <span class="chev">›</span>
       </button>
     </div>
@@ -44,3 +48,17 @@
     <p class="ver">Newton Touch · v1.0.0</p>
   </div>
 </ion-content>
+
+<ion-modal [isOpen]="showSignOutAlert" (didDismiss)="showSignOutAlert = false" class="logout-modal">
+  <ng-template>
+    <div class="modal-content">
+      <div class="icon-circle">!</div>
+      <h2>Sign Out</h2>
+      <p>Are you sure Sign Out?</p>
+      <div class="actions">
+        <button class="btn-yes" (click)="confirmSignOut()">Yes</button>
+        <button class="btn-cancel" (click)="showSignOutAlert = false">Cancel</button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

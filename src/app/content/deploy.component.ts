@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonProgressBar, IonSpinner } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonProgressBar, IonSpinner, IonToast } from '@ionic/angular/standalone';
 import { ContentService, ContentDraft } from '../services/content.service';
 import { DeviceService } from '../services/device.service';
 import { TransferService, FoundDevice } from '../services/transfer.service';
@@ -13,7 +13,7 @@ import type { LayoutJson, CardItem } from '@contract/layout';
 @Component({
   selector: 'app-deploy',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonProgressBar, IonSpinner],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonProgressBar, IonSpinner, IonToast],
   templateUrl: './deploy.component.html',
   styleUrls: ['./deploy.component.scss'],
 })
@@ -30,6 +30,8 @@ export class DeployComponent implements OnInit, OnDestroy {
   manualName = ''; manualIp = '';
   sending = false; percent = 0;
   doneMsg = ''; doneOk = false;
+  showToast = false;
+  toastMsg = '';
   /** Per-step deploy log surfaced in the UI so users can see what's happening. */
   steps: string[] = [];
 
@@ -62,7 +64,16 @@ export class DeployComponent implements OnInit, OnDestroy {
 
   async toggleScan(): Promise<void> {
     if (this.scanning) { this.scanning = false; await this.transfer.stopScan(); }
-    else { this.scanning = true; await this.transfer.startScan(); }
+    else {
+      this.scanning = true;
+      try {
+        await this.transfer.startScan();
+      } catch (err: any) {
+        this.scanning = false;
+        this.toastMsg = "WebSocket connection to 'ws://localhost:8090/' failed: Dev relay is not running.";
+        this.showToast = true;
+      }
+    }
   }
 
   isTarget(host: string, port: number): boolean { return this.targetHost === host && this.targetPort === port; }
