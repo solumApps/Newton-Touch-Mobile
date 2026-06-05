@@ -15,3 +15,88 @@
 
 .btn-o.danger { color: #DC2626; border-color: #FCA5A5; margin-top: 20px; }
 .ver { text-align: center; color: var(--nt-muted); font-size: 11px; margin-top: 16px; }
+
+ion-modal.logout-modal {
+  --width: 320px;
+  --height: auto;
+  --border-radius: 20px;
+  --background: #ffffff;
+  
+  &::part(content) {
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+}
+
+.modal-content {
+  padding: 32px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: #ffffff;
+  font-family: inherit;
+  
+  .icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #001973;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 18px;
+    line-height: 1;
+  }
+  
+  h2 {
+    margin: 0 0 8px;
+    color: #001973;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  
+  p {
+    margin: 0 0 28px;
+    color: #6B7280;
+    font-size: 16px;
+    font-weight: 400;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    
+    button {
+      flex: 1;
+      height: 48px;
+      border: none;
+      border-radius: 24px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s ease;
+      
+      &:active {
+        opacity: 0.85;
+      }
+    }
+    
+    .btn-yes {
+      background: #E26D6D;
+    }
+    
+    .btn-cancel {
+      background: #001973;
+    }
+  }
+}

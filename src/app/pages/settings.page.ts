@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { IonContent } from '@ionic/angular/standalone';
+import { IonContent, IonModal } from '@ionic/angular/standalone';
 import { SessionService, Session } from '../services/session.service';
 import { WorkspaceService, Workspace } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
@@ -9,13 +9,14 @@ import { PageHeaderComponent } from '../shared/page-header.component';
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, IonContent, PageHeaderComponent],
+  imports: [CommonModule, IonContent, IonModal, PageHeaderComponent],
   templateUrl: './settings.page.html',
   styleUrls: ['./settings.page.scss'],
 })
 export class SettingsPage implements OnInit {
   session: Session | null = null;
   ws: Workspace | null = null;
+  showSignOutAlert = false;
 
   constructor(private sessionSvc: SessionService, private wsSvc: WorkspaceService, private router: Router) {}
 
@@ -35,7 +36,12 @@ export class SettingsPage implements OnInit {
   changeEnv(): void { this.router.navigateByUrl('/auth/environment'); }
   serverConfig(): void { this.router.navigateByUrl('/server-config'); }
 
-  async signOut(): Promise<void> {
+  signOut(): void {
+    this.showSignOutAlert = true;
+  }
+
+  async confirmSignOut(): Promise<void> {
+    this.showSignOutAlert = false;
     await this.sessionSvc.signOut();
     this.router.navigateByUrl('/auth/environment');
   }
