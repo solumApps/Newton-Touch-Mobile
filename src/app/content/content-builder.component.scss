@@ -52,6 +52,30 @@
 
 .btn-o { margin-top: 6px; }
 
+/* Review page-slider — swipeable preview of all pages with real data */
+.review-slider {
+  display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  margin: 0 -14px; padding: 0 14px;
+}
+.review-slider::-webkit-scrollbar { display: none; }
+.review-slide {
+  flex: 0 0 100%; scroll-snap-align: center; box-sizing: border-box; padding: 0 4px;
+}
+.review-slide-cap {
+  text-align: center; font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; color: var(--nt-text-2); margin: 6px 0 0;
+}
+.review-dots {
+  display: flex; justify-content: center; gap: 6px; margin: 10px 0 16px;
+}
+.review-dots button {
+  width: 7px; height: 7px; border-radius: var(--nt-r-full, 999px); border: 0;
+  background: var(--nt-border); padding: 0; cursor: pointer;
+  transition: width 150ms ease, background-color 150ms ease;
+}
+.review-dots button.on { width: 22px; background: var(--nt-purple); }
+
 table.sum {
   width: 100%;
   border-collapse: collapse;
