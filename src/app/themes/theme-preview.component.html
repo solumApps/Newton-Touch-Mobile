@@ -64,7 +64,7 @@
       <tr><td>Intermediate</td><td>{{ th.tokens.includeIntermediate ? th.tokens.intermediateStyle : 'Skipped (Home → Result)' }}</td></tr>
       <tr><td>Result</td><td>{{ th.tokens.resultTemplate }}</td></tr>
       <tr><td>Header style</td><td>{{ th.tokens.headerStyle || 'logo-only' }}</td></tr>
-      <tr><td>Font</td><td>{{ th.tokens.typography.fontFamily.split(',')[0].replace(/'/g, '') }}</td></tr>
+      <tr><td>Font</td><td>{{ th.tokens.typography.fontFamily.split(',')[0].replace('/g', '') }}</td></tr>
       <tr><td>Animation</td><td>{{ th.tokens.animation.transition }} · {{ th.tokens.animation.speed }}</td></tr>
       <tr><td>Loader</td><td>{{ th.tokens.loader.style }}</td></tr>
       <tr><td>Screensaver</td><td>{{ th.tokens.intermediate.itemSize ? 'configurable' : 'default' }}</td></tr>

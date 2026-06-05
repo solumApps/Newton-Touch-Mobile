@@ -1,7 +1,8 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start"><ion-button (click)="cancel()">Cancel</ion-button></ion-buttons>
-    <ion-title>New Content</ion-title>
+    <!-- <ion-buttons slot="start"><ion-button (click)="cancel()">{{ backLabel }}</ion-button></ion-buttons> -->
+     <ion-buttons slot="start"><ion-button class="ghost-action" (click)="cancel()" aria-label="Back">‹</ion-button></ion-buttons>
+    <ion-title>{{ pageTitle }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -12,8 +13,8 @@
       <input class="inp" [(ngModel)]="name" placeholder="e.g. Holiday Campaign" />
     </div>
 
-    <app-select-field label="Step 1 · Select theme" placeholder="Choose a theme"
-      [options]="themeOpts" [value]="themeId" (valueChange)="themeId=$event"></app-select-field>
+    <app-select-field [label]="themeSelectLabel" placeholder="Choose a theme"
+      [options]="themeOpts" [value]="themeId" [disabled]="themeLockedFromPreview" (valueChange)="themeId=$event"></app-select-field>
 
     <!-- chosen theme mini-preview -->
     <div class="tprev" *ngIf="selectedTheme as st">

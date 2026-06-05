@@ -55,6 +55,10 @@ export class ThemePreviewComponent implements OnInit {
     catch { this.msg = 'Copy not available'; }
   }
 
-  useInContent(): void { this.router.navigateByUrl('/content-create?theme=' + this.theme!.id); }
+  useInContent(): void {
+    this.router.navigate(['/content-create'], {
+      queryParams: { theme: this.theme!.id, from: 'theme-preview' },
+    });
+  }
   back(): void { this.router.navigateByUrl('/tabs/themes'); }
 }
