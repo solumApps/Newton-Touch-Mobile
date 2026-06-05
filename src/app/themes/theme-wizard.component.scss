@@ -528,6 +528,9 @@
 .prev .stage.result.res-drill-stair .list .prod.found {
   flex: 1.5 1 0; background: var(--prev-card, #fff) !important; color: var(--prev-text, #111) !important; font-weight: 900; font-size: 8px; filter: none !important;
 }
+.prev .stage.result.res-drill-stair .list .prod:only-child {
+  background: var(--prev-accent, #FFCD00) !important; color: #fff !important; font-size: 9px;
+}
 
 /* ===== Step body ===== */
 .step-title { font-family: 'Plus Jakarta Sans'; font-size: 22px; font-weight: 900; color: var(--nt-text); margin: 8px 0 12px; letter-spacing: -.25px; }

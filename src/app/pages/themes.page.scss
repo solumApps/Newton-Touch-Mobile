@@ -85,15 +85,15 @@
 .fchip:hover { border-color: var(--nt-purple); color: var(--nt-purple); }
 .fchip.act { background: var(--nt-purple); color: #fff; border-color: var(--nt-purple); }
 
-/* Featured themes — horizontal carousel so My Themes stays visible. */
+/* Featured themes — horizontal carousel. Cards stay inside the page
+   margin (aligned with headings / search bar) instead of touching screen edges. */
 .pre-slider {
   display: flex;
   gap: 12px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
-  margin: 0 -14px;
-  padding: 0 14px 4px;
+  padding-bottom: 4px;
 }
 .pre-slider::-webkit-scrollbar { display: none; }
 .pre-card {

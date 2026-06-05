@@ -33,7 +33,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [ngSwitch]="page">
         <div class="hdr" *ngIf="headerVisible"
              [ngClass]="['logo-'+(theme?.logoPosition||'left'), 'hdr-style-'+(theme?.headerStyle||'logo-only')]"
-             [style.background]="headerColor">
+             [class.hdr-transparent]="isTransparentHeader"
+             [style.background]="isTransparentHeader ? 'transparent' : headerColor">
           <img *ngIf="showLogo" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
           <div class="brand-text" *ngIf="showTitle || showHeaderCaption">
             <span class="nt" *ngIf="showTitle">{{ titleText }}</span>
