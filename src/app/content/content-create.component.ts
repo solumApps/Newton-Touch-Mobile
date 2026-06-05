@@ -20,6 +20,7 @@ import type { AppMode } from '@contract/layout';
 export class ContentCreateComponent implements OnInit {
   name = '';
   themeId = '';
+  themeLockedFromPreview = false;
   mode: AppMode = 'category';
   themes: SavedTheme[] = [];
 
@@ -34,7 +35,10 @@ export class ContentCreateComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     await this.refreshThemes();
     const pre = this.route.snapshot.queryParamMap.get('theme');
-    if (pre && this.themes.some((t) => t.id === pre)) this.themeId = pre;
+    if (pre && this.themes.some((t) => t.id === pre)) {
+      this.themeId = pre;
+      this.themeLockedFromPreview = this.route.snapshot.queryParamMap.get('from') === 'theme-preview';
+    }
   }
   /** Ionic page reuse: re-read user themes whenever this page becomes active so
    *  freshly-saved themes show up without an app refresh. */
@@ -53,6 +57,9 @@ export class ContentCreateComponent implements OnInit {
   get modeOpts(): SelectOption[] { return this.modes.map((m) => ({ value: m.id, label: m.nm, sub: m.ds })); }
   get selectedTheme(): SavedTheme | undefined { return this.themes.find((t) => t.id === this.themeId); }
   get selectedMode() { return this.modes.find((m) => m.id === this.mode); }
+  get pageTitle(): string { return this.themeLockedFromPreview ? 'Content' : 'New Content'; }
+  get themeSelectLabel(): string { return this.themeLockedFromPreview ? 'Selected theme' : 'Step 1 · Select theme'; }
+  get backLabel(): string { return this.themeLockedFromPreview ? 'Back' : 'Cancel'; }
 
   async next(): Promise<void> {
     const theme = this.selectedTheme;
@@ -76,5 +83,11 @@ export class ContentCreateComponent implements OnInit {
     this.router.navigateByUrl('/content-builder/' + draft.id);
   }
 
-  cancel(): void { this.router.navigateByUrl('/tabs/content'); }
+  cancel(): void {
+    if (this.themeLockedFromPreview && this.themeId) {
+      this.router.navigateByUrl('/theme-preview/' + this.themeId);
+      return;
+    }
+    this.router.navigateByUrl('/tabs/content');
+  }
 }
