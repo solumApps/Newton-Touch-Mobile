@@ -23,6 +23,7 @@ export class EnvironmentComponent {
   customUrlValid = false;
   customTouched = false;
   returnTo = '';
+  private readonly knownServerUrls = new Set(Object.values(SERVERS).map((url) => normalizeServerUrl(url)));
 
   constructor(private ws: WorkspaceService, private router: Router, private route: ActivatedRoute) {
     this.returnTo = this.route.snapshot.queryParamMap.get('returnTo') || '';
