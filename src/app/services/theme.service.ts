@@ -3,6 +3,9 @@ import { Preferences } from '@capacitor/preferences';
 import type { ThemeTokens, HomeLayout, CardStyle, CardShape, CardContent, CardTextPos } from '@contract/layout';
 import { DEFAULT_FONT, FONTS } from '../shared/fonts';
 
+/** Default saverOverlay — shown centered with white text, no bg box. */
+const DEFAULT_SAVER_OVERLAY = { showContent: true, title: 'Newton Touch', subtitle: 'Touch screen to begin', position: 'center' as const, textColor: '#FFFFFF', bgColor: 'transparent' };
+
 export interface SavedTheme {
   id: string;
   name: string;
@@ -29,8 +32,10 @@ export class ThemeService {
       overlayColor: 'rgba(0,0,0,0.6)',
       cardSurface: 'flat',
       navStyle: 'floating',
+      nav: { backColor: '#FFFFFF', backBg: 'rgba(0,0,0,0.35)', homeColor: '#FFFFFF', homeBg: 'rgba(0,0,0,0.35)', position: 'bottom-left' },
       logoPosition: 'left',
       homeLayout: 'grid-2x3',
+      cardSize: 'normal',
       cardShape: 'rect',
       cardContent: 'image-text',
       cardTextPos: 'overlay-bottom',
@@ -44,6 +49,7 @@ export class ThemeService {
       animation: { transition: 'fade-slide', speed: 'normal', applyToAll: true },
       loader: { style: 'spinner', color: '#FFCD00' },
       typography: { fontFamily: DEFAULT_FONT, textScale: 'normal', textFit: 'shrink', baseTextColor: '#FFFFFF' },
+      saverOverlay: { ...DEFAULT_SAVER_OVERLAY },
     };
   }
 
@@ -85,9 +91,12 @@ export class ThemeService {
     out.overlayColor = t?.overlayColor ?? 'rgba(0,0,0,0.6)';
     out.cardSurface = t?.cardSurface ?? 'flat';
     out.navStyle = t?.navStyle ?? 'floating';
+    out.cardSize = t?.cardSize ?? 'normal';
+    out.nav = { ...d.nav, ...(t?.nav || {}) };
     out.intermediate = { ...d.intermediate, ...(t?.intermediate || {}), showHeader: t?.intermediate?.showHeader ?? true };
     out.result = { ...d.result, ...(t?.result || {}), showHeader: t?.result?.showHeader ?? true };
     out.typography = { ...d.typography, ...(t?.typography || {}) };
+    out.saverOverlay = { ...DEFAULT_SAVER_OVERLAY, ...(t?.saverOverlay || {}) };
     return out;
   }
 

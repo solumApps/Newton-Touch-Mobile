@@ -7,7 +7,7 @@ import { ColorPickerComponent } from '../shared/color-picker.component';
 import { ThemeService, SavedTheme } from '../services/theme.service';
 import { ImagePickerService } from '../services/image-picker.service';
 import { FONTS } from '../shared/fonts';
-import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, HeaderStyle, CardSurface, NavStyle } from '@contract/layout';
+import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, SaverOverlayPosition } from '@contract/layout';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 interface Step { key: string; page: PreviewPage; }
@@ -57,11 +57,12 @@ export class ThemeWizardComponent implements OnInit {
   slots = [0, 1, 2, 3, 4, 5];
   labels = ['Bakery', 'Dairy', 'Produce', 'Meat', 'Frozen', 'Drinks'];
 
-  homeLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-4', 'hero-list', 'list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories'];
+  homeLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-4', 'hero-list', 'list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'h-scroll'];
   layoutLabels: Record<HomeLayout, string> = {
     'grid-2x3': 'Grid (3×2)', 'grid-2x2': 'Grid (2×2)', 'col-4': '4 columns',
     'hero-list': 'Hero + list', 'list': 'List rows', 'fullscreen': 'Fullscreen',
     'image-strip': 'Image strips', 'hero-start': 'Hero start', 'promo-categories': 'Promo categories',
+    'h-scroll': 'Horizontal scroll',
   };
   /** Independent card axes — any shape × any content × any text position. */
   cardShapes: { id: CardShape; label: string }[] = [
@@ -77,7 +78,22 @@ export class ThemeWizardComponent implements OnInit {
   /** Text-position control only matters when the card shows both an image/icon AND text. */
   get showTextPos(): boolean { return this.t.cardContent === 'image-text' || this.t.cardContent === 'icon-text'; }
 
-  pickLayout(l: HomeLayout): void { this.t.homeLayout = l; }
+  pickLayout(l: HomeLayout): void {
+    this.t.homeLayout = l;
+    // Auto-reset circle/hexagon when switching to shape-incompatible layouts
+    if (['list', 'fullscreen', 'image-strip', 'h-scroll'].includes(l) &&
+        (this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon')) {
+      this.t.cardShape = 'rect';
+    }
+  }
+
+  /** Only show circle/hexagon shapes for layouts where they make visual sense. */
+  get availableCardShapes(): { id: CardShape; label: string }[] {
+    if (['list', 'fullscreen', 'image-strip', 'h-scroll'].includes(this.t.homeLayout)) {
+      return this.cardShapes.filter(s => s.id !== 'circle' && s.id !== 'hexagon');
+    }
+    return this.cardShapes;
+  }
   fonts = FONTS;
   textScales: TextScale[] = ['compact', 'normal', 'large'];
   textFits: { id: TextFit; label: string }[] = [
@@ -107,6 +123,21 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'edge', label: 'Edge buttons' },
     { id: 'bottom-center', label: 'Bottom center' },
     { id: 'hidden', label: 'Hidden' },
+  ];
+  cardSizes: Array<'small' | 'normal' | 'large'> = ['small', 'normal', 'large'];
+  navButtonPositions: { id: NavButtonPosition; label: string }[] = [
+    { id: 'bottom-left',   label: 'Bottom left' },
+    { id: 'bottom-center', label: 'Bottom center' },
+    { id: 'bottom-right',  label: 'Bottom right' },
+    { id: 'side-left',     label: 'Side left' },
+    { id: 'side-right',    label: 'Side right' },
+  ];
+  saverPositions: { id: SaverOverlayPosition; label: string }[] = [
+    { id: 'center',       label: 'Center' },
+    { id: 'bottom',       label: 'Bottom' },
+    { id: 'top',          label: 'Top' },
+    { id: 'bottom-left',  label: 'Bottom left' },
+    { id: 'bottom-right', label: 'Bottom right' },
   ];
   sizes: Array<'small' | 'medium' | 'large'> = ['small', 'medium', 'large'];
   pathStyles: Array<'dashed' | 'solid' | 'dotted' | 'animated'> = ['dashed', 'solid', 'dotted', 'animated'];
@@ -143,7 +174,7 @@ export class ThemeWizardComponent implements OnInit {
 
   get shapeCard(): boolean {
     if (this.t.cardShape !== 'circle' && this.t.cardShape !== 'hexagon') return false;
-    return !['image-strip', 'fullscreen', 'hero-start', 'promo-categories'].includes(this.t.homeLayout);
+    return !['image-strip', 'fullscreen', 'hero-start', 'promo-categories', 'h-scroll'].includes(this.t.homeLayout);
   }
 
   get scaleNum(): number { return this.t.typography.textScale === 'compact' ? 0.9 : this.t.typography.textScale === 'large' ? 1.14 : 1; }
@@ -220,10 +251,52 @@ export class ThemeWizardComponent implements OnInit {
     else this.t.backgroundImage = undefined;
   }
 
+  /** Tracks whether inter/result colors have already been synced from home this session. */
+  private interSynced = false;
+  private resultSynced = false;
+
+  /**
+   * Copy Home colors into Intermediate defaults, but only if they are still at
+   * factory defaults (i.e., the user hasn't customised them yet).
+   */
+  private syncInterFromHome(): void {
+    if (this.interSynced) return;
+    const d = ThemeService.defaultTokens().intermediate;
+    const i = this.t.intermediate;
+    const atDefault = (val: string, def: string) => val === def;
+    if (atDefault(i.headerColor, d.headerColor)) this.t.intermediate.headerColor = this.t.headerColor;
+    if (atDefault(i.background, d.background)) this.t.intermediate.background = this.t.background;
+    if (atDefault(i.cardBackground, d.cardBackground)) this.t.intermediate.cardBackground = this.t.cardBackground;
+    if (atDefault(i.cardText, d.cardText)) this.t.intermediate.cardText = this.t.cardText;
+    if (atDefault(i.accent, d.accent)) this.t.intermediate.accent = this.t.accent;
+    if (i.showHeader === d.showHeader) this.t.intermediate.showHeader = this.t.showHeader;
+    this.interSynced = true;
+  }
+
+  /**
+   * Copy Home colors into Result defaults, but only if they are still at
+   * factory defaults.
+   */
+  private syncResultFromHome(): void {
+    if (this.resultSynced) return;
+    const d = ThemeService.defaultTokens().result;
+    const r = this.t.result;
+    const atDefault = (val: string, def: string) => val === def;
+    if (atDefault(r.headerColor, d.headerColor)) this.t.result.headerColor = this.t.headerColor;
+    if (atDefault(r.background, d.background)) this.t.result.background = this.t.background;
+    if (atDefault(r.cardBackground, d.cardBackground)) this.t.result.cardBackground = this.t.cardBackground;
+    if (atDefault(r.cardText, d.cardText)) this.t.result.cardText = this.t.cardText;
+    if (atDefault(r.accent, d.accent)) this.t.result.accent = this.t.accent;
+    if (r.showHeader === d.showHeader) this.t.result.showHeader = this.t.showHeader;
+    this.resultSynced = true;
+  }
+
   next(): void {
     if (this.stepIndex < this.visibleSteps.length - 1) this.stepIndex++;
     this.scrollActiveStep();
     if (this.step.key === 'anim') this.replayTransition();
+    if (this.step.key === 'intColors') this.syncInterFromHome();
+    if (this.step.key === 'resColors') this.syncResultFromHome();
   }
   prev(): void {
     if (this.stepIndex > 0) this.stepIndex--;
@@ -236,6 +309,8 @@ export class ThemeWizardComponent implements OnInit {
     this.stepIndex = i;
     this.scrollActiveStep();
     if (this.step.key === 'anim') this.replayTransition();
+    if (this.step.key === 'intColors') this.syncInterFromHome();
+    if (this.step.key === 'resColors') this.syncResultFromHome();
   }
 
   private scrollActiveStep(): void {

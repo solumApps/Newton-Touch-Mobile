@@ -43,7 +43,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         </div>
 
         <!-- HOME -->
-        <div *ngSwitchCase="'home'" class="stage layout-{{theme?.homeLayout}}" [class.shape]="shapeCard">
+        <div *ngSwitchCase="'home'" class="stage layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}}" [class.shape]="shapeCard">
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
             <span>{{ titleText || 'Product Finder' }}</span>
             <b>Start Search</b>
@@ -52,24 +52,46 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <b>Featured</b>
             <span>{{ titleText || 'Find the right product faster' }}</span>
           </div>
-          <ng-container *ngIf="(home?.length||0) > 0; else homePlaceholders">
-            <div *ngFor="let c of homeSlice; let i = index"
-                 class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                 [class.featured]="i===0"
-                 [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
-              <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
-              <div class="meta"><span class="name">{{ c.name || 'Item' }}</span></div>
-            </div>
+          <!-- h-scroll layout: single scrollable rail -->
+          <div class="h-scroll-rail" *ngIf="theme?.homeLayout==='h-scroll'">
+            <ng-container *ngIf="(home?.length||0) > 0; else hScrollPlaceholders">
+              <div *ngFor="let c of homeSlice"
+                   class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
+                   [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
+                <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
+                <div class="meta"><span class="name">{{ c.name || 'Item' }}</span></div>
+              </div>
+            </ng-container>
+            <ng-template #hScrollPlaceholders>
+              <div *ngFor="let n of placeholderSlots; let i = index"
+                   class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
+                   [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
+                <div class="img placeholder" [style.background]="theme?.accent"></div>
+                <div class="meta"><span class="name">{{ placeholderLabels[i] }}</span></div>
+              </div>
+            </ng-template>
+          </div>
+          <!-- all other layouts -->
+          <ng-container *ngIf="theme?.homeLayout!=='h-scroll'">
+            <ng-container *ngIf="(home?.length||0) > 0; else homePlaceholders">
+              <div *ngFor="let c of homeSlice; let i = index"
+                   class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
+                   [class.featured]="i===0"
+                   [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
+                <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
+                <div class="meta"><span class="name">{{ c.name || 'Item' }}</span></div>
+              </div>
+            </ng-container>
+            <ng-template #homePlaceholders>
+              <div *ngFor="let n of placeholderSlots; let i = index"
+                   class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
+                   [class.featured]="i===0"
+                   [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
+                <div class="img placeholder" [style.background]="theme?.accent"></div>
+                <div class="meta"><span class="name">{{ placeholderLabels[i] }}</span></div>
+              </div>
+            </ng-template>
           </ng-container>
-          <ng-template #homePlaceholders>
-            <div *ngFor="let n of placeholderSlots; let i = index"
-                 class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                 [class.featured]="i===0"
-                 [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
-              <div class="img placeholder" [style.background]="theme?.accent"></div>
-              <div class="meta"><span class="name">{{ placeholderLabels[i] }}</span></div>
-            </div>
-          </ng-template>
         </div>
 
         <!-- INTERMEDIATE -->
@@ -125,8 +147,15 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             </ng-template>
           </div>
         </div>
-        <div class="mock-nav" *ngIf="page !== 'home' && page !== 'saver' && (theme?.navStyle || 'floating') !== 'hidden'">
-          <span>‹</span><span>⌂</span>
+        <div class="mock-nav"
+             *ngIf="page !== 'home' && page !== 'saver' && navVisible"
+             [ngClass]="'nav-pos-'+(theme?.nav?.position || 'bottom-left')">
+          <span class="mock-btn"
+                [style.color]="theme?.nav?.backColor || '#fff'"
+                [style.background]="theme?.nav?.backBg || 'rgba(0,0,0,.35)'">&#8249;</span>
+          <span class="mock-btn"
+                [style.color]="theme?.nav?.homeColor || '#fff'"
+                [style.background]="theme?.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</span>
         </div>
 
         <!-- SCREENSAVER -->
@@ -141,13 +170,17 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <span class="ss-slide" [style.background]="theme?.background"></span>
             </ng-template>
           </div>
-          <span class="ss-play" *ngIf="screensaver?.mode === 'video'">▶</span>
+          <span class="ss-play" *ngIf="screensaver?.mode === 'video'">&#9654;</span>
           <span class="ss-badge">{{ saverBadge }}</span>
           <div class="ss-overlay"></div>
-          <div class="ss-c">
+          <div class="ss-c"
+               *ngIf="saverShowContent"
+               [ngClass]="'ss-pos-'+(theme?.saverOverlay?.position || 'center')"
+               [style.background]="theme?.saverOverlay?.bgColor || 'transparent'"
+               [style.color]="theme?.saverOverlay?.textColor || '#fff'">
             <img src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-            <div class="nt">{{ titleText || 'Newton Touch' }}</div>
-            <div class="cta">{{ screensaver?.ctaText || 'Touch screen to begin' }}</div>
+            <div class="nt">{{ theme?.saverOverlay?.title || screensaver?.ctaText || titleText || 'Newton Touch' }}</div>
+            <div class="cta">{{ theme?.saverOverlay?.subtitle || 'Touch screen to begin' }}</div>
           </div>
         </div>
       </div>
@@ -179,8 +212,10 @@ export class ContentPreviewStripComponent {
   get shapeCard(): boolean {
     const sh = this.theme?.cardShape;
     const layout = this.theme?.homeLayout;
-    return (sh === 'circle' || sh === 'hexagon') && !['image-strip', 'fullscreen', 'hero-start', 'promo-categories'].includes(layout || '');
+    return (sh === 'circle' || sh === 'hexagon') && !['image-strip', 'fullscreen', 'hero-start', 'promo-categories', 'h-scroll'].includes(layout || '');
   }
+  get navVisible(): boolean { return (this.theme?.navStyle || 'floating') !== 'hidden'; }
+  get saverShowContent(): boolean { return this.theme?.saverOverlay?.showContent !== false; }
   get headerColor(): string | undefined {
     return this.page === 'inter' ? this.theme?.intermediate?.headerColor
       : this.page === 'result' ? this.theme?.result?.headerColor

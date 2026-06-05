@@ -569,3 +569,64 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
   backdrop-filter: blur(10px);
 }
 .nav .bk { flex: 0 0 110px; }
+
+/* ===== h-scroll layout preview ===== */
+.prev .stage.layout-h-scroll { display: flex; flex-direction: column; justify-content: center; padding: 0; overflow: hidden; }
+.prev .stage.layout-h-scroll .h-scroll-rail { display: flex; overflow-x: auto; scrollbar-width: none; align-items: center; height: 100%; padding: 4px 6px; gap: 5px; scroll-snap-type: x mandatory; }
+.prev .stage.layout-h-scroll .h-scroll-rail::-webkit-scrollbar { display: none; }
+.prev .stage.layout-h-scroll .h-scroll-rail .card { flex: 0 0 17%; height: 88%; scroll-snap-align: start; }
+
+/* ===== Card size variants ===== */
+.prev .stage.card-size-small .card { transform: scale(.82); transform-origin: center; }
+.prev .stage.card-size-large  .card { transform: scale(1.08); transform-origin: center; }
+/* h-scroll specific */
+.prev .stage.layout-h-scroll.card-size-small .h-scroll-rail .card { flex-basis: 13%; height: 75%; }
+.prev .stage.layout-h-scroll.card-size-large  .h-scroll-rail .card { flex-basis: 22%; height: 100%; }
+
+/* ===== Styled mock-nav (colored buttons + position classes) ===== */
+.prev .mock-nav {
+  position: absolute; z-index: 3; display: flex; gap: 5px;
+  /* default: bottom-left */
+  left: 6px; bottom: 5px;
+}
+.prev .mock-nav .mock-btn {
+  width: 16px; height: 16px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; line-height: 1;
+  transition: opacity 150ms;
+}
+/* Positional variants */
+.prev .mock-nav.nav-pos-bottom-left  { left: 6px;    bottom: 5px;  flex-direction: row; }
+.prev .mock-nav.nav-pos-bottom-center{ left: 50%;    bottom: 5px;  transform: translateX(-50%); flex-direction: row; }
+.prev .mock-nav.nav-pos-bottom-right { right: 6px;   bottom: 5px;  left: auto; flex-direction: row; }
+.prev .mock-nav.nav-pos-side-left    { left: 5px;    top: 50%;     transform: translateY(-50%); flex-direction: column; }
+.prev .mock-nav.nav-pos-side-right   { right: 5px;   top: 50%;     left: auto; transform: translateY(-50%); flex-direction: column; }
+
+/* ===== Screensaver overlay position classes ===== */
+.saver .ss-c { position: absolute; left: 0; right: 0; text-align: center; padding: 4px 8px; border-radius: 4px; }
+/* default = center */
+.saver .ss-c.ss-pos-center      { top: 50%; transform: translateY(-50%); }
+.saver .ss-c.ss-pos-top         { top: 10%; transform: none; }
+.saver .ss-c.ss-pos-bottom      { bottom: 10%; top: auto; transform: none; }
+.saver .ss-c.ss-pos-bottom-left { bottom: 8%; left: 8px; right: auto; top: auto; text-align: left; transform: none; width: 46%; }
+.saver .ss-c.ss-pos-bottom-right{ bottom: 8%; right: 8px; left: auto; top: auto; text-align: right; transform: none; width: 46%; }
+/* When no class is set (old default) keep the old rule as fallback */
+.saver .ss-c:not([class*="ss-pos-"]) { bottom: 16%; transform: none; }
+
+/* ===== Inherited colors info banner ===== */
+.inherited-hint {
+  display: flex; align-items: flex-start; gap: 8px;
+  background: linear-gradient(135deg, rgba(47,0,109,.07), rgba(0,25,115,.07));
+  border: 1.5px solid rgba(47,0,109,.18);
+  border-radius: var(--nt-r);
+  padding: 10px 14px;
+  font-size: 12px; line-height: 1.5; color: var(--nt-text-2);
+  margin-bottom: 14px;
+}
+.inherited-hint span { font-size: 15px; flex-shrink: 0; color: var(--nt-purple); }
+
+/* ===== Nav button design section ===== */
+.nav-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+.nav-btn-grp { background: var(--nt-surface); border: 1.5px solid var(--nt-border); border-radius: var(--nt-r); padding: 10px 12px; }
+.nav-btn-lbl { display: block; font-size: 13px; font-weight: 800; color: var(--nt-text); margin-bottom: 8px; }
+

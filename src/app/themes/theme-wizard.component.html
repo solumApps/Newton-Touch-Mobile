@@ -34,7 +34,7 @@
         </div>
 
         <!-- HOME -->
-        <div *ngSwitchCase="'home'" class="stage layout-{{t.homeLayout}}" [class.shape]="shapeCard">
+        <div *ngSwitchCase="'home'" class="stage layout-{{t.homeLayout}} card-size-{{t.cardSize||'normal'}}" [class.shape]="shapeCard">
           <div class="hero-copy" *ngIf="t.homeLayout==='hero-start'">
             <span>Product Finder</span>
             <b>Start Search</b>
@@ -43,11 +43,21 @@
             <b>Featured</b>
             <span>Find the right product faster</span>
           </div>
-          <div class="card shape-{{t.cardShape}} content-{{t.cardContent}} pos-{{t.cardTextPos}}" *ngFor="let n of slots; let i = index" [class.featured]="i===0"
-               [style.color]="t.cardText" [style.borderColor]="t.accent">
-            <div class="img placeholder" [style.background]="t.accent"></div>
-            <div class="meta"><span class="name">{{ labels[i] }}</span></div>
+          <div class="h-scroll-rail" *ngIf="t.homeLayout==='h-scroll'">
+            <div class="card shape-{{t.cardShape}} content-{{t.cardContent}} pos-{{t.cardTextPos}}" *ngFor="let n of slots; let i = index"
+                 [style.color]="t.cardText" [style.borderColor]="t.accent">
+              <div class="img placeholder" [style.background]="t.accent"></div>
+              <div class="meta"><span class="name">{{ labels[i] }}</span></div>
+            </div>
           </div>
+          <ng-container *ngIf="t.homeLayout!=='h-scroll'">
+            <div class="card shape-{{t.cardShape}} content-{{t.cardContent}} pos-{{t.cardTextPos}}" *ngFor="let n of slots; let i = index"
+                 [class.featured]="i===0"
+                 [style.color]="t.cardText" [style.borderColor]="t.accent">
+              <div class="img placeholder" [style.background]="t.accent"></div>
+              <div class="meta"><span class="name">{{ labels[i] }}</span></div>
+            </div>
+          </ng-container>
         </div>
 
         <!-- INTERMEDIATE -->
@@ -88,8 +98,11 @@
             </div>
           </div>
         </div>
-        <div class="mock-nav" *ngIf="page !== 'home' && page !== 'saver' && (t.navStyle || 'floating') !== 'hidden'">
-          <span>‹</span><span>⌂</span>
+        <div class="mock-nav"
+             *ngIf="page !== 'home' && page !== 'saver' && (t.navStyle || 'floating') !== 'hidden'"
+             [ngClass]="'nav-pos-'+(t.nav?.position || 'bottom-left')">
+          <span class="mock-btn" [style.color]="t.nav?.backColor || '#fff'" [style.background]="t.nav?.backBg || 'rgba(0,0,0,.35)'">&#8249;</span>
+          <span class="mock-btn" [style.color]="t.nav?.homeColor || '#fff'" [style.background]="t.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</span>
         </div>
 
         <!-- SCREENSAVER -->
@@ -150,9 +163,15 @@
           <button class="tile" *ngFor="let o of homeLayouts" [class.sel]="t.homeLayout===o" (click)="pickLayout(o)">{{ layoutLabels[o] }}</button>
         </div>
 
+        <div class="step-title sm">Card size</div>
+        <p class="hint">Controls the physical size of each category card.</p>
+        <div class="seg">
+          <button class="tile" *ngFor="let s of cardSizes" [class.sel]="(t.cardSize||'normal')===s" (click)="t.cardSize=s">{{ s | titlecase }}</button>
+        </div>
+
         <div class="step-title sm">Card shape</div>
         <div class="tiles">
-          <button class="tile" *ngFor="let s of cardShapes" [class.sel]="t.cardShape===s.id" (click)="t.cardShape=s.id">{{ s.label }}</button>
+          <button class="tile" *ngFor="let s of availableCardShapes" [class.sel]="t.cardShape===s.id" (click)="t.cardShape=s.id">{{ s.label }}</button>
         </div>
 
         <div class="step-title sm">Card content</div>
@@ -240,6 +259,9 @@
 
       <div *ngSwitchCase="'intColors'">
         <div class="step-title">Intermediate colors</div>
+        <div class="inherited-hint">
+          <span>&#9432;</span> Colors pre-filled from your Home page — adjust below if needed.
+        </div>
         <app-color-picker label="Header / breadcrumb" [value]="t.intermediate.headerColor" (valueChange)="t.intermediate.headerColor=$event"></app-color-picker>
         <app-color-picker label="Page background" [value]="t.intermediate.background" (valueChange)="t.intermediate.background=$event" [presets]="bgPresets"></app-color-picker>
         <div class="media-row">
@@ -263,6 +285,25 @@
             <button class="tile" [class.sel]="!t.intermediate.transparentHeader" (click)="t.intermediate.transparentHeader=false">Off</button>
           </div>
         </ng-container>
+
+        <div class="step-title sm">Navigation buttons</div>
+        <p class="hint">Style the Back and Home buttons shown on this page.</p>
+        <div class="nav-btn-row">
+          <div class="nav-btn-grp">
+            <span class="nav-btn-lbl">&#8249; Back</span>
+            <app-color-picker label="Icon color" [value]="t.nav?.backColor || '#FFFFFF'" (valueChange)="t.nav!.backColor=$event"></app-color-picker>
+            <app-color-picker label="Background" [value]="t.nav?.backBg || 'rgba(0,0,0,0.35)'" (valueChange)="t.nav!.backBg=$event"></app-color-picker>
+          </div>
+          <div class="nav-btn-grp">
+            <span class="nav-btn-lbl">&#8962; Home</span>
+            <app-color-picker label="Icon color" [value]="t.nav?.homeColor || '#FFFFFF'" (valueChange)="t.nav!.homeColor=$event"></app-color-picker>
+            <app-color-picker label="Background" [value]="t.nav?.homeBg || 'rgba(0,0,0,0.35)'" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
+          </div>
+        </div>
+        <div class="step-title sm">Button position</div>
+        <div class="seg">
+          <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
+        </div>
       </div>
 
       <div *ngSwitchCase="'resTemplate'">
@@ -272,6 +313,9 @@
 
       <div *ngSwitchCase="'resColors'">
         <div class="step-title">Result colors &amp; path</div>
+        <div class="inherited-hint">
+          <span>&#9432;</span> Colors pre-filled from your Home page — adjust below if needed.
+        </div>
         <app-color-picker label="Header" [value]="t.result.headerColor" (valueChange)="t.result.headerColor=$event"></app-color-picker>
         <app-color-picker label="Page background" [value]="t.result.background" (valueChange)="t.result.background=$event" [presets]="bgPresets"></app-color-picker>
         <div class="media-row">
@@ -296,6 +340,25 @@
             <button class="tile" [class.sel]="!t.result.transparentHeader" (click)="t.result.transparentHeader=false">Off</button>
           </div>
         </ng-container>
+
+        <div class="step-title sm">Navigation buttons</div>
+        <p class="hint">Style the Back and Home buttons shown on this page.</p>
+        <div class="nav-btn-row">
+          <div class="nav-btn-grp">
+            <span class="nav-btn-lbl">&#8249; Back</span>
+            <app-color-picker label="Icon color" [value]="t.nav?.backColor || '#FFFFFF'" (valueChange)="t.nav!.backColor=$event"></app-color-picker>
+            <app-color-picker label="Background" [value]="t.nav?.backBg || 'rgba(0,0,0,0.35)'" (valueChange)="t.nav!.backBg=$event"></app-color-picker>
+          </div>
+          <div class="nav-btn-grp">
+            <span class="nav-btn-lbl">&#8962; Home</span>
+            <app-color-picker label="Icon color" [value]="t.nav?.homeColor || '#FFFFFF'" (valueChange)="t.nav!.homeColor=$event"></app-color-picker>
+            <app-color-picker label="Background" [value]="t.nav?.homeBg || 'rgba(0,0,0,0.35)'" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
+          </div>
+        </div>
+        <div class="step-title sm">Button position</div>
+        <div class="seg">
+          <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
+        </div>
       </div>
 
       <div *ngSwitchCase="'anim'">
@@ -318,20 +381,52 @@
         <div class="step-title">Screensaver</div>
         <p class="hint">Screensaver media is attached later in Content. The theme just notes the intended mode.</p>
         <div class="seg"><button class="tile" *ngFor="let o of saverModes" [class.sel]="saverMode===o" (click)="saverMode=o">{{ o }}</button></div>
+
+        <div class="step-title sm">Overlay content</div>
+        <p class="hint">Show a title + CTA block over the screensaver media.</p>
+        <div class="seg">
+          <button class="tile" [class.sel]="t.saverOverlay?.showContent !== false" (click)="t.saverOverlay!.showContent=true">Show</button>
+          <button class="tile" [class.sel]="t.saverOverlay?.showContent === false" (click)="t.saverOverlay!.showContent=false">Hide</button>
+        </div>
+
+        <ng-container *ngIf="t.saverOverlay?.showContent !== false">
+          <div class="step-title sm">Overlay text</div>
+          <div class="fld">
+            <label>Title</label>
+            <input class="inp" [value]="t.saverOverlay?.title || 'Newton Touch'"
+                   (input)="t.saverOverlay!.title=$any($event.target).value"
+                   placeholder="Newton Touch" />
+          </div>
+          <div class="fld">
+            <label>Subtitle / CTA</label>
+            <input class="inp" [value]="t.saverOverlay?.subtitle || 'Touch screen to begin'"
+                   (input)="t.saverOverlay!.subtitle=$any($event.target).value"
+                   placeholder="Touch screen to begin" />
+          </div>
+          <app-color-picker label="Text color" [value]="t.saverOverlay?.textColor || '#FFFFFF'" (valueChange)="t.saverOverlay!.textColor=$event"></app-color-picker>
+          <app-color-picker label="Box background" hint="transparent = no box" [value]="t.saverOverlay?.bgColor || 'transparent'" (valueChange)="t.saverOverlay!.bgColor=$event" [presets]="overlayPresets"></app-color-picker>
+
+          <div class="step-title sm">Overlay position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of saverPositions" [class.sel]="(t.saverOverlay?.position||'center')===p.id" (click)="t.saverOverlay!.position=p.id">{{ p.label }}</button>
+          </div>
+        </ng-container>
       </div>
 
       <div *ngSwitchCase="'review'">
         <div class="step-title">Review &amp; save</div>
         <div class="fld"><label>Theme name</label>
           <input class="inp" [(ngModel)]="name" placeholder="e.g. Holiday Dark" /></div>
-        <table class="sum">
-          <tr><td>Home layout</td><td>{{ t.homeLayout }}</td></tr>
-          <tr><td>Card</td><td>{{ t.cardShape }} · {{ t.cardContent }}</td></tr>
-          <tr><td>Intermediate</td><td>{{ t.includeIntermediate ? t.intermediateStyle : 'Skipped (Home → Result)' }}</td></tr>
-          <tr><td>Result</td><td>{{ t.resultTemplate }}</td></tr>
-          <tr><td>Animation</td><td>{{ t.animation.transition }} · {{ t.animation.speed }}</td></tr>
-          <tr><td>Loader</td><td>{{ t.loader.style }}</td></tr>
-        </table>
+          <table class="sum">
+            <tr><td>Home layout</td><td>{{ t.homeLayout }}</td></tr>
+            <tr><td>Card</td><td>{{ t.cardShape }} · {{ t.cardContent }} · {{ t.cardSize }}</td></tr>
+            <tr><td>Intermediate</td><td>{{ t.includeIntermediate ? t.intermediateStyle : 'Skipped (Home → Result)' }}</td></tr>
+            <tr><td>Result</td><td>{{ t.resultTemplate }}</td></tr>
+            <tr><td>Nav buttons</td><td>{{ t.nav?.position || 'bottom-left' }} · back {{ t.nav?.backBg || 'default' }}</td></tr>
+            <tr><td>Animation</td><td>{{ t.animation.transition }} · {{ t.animation.speed }}</td></tr>
+            <tr><td>Loader</td><td>{{ t.loader.style }}</td></tr>
+            <tr><td>Screensaver overlay</td><td>{{ t.saverOverlay?.showContent !== false ? (t.saverOverlay?.position || 'center') : 'Hidden' }}</td></tr>
+          </table>
       </div>
     </ng-container>
 

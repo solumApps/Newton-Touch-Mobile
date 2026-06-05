@@ -15,7 +15,13 @@ export type HomeLayout =
   /** hero-start: landing screen with one hero image/background and a start action. */
   | 'hero-start'
   /** promo-categories: large promotional copy/visual area plus category choices. */
-  | 'promo-categories';
+  | 'promo-categories'
+  /** h-scroll: single horizontally-scrolling row of cards — great as a category rail. */
+  | 'h-scroll';
+
+export type CardSize = 'small' | 'normal' | 'large';
+export type NavButtonPosition = 'bottom-left' | 'bottom-center' | 'bottom-right' | 'side-left' | 'side-right';
+export type SaverOverlayPosition = 'center' | 'bottom' | 'top' | 'bottom-left' | 'bottom-right';
 
 export type TextScale = 'compact' | 'normal' | 'large';
 export type TextFit = 'shrink' | 'wrap' | 'clip';
@@ -74,6 +80,25 @@ export type HeaderStyle = 'logo+title+caption' | 'logo-only' | 'title+caption' |
 export type CardSurface = 'flat' | 'glass' | 'raised' | 'outlined' | 'glow';
 export type NavStyle = 'floating' | 'edge' | 'bottom-center' | 'hidden';
 
+/** Shared nav-button appearance applied on Intermediate and Result pages. */
+export interface NavButtonStyle {
+  backColor?: string;          // icon/text color for the back (‹) button
+  backBg?: string;             // background of the back button
+  homeColor?: string;          // icon/text color for the home (⌂) button
+  homeBg?: string;             // background of the home button
+  position?: NavButtonPosition;
+}
+
+/** Screensaver overlay content styling — controls the title/CTA block shown over media. */
+export interface SaverOverlay {
+  showContent: boolean;        // toggle entire overlay block
+  title?: string;              // default 'Newton Touch'
+  subtitle?: string;           // default 'Touch screen to begin'
+  position?: SaverOverlayPosition;   // default 'center'
+  textColor?: string;          // default '#FFFFFF'
+  bgColor?: string;            // background of the overlay box — default transparent
+}
+
 export interface ThemeTokens {
   headerColor: string;
   background: string;          // solid | css gradient string
@@ -87,8 +112,12 @@ export interface ThemeTokens {
   overlayColor?: string;
   cardSurface?: CardSurface;
   navStyle?: NavStyle;
+  /** Nav button appearance (color, bg, position) for Intermediate and Result pages. */
+  nav?: NavButtonStyle;
   logoPosition: LogoPosition;
   homeLayout: HomeLayout;
+  /** Card size: affects the physical dimensions of category cards on the home page. */
+  cardSize?: CardSize;
   /** @deprecated legacy single-axis style; superseded by cardShape/cardContent/cardTextPos. */
   cardStyle?: CardStyle;
   cardShape: CardShape;
@@ -111,6 +140,8 @@ export interface ThemeTokens {
   loader: { style: LoaderStyle; color: string; };
   /** Shared typography/appearance — applied consistently across ALL rendered pages. */
   typography: { fontFamily: string; textScale: TextScale; textFit: TextFit; baseTextColor: string; };
+  /** Screensaver overlay content styling (title, subtitle, position, colors). */
+  saverOverlay?: SaverOverlay;
 }
 
 export interface CardItem {
