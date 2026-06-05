@@ -222,6 +222,7 @@ export class ContentPreviewStripComponent {
 
   // Header style logic mirrors the LCD home component.
   get headerStyle(): string { return this.theme?.headerStyle || 'logo-only'; }
+  get isTransparentHeader(): boolean { return this.headerStyle === 'transparent'; }
   get showLogo(): boolean { return this.headerStyle === 'logo-only' || this.headerStyle === 'logo+title+caption'; }
   get showTitle(): boolean { return this.headerStyle !== 'logo-only'; }
   get showHeaderCaption(): boolean { return this.headerStyle === 'title+caption' || this.headerStyle === 'logo+title+caption'; }
