@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IonContent, IonModal, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { businessOutline, storefrontOutline, globeOutline, keyOutline, logOutOutline, chevronForward, warningOutline } from 'ionicons/icons';
+import { businessOutline, globeOutline, keyOutline, logOutOutline, chevronForward, warningOutline } from 'ionicons/icons';
 import { SessionService, Session } from '../services/session.service';
 import { WorkspaceService, Workspace } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
@@ -21,7 +21,7 @@ export class SettingsPage implements OnInit {
   showSignOutAlert = false;
 
   constructor(private sessionSvc: SessionService, private wsSvc: WorkspaceService, private router: Router) {
-    addIcons({ businessOutline, storefrontOutline, globeOutline, keyOutline, logOutOutline, chevronForward, warningOutline });
+    addIcons({ businessOutline, globeOutline, keyOutline, logOutOutline, chevronForward, warningOutline });
   }
 
   get initials(): string {

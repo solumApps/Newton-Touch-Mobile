@@ -19,19 +19,13 @@
     <!-- Workspace -->
     <div class="section-label">Workspace</div>
     <div class="grp">
-      <button class="row" (click)="changeWorkspace()" aria-label="Change company">
+      <button class="row" (click)="changeWorkspace()" aria-label="Select workspace">
         <span class="ico"><ion-icon name="business-outline" aria-hidden="true"></ion-icon></span>
         <span class="rl">
-          <span class="t">Company</span>
-          <span class="s">{{ ws?.companyName }}<span class="dim" *ngIf="ws?.companyId"> · {{ ws?.companyId }}</span></span>
-        </span>
-        <ion-icon class="chev" name="chevron-forward" aria-hidden="true"></ion-icon>
-      </button>
-      <button class="row" (click)="changeWorkspace()" aria-label="Change store">
-        <span class="ico"><ion-icon name="storefront-outline" aria-hidden="true"></ion-icon></span>
-        <span class="rl">
-          <span class="t">Store</span>
-          <span class="s">{{ ws?.storeName }}<span class="dim" *ngIf="ws?.storeId"> · {{ ws?.storeId }}</span></span>
+          <span class="t">Select workspace</span>
+          <span class="s">
+            {{ ws?.companyName || '—' }}<span class="dim" *ngIf="ws?.storeName"> · {{ ws?.storeName }}</span>
+          </span>
         </span>
         <ion-icon class="chev" name="chevron-forward" aria-hidden="true"></ion-icon>
       </button>
@@ -44,7 +38,8 @@
         <span class="ico"><ion-icon name="globe-outline" aria-hidden="true"></ion-icon></span>
         <span class="rl">
           <span class="t">Server</span>
-          <span class="s">{{ ws?.environment }}<span class="dim" *ngIf="ws?.serverUrl"> · {{ ws?.serverUrl }}</span></span>
+          <span class="s">{{ ws?.environment }}<span class="dim" *ngIf="ws?.serverUrl"> · {{ ws?.serverUrl
+              }}</span></span>
         </span>
         <ion-icon class="chev" name="chevron-forward" aria-hidden="true"></ion-icon>
       </button>
