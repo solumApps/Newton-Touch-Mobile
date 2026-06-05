@@ -100,7 +100,7 @@
         <div class="erow">
           <div class="thumb" *ngIf="needsImage" [style.background-image]="c.image ? 'url('+c.image+')' : null" (click)="pickImage(c)">{{ c.image ? '' : '📷' }}</div>
           <input class="inp" [(ngModel)]="c.name" placeholder="Card name" />
-          <button class="del" (click)="d.home.splice(i,1)">✕</button>
+          <button class="del" (click)="removeCard(i)">✕</button>
         </div>
         <div class="prow">
           <input class="inp" [(ngModel)]="c.price" placeholder="Price (optional)" />
@@ -127,7 +127,7 @@
         <div class="erow" *ngFor="let it of d.intermediate; let i = index">
           <div class="thumb" *ngIf="intermediateNeedsImage" [style.background-image]="it.image ? 'url('+it.image+')' : null" (click)="pickImage(it)">{{ it.image ? '' : '📷' }}</div>
           <input class="inp" [(ngModel)]="it.name" placeholder="Item name" />
-          <button class="del" (click)="d.intermediate.splice(i,1)">✕</button>
+          <button class="del" (click)="removeIntermediate(i)">✕</button>
         </div>
       </ng-container>
     </div>
@@ -159,7 +159,7 @@
         <div class="erow">
           <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>
           <input class="inp" [(ngModel)]="p.name" placeholder="Product name" />
-          <button class="del" (click)="d.result.products.splice(i,1)">✕</button>
+          <button class="del" (click)="removeProduct(i)">✕</button>
         </div>
         <div class="prow">
           <input class="inp" [(ngModel)]="p.price" placeholder="Price" />
@@ -204,9 +204,31 @@
       </div>
     </div>
 
-    <!-- ============ REVIEW ============ -->
+    <!-- ============ REVIEW — paginated page slider with real data ============ -->
     <div *ngSwitchCase="'review'">
       <h2 class="step-title">Review &amp; Deploy</h2>
+
+      <!-- Swipeable all-pages slider -->
+      <div class="review-slider" #revSlider (scroll)="onReviewScroll(revSlider)">
+        <div class="review-slide" *ngFor="let pg of reviewPages">
+          <app-content-preview-strip
+            [theme]="d.themeTokens"
+            [page]="pg.page"
+            [home]="d.home"
+            [intermediate]="d.intermediate"
+            [result]="d.result"
+            [screensaver]="d.screensaver"
+            [header]="d.header"
+            [draftName]="d.name"
+            [showStripCaption]="false"></app-content-preview-strip>
+          <div class="review-slide-cap">{{ pg.label }}</div>
+        </div>
+      </div>
+      <div class="review-dots">
+        <button *ngFor="let pg of reviewPages; let ri = index"
+                [class.on]="ri === reviewSlideIdx" (click)="scrollReviewTo(revSlider, ri)"></button>
+      </div>
+
       <table class="sum">
         <tr><td>Theme</td><td>{{ d.themeName }}</td></tr>
         <tr><td>Mode</td><td>{{ modeLabel }}</td></tr>
@@ -215,7 +237,7 @@
         <tr><td>Result products</td><td>{{ d.result.products.length }}</td></tr>
         <tr><td>Screensaver media</td><td>{{ d.screensaver.media?.length || 0 }}</td></tr>
       </table>
-      <p class="note">Tap Save &amp; Deploy to send this content to a paired LCD.</p>
+      <p class="note">Swipe the preview to check each page with your real content. Tap Save &amp; Deploy when ready.</p>
     </div>
   </ng-container>
 </ion-content>

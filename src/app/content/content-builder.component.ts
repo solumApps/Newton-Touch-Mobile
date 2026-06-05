@@ -55,6 +55,31 @@ export class ContentBuilderComponent implements OnInit {
   prev(): void { if (!this.isFirst) { this.stepIndex--; this.scrollActiveStep(); } }
   goto(i: number): void { if (i >= 0 && i < this.visibleSteps.length) { this.stepIndex = i; this.scrollActiveStep(); } }
 
+  /** Review slider — shows all pages (with real data) as a horizontal scroll
+   *  so the user can swipe through Home / Intermediate / Result / Screensaver
+   *  previews before deploying. */
+  reviewSlideIdx = 0;
+  get reviewPages(): { page: 'home' | 'inter' | 'result' | 'saver'; label: string }[] {
+    const pages: { page: 'home' | 'inter' | 'result' | 'saver'; label: string }[] = [
+      { page: 'home', label: 'Home' },
+    ];
+    if (this.draft?.themeTokens.includeIntermediate !== false) {
+      pages.push({ page: 'inter', label: 'Intermediate' });
+    }
+    pages.push({ page: 'result', label: 'Result' });
+    pages.push({ page: 'saver', label: 'Screensaver' });
+    return pages;
+  }
+  onReviewScroll(el: HTMLElement): void {
+    const slideW = el.scrollWidth / this.reviewPages.length;
+    this.reviewSlideIdx = Math.round(el.scrollLeft / slideW);
+  }
+  scrollReviewTo(el: HTMLElement, idx: number): void {
+    const slideW = el.scrollWidth / this.reviewPages.length;
+    el.scrollTo({ left: slideW * idx, behavior: 'smooth' });
+    this.reviewSlideIdx = idx;
+  }
+
   private scrollActiveStep(): void {
     setTimeout(() => {
       const host = this.builderSteps?.nativeElement;
@@ -169,9 +194,20 @@ export class ContentBuilderComponent implements OnInit {
     if (this.draft.appMode === 'prototype-esl' && !this.draft.eslBlinkBy) this.draft.eslBlinkBy = 'article';
   }
 
-  addCard(): void { this.draft!.home.push({ id: 'c' + Date.now(), name: '' }); }
-  addProduct(): void { this.draft!.result.products.push({ id: 'p' + Date.now(), name: '' }); }
-  addIntermediate(): void { this.draft!.intermediate.push({ id: 'i' + Date.now(), name: '' }); }
+  /** All add methods create a NEW array reference so the preview component detects
+   *  the input change immediately (not on the next unrelated CD cycle). */
+  addCard(): void { this.draft!.home = [...this.draft!.home, { id: 'c' + Date.now(), name: '' }]; }
+  addProduct(): void {
+    this.draft!.result = { ...this.draft!.result, products: [...this.draft!.result.products, { id: 'p' + Date.now(), name: '' }] };
+  }
+  addIntermediate(): void { this.draft!.intermediate = [...this.draft!.intermediate, { id: 'i' + Date.now(), name: '' }]; }
+
+  /** Remove by index — creates new array reference for change detection. */
+  removeCard(i: number): void { this.draft!.home = this.draft!.home.filter((_, idx) => idx !== i); }
+  removeProduct(i: number): void {
+    this.draft!.result = { ...this.draft!.result, products: this.draft!.result.products.filter((_, idx) => idx !== i) };
+  }
+  removeIntermediate(i: number): void { this.draft!.intermediate = this.draft!.intermediate.filter((_, idx) => idx !== i); }
 
   /** Pick the result map background image. */
   async pickMap(): Promise<void> {
