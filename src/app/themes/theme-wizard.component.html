@@ -1,6 +1,6 @@
 <ion-header class="studio-header">
   <ion-toolbar>
-    <ion-buttons slot="start"><ion-button class="ghost-action" (click)="cancel()">Cancel</ion-button></ion-buttons>
+    <ion-buttons slot="start"><ion-button class="ghost-action" (click)="cancel()">{{ cancelLabel }}</ion-button></ion-buttons>
     <ion-title>
       <div class="title-stack">
         <span class="tt-name">{{ name || 'New theme' }}</span>

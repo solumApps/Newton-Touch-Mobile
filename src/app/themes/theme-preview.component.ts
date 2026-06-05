@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonIcon, IonModal } from '@ionic/angular/standalone';
@@ -16,6 +16,7 @@ import { NtButtonComponent, NtBadgeComponent, NtSectionHeaderComponent } from '.
   styleUrls: ['./theme-preview.component.scss'],
 })
 export class ThemePreviewComponent implements OnInit {
+  @ViewChild(IonModal) moreModal?: IonModal;
   theme?: SavedTheme;
   msg = '';
   moreOpen = false;
@@ -32,12 +33,22 @@ export class ThemePreviewComponent implements OnInit {
 
   async edit(): Promise<void> {
     if (!this.theme) return;
+    await this.closeMore();
     if (this.theme.predefined) {
       const copy = await this.themes.cloneFrom(this.theme, this.theme.name + ' Copy');
-      this.router.navigateByUrl('/theme-wizard/' + copy.id);
+      this.router.navigate(['/theme-wizard', copy.id], {
+        queryParams: { from: 'theme-preview' },
+      });
     } else {
-      this.router.navigateByUrl('/theme-wizard/' + this.theme.id);
+      this.router.navigate(['/theme-wizard', this.theme.id], {
+        queryParams: { from: 'theme-preview' },
+      });
     }
+  }
+
+  private async closeMore(): Promise<void> {
+    this.moreOpen = false;
+    await this.moreModal?.dismiss();
   }
 
   download(): void {
