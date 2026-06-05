@@ -24,7 +24,13 @@ h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 2
 .inp-wrap { display: flex; align-items: center; border: 1.5px solid var(--nt-border); border-radius: 10px; background: #fff; }
 .inp-wrap:focus-within { border-color: var(--nt-purple); }
 .inp.bare { border: none; flex: 1; }
-.eye { border: none; background: none; font-size: 16px; padding: 0 12px; cursor: pointer; }
+.eye {
+  display: flex; align-items: center; justify-content: center;
+  width: 42px; align-self: stretch;
+  border: none; background: none; color: var(--nt-text-2);
+  font-size: 20px; cursor: pointer;
+}
+.eye:focus-visible { outline: 2px solid var(--nt-purple); outline-offset: -4px; border-radius: 8px; }
 .err { color: #DC2626; font-size: 12px; margin: 6px 0 0; }
 .err.center { text-align: center; }
 .btn-y { margin-top: 8px; }

@@ -23,7 +23,10 @@
         <div class="inp-wrap" [class.bad]="touched && !password">
           <input class="inp bare" [type]="showPw ? 'text' : 'password'" autocomplete="current-password"
                  [(ngModel)]="password" name="password" (blur)="touched=true" placeholder="Enter password" />
-          <button type="button" class="eye" (click)="showPw=!showPw">{{ showPw ? '🙈' : '👁' }}</button>
+          <button type="button" class="eye" (click)="showPw=!showPw"
+                  [attr.aria-label]="showPw ? 'Hide password' : 'Show password'">
+            <ion-icon [name]="showPw ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
         </div>
         <p class="err" *ngIf="touched && !password">Password is required.</p>
       </div>

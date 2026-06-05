@@ -2,22 +2,22 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonHeader, IonToolbar, IonButtons, IonButton, IonContent, IonFooter } from '@ionic/angular/standalone';
-import { WorkspaceService, SERVERS } from '../services/workspace.service';
+import { IonHeader, IonToolbar, IonButtons, IonButton, IonContent, IonFooter, IonIcon } from '@ionic/angular/standalone';
+import { isValidServerUrl, normalizeServerUrl, WorkspaceService, SERVERS } from '../services/workspace.service';
 import { BrandComponent } from '../shared/brand.component';
 
 /** A0 — Environment / server selection. Curated SOLUM servers + a private-server URL path. */
 @Component({
   selector: 'app-environment',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonButtons, IonButton, IonContent, IonFooter, BrandComponent],
+  imports: [IonIcon, CommonModule, FormsModule, IonHeader, IonToolbar, IonButtons, IonButton, IonContent, IonFooter, BrandComponent],
   templateUrl: './environment.component.html',
   styleUrls: ['./environment.component.scss'],
 })
 export class EnvironmentComponent {
   servers = SERVERS;
   envs = Object.keys(SERVERS);
-  selected = 'Stage 00';
+  selected = 'Korea';
   privateServerPage = false;
   customUrl = '';
   customTouched = false;
@@ -26,7 +26,7 @@ export class EnvironmentComponent {
 
   pick(name: string): void { this.selected = name; }
 
-  validCustom(): boolean { return /^https?:\/\/.+/i.test(this.customUrl.trim()); }
+  validCustom(): boolean { return isValidServerUrl(this.customUrl); }
 
   canContinue(): boolean {
     return this.privateServerPage ? this.validCustom() : !!this.selected;
@@ -36,7 +36,7 @@ export class EnvironmentComponent {
     if (this.privateServerPage) {
       this.customTouched = true;
       if (!this.validCustom()) return;
-      await this.ws.set({ environment: 'Custom', serverUrl: this.customUrl.trim() });
+      await this.ws.set({ environment: 'Custom', serverUrl: normalizeServerUrl(this.customUrl) });
     } else {
       await this.ws.setEnvironment(this.selected);
     }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonInput, IonNote, IonList, IonListHeader, IonLabel } from '@ionic/angular/standalone';
-import { WorkspaceService, Workspace } from '../services/workspace.service';
+import { normalizeServerUrl, WorkspaceService, Workspace } from '../services/workspace.service';
 import { CategoryApiService } from '../services/category-api.service';
 
 /**
@@ -27,13 +27,34 @@ export class ServerConfigComponent implements OnInit {
   async ngOnInit(): Promise<void> { this.ws = { ...(await this.workspace.get()) }; }
 
   async save(): Promise<void> {
-    if (this.ws) await this.workspace.set(this.ws);
+    if (this.ws) {
+      let serverUrl = '';
+      try {
+        serverUrl = this.ws.serverUrl ? normalizeServerUrl(this.ws.serverUrl) : '';
+      } catch {
+        this.testOk = false;
+        this.testMsg = 'Enter a valid server URL';
+        return;
+      }
+      await this.workspace.set({
+        ...this.ws,
+        serverUrl,
+      });
+    }
     this.router.navigateByUrl('/tabs/settings');
   }
 
   async test(): Promise<void> {
-    const creds = this.ws?.serverUrl && this.ws?.token
-      ? { serverUrl: this.ws.serverUrl, username: this.ws.username, token: this.ws.token, companyId: this.ws.companyId, storeId: this.ws.storeId }
+    let serverUrl = '';
+    try {
+      serverUrl = this.ws?.serverUrl ? normalizeServerUrl(this.ws.serverUrl) : '';
+    } catch {
+      this.testOk = false;
+      this.testMsg = 'Enter a valid server URL';
+      return;
+    }
+    const creds = serverUrl && this.ws?.token
+      ? { serverUrl, username: this.ws.username, token: this.ws.token, companyId: this.ws.companyId, storeId: this.ws.storeId }
       : undefined;
     const products = await this.api.fetchProducts(creds);
     this.testOk = products.length > 0;
