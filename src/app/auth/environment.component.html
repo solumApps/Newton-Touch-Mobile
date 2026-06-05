@@ -36,8 +36,8 @@
     <!-- Private / custom URL -->
     <div class="private" *ngIf="privateServerPage">
       <label class="fld-label">Server URL</label>
-      <input class="fld" [(ngModel)]="customUrl" placeholder="your-server.example.com" />
-      <p class="err" *ngIf="customTouched && !validCustom()">Enter a valid server URL.</p>
+      <input class="fld" [ngModel]="customUrl" (ngModelChange)="onCustomUrlChange($event)" placeholder="your-server.example.com" />
+      <p class="err" *ngIf="customTouched && !validCustom()">Enter a server URL from the server list.</p>
     </div>
   </div>
 </ion-content>

@@ -29,8 +29,7 @@ export function normalizeServerUrl(serverUrl: string): string {
 
 export function isValidServerUrl(serverUrl: string): boolean {
   try {
-    normalizeServerUrl(serverUrl);
-    return true;
+    return !!normalizeServerUrl(serverUrl);
   } catch {
     return false;
   }
@@ -54,7 +53,7 @@ const KEY = 'nt.workspace';
 
 /** SOLUM environments (base URLs) — from the reference apps. */
 export const SERVERS: Record<string, string> = {
-  // 'Stage 00': 'https://stage00.common.solumesl.com',
+  'Stage 00': 'https://stage00.common.solumesl.com',
   'Korea': 'https://kr.common.solumesl.com',
   'Europe': 'https://eu.common.solumesl.com',
   'USA': 'https://eastus.common.solumesl.com',

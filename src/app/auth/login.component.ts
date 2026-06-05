@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonContent, IonIcon } from '@ionic/angular/standalone';
+import { IonContent, IonIcon, IonButtons, IonButton, IonHeader, IonToolbar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { eyeOffOutline, eyeOutline } from 'ionicons/icons';
 import { SessionService } from '../services/session.service';
@@ -13,7 +13,7 @@ import { BrandComponent } from '../shared/brand.component';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonIcon, BrandComponent],
+  imports: [IonToolbar, IonHeader, IonButton, IonButtons, CommonModule, FormsModule, IonContent, IonIcon, BrandComponent],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })

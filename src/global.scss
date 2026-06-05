@@ -184,3 +184,17 @@ input{
     font-size: 24px;
   }
 }
+
+/* Confirm modal — shared style */
+ion-modal.nt-confirm-modal {
+  --background: rgba(15,23,42,0.5);
+  --width: min(420px, 92vw);
+  --height: auto;
+  --border-radius: var(--nt-r-lg);
+  --box-shadow: var(--nt-shadow-3);
+  align-items: center;
+}
+ion-modal.nt-confirm-modal::part(content) {
+  border-radius: var(--nt-r-lg);
+  overflow: hidden;
+}
