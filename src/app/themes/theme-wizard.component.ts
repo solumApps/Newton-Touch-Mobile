@@ -127,9 +127,17 @@ export class ThemeWizardComponent implements OnInit {
       : page === 'result' ? this.t.result.headerColor
       : this.t.headerColor;
   }
+  backgroundForPage(page: PreviewPage): string {
+    return page === 'inter' ? this.t.intermediate.background
+      : page === 'result' ? this.t.result.background
+      : this.t.background;
+  }
   pageCaption(page: PreviewPage): string {
     return page === 'inter' ? 'Intermediate' : page === 'result' ? 'Result' : page === 'saver' ? 'Screensaver' : 'Home';
   }
+  get showLogo(): boolean { return (this.t.headerStyle || 'logo-only') === 'logo-only' || this.t.headerStyle === 'logo+title+caption'; }
+  get showHeaderTitle(): boolean { return (this.t.headerStyle || 'logo-only') !== 'logo-only'; }
+  get showHeaderCaption(): boolean { return this.t.headerStyle === 'title+caption' || this.t.headerStyle === 'logo+title+caption'; }
 
   /** Pages shown in the Review slider (skip Intermediate when disabled). */
   get reviewPages(): PreviewPage[] {

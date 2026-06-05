@@ -11,12 +11,13 @@
   <div class="scroll">
     <!-- ===== Reusable mini-LCD preview for any page ===== -->
     <ng-template #pageView let-page="page">
-      <div class="prev" [ngClass]="'fit-'+t.typography.textFit" [style.background]="t.background"
+      <div class="prev" [ngClass]="'fit-'+t.typography.textFit" [style.background]="backgroundForPage(page)"
            [style.fontFamily]="t.typography.fontFamily" [style.--prev-scale]="scaleNum"
            [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [ngSwitch]="page">
-        <div class="hdr" *ngIf="headerVisibleFor(page)" [ngClass]="'logo-'+t.logoPosition" [style.background]="headerColorForPage(page)">
-          <img src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-          <span class="nt">Newton Touch</span>
+        <div class="hdr" *ngIf="headerVisibleFor(page)" [ngClass]="['logo-'+t.logoPosition, 'hdr-style-'+(t.headerStyle || 'logo-only')]" [style.background]="headerColorForPage(page)">
+          <img *ngIf="showLogo" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+          <span class="nt title" *ngIf="showHeaderTitle">Newton Touch</span>
+          <span class="nt caption" *ngIf="showHeaderCaption">{{ pageCaption(page) }}</span>
         </div>
 
         <!-- HOME -->
@@ -41,6 +42,10 @@
         <div *ngSwitchCase="'result'" class="stage result res-{{t.resultTemplate}}">
           <div class="map" [style.borderColor]="t.result.pathColor">
             <div class="path path-{{t.result.pathStyle}}" [style.background]="t.result.pathColor" [style.borderColor]="t.result.pathColor"></div>
+          </div>
+          <div class="filters" *ngIf="t.resultTemplate==='filter-list'">
+            <span class="filter on" [style.background]="t.result.accent">Popular</span>
+            <span class="filter">A-Z</span>
           </div>
           <div class="list">
             <div class="prod" *ngFor="let n of [0,1,2]; let i = index" [class.found]="i===0"
