@@ -2,35 +2,73 @@
 
 <ion-content>
   <div class="wrap">
-    <div class="page-title">Themes</div>
-
-    <div class="srch">
-      <input placeholder="Search themes" [value]="q" (input)="q=$any($event.target).value||''" />
-      <button class="sort" (click)="cycleSort()">⇅ {{ sort }}</button>
-    </div>
-    <div class="chips">
-      <span class="chip" [class.act]="filter===f" *ngFor="let f of filters" (click)="filter=f">{{ f }}</span>
-    </div>
-
-    <div class="section-label">Predefined · swipe →</div>
-    <div class="hscroll">
-      <div class="thumb" *ngFor="let t of predefined" (click)="use(t)">
-        <div class="prev" [style.background]="t.tokens.background">
-          <div class="hd" [style.background]="t.tokens.headerColor"></div>
-          <div class="cells">
-            <div class="c" [style.background]="t.tokens.cardBackground" [style.border]="'1px solid '+t.tokens.accent"></div>
-            <div class="c" [style.background]="t.tokens.cardBackground"></div>
-            <div class="c" [style.background]="t.tokens.cardBackground"></div>
-          </div>
-        </div>
-        <div class="nm">{{ t.name }}</div>
-        <div class="ds">{{ t.tokens.homeLayout }} · {{ t.tokens.cardShape }}</div>
+    <!-- Hero / page intro -->
+    <div class="hero">
+      <div class="hero-copy">
+        <h1 class="hero-title">Themes</h1>
+        <p class="hero-sub">Design the look of your kiosk — colors, layout, and motion.</p>
+      </div>
+      <div class="hero-actions">
+        <nt-button variant="primary" size="md" (onClick)="createNew()">+ Create</nt-button>
+        <nt-button variant="outline" size="md" (onClick)="picker.click()" ariaLabel="Import .solumtheme file">
+          <ion-icon name="cloud-upload-outline" aria-hidden="true"></ion-icon>
+          Import
+        </nt-button>
+        <input #picker type="file" accept=".solumtheme" hidden (change)="onImport($event)" />
       </div>
     </div>
 
-    <div class="section-label">My Themes ({{ filteredMine.length }})</div>
+    <!-- Search + sort -->
+    <div class="srch">
+      <span class="srch-ic">
+        <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+      </span>
+      <input placeholder="Search themes" [value]="q" (input)="q=$any($event.target).value||''" aria-label="Search themes" />
+      <button class="sort" (click)="cycleSort()" [attr.aria-label]="'Sort by ' + sort">
+        <ion-icon name="swap-vertical-outline" aria-hidden="true"></ion-icon>
+        <span>{{ sort }}</span>
+      </button>
+    </div>
+
+    <!-- Filter chips -->
+    <div class="chips" role="tablist" aria-label="Filter themes">
+      <button class="fchip" [class.act]="filter===f" *ngFor="let f of filters" (click)="filter=f" role="tab" [attr.aria-selected]="filter===f">{{ f }}</button>
+    </div>
+
+    <!-- Predefined themes — large preview cards -->
+    <nt-section-header title="Featured themes" subtitle="Polished, ready-to-use designs"></nt-section-header>
+    <div class="pre-slider" #featuredRail (scroll)="onFeaturedScroll(featuredRail)">
+      <button class="pre-card" *ngFor="let t of predefined" (click)="use(t)" [attr.aria-label]="'Use theme ' + t.name">
+        <div class="pre-lcd layout-{{ t.tokens.homeLayout }} shape-{{ t.tokens.cardShape }}" [style.background]="t.tokens.background" [style.--pre-accent]="t.tokens.accent">
+          <div class="pre-hd" [style.background]="t.tokens.headerColor">
+            <span class="pre-hd-logo"></span>
+            <span class="pre-hd-title"></span>
+          </div>
+          <div class="pre-cells">
+            <div class="pre-cell featured" [style.background]="t.tokens.cardBackground" [style.border-color]="t.tokens.accent"></div>
+            <div class="pre-cell" [style.background]="t.tokens.cardBackground"></div>
+            <div class="pre-cell" [style.background]="t.tokens.cardBackground"></div>
+            <div class="pre-cell extra" [style.background]="t.tokens.cardBackground"></div>
+          </div>
+        </div>
+        <div class="pre-body">
+          <div class="pre-row">
+            <div class="pre-nm">{{ t.name }}</div>
+            <nt-badge variant="predefined">★ Featured</nt-badge>
+          </div>
+          <div class="pre-ds">{{ t.tokens.homeLayout }} · {{ t.tokens.cardShape }} · {{ t.tokens.resultTemplate }}</div>
+        </div>
+      </button>
+    </div>
+    <div class="pre-dots" *ngIf="predefined.length > 1">
+      <button *ngFor="let t of predefined; let i = index" [class.on]="featuredIndex===i" (click)="goFeatured(featuredRail, i)" [attr.aria-label]="'Show featured theme ' + (i + 1)"></button>
+    </div>
+
+    <!-- My themes -->
+    <nt-section-header title="My themes" [subtitle]="filteredMine.length + ' saved'"></nt-section-header>
     <div *ngIf="loading"><div class="skel skel-row" *ngFor="let s of [1,2,3]"></div></div>
-    <ion-list class="slides" lines="none">
+
+    <ion-list class="slides" lines="none" *ngIf="!loading && filteredMine.length">
       <ion-item-sliding *ngFor="let t of filteredMine">
         <ion-item button detail="false" (click)="use(t)">
           <div class="row">
@@ -39,7 +77,7 @@
               <div class="nm">{{ t.name }}</div>
               <div class="ds">{{ t.tokens.homeLayout }} · {{ t.tokens.cardShape }} {{ t.tokens.cardContent }} · {{ t.tokens.resultTemplate }}</div>
             </div>
-            <span class="chev">›</span>
+            <ion-icon class="chev" name="chevron-forward" aria-hidden="true"></ion-icon>
           </div>
         </ion-item>
         <ion-item-options side="end">
@@ -47,14 +85,29 @@
         </ion-item-options>
       </ion-item-sliding>
     </ion-list>
-    <div *ngIf="!filteredMine.length && !loading" class="empty">No saved themes yet — create one below.</div>
+
+    <nt-empty *ngIf="!loading && !filteredMine.length"
+      icon="color-palette-outline"
+      title="No saved themes yet"
+      [description]="q ? 'No matches for your search. Try a different filter or term.' : 'Start with a featured theme or build your own from scratch.'"
+      [actionLabel]="q ? '' : '+ Create theme'"
+      (action)="createNew()"></nt-empty>
 
     <p class="msg" [class.err]="msgErr" *ngIf="msg">{{ msg }}</p>
   </div>
 </ion-content>
 
-<ion-footer class="foot">
-  <button class="btn-y" (click)="createNew()">+ Create Theme</button>
-  <button class="btn-o imp" (click)="picker.click()">⬆ Import</button>
-  <input #picker type="file" accept=".solumtheme" hidden (change)="onImport($event)" />
-</ion-footer>
+<!-- Delete confirmation modal -->
+<ion-modal [isOpen]="confirmOpen" (didDismiss)="confirmOpen=false" class="nt-confirm-modal">
+  <ng-template>
+    <div class="nt-confirm">
+      <div class="nt-confirm-ic"><ion-icon name="trash-outline" aria-hidden="true"></ion-icon></div>
+      <h2>Delete theme?</h2>
+      <p>This will permanently remove "<b>{{ confirmTheme?.name }}</b>". Any content using it will keep its copy.</p>
+      <div class="nt-confirm-actions">
+        <nt-button variant="outline" size="md" [block]="true" (onClick)="confirmOpen=false">Cancel</nt-button>
+        <nt-button variant="danger" size="md" [block]="true" (onClick)="doDelete()">Delete</nt-button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

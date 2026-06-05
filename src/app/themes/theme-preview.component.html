@@ -1,68 +1,130 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start"><ion-button (click)="back()">‹</ion-button></ion-buttons>
+    <ion-buttons slot="start"><ion-button (click)="back()" aria-label="Back">‹</ion-button></ion-buttons>
     <ion-title>{{ theme?.name }}</ion-title>
-    <ion-buttons slot="end"><ion-button (click)="edit()">Edit</ion-button></ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="moreOpen=!moreOpen" aria-label="More actions">
+        <ion-icon name="ellipsis-horizontal" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content *ngIf="theme as th">
   <div class="wrap">
-    <div class="note">Theme = visuals only. Attach data &amp; deploy in Content.</div>
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-head">
+        <h1 class="hero-title">{{ th.name }}</h1>
+        <nt-badge *ngIf="th.predefined" variant="predefined">★ Featured</nt-badge>
+      </div>
+      <p class="hero-sub">{{ th.tokens.homeLayout }} · {{ th.tokens.cardShape }} {{ th.tokens.cardContent }} · {{ th.tokens.resultTemplate }}</p>
+    </div>
 
+    <!-- Page thumbnails -->
     <div class="thumbs">
       <div class="t">
         <div class="lcd" [style.background]="th.tokens.background">
-          <div class="hdr" [style.background]="th.tokens.headerColor">SOLUM</div>
+          <div class="hdr" [style.background]="th.tokens.headerColor"><span class="logo-bar"></span></div>
           <div class="area">
             <div class="cell" [style.background]="th.tokens.cardBackground" [style.border]="'1px solid '+th.tokens.accent"></div>
             <div class="cell" [style.background]="th.tokens.cardBackground"></div>
             <div class="cell" [style.background]="th.tokens.cardBackground"></div>
           </div>
-        </div><div class="cap">Home</div>
+        </div>
+        <div class="cap">Home</div>
       </div>
       <div class="t" *ngIf="th.tokens.includeIntermediate">
         <div class="lcd" [style.background]="th.tokens.intermediate.background">
-          <div class="hdr" [style.background]="th.tokens.intermediate.headerColor">Bakery ›</div>
+          <div class="hdr" [style.background]="th.tokens.intermediate.headerColor"><span class="logo-bar"></span></div>
           <div class="area" style="flex-direction:column">
             <div class="cell" style="margin:1.5px 0" [style.background]="th.tokens.accent"></div>
             <div class="cell" style="margin:1.5px 0" [style.background]="th.tokens.intermediate.cardBackground"></div>
           </div>
-        </div><div class="cap">Intermediate</div>
+        </div>
+        <div class="cap">Intermediate</div>
       </div>
       <div class="t">
         <div class="lcd" [style.background]="th.tokens.result.background">
-          <div class="hdr" [style.background]="th.tokens.result.headerColor">Result</div>
+          <div class="hdr" [style.background]="th.tokens.result.headerColor"><span class="logo-bar"></span></div>
           <div class="area">
             <div class="cell" [style.background]="th.tokens.result.cardBackground"></div>
             <div class="cell" [style.background]="th.tokens.result.accent"></div>
           </div>
-        </div><div class="cap">Result</div>
+        </div>
+        <div class="cap">Result</div>
       </div>
     </div>
 
+    <!-- Configuration summary -->
+    <nt-section-header title="Configuration"></nt-section-header>
     <table class="sum">
       <tr><td>Home layout</td><td>{{ th.tokens.homeLayout }}</td></tr>
-      <tr><td>Card</td><td>{{ th.tokens.cardShape }} · {{ th.tokens.cardContent }}</td></tr>
+      <tr><td>Card</td><td>{{ th.tokens.cardShape }} · {{ th.tokens.cardContent }} · {{ th.tokens.cardTextPos }}</td></tr>
       <tr><td>Intermediate</td><td>{{ th.tokens.includeIntermediate ? th.tokens.intermediateStyle : 'Skipped (Home → Result)' }}</td></tr>
       <tr><td>Result</td><td>{{ th.tokens.resultTemplate }}</td></tr>
+      <tr><td>Header style</td><td>{{ th.tokens.headerStyle || 'logo-only' }}</td></tr>
+      <tr><td>Font</td><td>{{ th.tokens.typography.fontFamily.split(',')[0].replace(/'/g, '') }}</td></tr>
+      <tr><td>Animation</td><td>{{ th.tokens.animation.transition }} · {{ th.tokens.animation.speed }}</td></tr>
+      <tr><td>Loader</td><td>{{ th.tokens.loader.style }}</td></tr>
+      <tr><td>Screensaver</td><td>{{ th.tokens.intermediate.itemSize ? 'configurable' : 'default' }}</td></tr>
     </table>
 
-    <div class="sw">
-      <div class="s" [style.background]="th.tokens.headerColor"></div>
-      <div class="s" [style.background]="th.tokens.background"></div>
-      <div class="s" [style.background]="th.tokens.accent"></div>
-      <div class="s" [style.background]="th.tokens.cardText"></div>
+    <!-- Palette -->
+    <nt-section-header title="Palette"></nt-section-header>
+    <div class="palette">
+      <div class="ps">
+        <div class="ps-sw" [style.background]="th.tokens.headerColor"></div>
+        <div class="ps-lbl">Header</div>
+      </div>
+      <div class="ps">
+        <div class="ps-sw" [style.background]="th.tokens.background"></div>
+        <div class="ps-lbl">Background</div>
+      </div>
+      <div class="ps">
+        <div class="ps-sw" [style.background]="th.tokens.accent"></div>
+        <div class="ps-lbl">Accent</div>
+      </div>
+      <div class="ps">
+        <div class="ps-sw" [style.background]="th.tokens.cardText"></div>
+        <div class="ps-lbl">Text</div>
+      </div>
+      <div class="ps" *ngIf="th.tokens.overlayColor">
+        <div class="ps-sw" [style.background]="th.tokens.overlayColor"></div>
+        <div class="ps-lbl">Overlay</div>
+      </div>
     </div>
 
-    <div class="foot">
-      <button class="btn-y" (click)="useInContent()">Use in Content →</button>
-      <div class="exp">
-        <button class="btn-o" (click)="edit()">Edit</button>
-        <button class="btn-o" (click)="download()">⬇ Export</button>
-        <button class="btn-o" (click)="copy()">⧉ Copy</button>
-      </div>
-      <div class="note" *ngIf="msg">{{ msg }}</div>
-    </div>
+    <p class="msg" *ngIf="msg">{{ msg }}</p>
   </div>
 </ion-content>
+
+<!-- Sticky CTA footer — single primary action -->
+<ion-footer class="foot">
+  <nt-button variant="primary" size="md" [block]="true" (onClick)="useInContent()">
+    Use in Content
+    <ion-icon name="arrow-forward" aria-hidden="true"></ion-icon>
+  </nt-button>
+</ion-footer>
+
+<!-- Kebab action sheet — keeps Edit/Export/Copy off the main footer -->
+<ion-modal [isOpen]="moreOpen" (didDismiss)="moreOpen=false" class="nt-sheet-modal">
+  <ng-template>
+    <div class="nt-sheet">
+      <div class="nt-sheet-grab"></div>
+      <button class="nt-sheet-row" (click)="moreOpen=false; edit()">
+        <ion-icon name="create-outline" aria-hidden="true"></ion-icon>
+        <span>{{ theme?.predefined ? 'Duplicate & edit' : 'Edit theme' }}</span>
+      </button>
+      <button class="nt-sheet-row" (click)="moreOpen=false; download()">
+        <ion-icon name="download-outline" aria-hidden="true"></ion-icon>
+        <span>Export as .solumtheme</span>
+      </button>
+      <button class="nt-sheet-row" (click)="moreOpen=false; copy()">
+        <ion-icon name="copy-outline" aria-hidden="true"></ion-icon>
+        <span>Copy theme code</span>
+      </button>
+      <button class="nt-sheet-row cancel" (click)="moreOpen=false">Cancel</button>
+    </div>
+  </ng-template>
+</ion-modal>

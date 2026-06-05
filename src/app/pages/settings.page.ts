@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { IonContent, IonModal } from '@ionic/angular/standalone';
+import { IonContent, IonModal, IonIcon } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { businessOutline, storefrontOutline, globeOutline, keyOutline, logOutOutline, chevronForward, warningOutline } from 'ionicons/icons';
 import { SessionService, Session } from '../services/session.service';
 import { WorkspaceService, Workspace } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
@@ -9,7 +11,7 @@ import { PageHeaderComponent } from '../shared/page-header.component';
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, IonContent, IonModal, PageHeaderComponent],
+  imports: [CommonModule, IonContent, IonModal, IonIcon, PageHeaderComponent],
   templateUrl: './settings.page.html',
   styleUrls: ['./settings.page.scss'],
 })
@@ -18,7 +20,9 @@ export class SettingsPage implements OnInit {
   ws: Workspace | null = null;
   showSignOutAlert = false;
 
-  constructor(private sessionSvc: SessionService, private wsSvc: WorkspaceService, private router: Router) {}
+  constructor(private sessionSvc: SessionService, private wsSvc: WorkspaceService, private router: Router) {
+    addIcons({ businessOutline, storefrontOutline, globeOutline, keyOutline, logOutOutline, chevronForward, warningOutline });
+  }
 
   get initials(): string {
     const u = this.session?.username || '';
@@ -32,9 +36,9 @@ export class SettingsPage implements OnInit {
     this.ws = await this.wsSvc.get();
   }
 
-  changeWorkspace(): void { this.router.navigateByUrl('/auth/workspace'); }
-  changeEnv(): void { this.router.navigateByUrl('/auth/environment'); }
-  serverConfig(): void { this.router.navigateByUrl('/server-config'); }
+  changeWorkspace(): void { this.router.navigate(['/auth/workspace'], { queryParams: { returnTo: '/tabs/settings' } }); }
+  changeEnv(): void { this.router.navigate(['/auth/environment'], { queryParams: { returnTo: '/tabs/settings' } }); }
+  serverConfig(): void { this.router.navigate(['/server-config'], { queryParams: { returnTo: '/tabs/settings' } }); }
 
   signOut(): void {
     this.showSignOutAlert = true;

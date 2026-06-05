@@ -2,12 +2,44 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 6px 14px;
   --brand-logo-h: 20px;
   --brand-sub-size: 10px;
   --brand-sub-track: 2px;
   --brand-sub-gap: 3px;
 }
-.ws { text-align: right; color: #fff; line-height: 1.15; }
-.ws .co { font-size: 14px; font-weight: 700; }
-.ws .st { font-size: 11px; font-weight: 400; color: rgba(255, 255, 255, 0.75); }
+
+/* Workspace context as a compact pill rather than a stacked block —
+   reads cleaner and frees vertical space. */
+.ws {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 11px;
+  border-radius: var(--nt-r-full);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.2;
+  max-width: 55%;
+}
+.ws .co {
+  font-weight: 700;
+  letter-spacing: .1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ws .st {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ws .st::before {
+  content: '·';
+  margin: 0 4px;
+  opacity: .7;
+}

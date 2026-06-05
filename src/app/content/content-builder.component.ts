@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -27,6 +27,7 @@ interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' 
   styleUrls: ['./content-builder.component.scss'],
 })
 export class ContentBuilderComponent implements OnInit {
+  @ViewChild('builderSteps') builderSteps?: ElementRef<HTMLElement>;
   draft?: ContentDraft;
   apiProducts: ApiProduct[] = [];
   selected = new Set<string>();
@@ -50,9 +51,17 @@ export class ContentBuilderComponent implements OnInit {
   get isFirst(): boolean { return this.stepIndex <= 0; }
   get isLast(): boolean { return this.stepIndex >= this.visibleSteps.length - 1; }
   get progressPct(): number { return ((this.stepIndex + 1) / this.visibleSteps.length) * 100; }
-  next(): void { if (!this.isLast) { this.stepIndex++; this.save(); } }
-  prev(): void { if (!this.isFirst) this.stepIndex--; }
-  goto(i: number): void { if (i >= 0 && i < this.visibleSteps.length) this.stepIndex = i; }
+  next(): void { if (!this.isLast) { this.stepIndex++; this.scrollActiveStep(); this.save(); } }
+  prev(): void { if (!this.isFirst) { this.stepIndex--; this.scrollActiveStep(); } }
+  goto(i: number): void { if (i >= 0 && i < this.visibleSteps.length) { this.stepIndex = i; this.scrollActiveStep(); } }
+
+  private scrollActiveStep(): void {
+    setTimeout(() => {
+      const host = this.builderSteps?.nativeElement;
+      const active = host?.querySelector<HTMLElement>('.step.active');
+      active?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    });
+  }
 
   fieldSourceOpts: SelectOption[] = [
     { value: 'category', label: 'Category fields', sub: 'category1–4' },

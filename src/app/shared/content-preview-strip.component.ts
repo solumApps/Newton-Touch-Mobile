@@ -29,6 +29,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--prev-accent]="theme?.accent"
            [style.--prev-card]="theme?.cardBackground"
            [style.--prev-text]="theme?.cardText"
+           [style.--prev-overlay]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
            [ngSwitch]="page">
         <div class="hdr" *ngIf="headerVisible"
              [ngClass]="['logo-'+(theme?.logoPosition||'left'), 'hdr-style-'+(theme?.headerStyle||'logo-only')]"

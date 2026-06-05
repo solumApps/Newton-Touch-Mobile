@@ -1,7 +1,7 @@
 <ion-header class="blank-header">
   <ion-toolbar>
-    <ion-buttons slot="start" *ngIf="privateServerPage">
-      <ion-button (click)="privateServerPage=false">‹</ion-button>
+    <ion-buttons slot="start" *ngIf="privateServerPage || returnTo">
+      <ion-button (click)="back()">‹</ion-button>
     </ion-buttons>
     <ion-buttons slot="end" *ngIf="!privateServerPage">
       <ion-button (click)="privateServerPage=true" class="private-server-btn">

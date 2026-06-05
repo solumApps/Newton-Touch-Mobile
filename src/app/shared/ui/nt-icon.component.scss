@@ -1,0 +1,19 @@
+.nt-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.nt-icon.s-sm ion-icon { font-size: 14px; }
+.nt-icon.s-md ion-icon { font-size: 18px; }
+.nt-icon.s-lg ion-icon { font-size: 22px; }
+.nt-icon.s-xl ion-icon { font-size: 28px; }
+
+.nt-icon.t-inherit ion-icon { color: inherit; }
+.nt-icon.t-muted   ion-icon { color: var(--nt-muted); }
+.nt-icon.t-brand   ion-icon { color: var(--nt-purple); }
+.nt-icon.t-accent  ion-icon { color: var(--nt-yellow); }
+.nt-icon.t-success ion-icon { color: var(--nt-success); }
+.nt-icon.t-danger  ion-icon { color: var(--nt-danger); }
+.nt-icon.t-warn    ion-icon { color: var(--nt-warn); }

@@ -1,5 +1,8 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start" *ngIf="returnTo">
+      <ion-button (click)="back()">‹</ion-button>
+    </ion-buttons>
     <div class="hd"><app-brand variant="light"></app-brand></div>
   </ion-toolbar>
 </ion-header>

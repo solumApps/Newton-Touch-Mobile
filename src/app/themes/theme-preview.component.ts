@@ -1,22 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonIcon, IonModal } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { ellipsisHorizontal, createOutline, downloadOutline, copyOutline, arrowForward } from 'ionicons/icons';
 import { ThemeService, SavedTheme } from '../services/theme.service';
+import { NtButtonComponent, NtBadgeComponent, NtSectionHeaderComponent } from '../shared/ui';
 
-/** B2 — Theme preview: 3 compact LCD thumbnails + config summary + swatches + actions. */
+/** B2 — Theme preview: hero + 3 LCD thumbnails + expanded config summary + palette + actions. */
 @Component({
   selector: 'app-theme-preview',
   standalone: true,
-  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent],
+  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonIcon, IonModal, NtButtonComponent, NtBadgeComponent, NtSectionHeaderComponent],
   templateUrl: './theme-preview.component.html',
   styleUrls: ['./theme-preview.component.scss'],
 })
 export class ThemePreviewComponent implements OnInit {
   theme?: SavedTheme;
   msg = '';
+  moreOpen = false;
 
-  constructor(private themes: ThemeService, private route: ActivatedRoute, private router: Router) {}
+  constructor(private themes: ThemeService, private route: ActivatedRoute, private router: Router) {
+    addIcons({ ellipsisHorizontal, createOutline, downloadOutline, copyOutline, arrowForward });
+  }
 
   async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.paramMap.get('id')!;

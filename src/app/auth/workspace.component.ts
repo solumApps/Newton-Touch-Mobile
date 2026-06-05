@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { IonHeader, IonToolbar, IonContent, IonFooter, IonSpinner } from '@ionic/angular/standalone';
+import { ActivatedRoute, Router } from '@angular/router';
+import { IonButton, IonButtons, IonHeader, IonToolbar, IonContent, IonFooter, IonSpinner } from '@ionic/angular/standalone';
 import { WorkspaceService, Company, Store } from '../services/workspace.service';
 import { BrandComponent } from '../shared/brand.component';
 import { SelectFieldComponent, SelectOption } from '../shared/select-field.component';
@@ -13,7 +13,7 @@ import { SelectFieldComponent, SelectOption } from '../shared/select-field.compo
 @Component({
   selector: 'app-workspace',
   standalone: true,
-  imports: [CommonModule, IonHeader, IonToolbar, IonContent, IonFooter, IonSpinner, BrandComponent, SelectFieldComponent],
+  imports: [CommonModule, IonButton, IonButtons, IonHeader, IonToolbar, IonContent, IonFooter, IonSpinner, BrandComponent, SelectFieldComponent],
   templateUrl: './workspace.component.html',
   styleUrls: ['./workspace.component.scss'],
 })
@@ -25,8 +25,11 @@ export class WorkspaceComponent implements OnInit {
   loading = true;
   loadingStores = false;
   error = '';
+  returnTo = '';
 
-  constructor(private ws: WorkspaceService, private router: Router) {}
+  constructor(private ws: WorkspaceService, private router: Router, private route: ActivatedRoute) {
+    this.returnTo = this.route.snapshot.queryParamMap.get('returnTo') || '';
+  }
 
   get companyOpts(): SelectOption[] { return this.companies.map((c) => ({ value: c.id, label: c.name, sub: c.id })); }
   get storeOpts(): SelectOption[] { return this.stores.map((s) => ({ value: s.id, label: s.name, sub: s.code })); }
@@ -66,6 +69,8 @@ export class WorkspaceComponent implements OnInit {
       companyId: this.companyId, companyName: company?.name ?? this.companyId,
       storeId: this.storeId, storeName: store?.name ?? this.storeId,
     });
-    this.router.navigateByUrl('/tabs/themes');
+    this.router.navigateByUrl(this.returnTo || '/tabs/themes');
   }
+
+  back(): void { this.router.navigateByUrl(this.returnTo || '/tabs/settings'); }
 }

@@ -1,0 +1,86 @@
+/* Premium tab bar — minimal, clean, premium active indicator.
+   Behavior unchanged (ion-tab-button routing intact). */
+
+ion-tab-bar.nt-tabbar {
+  --background: #fff;
+  --color: var(--nt-muted);
+  --color-selected: var(--nt-purple);
+  border-top: 1px solid var(--nt-border);
+  height: 64px;
+  padding: 4px 8px calc(4px + env(safe-area-inset-bottom));
+  box-shadow: 0 -8px 28px rgba(15,23,42,0.08);
+  contain: layout paint;
+}
+
+/* Make ion-tab-button transparent so our pill is the visible target. */
+ion-tab-bar.nt-tabbar ion-tab-button {
+  --background: transparent;
+  --color: var(--nt-muted);
+  --color-selected: var(--nt-purple);
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  min-height: 50px;
+}
+
+/* The pill is what users actually see. */
+.nt-tab-pill {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-width: 64px;
+  min-height: 46px;
+  padding: 8px 12px 4px;
+  border-radius: 0;
+  transition: background-color 200ms ease, color 200ms ease, transform 200ms ease;
+  color: var(--nt-muted);
+}
+.nt-tab-pill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 18px;
+  height: 3px;
+  border-radius: 999px;
+  background: transparent;
+  transition: background-color 200ms ease, width 200ms ease;
+}
+.nt-tab-pill ion-icon {
+  font-size: 21px;
+  transition: transform 200ms ease;
+}
+.nt-tab-pill ion-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  margin: 0;
+}
+
+/* Active state — pill background + brand colour + subtle lift. */
+ion-tab-bar.nt-tabbar ion-tab-button.tab-selected .nt-tab-pill {
+  color: var(--nt-purple);
+}
+ion-tab-bar.nt-tabbar ion-tab-button.tab-selected .nt-tab-pill::after {
+  width: 24px;
+  background: var(--nt-yellow);
+}
+ion-tab-bar.nt-tabbar ion-tab-button.tab-selected .nt-tab-pill ion-icon {
+  transform: translateY(-1px);
+}
+ion-tab-bar.nt-tabbar ion-tab-button.tab-selected .nt-tab-pill ion-label {
+  font-weight: 800;
+}
+
+/* Tap feedback (non-active). */
+ion-tab-bar.nt-tabbar ion-tab-button:not(.tab-selected) .nt-tab-pill:active {
+  color: var(--nt-text);
+}
+
+ion-tab-bar.nt-tabbar ion-tab-button:focus-visible .nt-tab-pill {
+  outline: 3px solid rgba(255,205,0,.55);
+  outline-offset: 2px;
+}

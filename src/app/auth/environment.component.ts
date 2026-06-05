@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IonHeader, IonToolbar, IonButtons, IonButton, IonContent, IonFooter, IonIcon } from '@ionic/angular/standalone';
 import { isValidServerUrl, normalizeServerUrl, WorkspaceService, SERVERS } from '../services/workspace.service';
 import { BrandComponent } from '../shared/brand.component';
@@ -22,9 +22,11 @@ export class EnvironmentComponent {
   customUrl = '';
   customUrlValid = false;
   customTouched = false;
-  private readonly knownServerUrls = new Set(Object.values(SERVERS).map((url) => normalizeServerUrl(url)));
+  returnTo = '';
 
-  constructor(private ws: WorkspaceService, private router: Router) {}
+  constructor(private ws: WorkspaceService, private router: Router, private route: ActivatedRoute) {
+    this.returnTo = this.route.snapshot.queryParamMap.get('returnTo') || '';
+  }
 
   pick(name: string): void { this.selected = name; }
 
@@ -59,5 +61,13 @@ export class EnvironmentComponent {
       await this.ws.setEnvironment(this.selected);
     }
     this.router.navigateByUrl('/auth/login');
+  }
+
+  back(): void {
+    if (this.privateServerPage) {
+      this.privateServerPage = false;
+      return;
+    }
+    this.router.navigateByUrl(this.returnTo || '/tabs/settings');
   }
 }

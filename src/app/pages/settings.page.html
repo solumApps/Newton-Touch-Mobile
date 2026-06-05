@@ -2,8 +2,12 @@
 
 <ion-content>
   <div class="wrap">
-    <div class="page-title">Settings</div>
+    <div class="hero">
+      <h1 class="hero-title">Settings</h1>
+      <p class="hero-sub">Manage your workspace, environment, and account.</p>
+    </div>
 
+    <!-- Account card -->
     <div class="acct">
       <div class="ava">{{ initials }}</div>
       <div class="who">
@@ -12,52 +16,65 @@
       </div>
     </div>
 
+    <!-- Workspace -->
     <div class="section-label">Workspace</div>
     <div class="grp">
-      <button class="row" (click)="changeWorkspace()">
-        <span class="ico">🏢</span>
-        <span class="rl"><span class="t">Company</span><span class="s">{{ ws?.companyName }} ({{ ws?.companyId
-            }})</span></span>
-        <span class="chev">›</span>
+      <button class="row" (click)="changeWorkspace()" aria-label="Change company">
+        <span class="ico"><ion-icon name="business-outline" aria-hidden="true"></ion-icon></span>
+        <span class="rl">
+          <span class="t">Company</span>
+          <span class="s">{{ ws?.companyName }}<span class="dim" *ngIf="ws?.companyId"> · {{ ws?.companyId }}</span></span>
+        </span>
+        <ion-icon class="chev" name="chevron-forward" aria-hidden="true"></ion-icon>
       </button>
-      <button class="row" (click)="changeWorkspace()">
-        <span class="ico">🏬</span>
-        <span class="rl"><span class="t">Store</span><span class="s">{{ ws?.storeName }} ({{ ws?.storeId
-            }})</span></span>
-        <span class="chev">›</span>
+      <button class="row" (click)="changeWorkspace()" aria-label="Change store">
+        <span class="ico"><ion-icon name="storefront-outline" aria-hidden="true"></ion-icon></span>
+        <span class="rl">
+          <span class="t">Store</span>
+          <span class="s">{{ ws?.storeName }}<span class="dim" *ngIf="ws?.storeId"> · {{ ws?.storeId }}</span></span>
+        </span>
+        <ion-icon class="chev" name="chevron-forward" aria-hidden="true"></ion-icon>
       </button>
     </div>
 
+    <!-- Environment -->
     <div class="section-label">Environment</div>
     <div class="grp">
-      <button class="row" (click)="changeEnv()">
-        <span class="ico">🌐</span>
-        <span class="rl"><span class="t">Server</span><span class="s">{{ ws?.environment }} · {{ ws?.serverUrl || 'not
-            set' }}</span></span>
-        <span class="chev">›</span>
+      <button class="row" (click)="changeEnv()" aria-label="Change server">
+        <span class="ico"><ion-icon name="globe-outline" aria-hidden="true"></ion-icon></span>
+        <span class="rl">
+          <span class="t">Server</span>
+          <span class="s">{{ ws?.environment }}<span class="dim" *ngIf="ws?.serverUrl"> · {{ ws?.serverUrl }}</span></span>
+        </span>
+        <ion-icon class="chev" name="chevron-forward" aria-hidden="true"></ion-icon>
       </button>
-      <button class="row" (click)="serverConfig()">
-        <span class="ico">🔑</span>
-        <span class="rl"><span class="t">Server / API credentials</span><span class="s">{{ ws?.token ? 'Configured' :
-            'Set token for Category mode' }}</span></span>
-        <span class="chev">›</span>
+      <button class="row" (click)="serverConfig()" aria-label="Server credentials">
+        <span class="ico"><ion-icon name="key-outline" aria-hidden="true"></ion-icon></span>
+        <span class="rl">
+          <span class="t">API credentials</span>
+          <span class="s">{{ ws?.token ? 'Configured' : 'Set token for Category mode' }}</span>
+        </span>
+        <ion-icon class="chev" name="chevron-forward" aria-hidden="true"></ion-icon>
       </button>
     </div>
 
-    <button class="btn-o danger" (click)="signOut()">Sign Out</button>
+    <button class="signout" (click)="signOut()" aria-label="Sign out">
+      <ion-icon name="log-out-outline" aria-hidden="true"></ion-icon>
+      <span>Sign Out</span>
+    </button>
     <p class="ver">Newton Touch · v1.0.0</p>
   </div>
 </ion-content>
 
-<ion-modal [isOpen]="showSignOutAlert" (didDismiss)="showSignOutAlert = false" class="logout-modal">
+<ion-modal [isOpen]="showSignOutAlert" (didDismiss)="showSignOutAlert = false" class="nt-confirm-modal">
   <ng-template>
-    <div class="modal-content">
-      <div class="icon-circle">!</div>
-      <h2>Sign Out</h2>
-      <p>Are you sure Sign Out?</p>
-      <div class="actions">
-        <button class="btn-yes" (click)="confirmSignOut()">Yes</button>
+    <div class="nt-confirm">
+      <div class="nt-confirm-ic warn"><ion-icon name="warning-outline" aria-hidden="true"></ion-icon></div>
+      <h2>Sign out?</h2>
+      <p>You'll need to sign in again to access your themes, content, and devices.</p>
+      <div class="nt-confirm-actions">
         <button class="btn-cancel" (click)="showSignOutAlert = false">Cancel</button>
+        <button class="btn-yes" (click)="confirmSignOut()">Sign out</button>
       </div>
     </div>
   </ng-template>

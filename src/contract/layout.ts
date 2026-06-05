@@ -81,6 +81,10 @@ export interface ThemeTokens {
   cardBackground: string;
   cardText: string;
   accent: string;
+  /** Background color behind text on cards — used for image-text overlays
+   *  (top/bottom/center positions) AND shape-card text bubbles. Default
+   *  'rgba(0,0,0,0.6)' — semi-transparent black. Themeable in the wizard. */
+  overlayColor?: string;
   cardSurface?: CardSurface;
   navStyle?: NavStyle;
   logoPosition: LogoPosition;

@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter } from '@ionic/angular/standalone';
 import { ColorPickerComponent } from '../shared/color-picker.component';
 import { ThemeService, SavedTheme } from '../services/theme.service';
 import { ImagePickerService } from '../services/image-picker.service';
@@ -17,11 +17,12 @@ interface Step { key: string; page: PreviewPage; }
 @Component({
   selector: 'app-theme-wizard',
   standalone: true,
-  imports: [CommonModule, FormsModule, ColorPickerComponent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar],
+  imports: [CommonModule, FormsModule, ColorPickerComponent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter],
   templateUrl: './theme-wizard.component.html',
   styleUrls: ['./theme-wizard.component.scss'],
 })
 export class ThemeWizardComponent implements OnInit {
+  @ViewChild('wizardSteps') wizardSteps?: ElementRef<HTMLElement>;
   name = '';
   id: string | null = null;
   t: ThemeTokens = ThemeService.defaultTokens();
@@ -40,6 +41,18 @@ export class ThemeWizardComponent implements OnInit {
     { key: 'saver', page: 'saver' },
     { key: 'review', page: 'home' },
   ];
+  private readonly stepNames: Record<string, string> = {
+    home: 'Home',
+    colors: 'Colors',
+    type: 'Type',
+    intStyle: 'Intermediate',
+    intColors: 'Intermediate colors',
+    resTemplate: 'Result',
+    resColors: 'Result colors',
+    anim: 'Motion',
+    saver: 'Screensaver',
+    review: 'Review',
+  };
 
   slots = [0, 1, 2, 3, 4, 5];
   labels = ['Bakery', 'Dairy', 'Produce', 'Meat', 'Frozen', 'Drinks'];
@@ -102,6 +115,7 @@ export class ThemeWizardComponent implements OnInit {
   bgPresets = ['linear-gradient(135deg,#2F006D,#001973)', '#0F172A', '#FFFFFF', '#1A0036', '#0A0A1A'];
   cardPresets = ['rgba(255,255,255,0.15)', '#FFFFFF', '#1E293B', '#F1F5F9'];
   textPresets = ['#FFFFFF', '#0F172A', '#FFCD00'];
+  overlayPresets = ['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)', 'rgba(255,255,255,0.6)', 'rgba(47,0,109,0.7)'];
 
   constructor(private themes: ThemeService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router) {}
 
@@ -125,6 +139,7 @@ export class ThemeWizardComponent implements OnInit {
   }
   get step(): Step { return this.visibleSteps[this.stepIndex] ?? this.visibleSteps[0]; }
   get previewPage(): PreviewPage { return this.step.page; }
+  stepLabel(key: string): string { return this.stepNames[key] || key; }
 
   get shapeCard(): boolean {
     if (this.t.cardShape !== 'circle' && this.t.cardShape !== 'hexagon') return false;
@@ -207,11 +222,28 @@ export class ThemeWizardComponent implements OnInit {
 
   next(): void {
     if (this.stepIndex < this.visibleSteps.length - 1) this.stepIndex++;
+    this.scrollActiveStep();
     if (this.step.key === 'anim') this.replayTransition();
   }
   prev(): void {
     if (this.stepIndex > 0) this.stepIndex--;
+    this.scrollActiveStep();
     if (this.step.key === 'anim') this.replayTransition();
+  }
+
+  goStep(i: number): void {
+    if (i < 0 || i >= this.visibleSteps.length) return;
+    this.stepIndex = i;
+    this.scrollActiveStep();
+    if (this.step.key === 'anim') this.replayTransition();
+  }
+
+  private scrollActiveStep(): void {
+    setTimeout(() => {
+      const host = this.wizardSteps?.nativeElement;
+      const active = host?.querySelector<HTMLElement>('.wizard-step.active');
+      active?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    });
   }
 
   canSave(): boolean { return !!this.name.trim(); }

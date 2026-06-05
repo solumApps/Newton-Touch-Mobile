@@ -3,14 +3,54 @@
 :host ::ng-deep .brand-center .brand { align-items: center; }
 
 .env-pill {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  font-size: 12px; color: var(--nt-text-2); background: var(--nt-surface);
-  border: 1px solid var(--nt-border); border-radius: 20px; padding: 6px 12px; margin: 0 auto 26px; width: fit-content;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 10px;
+  row-gap: 2px;
+  align-items: center;
+  color: var(--nt-text-2);
+  background: #fff;
+  border: 1px solid var(--nt-border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  margin: 0 auto 24px;
+  width: min(100%, 380px);
+  box-shadow: var(--nt-shadow-1);
 }
-.env-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: #10B981; }
-.env-pill .change { border: none; background: none; color: var(--nt-purple); font-weight: 700; font-size: 12px; cursor: pointer; padding: 0 0 0 4px; }
+.env-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--nt-text);
+  text-transform: uppercase;
+  letter-spacing: .45px;
+}
+.env-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: #10B981; box-shadow: 0 0 0 3px rgba(16,185,129,.12); }
+.env-url {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--nt-muted);
+}
+.env-pill .change {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  border: 1px solid rgba(47,0,109,.16);
+  background: var(--nt-tint);
+  color: var(--nt-purple);
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 8px 12px;
+}
 
-h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 26px; color: var(--nt-text); margin: 0 0 4px; }
+h2 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 800; font-size: 26px; color: var(--nt-text); margin: 0 0 4px; }
 .lede { font-size: 13px; color: var(--nt-text-2); margin: 0 0 22px; }
 
 .field { margin-bottom: 16px; }

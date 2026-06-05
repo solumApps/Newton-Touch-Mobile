@@ -26,6 +26,7 @@ export class ThemeService {
       cardBackground: 'rgba(255,255,255,0.15)',
       cardText: '#FFFFFF',
       accent: '#FFCD00',
+      overlayColor: 'rgba(0,0,0,0.6)',
       cardSurface: 'flat',
       navStyle: 'floating',
       logoPosition: 'left',
@@ -81,6 +82,7 @@ export class ThemeService {
     delete (out as any).cardStyle;
     out.showHeader = t?.showHeader ?? true;
     out.headerStyle = t?.headerStyle ?? 'logo-only';
+    out.overlayColor = t?.overlayColor ?? 'rgba(0,0,0,0.6)';
     out.cardSurface = t?.cardSurface ?? 'flat';
     out.navStyle = t?.navStyle ?? 'floating';
     out.intermediate = { ...d.intermediate, ...(t?.intermediate || {}), showHeader: t?.intermediate?.showHeader ?? true };
@@ -103,42 +105,69 @@ export class ThemeService {
       typography: { ...d.typography, ...(over.typography || {}) },
     });
     return [
-      { id: 'pre_retail', name: 'Retail Dark', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#2F006D', background: 'linear-gradient(135deg,#2F006D,#001973)', cardBackground: 'rgba(255,255,255,0.15)', cardText: '#FFFFFF', accent: '#FFCD00',
-        homeLayout: 'grid-2x3', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-bottom', intermediateStyle: 'accordion', resultTemplate: 'map-list',
-        typography: { ...d.typography, fontFamily: font('inter') },
+      // 1) Bookstore Classic — warm sepia bookshop kiosk · slab serif · refined.
+      { id: 'pre_bookstore', name: 'Bookstore Classic', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#6B3410', background: 'linear-gradient(135deg,#FEF3E2,#F5E0BB)', cardBackground: '#FFFFFF', cardText: '#3E2410', accent: '#B45309',
+        logoPosition: 'left', homeLayout: 'grid-2x3', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'below',
+        showHeader: true, headerStyle: 'title+caption',
+        includeIntermediate: true, intermediateStyle: 'card-strip', resultTemplate: 'dual-list',
+        intermediate: { headerColor: '#6B3410', background: '#FEF3E2', cardBackground: '#FFFFFF', cardText: '#3E2410', accent: '#B45309', itemSize: 'medium', showHeader: true },
+        result: { headerColor: '#6B3410', background: '#FEF3E2', cardBackground: '#FFFFFF', cardText: '#3E2410', accent: '#B45309', pathColor: '#B45309', pathStyle: 'dotted', showHeader: true },
+        animation: { transition: 'fade-slide', speed: 'slow', applyToAll: true },
+        loader: { style: 'logo', color: '#B45309' },
+        typography: { fontFamily: font('slab'), textScale: 'normal', textFit: 'wrap', baseTextColor: '#3E2410' },
       }) },
-      { id: 'pre_fresh', name: 'Fresh Market', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#0F7B3F', background: 'linear-gradient(135deg,#0F7B3F,#065F46)', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#84CC16',
-        logoPosition: 'center', homeLayout: 'hero-list', cardShape: 'rect', cardContent: 'image-only', cardTextPos: 'overlay-bottom', intermediateStyle: 'image-grid', resultTemplate: 'cards-map',
-        intermediate: { headerColor: '#065F46', background: '#ECFDF5', cardBackground: '#FFFFFF', cardText: '#064E3B', accent: '#84CC16', itemSize: 'large', showHeader: true },
-        result: { headerColor: '#0F7B3F', background: '#F0FDF4', cardBackground: '#FFFFFF', cardText: '#064E3B', accent: '#16A34A', pathColor: '#16A34A', pathStyle: 'solid', showHeader: true },
-        animation: { transition: 'scale-up', speed: 'normal', applyToAll: true }, loader: { style: 'dot-pulse', color: '#16A34A' },
-        typography: { ...d.typography, fontFamily: font('source'), baseTextColor: '#0F172A' },
+
+      // 2) Tech Showroom — bold electronics kiosk · drill-stair flow (Staples-style) · brutalist red/black.
+      { id: 'pre_tech', name: 'Tech Showroom', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#B91C1C', background: 'linear-gradient(135deg,#1A0000,#3F0F0F)', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#EF4444',
+        logoPosition: 'left', homeLayout: 'grid-2x2', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-bottom',
+        showHeader: true, headerStyle: 'logo+title+caption',
+        includeIntermediate: true, intermediateStyle: 'drill-stair', resultTemplate: 'drill-stair',
+        intermediate: { headerColor: '#7F1D1D', background: '#1A0000', cardBackground: 'rgba(255,255,255,0.06)', cardText: '#FFFFFF', accent: '#EF4444', itemSize: 'large', showHeader: true },
+        result: { headerColor: '#7F1D1D', background: '#FFFFFF', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#EF4444', pathColor: '#EF4444', pathStyle: 'animated', showHeader: true },
+        animation: { transition: 'slide-left', speed: 'fast', applyToAll: true },
+        loader: { style: 'dot-pulse', color: '#EF4444' },
+        typography: { fontFamily: font('bebas'), textScale: 'large', textFit: 'shrink', baseTextColor: '#FFFFFF' },
       }) },
-      { id: 'pre_bakery', name: 'Warm Bakery', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#B45309', background: 'linear-gradient(135deg,#B45309,#78350F)', cardBackground: 'rgba(255,255,255,0.92)', cardText: '#451A03', accent: '#F59E0B',
-        homeLayout: 'grid-2x2', cardShape: 'circle', cardContent: 'image-text', cardTextPos: 'below', intermediateStyle: 'circular', resultTemplate: 'split-panel',
-        intermediate: { headerColor: '#78350F', background: '#FFFBEB', cardBackground: '#FFF7E6', cardText: '#7C2D12', accent: '#F59E0B', itemSize: 'medium', showHeader: true },
-        result: { headerColor: '#B45309', background: '#FFFBEB', cardBackground: '#FFFFFF', cardText: '#7C2D12', accent: '#EA580C', pathColor: '#EA580C', pathStyle: 'dotted', showHeader: true },
-        animation: { transition: 'fade-slide', speed: 'slow', applyToAll: true }, loader: { style: 'logo', color: '#F59E0B' },
-        typography: { ...d.typography, fontFamily: font('slab') },
+
+      // 3) Pharmacy Care — clinical blue/white · icon-text categories · in-store routing.
+      { id: 'pre_pharmacy', name: 'Pharmacy Care', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#1E40AF', background: '#F8FAFC', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#06B6D4',
+        logoPosition: 'center', homeLayout: 'col-4', cardShape: 'rect', cardContent: 'icon-text', cardTextPos: 'center',
+        showHeader: true, headerStyle: 'logo+title+caption',
+        includeIntermediate: true, intermediateStyle: 'pill-tabs', resultTemplate: 'cards-map',
+        intermediate: { headerColor: '#1E40AF', background: '#ECFEFF', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#06B6D4', itemSize: 'medium', showHeader: true },
+        result: { headerColor: '#1E40AF', background: '#F1F5F9', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#06B6D4', pathColor: '#06B6D4', pathStyle: 'solid', showHeader: true },
+        animation: { transition: 'scale-up', speed: 'normal', applyToAll: true },
+        loader: { style: 'spinner', color: '#06B6D4' },
+        typography: { fontFamily: font('inter'), textScale: 'normal', textFit: 'wrap', baseTextColor: '#0F172A' },
       }) },
-      { id: 'pre_minimal', name: 'Minimal Mono', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#0F172A', background: '#FFFFFF', cardBackground: '#F8FAFC', cardText: '#0F172A', accent: '#0F172A',
-        logoPosition: 'center', homeLayout: 'col-4', cardShape: 'rect', cardContent: 'text-only', cardTextPos: 'center', includeIntermediate: false, intermediateStyle: 'scroll-list', resultTemplate: 'minimal',
-        intermediate: { headerColor: '#0F172A', background: '#FFFFFF', cardBackground: '#F1F5F9', cardText: '#0F172A', accent: '#0F172A', itemSize: 'small', showHeader: true },
-        result: { headerColor: '#0F172A', background: '#FFFFFF', cardBackground: '#F8FAFC', cardText: '#0F172A', accent: '#0F172A', pathColor: '#0F172A', pathStyle: 'solid', showHeader: true },
-        animation: { transition: 'slide-left', speed: 'fast', applyToAll: true }, loader: { style: 'progress', color: '#0F172A' },
-        typography: { ...d.typography, fontFamily: font('nunito'), baseTextColor: '#0F172A' },
+
+      // 4) Café Express — direct browsing, no intermediate · warm espresso · filter-list result.
+      { id: 'pre_cafe', name: 'Café Express', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#6F4E37', background: 'linear-gradient(135deg,#FAF3E7,#E8D5B5)', cardBackground: '#FFFFFF', cardText: '#3F2A1A', accent: '#D97706',
+        logoPosition: 'center', homeLayout: 'hero-list', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-bottom',
+        showHeader: true, headerStyle: 'title-only',
+        includeIntermediate: false, intermediateStyle: 'scroll-list', resultTemplate: 'filter-list',
+        intermediate: { headerColor: '#6F4E37', background: '#FAF3E7', cardBackground: '#FFFFFF', cardText: '#3F2A1A', accent: '#D97706', itemSize: 'medium', showHeader: true },
+        result: { headerColor: '#6F4E37', background: '#FAF3E7', cardBackground: '#FFFFFF', cardText: '#3F2A1A', accent: '#D97706', pathColor: '#D97706', pathStyle: 'solid', showHeader: true },
+        animation: { transition: 'fade-slide', speed: 'normal', applyToAll: true },
+        loader: { style: 'skeleton', color: '#D97706' },
+        typography: { fontFamily: font('source'), textScale: 'large', textFit: 'shrink', baseTextColor: '#3F2A1A' },
       }) },
-      { id: 'pre_vivid', name: 'Vivid Pop', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#DB2777', background: 'linear-gradient(135deg,#DB2777,#7C3AED)', cardBackground: 'rgba(255,255,255,0.18)', cardText: '#FFFFFF', accent: '#22D3EE',
-        homeLayout: 'list', cardShape: 'pill', cardContent: 'text-only', cardTextPos: 'center', intermediateStyle: 'pill-tabs', resultTemplate: 'card-grid',
-        intermediate: { headerColor: '#7C3AED', background: '#2E1065', cardBackground: 'rgba(255,255,255,0.12)', cardText: '#FFFFFF', accent: '#22D3EE', itemSize: 'medium', showHeader: true },
-        result: { headerColor: '#DB2777', background: '#1E1B4B', cardBackground: 'rgba(255,255,255,0.10)', cardText: '#FFFFFF', accent: '#22D3EE', pathColor: '#22D3EE', pathStyle: 'animated', showHeader: true },
-        animation: { transition: 'shimmer', speed: 'normal', applyToAll: true }, loader: { style: 'skeleton', color: '#22D3EE' },
-        typography: { ...d.typography, fontFamily: font('bebas') },
+
+      // 5) Boutique Glamour — visual-first fashion lookbook, no intermediate · rose-gold · elegant.
+      { id: 'pre_boutique', name: 'Boutique Glamour', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#C2185B', background: 'linear-gradient(135deg,#FBE4EC,#E8C8D6)', cardBackground: 'rgba(255,255,255,0.85)', cardText: '#4A1424', accent: '#E8B4B8',
+        logoPosition: 'right', homeLayout: 'grid-2x2', cardShape: 'circle', cardContent: 'image-only', cardTextPos: 'below',
+        showHeader: true, headerStyle: 'title+caption',
+        includeIntermediate: false, intermediateStyle: 'image-grid', resultTemplate: 'minimal',
+        intermediate: { headerColor: '#C2185B', background: '#FBE4EC', cardBackground: 'rgba(255,255,255,0.85)', cardText: '#4A1424', accent: '#E8B4B8', itemSize: 'large', showHeader: true },
+        result: { headerColor: '#C2185B', background: '#FBE4EC', cardBackground: 'rgba(255,255,255,0.85)', cardText: '#4A1424', accent: '#E8B4B8', pathColor: '#E8B4B8', pathStyle: 'dashed', showHeader: true },
+        animation: { transition: 'shimmer', speed: 'normal', applyToAll: true },
+        loader: { style: 'progress', color: '#E8B4B8' },
+        typography: { fontFamily: font('nunito'), textScale: 'normal', textFit: 'wrap', baseTextColor: '#4A1424' },
       }) },
     ];
   }
