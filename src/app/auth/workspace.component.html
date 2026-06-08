@@ -1,7 +1,9 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start" *ngIf="returnTo">
-      <ion-button (click)="back()">‹</ion-button>
+      <ion-button (click)="back()" class="back-btn" aria-label="Go back">
+        <ion-icon name="chevron-back" slot="icon-only"></ion-icon>
+      </ion-button>
     </ion-buttons>
     <div class="hd"><app-brand variant="light"></app-brand></div>
   </ion-toolbar>
@@ -23,12 +25,14 @@
     <ng-container *ngIf="!loading && !error">
       <div class="step">Step 1 · Select company</div>
       <app-select-field placeholder="Choose a company" [options]="companyOpts"
-        [value]="companyId" (valueChange)="selectCompany($event)"></app-select-field>
+        [value]="companyId" (valueChange)="selectCompany($event)"
+        [open]="companyOpen" (openChange)="onCompanyOpenChange($event)"></app-select-field>
 
       <div class="step">Step 2 · Select store <span class="sp" *ngIf="loadingStores">· loading…</span></div>
       <app-select-field placeholder="Choose a store" emptyText="No stores for this company"
         [options]="storeOpts" [value]="storeId" (valueChange)="storeId=$event"
-        [disabled]="loadingStores || !companyId"></app-select-field>
+        [disabled]="loadingStores || !companyId"
+        [open]="storeOpen" (openChange)="onStoreOpenChange($event)"></app-select-field>
     </ng-container>
   </div>
 </ion-content>

@@ -21,11 +21,22 @@ export class SelectFieldComponent {
   @Input() disabled = false;
   @Output() valueChange = new EventEmitter<string>();
 
-  open = false;
+  @Input() open = false;
+  @Output() openChange = new EventEmitter<boolean>();
 
   get selectedLabel(): string {
     return this.options.find((o) => o.value === this.value)?.label ?? '';
   }
-  toggle(): void { if (!this.disabled) this.open = !this.open; }
-  pick(v: string): void { this.value = v; this.valueChange.emit(v); this.open = false; }
+  toggle(): void {
+    if (!this.disabled) {
+      this.open = !this.open;
+      this.openChange.emit(this.open);
+    }
+  }
+  pick(v: string): void {
+    this.value = v;
+    this.valueChange.emit(v);
+    this.open = false;
+    this.openChange.emit(false);
+  }
 }
