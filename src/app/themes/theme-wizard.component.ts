@@ -25,6 +25,8 @@ export class ThemeWizardComponent implements OnInit {
   @ViewChild('wizardSteps') wizardSteps?: ElementRef<HTMLElement>;
   name = '';
   id: string | null = null;
+  openedFromPreview = false;
+  previewReturnId: string | null = null;
   t: ThemeTokens = ThemeService.defaultTokens();
   saverMode = 'slideshow';
   stepIndex = 0;
@@ -152,6 +154,8 @@ export class ThemeWizardComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.id = this.route.snapshot.paramMap.get('id');
+    this.openedFromPreview = this.route.snapshot.queryParamMap.get('from') === 'theme-preview';
+    this.previewReturnId = this.route.snapshot.queryParamMap.get('returnTheme');
     if (this.id) {
       const existing = (await this.themes.list()).find((x) => x.id === this.id);
       if (existing) {
@@ -322,6 +326,7 @@ export class ThemeWizardComponent implements OnInit {
   }
 
   canSave(): boolean { return !!this.name.trim(); }
+  get cancelLabel(): string { return this.openedFromPreview ? 'Back' : 'Cancel'; }
 
   async save(): Promise<void> {
     if (!this.canSave()) { this.stepIndex = this.visibleSteps.length - 1; return; }
@@ -330,5 +335,11 @@ export class ThemeWizardComponent implements OnInit {
     this.router.navigateByUrl('/tabs/themes');
   }
 
-  cancel(): void { this.router.navigateByUrl('/tabs/themes'); }
+  cancel(): void {
+    if (this.openedFromPreview && this.id) {
+      this.router.navigateByUrl('/theme-preview/' + (this.previewReturnId || this.id));
+      return;
+    }
+    this.router.navigateByUrl('/tabs/themes');
+  }
 }
