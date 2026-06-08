@@ -664,6 +664,16 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 .prev .stage.layout-h-scroll[class*="card-size-"] .h-scroll-rail .card.shape-circle,
 .prev .stage.layout-h-scroll[class*="card-size-"] .h-scroll-rail .card.shape-hexagon { flex-basis: auto; width: auto; }
 
+/* ===== Bento grid — 1 large hero tile + 4 smaller tiles (overflow-proof grid) ===== */
+.prev .stage.layout-bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr); gap: 4px; }
+.prev .stage.layout-bento .card { width: auto !important; height: auto !important; transform: none !important; }
+.prev .stage.layout-bento .card.featured { grid-column: 1 / 3; grid-row: 1 / 3; }
+.prev .stage.layout-bento .card:nth-child(n+6) { display: none; }
+.prev .stage.layout-bento .card .name { font-size: calc(var(--prev-scale, 1) * 6.5px); }
+.prev .stage.layout-bento .card.featured .name { font-size: calc(var(--prev-scale, 1) * 9px); }
+.prev .stage.layout-bento.card-size-large .card .name { font-size: calc(var(--prev-scale, 1) * 7.5px); }
+.prev .stage.layout-bento.card-size-xs .card .name { font-size: calc(var(--prev-scale, 1) * 5.5px); }
+
 /* ===== Styled mock-nav (colored buttons + position classes) ===== */
 .prev .mock-nav {
   position: absolute; z-index: 3; display: flex; gap: 5px;

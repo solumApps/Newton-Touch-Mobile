@@ -59,12 +59,12 @@ export class ThemeWizardComponent implements OnInit {
   slots = [0, 1, 2, 3, 4, 5];
   labels = ['Bakery', 'Dairy', 'Produce', 'Meat', 'Frozen', 'Drinks'];
 
-  homeLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-4', 'hero-list', 'list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'h-scroll'];
+  homeLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-4', 'hero-list', 'list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'h-scroll', 'bento'];
   layoutLabels: Record<HomeLayout, string> = {
     'grid-2x3': 'Grid (3×2)', 'grid-2x2': 'Grid (2×2)', 'col-4': '4 columns',
     'hero-list': 'Hero + list', 'list': 'List rows', 'fullscreen': 'Fullscreen',
     'image-strip': 'Image strips', 'hero-start': 'Hero start', 'promo-categories': 'Promo categories',
-    'h-scroll': 'Horizontal scroll',
+    'h-scroll': 'Horizontal scroll', 'bento': 'Bento grid',
   };
   /** Independent card axes — any shape × any content × any text position. */
   cardShapes: { id: CardShape; label: string }[] = [
@@ -82,7 +82,7 @@ export class ThemeWizardComponent implements OnInit {
 
   /** Layouts where circle/hexagon shapes don't render well and are hidden.
    *  h-scroll DOES support all shapes (handled inside the rail), hero-list does NOT. */
-  private readonly noShapeLayouts: HomeLayout[] = ['list', 'fullscreen', 'image-strip', 'hero-list'];
+  private readonly noShapeLayouts: HomeLayout[] = ['list', 'fullscreen', 'image-strip', 'hero-list', 'bento'];
 
   pickLayout(l: HomeLayout): void {
     this.t.homeLayout = l;
@@ -183,7 +183,7 @@ export class ThemeWizardComponent implements OnInit {
 
   get shapeCard(): boolean {
     if (this.t.cardShape !== 'circle' && this.t.cardShape !== 'hexagon') return false;
-    return !['image-strip', 'fullscreen', 'hero-start', 'promo-categories', 'h-scroll'].includes(this.t.homeLayout);
+    return !['image-strip', 'fullscreen', 'hero-start', 'promo-categories', 'h-scroll', 'bento'].includes(this.t.homeLayout);
   }
 
   get scaleNum(): number { return this.t.typography.textScale === 'compact' ? 0.9 : this.t.typography.textScale === 'large' ? 1.14 : 1; }
