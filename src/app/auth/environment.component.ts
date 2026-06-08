@@ -15,18 +15,47 @@ import { BrandComponent } from '../shared/brand.component';
   styleUrls: ['./environment.component.scss'],
 })
 export class EnvironmentComponent {
-  servers = SERVERS;
-  envs = Object.keys(SERVERS).filter((name) => name !== 'Stage 00');
+  servers: Record<string, string> = { ...SERVERS };
+  envs: string[] = Object.keys(SERVERS).filter((name) => name !== 'Stage 00');
   selected = 'Korea';
   privateServerPage = false;
   customUrl = '';
   customUrlValid = false;
   customTouched = false;
   returnTo = '';
+
   private readonly knownServerUrls = new Set(Object.values(SERVERS).map((url) => normalizeServerUrl(url)));
 
-  constructor(private ws: WorkspaceService, private router: Router, private route: ActivatedRoute) {
+  constructor(private ws: WorkspaceService, private router: Router, private route: ActivatedRoute) {}
+
+  /** Ionic fires this every time the page becomes active — unlike ngOnInit which
+   *  only runs once when the component is first created and may be cached. */
+  async ionViewWillEnter(): Promise<void> {
+    // Re-read returnTo on every activation so it reflects the latest navigation.
     this.returnTo = this.route.snapshot.queryParamMap.get('returnTo') || '';
+
+    // Reset private-server state so we don't carry over from a previous visit.
+    this.privateServerPage = false;
+    this.customUrl = '';
+    this.customUrlValid = false;
+    this.customTouched = false;
+    this.selected = 'Korea';
+
+    if (!this.returnTo) return;
+    // Coming from Settings: load the current workspace.
+    const workspace = await this.ws.get();
+
+    // Check if the saved environment is one of the servers shown in the list.
+    // If not (e.g. 'Custom', 'Stage 00', or any non-standard name),
+    // the user is on a private server → jump straight to private server URL screen.
+    if (!this.envs.includes(workspace.environment)) {
+      this.customUrl = workspace.serverUrl;
+      this.customUrlValid = true;
+      this.privateServerPage = true;
+    } else {
+      // Pre-select the current known server in the list.
+      this.selected = workspace.environment;
+    }
   }
 
   pick(name: string): void { this.selected = name; }
@@ -55,13 +84,13 @@ export class EnvironmentComponent {
   async continue(): Promise<void> {
     if (this.privateServerPage) {
       this.customTouched = true;
-      this.customUrlValid = this.isKnownServerUrl(this.customUrl);
-      if (!this.customUrlValid) return;
+      if (!isValidServerUrl(this.customUrl)) return;
       await this.ws.set({ environment: this.environmentForUrl(this.customUrl), serverUrl: normalizeServerUrl(this.customUrl) });
     } else {
       await this.ws.setEnvironment(this.selected);
     }
-    this.router.navigateByUrl('/auth/login');
+    // If we came from Settings, go back there; otherwise proceed to login.
+    this.router.navigateByUrl(this.returnTo || '/auth/login');
   }
 
   back(): void {
