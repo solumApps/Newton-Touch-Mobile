@@ -43,6 +43,13 @@
             <b>Featured</b>
             <span>Find the right product faster</span>
           </div>
+          <div class="promo-rail" *ngIf="t.homeLayout==='promo-categories'">
+            <div class="card shape-{{t.cardShape}} content-{{t.cardContent}} pos-{{t.cardTextPos}}" *ngFor="let n of slots; let i = index"
+                 [style.color]="t.cardText" [style.borderColor]="t.accent">
+              <div class="img placeholder" [style.background]="t.accent"></div>
+              <div class="meta"><span class="name">{{ labels[i] }}</span></div>
+            </div>
+          </div>
           <div class="h-scroll-rail" *ngIf="t.homeLayout==='h-scroll'">
             <div class="card shape-{{t.cardShape}} content-{{t.cardContent}} pos-{{t.cardTextPos}}" *ngFor="let n of slots; let i = index"
                  [style.color]="t.cardText" [style.borderColor]="t.accent">
@@ -50,7 +57,7 @@
               <div class="meta"><span class="name">{{ labels[i] }}</span></div>
             </div>
           </div>
-          <ng-container *ngIf="t.homeLayout!=='h-scroll'">
+          <ng-container *ngIf="t.homeLayout!=='h-scroll' && t.homeLayout!=='promo-categories'">
             <div class="card shape-{{t.cardShape}} content-{{t.cardContent}} pos-{{t.cardTextPos}}" *ngFor="let n of slots; let i = index"
                  [class.featured]="i===0"
                  [style.color]="t.cardText" [style.borderColor]="t.accent">
