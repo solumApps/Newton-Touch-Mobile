@@ -93,6 +93,14 @@
             <b>Best Match</b>
             <span>Find Me</span>
           </div>
+          <div class="hero-prod" *ngIf="t.resultTemplate==='hero-product'">
+            <div class="hp-benefits"><span></span><span></span></div>
+            <div class="hp-product">
+              <div class="hp-img" [style.background]="t.result.accent"></div>
+              <div class="hp-info"><b>Product</b><span class="price">$0.00</span><i class="find" [style.background]="t.result.accent">Find Me</i></div>
+            </div>
+            <div class="hp-headline">Awesome!<em [style.color]="t.result.accent">Loved your pick!</em></div>
+          </div>
           <div class="filters side" *ngIf="t.resultTemplate==='map-filter-list'">
             <span class="filter on" [style.background]="t.result.accent">All</span>
             <span class="filter">Care</span>
@@ -105,12 +113,22 @@
             </div>
           </div>
         </div>
-        <div class="mock-nav"
-             *ngIf="page !== 'home' && page !== 'saver' && (t.navStyle || 'floating') !== 'hidden'"
-             [ngClass]="'nav-pos-'+(t.nav?.position || 'bottom-left')">
-          <span class="mock-btn" [style.color]="t.nav?.backColor || '#fff'" [style.background]="t.nav?.backBg || 'rgba(0,0,0,.35)'">&#8249;</span>
-          <span class="mock-btn" [style.color]="t.nav?.homeColor || '#fff'" [style.background]="t.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</span>
-        </div>
+        <ng-container *ngIf="page !== 'home' && page !== 'saver' && (t.navStyle || 'floating') !== 'hidden'">
+          <!-- Grouped: both buttons together -->
+          <div class="mock-nav" *ngIf="!t.nav?.split" [ngClass]="'nav-pos-'+(t.nav?.position || 'bottom-left')">
+            <span class="mock-btn" [style.color]="t.nav?.backColor || '#fff'" [style.background]="t.nav?.backBg || 'rgba(0,0,0,.35)'">&#8249;</span>
+            <span class="mock-btn" [style.color]="t.nav?.homeColor || '#fff'" [style.background]="t.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</span>
+          </div>
+          <!-- Separate: Back and Home positioned independently -->
+          <ng-container *ngIf="t.nav?.split">
+            <div class="mock-nav" [ngClass]="'nav-pos-'+(t.nav?.backPosition || 'bottom-left')">
+              <span class="mock-btn" [style.color]="t.nav?.backColor || '#fff'" [style.background]="t.nav?.backBg || 'rgba(0,0,0,.35)'">&#8249;</span>
+            </div>
+            <div class="mock-nav" [ngClass]="'nav-pos-'+(t.nav?.homePosition || 'bottom-right')">
+              <span class="mock-btn" [style.color]="t.nav?.homeColor || '#fff'" [style.background]="t.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</span>
+            </div>
+          </ng-container>
+        </ng-container>
 
         <!-- SCREENSAVER -->
         <div *ngSwitchCase="'saver'" class="stage saver saver-{{saverMode}}">
@@ -323,10 +341,27 @@
             <app-color-picker label="Background" [value]="t.nav?.homeBg || 'rgba(0,0,0,0.35)'" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
           </div>
         </div>
-        <div class="step-title sm">Button position</div>
+        <div class="step-title sm">Button layout</div>
         <div class="seg">
-          <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
+          <button class="tile" [class.sel]="!t.nav?.split" (click)="t.nav!.split=false">Grouped together</button>
+          <button class="tile" [class.sel]="t.nav?.split" (click)="t.nav!.split=true">Separate (independent)</button>
         </div>
+        <ng-container *ngIf="!t.nav?.split">
+          <div class="step-title sm">Button position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="t.nav?.split">
+          <div class="step-title sm">&#8249; Back position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.backPosition||'bottom-left')===p.id" (click)="t.nav!.backPosition=p.id">{{ p.label }}</button>
+          </div>
+          <div class="step-title sm">&#8962; Home position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.homePosition||'bottom-right')===p.id" (click)="t.nav!.homePosition=p.id">{{ p.label }}</button>
+          </div>
+        </ng-container>
       </div>
 
       <div *ngSwitchCase="'resTemplate'">
@@ -381,10 +416,27 @@
             <app-color-picker label="Background" [value]="t.nav?.homeBg || 'rgba(0,0,0,0.35)'" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
           </div>
         </div>
-        <div class="step-title sm">Button position</div>
+        <div class="step-title sm">Button layout</div>
         <div class="seg">
-          <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
+          <button class="tile" [class.sel]="!t.nav?.split" (click)="t.nav!.split=false">Grouped together</button>
+          <button class="tile" [class.sel]="t.nav?.split" (click)="t.nav!.split=true">Separate (independent)</button>
         </div>
+        <ng-container *ngIf="!t.nav?.split">
+          <div class="step-title sm">Button position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="t.nav?.split">
+          <div class="step-title sm">&#8249; Back position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.backPosition||'bottom-left')===p.id" (click)="t.nav!.backPosition=p.id">{{ p.label }}</button>
+          </div>
+          <div class="step-title sm">&#8962; Home position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.homePosition||'bottom-right')===p.id" (click)="t.nav!.homePosition=p.id">{{ p.label }}</button>
+          </div>
+        </ng-container>
       </div>
 
       <div *ngSwitchCase="'anim'">

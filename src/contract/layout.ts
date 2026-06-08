@@ -50,7 +50,10 @@ export type IntermediateStyle =
   /** drill-stair: side-by-side columns showing every visited level at once,
    *  with the picked option per column highlighted. Right-most column reveals
    *  the result. Inspired by retail kiosk drill-down UIs (Staples-style). */
-  | 'drill-stair';
+  | 'drill-stair'
+  /** brand-rail: a centered horizontal row of round brand/logo tiles with a bold
+   *  playful side headline + mascot space. Inspired by pet-food / FMCG kiosks. */
+  | 'brand-rail';
 
 export type ResultTemplate =
   | 'map-list' | 'cards-map' | 'dual-list' | 'split-panel' | 'list-only'
@@ -69,7 +72,11 @@ export type ResultTemplate =
   /** catalog-grid: side category image with product catalog grid/cards. */
   | 'catalog-grid'
   /** product-focus: one hero product with image, price, benefit copy, and find action. */
-  | 'product-focus';
+  | 'product-focus'
+  /** hero-product: playful sales confirmation — benefit bullets, a centered hero
+   *  product (image/price/find action) and a big celebratory side headline.
+   *  Inspired by pet-food kiosk "Loved your pick!" result screens. */
+  | 'hero-product';
 
 export type TransitionType = 'fade-slide' | 'scale-up' | 'slide-left' | 'shimmer' | 'none';
 export type AnimSpeed = 'slow' | 'normal' | 'fast';
@@ -88,7 +95,11 @@ export interface NavButtonStyle {
   backBg?: string;             // background of the back button
   homeColor?: string;          // icon/text color for the home (⌂) button
   homeBg?: string;             // background of the home button
-  position?: NavButtonPosition;
+  position?: NavButtonPosition;        // grouped position (when split is false/undefined)
+  /** When true, Back and Home are positioned INDEPENDENTLY (not a combined group). */
+  split?: boolean;
+  backPosition?: NavButtonPosition;    // used only when split === true
+  homePosition?: NavButtonPosition;    // used only when split === true
 }
 
 /** Screensaver overlay content styling — controls the title/CTA block shown over media. */
