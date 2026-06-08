@@ -674,6 +674,32 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 .prev .stage.layout-bento.card-size-large .card .name { font-size: calc(var(--prev-scale, 1) * 7.5px); }
 .prev .stage.layout-bento.card-size-xs .card .name { font-size: calc(var(--prev-scale, 1) * 5.5px); }
 
+/* ===== Shape (circle/hexagon) card sizing =====
+   The .shape layouts pin card height with !important, which blocked the normal
+   card-size rules — so resizing did nothing. Resize the shape cells directly
+   (height drives the square size); never use transform here. Values stay <=96%
+   so Large can't overflow its row/column. */
+.prev .stage.shape[class*="card-size-"] .card { transform: none !important; }
+/* 4 columns */
+.prev .stage.shape.layout-col-4.card-size-xs    .card { height: 56% !important; }
+.prev .stage.shape.layout-col-4.card-size-small .card { height: 66% !important; }
+.prev .stage.shape.layout-col-4.card-size-large .card { height: 92% !important; }
+/* grid 3×2 */
+.prev .stage.shape.layout-grid-2x3.card-size-xs    .card { height: 70% !important; }
+.prev .stage.shape.layout-grid-2x3.card-size-small .card { height: 80% !important; }
+.prev .stage.shape.layout-grid-2x3.card-size-large .card { height: 96% !important; }
+/* grid 2×2 */
+.prev .stage.shape.layout-grid-2x2.card-size-xs    .card { height: 70% !important; }
+.prev .stage.shape.layout-grid-2x2.card-size-small .card { height: 80% !important; }
+.prev .stage.shape.layout-grid-2x2.card-size-large .card { height: 96% !important; }
+/* hero + list */
+.prev .stage.shape.layout-hero-list.card-size-xs    .card.featured { height: 70% !important; }
+.prev .stage.shape.layout-hero-list.card-size-small .card.featured { height: 80% !important; }
+.prev .stage.shape.layout-hero-list.card-size-large .card.featured { height: 94% !important; }
+.prev .stage.shape.layout-hero-list.card-size-xs    .card:not(.featured) { height: 62% !important; }
+.prev .stage.shape.layout-hero-list.card-size-small .card:not(.featured) { height: 72% !important; }
+.prev .stage.shape.layout-hero-list.card-size-large .card:not(.featured) { height: 88% !important; }
+
 /* ===== Styled mock-nav (colored buttons + position classes) ===== */
 .prev .mock-nav {
   position: absolute; z-index: 3; display: flex; gap: 5px;
