@@ -166,7 +166,7 @@
         <div class="step-title sm">Card size</div>
         <p class="hint">Controls the physical size of each category card.</p>
         <div class="seg">
-          <button class="tile" *ngFor="let s of cardSizes" [class.sel]="(t.cardSize||'normal')===s" (click)="t.cardSize=s">{{ s | titlecase }}</button>
+          <button class="tile" *ngFor="let s of cardSizes" [class.sel]="(t.cardSize||'normal')===s" (click)="t.cardSize=s">{{ cardSizeLabels[s] }}</button>
         </div>
 
         <div class="step-title sm">Card shape</div>
@@ -215,10 +215,7 @@
           <button class="tile" [class.sel]="!t.includeIntermediate" (click)="t.includeIntermediate=false">Skip → Result</button>
         </div>
         <p class="hint">Skip if the app doesn't drill down — a Home tap goes straight to Result.</p>
-        <div class="step-title sm">Navigation buttons</div>
-        <div class="seg">
-          <button class="tile" *ngFor="let n of navStyles" [class.sel]="(t.navStyle||'floating')===n.id" (click)="t.navStyle=n.id">{{ n.label }}</button>
-        </div>
+        <p class="hint">Navigation (Back / Home) buttons are configured on the Intermediate and Result steps, where they actually appear.</p>
       </div>
 
       <div *ngSwitchCase="'colors'">
@@ -253,8 +250,24 @@
       </div>
 
       <div *ngSwitchCase="'intStyle'">
-        <div class="step-title">Intermediate style</div>
+        <div class="step-title">Intermediate design</div>
+        <div class="step-title sm">Layout style</div>
+        <p class="hint">How sub-categories are arranged on the drill-down screen.</p>
         <div class="tiles"><button class="tile" *ngFor="let o of intStyles" [class.sel]="t.intermediateStyle===o" (click)="t.intermediateStyle=o">{{ o }}</button></div>
+
+        <div class="step-title sm">Item size</div>
+        <p class="hint">Physical size of each sub-category tile/row.</p>
+        <div class="seg"><button class="tile" *ngFor="let o of sizes" [class.sel]="t.intermediate.itemSize===o" (click)="t.intermediate.itemSize=o">{{ o | titlecase }}</button></div>
+
+        <div class="step-title sm">Card surface</div>
+        <div class="seg"><button class="tile" *ngFor="let s of cardSurfaces" [class.sel]="(t.cardSurface||'flat')===s.id" (click)="t.cardSurface=s.id">{{ s.label }}</button></div>
+
+        <div class="step-title sm">Header bar</div>
+        <div class="seg">
+          <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
+          <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
+        </div>
+        <p class="hint">Colours, sub-item details and navigation buttons are set on the next step.</p>
       </div>
 
       <div *ngSwitchCase="'intColors'">
@@ -288,6 +301,9 @@
 
         <div class="step-title sm">Navigation buttons</div>
         <p class="hint">Style the Back and Home buttons shown on this page.</p>
+        <div class="seg">
+          <button class="tile" *ngFor="let n of navStyles" [class.sel]="(t.navStyle||'floating')===n.id" (click)="t.navStyle=n.id">{{ n.label }}</button>
+        </div>
         <div class="nav-btn-row">
           <div class="nav-btn-grp">
             <span class="nav-btn-lbl">&#8249; Back</span>
@@ -343,6 +359,9 @@
 
         <div class="step-title sm">Navigation buttons</div>
         <p class="hint">Style the Back and Home buttons shown on this page.</p>
+        <div class="seg">
+          <button class="tile" *ngFor="let n of navStyles" [class.sel]="(t.navStyle||'floating')===n.id" (click)="t.navStyle=n.id">{{ n.label }}</button>
+        </div>
         <div class="nav-btn-row">
           <div class="nav-btn-grp">
             <span class="nav-btn-lbl">&#8249; Back</span>

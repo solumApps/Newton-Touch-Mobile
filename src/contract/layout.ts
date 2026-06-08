@@ -17,9 +17,11 @@ export type HomeLayout =
   /** promo-categories: large promotional copy/visual area plus category choices. */
   | 'promo-categories'
   /** h-scroll: single horizontally-scrolling row of cards — great as a category rail. */
-  | 'h-scroll';
+  | 'h-scroll'
+  /** bento: asymmetric tile grid — one large hero tile plus smaller tiles. Modern, promo-friendly. */
+  | 'bento';
 
-export type CardSize = 'small' | 'normal' | 'large';
+export type CardSize = 'xs' | 'small' | 'normal' | 'large';
 export type NavButtonPosition = 'bottom-left' | 'bottom-center' | 'bottom-right' | 'side-left' | 'side-right';
 export type SaverOverlayPosition = 'center' | 'bottom' | 'top' | 'bottom-left' | 'bottom-right';
 

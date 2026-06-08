@@ -80,10 +80,14 @@ export class ThemeWizardComponent implements OnInit {
   /** Text-position control only matters when the card shows both an image/icon AND text. */
   get showTextPos(): boolean { return this.t.cardContent === 'image-text' || this.t.cardContent === 'icon-text'; }
 
+  /** Layouts where circle/hexagon shapes don't render well and are hidden.
+   *  h-scroll DOES support all shapes (handled inside the rail), hero-list does NOT. */
+  private readonly noShapeLayouts: HomeLayout[] = ['list', 'fullscreen', 'image-strip', 'hero-list'];
+
   pickLayout(l: HomeLayout): void {
     this.t.homeLayout = l;
     // Auto-reset circle/hexagon when switching to shape-incompatible layouts
-    if (['list', 'fullscreen', 'image-strip', 'h-scroll'].includes(l) &&
+    if (this.noShapeLayouts.includes(l) &&
         (this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon')) {
       this.t.cardShape = 'rect';
     }
@@ -91,7 +95,7 @@ export class ThemeWizardComponent implements OnInit {
 
   /** Only show circle/hexagon shapes for layouts where they make visual sense. */
   get availableCardShapes(): { id: CardShape; label: string }[] {
-    if (['list', 'fullscreen', 'image-strip', 'h-scroll'].includes(this.t.homeLayout)) {
+    if (this.noShapeLayouts.includes(this.t.homeLayout)) {
       return this.cardShapes.filter(s => s.id !== 'circle' && s.id !== 'hexagon');
     }
     return this.cardShapes;
@@ -126,7 +130,8 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'bottom-center', label: 'Bottom center' },
     { id: 'hidden', label: 'Hidden' },
   ];
-  cardSizes: Array<'small' | 'normal' | 'large'> = ['small', 'normal', 'large'];
+  cardSizes: Array<'xs' | 'small' | 'normal' | 'large'> = ['xs', 'small', 'normal', 'large'];
+  cardSizeLabels: Record<'xs' | 'small' | 'normal' | 'large', string> = { xs: 'XS', small: 'Small', normal: 'Normal', large: 'Large' };
   navButtonPositions: { id: NavButtonPosition; label: string }[] = [
     { id: 'bottom-left',   label: 'Bottom left' },
     { id: 'bottom-center', label: 'Bottom center' },

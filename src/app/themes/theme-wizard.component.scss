@@ -78,10 +78,7 @@
 .prev .hdr.hdr-style-title-only .nt { margin-left: 0; }
 .prev .hdr.hdr-style-title\+caption { gap: 5px; }
 .prev .stage { flex: 1; padding: 5px; overflow: hidden; box-sizing: border-box; }
-.prev .mock-nav { position: absolute; left: 50%; bottom: 5px; z-index: 3; transform: translateX(-50%); display: flex; gap: 8px; }
-.prev .mock-nav span { width: 18px; height: 18px; border-radius: 50%; border: 1px solid currentColor; display: flex; align-items: center; justify-content: center; color: var(--prev-text,#fff); background: rgba(0,0,0,.35); font-size: 12px; }
-.prev.nav-edge .mock-nav { left: auto; right: 7px; bottom: 50%; transform: translateY(50%); flex-direction: column; }
-.prev.nav-bottom-center .mock-nav { bottom: 2px; }
+/* mock-nav positioning lives in the dedicated block below (.prev .mock-nav.nav-pos-*) */
 .prev-cap { text-align: center; font-size: 10px; font-weight: 700; color: var(--nt-text-2); margin: 6px 0 14px; text-transform: uppercase; letter-spacing: .5px; }
 
 /* ===== Transition + loader DEMO (anim step) ===== */
@@ -598,16 +595,33 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 
 /* ===== h-scroll layout preview ===== */
 .prev .stage.layout-h-scroll { display: flex; flex-direction: column; justify-content: center; padding: 0; overflow: hidden; }
-.prev .stage.layout-h-scroll .h-scroll-rail { display: flex; overflow-x: auto; scrollbar-width: none; align-items: center; height: 100%; padding: 4px 6px 4px 16px; gap: 5px; scroll-snap-type: x mandatory; }
+.prev .stage.layout-h-scroll .h-scroll-rail { display: flex; overflow-x: auto; scrollbar-width: none; align-items: center; height: 100%; padding: 4px 10px 4px 20px; gap: 6px; scroll-snap-type: x mandatory; scroll-padding-left: 20px; }
 .prev .stage.layout-h-scroll .h-scroll-rail::-webkit-scrollbar { display: none; }
 .prev .stage.layout-h-scroll .h-scroll-rail .card { flex: 0 0 17%; height: 88%; scroll-snap-align: start; }
+/* first card keeps clear of the left edge even when scrolled to start */
+.prev .stage.layout-h-scroll .h-scroll-rail .card:first-child { margin-left: 4px; }
+/* Pill = horizontal capsule (clearly different from a circle). */
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-pill {
+  flex-basis: 26%; height: 60%; border-radius: 999px; clip-path: none;
+}
+/* Circle / Hexagon = true square-cell shapes with an overlay label bubble. */
 .prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle,
 .prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon {
-  border-radius: 5px;
-  clip-path: none;
+  flex: 0 0 auto; width: auto; aspect-ratio: 1; height: 84%; position: relative;
 }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle { border-radius: 50%; clip-path: none; }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon { border-radius: 0; clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle .img,
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon .img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle .meta,
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon .meta {
+  position: absolute; left: 8%; right: 8%; bottom: 9%; z-index: 1; text-align: center;
+  background: rgba(0,0,0,.5); border-radius: 999px; padding: 0 2px;
+}
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle .name,
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon .name { color: #fff; }
 .prev .stage.layout-h-scroll .h-scroll-rail .card.shape-pill.content-image-text.pos-below {
-  border-radius: 5px;
+  border-radius: 999px;
 }
 .prev .stage.layout-h-scroll .h-scroll-rail .card.content-image-text.pos-below .img { min-height: 0; }
 .prev .stage.layout-h-scroll .h-scroll-rail .card.content-image-text.pos-below .meta { width: 100%; min-width: 0; }
@@ -618,12 +632,37 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
   text-overflow: ellipsis;
 }
 
-/* ===== Card size variants ===== */
-.prev .stage.card-size-small .card { transform: scale(.82); transform-origin: center; }
-.prev .stage.card-size-large  .card { transform: scale(1.08); transform-origin: center; }
+/* ===== Card size variants =====
+   Sizes are geometry-based to GUARANTEE no overflow/overlap. Layouts that have
+   explicit per-size dimensions (grids/columns/h-scroll) override the transform.
+   Other layouts shrink for xs/small and stay at the (already-fitting) normal
+   size for large — Large never scales geometry up beyond the frame. */
+.prev .stage.card-size-xs    .card { transform: scale(.72); transform-origin: center; }
+.prev .stage.card-size-small .card { transform: scale(.86); transform-origin: center; }
+.prev .stage.card-size-large .card { transform: none; }
+
+/* grid 3×2 — space-between means widths<100% just widen the gaps (never overflow) */
+.prev .stage.layout-grid-2x3.card-size-xs    .card { width: 28%; height: 40%; transform: none; }
+.prev .stage.layout-grid-2x3.card-size-small .card { width: 30%; height: 44%; transform: none; }
+.prev .stage.layout-grid-2x3.card-size-large .card { width: 33%; height: 49%; transform: none; }
+/* grid 2×2 */
+.prev .stage.layout-grid-2x2.card-size-xs    .card { width: 42%; height: 42%; transform: none; }
+.prev .stage.layout-grid-2x2.card-size-small .card { width: 45%; height: 45%; transform: none; }
+.prev .stage.layout-grid-2x2.card-size-large .card { width: 49.5%; height: 49.5%; transform: none; }
+/* 4 columns */
+.prev .stage.layout-col-4.card-size-xs    .card { width: 19%; height: 78%; transform: none; }
+.prev .stage.layout-col-4.card-size-small .card { width: 21.5%; height: 88%; transform: none; }
+.prev .stage.layout-col-4.card-size-large .card { width: 24%; height: 100%; transform: none; }
+/* shape grids (circle/hex centered squares) — shrink only; large stays normal */
+.prev .stage.shape.card-size-large .card { transform: none; }
 /* h-scroll specific */
-.prev .stage.layout-h-scroll.card-size-small .h-scroll-rail .card { flex-basis: 13%; height: 75%; }
-.prev .stage.layout-h-scroll.card-size-large  .h-scroll-rail .card { flex-basis: 22%; height: 100%; }
+.prev .stage.layout-h-scroll.card-size-xs    .h-scroll-rail .card { flex-basis: 12%; height: 70%; transform: none; }
+.prev .stage.layout-h-scroll.card-size-small .h-scroll-rail .card { flex-basis: 14%; height: 80%; transform: none; }
+.prev .stage.layout-h-scroll.card-size-large .h-scroll-rail .card { flex-basis: 22%; height: 96%; transform: none; }
+/* keep the capsule/round overrides winning for pill/circle/hex at every size */
+.prev .stage.layout-h-scroll[class*="card-size-"] .h-scroll-rail .card.shape-pill { flex-basis: 26%; height: 60%; }
+.prev .stage.layout-h-scroll[class*="card-size-"] .h-scroll-rail .card.shape-circle,
+.prev .stage.layout-h-scroll[class*="card-size-"] .h-scroll-rail .card.shape-hexagon { flex-basis: auto; width: auto; }
 
 /* ===== Styled mock-nav (colored buttons + position classes) ===== */
 .prev .mock-nav {
