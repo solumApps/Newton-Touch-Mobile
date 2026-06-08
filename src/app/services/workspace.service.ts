@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 import { CapacitorHttp, Capacitor } from '@capacitor/core';
+import { Subject } from 'rxjs';
 import type { ApiCreds } from './category-api.service';
 
 /** Browser dev: route SOLUM calls through the Angular dev-proxy to dodge CORS.
@@ -68,6 +69,7 @@ const DEFAULT: Workspace = {
 @Injectable({ providedIn: 'root' })
 export class WorkspaceService {
   private ws: Workspace | null = null;
+  public changed = new Subject<Workspace>();
 
   async get(): Promise<Workspace> {
     if (!this.ws) {
@@ -81,6 +83,7 @@ export class WorkspaceService {
     const ws = await this.get();
     this.ws = { ...ws, ...patch };
     await Preferences.set({ key: KEY, value: JSON.stringify(this.ws) });
+    this.changed.next(this.ws);
   }
 
   /** Set environment by name → also sets the matching base server URL. */
