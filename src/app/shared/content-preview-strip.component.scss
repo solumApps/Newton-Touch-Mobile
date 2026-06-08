@@ -193,7 +193,7 @@
 }
 .prev .stage.shape.layout-grid-2x2 .card { width: auto !important; height: 88% !important; aspect-ratio: 1; margin: 0; }
 .prev .stage.shape.layout-col-4 {
-  display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; justify-items: center;
+  display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr; align-items: center; justify-items: center;
 }
 .prev .stage.shape.layout-col-4 .card { width: auto !important; height: 76% !important; aspect-ratio: 1; margin: 0; }
 .prev .stage.shape.layout-hero-list {
@@ -242,8 +242,39 @@
 .prev .stage .card.shape-pill .name { font-size: calc(var(--prev-scale, 1) * 5.5px); }
 .prev .stage .card.shape-pill.content-image-text.pos-overlay-bottom .name,
 .prev .stage .card.shape-pill.content-image-text.pos-overlay-top .name { font-size: calc(var(--prev-scale, 1) * 5px); }
+.prev .stage.shape .card.content-image-text.pos-below {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: stretch;
+  justify-items: stretch;
+  clip-path: none;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+}
+.prev .stage.shape .card.content-image-text.pos-below .img {
+  position: static;
+  align-self: center;
+  justify-self: center;
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 1;
+  min-height: 0;
+}
+.prev .stage.shape .card.shape-circle.content-image-text.pos-below .img { border-radius: 50%; }
+.prev .stage.shape .card.shape-hexagon.content-image-text.pos-below .img { clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
+.prev .stage.shape .card.content-image-text.pos-below .meta {
+  position: static;
+  width: 100%;
+  min-width: 0;
+  padding: 2px 1px 0;
+  color: var(--prev-text, #fff);
+  background: transparent;
+}
 .prev .stage.shape.layout-list .card.content-image-text.pos-below {
-  flex-direction: row; border-radius: 999px;
+  display: flex; flex-direction: row; border-radius: 999px; overflow: hidden;
 }
 .prev .stage.shape.layout-list .card.shape-hexagon.content-image-text.pos-below { border-radius: 5px; }
 .prev .stage.shape.layout-list .card.content-image-text.pos-below .img { display: none !important; }
@@ -376,6 +407,22 @@
 .prev .stage.layout-h-scroll .h-scroll-rail { display: flex; overflow-x: auto; scrollbar-width: none; align-items: center; height: 100%; padding: 4px 6px 4px 16px; gap: 5px; }
 .prev .stage.layout-h-scroll .h-scroll-rail::-webkit-scrollbar { display: none; }
 .prev .stage.layout-h-scroll .h-scroll-rail .card { flex: 0 0 17%; height: 88%; }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle,
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon {
+  border-radius: 5px;
+  clip-path: none;
+}
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-pill.content-image-text.pos-below {
+  border-radius: 5px;
+}
+.prev .stage.layout-h-scroll .h-scroll-rail .card.content-image-text.pos-below .img { min-height: 0; }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.content-image-text.pos-below .meta { width: 100%; min-width: 0; }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.content-image-text.pos-below .name {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* ===== Card size variants ===== */
 .prev .stage.card-size-small .card { transform: scale(.82); transform-origin: center; }
