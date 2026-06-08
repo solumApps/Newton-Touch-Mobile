@@ -1,7 +1,9 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start" *ngIf="returnTo">
-      <ion-button (click)="back()">‹</ion-button>
+      <ion-button (click)="back()" class="back-btn" aria-label="Go back">
+        <ion-icon name="chevron-back" slot="icon-only"></ion-icon>
+      </ion-button>
     </ion-buttons>
     <div class="hd"><app-brand variant="light"></app-brand></div>
   </ion-toolbar>

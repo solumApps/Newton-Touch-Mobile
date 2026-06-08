@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonButton, IonButtons, IonHeader, IonToolbar, IonContent, IonFooter, IonSpinner } from '@ionic/angular/standalone';
+import { IonButton, IonButtons, IonHeader, IonToolbar, IonContent, IonFooter, IonSpinner, IonIcon } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { chevronBack } from 'ionicons/icons';
 import { WorkspaceService, Company, Store } from '../services/workspace.service';
 import { BrandComponent } from '../shared/brand.component';
 import { SelectFieldComponent, SelectOption } from '../shared/select-field.component';
@@ -13,7 +15,7 @@ import { SelectFieldComponent, SelectOption } from '../shared/select-field.compo
 @Component({
   selector: 'app-workspace',
   standalone: true,
-  imports: [CommonModule, IonButton, IonButtons, IonHeader, IonToolbar, IonContent, IonFooter, IonSpinner, BrandComponent, SelectFieldComponent],
+  imports: [CommonModule, IonButton, IonButtons, IonHeader, IonToolbar, IonContent, IonFooter, IonSpinner, IonIcon, BrandComponent, SelectFieldComponent],
   templateUrl: './workspace.component.html',
   styleUrls: ['./workspace.component.scss'],
 })
@@ -31,6 +33,7 @@ export class WorkspaceComponent implements OnInit {
 
   constructor(private ws: WorkspaceService, private router: Router, private route: ActivatedRoute) {
     this.returnTo = this.route.snapshot.queryParamMap.get('returnTo') || '';
+    addIcons({ chevronBack });
   }
 
   get companyOpts(): SelectOption[] { return this.companies.map((c) => ({ value: c.id, label: c.name, sub: c.id })); }
