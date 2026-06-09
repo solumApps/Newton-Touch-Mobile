@@ -271,7 +271,7 @@
           </ng-container>
 
           <ng-container *ngIf="isCustomHeader">
-            <p class="hint">Position each header element independently — or hide it.</p>
+            <p class="hint">Position each element independently, or hide it. Tip: put two elements on the same side (e.g. both Center) to stack them top/below.</p>
             <div class="step-title sm">Logo position</div>
             <div class="seg">
               <button class="tile" *ngFor="let p of headerItemPositions" [class.sel]="(t.logoPos||'left')===p.id" (click)="t.logoPos=p.id">{{ p.label }}</button>
