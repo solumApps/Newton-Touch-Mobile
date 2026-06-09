@@ -1,15 +1,36 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { IonApp, IonIcon, IonModal, IonRouterOutlet } from '@ionic/angular/standalone';
+import { App as CapacitorApp, BackButtonListenerEvent } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
+import { addIcons } from 'ionicons';
+import { warningOutline } from 'ionicons/icons';
 import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [IonApp, IonRouterOutlet],
-  template: '<ion-app><ion-router-outlet (ionRouteDidChange)="applyStatusBarColor()"></ion-router-outlet></ion-app>',
+  imports: [IonApp, IonIcon, IonModal, IonRouterOutlet],
+  template: `
+    <ion-app>
+      <ion-router-outlet (ionRouteDidChange)="applyStatusBarColor()"></ion-router-outlet>
+
+      <ion-modal [isOpen]="showExitAlert" (didDismiss)="modalDismissed()" class="nt-confirm-modal">
+        <ng-template>
+          <div class="nt-confirm">
+            <div class="nt-confirm-ic warn"><ion-icon name="warning-outline" aria-hidden="true"></ion-icon></div>
+            <h2>Exit App?</h2>
+            <p>Are you sure you want to exit the app?</p>
+            <div class="nt-confirm-actions">
+              <button class="btn-cancel" (click)="showExitAlert = false">Cancel</button>
+              <button class="btn-yes" (click)="exitApp()">Exit</button>
+            </div>
+          </div>
+        </ng-template>
+      </ion-modal>
+    </ion-app>
+  `,
 })
 export class AppComponent implements AfterViewInit {
   private readonly authStatusBarColor = '#F8FAFC';
@@ -19,11 +40,16 @@ export class AppComponent implements AfterViewInit {
   private lastStatusBarStyle: Style | null = null;
   private prepareStatusBarPromise: Promise<void> | null = null;
   private statusBarReady = false;
+  showExitAlert = false;
 
   constructor(private router: Router) {
+    addIcons({ warningOutline });
+
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(() => this.applyStatusBarColor());
+
+    this.registerHardwareBackButton();
   }
 
   ngAfterViewInit(): void {
@@ -45,6 +71,44 @@ export class AppComponent implements AfterViewInit {
     });
 
     await this.prepareStatusBarPromise;
+  }
+
+  private registerHardwareBackButton(): void {
+    if (!Capacitor.isNativePlatform()) return;
+
+    CapacitorApp.addListener('backButton', (event) => void this.handleHardwareBackButton(event));
+  }
+
+  private async handleHardwareBackButton(event: BackButtonListenerEvent): Promise<void> {
+    if (this.isThemesPage()) {
+      await this.confirmExitApp();
+      return;
+    }
+
+    if (event.canGoBack) {
+      window.history.back();
+      return;
+    }
+
+    await this.confirmExitApp();
+  }
+
+  private confirmExitApp(): void {
+    if (this.showExitAlert) return;
+
+    this.showExitAlert = true;
+  }
+
+  modalDismissed(): void {
+    this.showExitAlert = false;
+  }
+
+  exitApp(): void {
+    CapacitorApp.exitApp();
+  }
+
+  private isThemesPage(): boolean {
+    return this.router.url.split('?')[0] === '/tabs/themes';
   }
 
   private scheduleStatusBarUpdate(delay: number): void {
