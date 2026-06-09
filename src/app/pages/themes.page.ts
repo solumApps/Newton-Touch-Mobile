@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IonContent, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonModal } from '@ionic/angular/standalone';
@@ -8,6 +8,7 @@ import { ThemeService, SavedTheme } from '../services/theme.service';
 import { WorkspaceService } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
 import { NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderComponent } from '../shared/ui';
+import { Subscription } from 'rxjs';
 
 type Sort = 'Name' | 'Recent';
 
@@ -18,7 +19,7 @@ type Sort = 'Name' | 'Recent';
   templateUrl: './themes.page.html',
   styleUrls: ['./themes.page.scss'],
 })
-export class ThemesPage implements OnInit {
+export class ThemesPage implements OnInit, OnDestroy {
   q = '';
   filter = 'All';
   filters = ['All', 'Grid', 'Hero', 'List', 'Dark', 'Light'];
@@ -33,20 +34,42 @@ export class ThemesPage implements OnInit {
   confirmOpen = false;
   confirmTheme: SavedTheme | null = null;
   featuredIndex = 0;
+  private wsSub?: Subscription;
 
-  constructor(private themes: ThemeService, private ws: WorkspaceService, private router: Router) {
+  constructor(
+    private themes: ThemeService,
+    private ws: WorkspaceService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {
     addIcons({ searchOutline, swapVerticalOutline, chevronForward, cloudUploadOutline, trashOutline, colorPaletteOutline });
   }
 
   async ngOnInit(): Promise<void> {
+    this.wsSub = this.ws.changed.subscribe(w => {
+      this.company = w.companyName || '';
+      this.store = w.storeName || '';
+      this.cdr.detectChanges();
+    });
     this.predefined = ThemeService.predefined();
     this.mine = await this.themes.list();
     this.loading = false;
+    await this.loadWorkspace();
+  }
+  
+  ngOnDestroy(): void {
+    this.wsSub?.unsubscribe();
+  }
+  async ionViewWillEnter(): Promise<void> {
+    this.mine = await this.themes.list();
+    await this.loadWorkspace();
+  }
+  private async loadWorkspace(): Promise<void> {
     const w = await this.ws.get();
     this.company = w.companyName || '';
     this.store = w.storeName || '';
+    this.cdr.detectChanges();
   }
-  async ionViewWillEnter(): Promise<void> { this.mine = await this.themes.list(); }
 
   cycleSort(): void { this.sort = this.sort === 'Name' ? 'Recent' : 'Name'; }
 

@@ -41,11 +41,21 @@ export class WorkspaceComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     try {
+      const currentWs = await this.ws.get();
       const { companies, stores } = await this.ws.login();
       this.companies = companies;
-      this.stores = stores;
-      this.companyId = companies[0]?.id ?? '';
-      this.storeId = stores[0]?.id ?? '';
+
+      const hasSavedCompany = !!(currentWs.companyId && companies.some((c) => c.id === currentWs.companyId));
+      if (hasSavedCompany) {
+        this.companyId = currentWs.companyId;
+        this.stores = companies[0]?.id === this.companyId ? stores : await this.ws.fetchStores(this.companyId);
+        const hasSavedStore = !!(currentWs.storeId && this.stores.some((s) => s.id === currentWs.storeId));
+        this.storeId = hasSavedStore ? currentWs.storeId : (this.stores[0]?.id ?? '');
+      } else {
+        this.companyId = companies[0]?.id ?? '';
+        this.stores = this.companyId ? stores : [];
+        this.storeId = this.stores[0]?.id ?? '';
+      }
     } catch (e: any) {
       this.error = e?.message || 'Failed to load workspace';
     } finally {

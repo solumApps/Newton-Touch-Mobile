@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { TransferService } from '../services/transfer.service';
 import { WorkspaceService } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
 import { NtButtonComponent, NtBadgeComponent, NtEmptyComponent } from '../shared/ui';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-devices',
@@ -18,7 +19,7 @@ import { NtButtonComponent, NtBadgeComponent, NtEmptyComponent } from '../shared
   templateUrl: './devices.page.html',
   styleUrls: ['./devices.page.scss'],
 })
-export class DevicesPage implements OnInit {
+export class DevicesPage implements OnInit, OnDestroy {
   q = '';
   devices: SavedDevice[] = [];
   scanning = false;
@@ -34,8 +35,15 @@ export class DevicesPage implements OnInit {
   addModalOpen = false;
   confirmOpen = false;
   confirmDev: SavedDevice | null = null;
+  private wsSub?: Subscription;
 
-  constructor(private deviceSvc: DeviceService, private transfer: TransferService, private ws: WorkspaceService, private router: Router) {
+  constructor(
+    private deviceSvc: DeviceService,
+    private transfer: TransferService,
+    private ws: WorkspaceService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {
     addIcons({ searchOutline, addOutline, scanOutline, closeCircleOutline, trashOutline, tvOutline, sendOutline });
   }
 
@@ -51,13 +59,29 @@ export class DevicesPage implements OnInit {
   push(): void { this.router.navigateByUrl('/tabs/content'); }
 
   async ngOnInit(): Promise<void> {
+    this.wsSub = this.ws.changed.subscribe(w => {
+      this.company = w.companyName || '';
+      this.store = w.storeName || '';
+      this.cdr.detectChanges();
+    });
     this.devices = await this.deviceSvc.list();
     this.loading = false;
+    await this.loadWorkspace();
+  }
+
+  ngOnDestroy(): void {
+    this.wsSub?.unsubscribe();
+  }
+  async ionViewWillEnter(): Promise<void> {
+    this.devices = await this.deviceSvc.list();
+    await this.loadWorkspace();
+  }
+  private async loadWorkspace(): Promise<void> {
     const w = await this.ws.get();
     this.company = w.companyName || '';
     this.store = w.storeName || '';
+    this.cdr.detectChanges();
   }
-  async ionViewWillEnter(): Promise<void> { this.devices = await this.deviceSvc.list(); }
 
   filtered(): SavedDevice[] {
     const q = this.q.toLowerCase();

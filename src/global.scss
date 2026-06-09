@@ -7,6 +7,7 @@
 
 /* ===== SOLUM design tokens (from wireframes) ===== */
 :root {
+  color-scheme: light;
   --ion-color-primary: #2F006D;       /* SOLUM purple */
   --ion-color-primary-rgb: 47, 0, 109;
   --ion-color-primary-contrast: #ffffff;
@@ -197,6 +198,72 @@ ion-modal.nt-confirm-modal {
 ion-modal.nt-confirm-modal::part(content) {
   border-radius: var(--nt-r-lg);
   overflow: hidden;
+}
+
+.nt-confirm {
+  background: #fff;
+  padding: 24px 22px 22px;
+  text-align: center;
+}
+.nt-confirm-ic {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--nt-danger-tint);
+  color: var(--nt-danger);
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nt-confirm-ic.warn {
+  background: var(--nt-warn-tint);
+  color: #B45309;
+}
+.nt-confirm-ic ion-icon {
+  font-size: 26px;
+}
+.nt-confirm h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--nt-text);
+}
+.nt-confirm p {
+  margin: 0 0 18px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--nt-text-2);
+}
+.nt-confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.nt-confirm-actions button {
+  min-height: 44px;
+  border-radius: var(--nt-r-full);
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.nt-confirm-actions .btn-cancel {
+  background: #fff;
+  color: var(--nt-purple);
+  border: 2px solid var(--nt-purple);
+}
+.nt-confirm-actions .btn-cancel:hover {
+  background: var(--nt-tint);
+}
+.nt-confirm-actions .btn-yes {
+  background: var(--nt-danger);
+  color: #fff;
+}
+.nt-confirm-actions .btn-yes:hover {
+  background: #B91C1C;
 }
 
 /* Sheet modal — shared style */

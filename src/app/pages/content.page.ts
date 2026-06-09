@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonContent, IonFooter, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonModal } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -8,6 +8,7 @@ import { ContentService, ContentDraft } from '../services/content.service';
 import { WorkspaceService } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
 import { NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderComponent } from '../shared/ui';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-content',
@@ -16,7 +17,7 @@ import { NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderC
   templateUrl: './content.page.html',
   styleUrls: ['./content.page.scss'],
 })
-export class ContentPage implements OnInit {
+export class ContentPage implements OnInit, OnDestroy {
   q = '';
   drafts: ContentDraft[] = [];
   company = '';
@@ -25,20 +26,44 @@ export class ContentPage implements OnInit {
   skel = [1, 2, 3];
   confirmOpen = false;
   confirmDraft: ContentDraft | null = null;
+  private wsSub?: Subscription;
 
-  constructor(private content: ContentService, private ws: WorkspaceService, private router: Router) {
+  constructor(
+    private content: ContentService,
+    private ws: WorkspaceService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {
     addIcons({ searchOutline, chevronForward, trashOutline, documentsOutline });
   }
 
   async ngOnInit(): Promise<void> {
+    this.wsSub = this.ws.changed.subscribe(w => {
+      this.company = w.companyName || '';
+      this.store = w.storeName || '';
+      this.cdr.detectChanges();
+    });
     this.drafts = await this.content.list();
     this.loading = false;
+    await this.loadWorkspace();
+  }
+
+  ngOnDestroy(): void {
+    this.wsSub?.unsubscribe();
+  }
+
+  async ionViewWillEnter(): Promise<void> {
+    this.drafts = await this.content.list();
+    this.loading = false;
+    await this.loadWorkspace();
+  }
+
+  private async loadWorkspace(): Promise<void> {
     const w = await this.ws.get();
     this.company = w.companyName || '';
     this.store = w.storeName || '';
+    this.cdr.detectChanges();
   }
-
-  ionViewWillEnter(): void { this.content.list().then((d) => { this.drafts = d; this.loading = false; }); }
 
   filtered(): ContentDraft[] {
     const q = this.q.toLowerCase();

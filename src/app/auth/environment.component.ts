@@ -85,7 +85,14 @@ export class EnvironmentComponent {
     if (this.privateServerPage) {
       this.customTouched = true;
       if (!isValidServerUrl(this.customUrl)) return;
-      await this.ws.set({ environment: this.environmentForUrl(this.customUrl), serverUrl: normalizeServerUrl(this.customUrl) });
+      await this.ws.set({
+        environment: this.environmentForUrl(this.customUrl),
+        serverUrl: normalizeServerUrl(this.customUrl),
+        companyId: '',
+        companyName: '',
+        storeId: '',
+        storeName: '',
+      });
     } else {
       await this.ws.setEnvironment(this.selected);
     }
