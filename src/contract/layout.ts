@@ -9,7 +9,7 @@ export type LogoPosition = 'left' | 'center' | 'right';
 
 /** Arrangement only — the SHAPE/look of each card is set by CardStyle. */
 export type HomeLayout =
-  | 'grid-2x3' | 'grid-2x2' | 'col-4' | 'hero-list' | 'list' | 'fullscreen'
+  | 'grid-2x3' | 'grid-2x2' | 'col-2' | 'col-3' | 'col-4' | 'hero-list' | 'list' | 'fullscreen'
   /** image-strip: full-height image category strips, used by catalog/beauty entry pages. */
   | 'image-strip'
   /** hero-start: landing screen with one hero image/background and a start action. */
@@ -131,6 +131,10 @@ export interface ThemeTokens {
   homeLayout: HomeLayout;
   /** Card size: affects the physical dimensions of category cards on the home page. */
   cardSize?: CardSize;
+  /** Horizontal alignment of cards within their row (for layouts that don't fill the row). */
+  cardAlign?: 'left' | 'center' | 'right';
+  /** Spacing between cards. Overflowing content scrolls (rails horizontally, grids vertically). */
+  cardGap?: 'tight' | 'normal' | 'loose';
   /** @deprecated legacy single-axis style; superseded by cardShape/cardContent/cardTextPos. */
   cardStyle?: CardStyle;
   cardShape: CardShape;
@@ -147,7 +151,7 @@ export interface ThemeTokens {
   includeIntermediate: boolean;
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
-  intermediate: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; showHeader: boolean; transparentHeader?: boolean; };
+  intermediate: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; gap?: 'tight' | 'normal' | 'loose'; };
   result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; transparentHeader?: boolean; };
   animation: { transition: TransitionType; speed: AnimSpeed; applyToAll: boolean; };
   loader: { style: LoaderStyle; color: string; };

@@ -192,9 +192,17 @@
 .prev .stage.layout-grid-2x2 .card { width: 48.5%; height: 48%; }
 .prev .stage.layout-grid-2x2 .card:nth-child(n+5) { display: none; }
 
-.prev .stage.layout-col-4 { display: flex; justify-content: space-between; }
+.prev .stage.layout-col-4 { display: flex; justify-content: center; align-items: center; }
 .prev .stage.layout-col-4 .card { width: 23.5%; height: 100%; }
 .prev .stage.layout-col-4 .card:nth-child(n+5) { display: none; }
+
+.prev .stage.layout-col-3 { display: flex; justify-content: center; align-items: center; }
+.prev .stage.layout-col-3 .card { width: 31%; height: 100%; }
+.prev .stage.layout-col-3 .card:nth-child(n+4) { display: none; }
+
+.prev .stage.layout-col-2 { display: flex; justify-content: center; align-items: center; }
+.prev .stage.layout-col-2 .card { width: 47.5%; height: 100%; }
+.prev .stage.layout-col-2 .card:nth-child(n+3) { display: none; }
 
 .prev .stage.layout-list { display: flex; flex-direction: column; justify-content: space-between; }
 .prev .stage.layout-list .card { width: 100%; height: 22%; flex-direction: row; align-items: center; }
@@ -248,7 +256,20 @@
 /* size variants change how many cards peek into view (no overflow — it scrolls) */
 .prev .stage.layout-promo-categories.card-size-xs    .promo-rail .card { flex-basis: 38%; transform: none; }
 .prev .stage.layout-promo-categories.card-size-small .promo-rail .card { flex-basis: 42%; transform: none; }
-.prev .stage.layout-promo-categories.card-size-large .promo-rail .card { flex-basis: 58%; transform: none; }
+.prev .stage.layout-promo-categories.card-size-large .promo-rail .card { flex-basis: 52%; transform: none; }
+/* Promo tiles always render as icon/image on top + label below (clean), regardless of
+   the chosen text position — overlay text on these big shapes looked broken. */
+.prev .stage.layout-promo-categories .promo-rail .card { flex-direction: column; clip-path: none; background: transparent; border: 0; }
+.prev .stage.layout-promo-categories .promo-rail .card .img {
+  position: static !important; inset: auto !important; flex: 0 0 auto;
+  width: 60%; height: 52%; margin: 0 auto 3px; border-radius: 50%; opacity: .92;
+}
+.prev .stage.layout-promo-categories .promo-rail .card.shape-hexagon .img { border-radius: 0; clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
+.prev .stage.layout-promo-categories .promo-rail .card .meta {
+  position: static !important; inset: auto !important; left: auto !important; right: auto !important;
+  bottom: auto !important; top: auto !important; width: 100%; background: transparent !important; padding: 0;
+}
+.prev .stage.layout-promo-categories .promo-rail .card .name { color: var(--prev-text, #fff); text-shadow: none; }
 
 .prev .stage.layout-circular { display: flex; align-items: center; justify-content: space-evenly; flex-wrap: wrap; align-content: center; }
 .prev .stage.layout-circular .card { position: relative; height: 78%; aspect-ratio: 1; width: auto; border-radius: 50%; align-items: center; justify-content: center; }
@@ -342,6 +363,10 @@
   display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr; align-items: center; justify-items: center;
 }
 .prev .stage.shape.layout-col-4 .card { width: auto !important; height: 76% !important; aspect-ratio: 1; margin: 0; }
+.prev .stage.shape.layout-col-3 { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr; align-items: center; justify-items: center; }
+.prev .stage.shape.layout-col-3 .card { width: auto !important; height: 80% !important; aspect-ratio: 1; margin: 0; }
+.prev .stage.shape.layout-col-2 { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: 1fr; align-items: center; justify-items: center; }
+.prev .stage.shape.layout-col-2 .card { width: auto !important; height: 86% !important; aspect-ratio: 1; margin: 0; }
 .prev .stage.shape.layout-hero-list {
   display: grid; grid-template-columns: 45% 1fr; grid-template-rows: repeat(3, 1fr);
   align-items: center; justify-items: center;
@@ -442,9 +467,10 @@
 /* active state only where the style inherently has one */
 .prev .stage.int.int-pill-tabs .item.open { background: var(--int-accent); color: #fff; }
 .prev .stage.int.int-accordion .item.open { border-left: 3px solid var(--int-accent); }
-.prev .stage.int.int-pill-tabs { flex-direction: row; align-items: flex-start; flex-wrap: wrap; align-content: flex-start; }
-.prev .stage.int.int-pill-tabs .item { flex: 0 0 auto; border-radius: 14px; padding: 2px 8px; height: 22%; }
+.prev .stage.int.int-pill-tabs { flex-direction: row; align-items: center; justify-content: center; flex-wrap: wrap; align-content: center; gap: 5px; }
+.prev .stage.int.int-pill-tabs .item { flex: 0 0 auto; border-radius: 999px; padding: 5px 14px; height: auto; margin: 0; }
 .prev .stage.int.int-pill-tabs .item .img { display: none; }
+.prev .stage.int.int-pill-tabs .item .name { font-size: calc(var(--prev-scale, 1) * 8px); }
 .prev .stage.int.int-card-strip { flex-direction: row; }
 .prev .stage.int.int-image-grid { flex-direction: row; flex-wrap: wrap; align-content: flex-start; }
 .prev .stage.int.int-image-grid .item { flex: 0 0 31%; height: 46%; flex-direction: column; }
@@ -790,6 +816,42 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 .saver .ss-c.ss-pos-bottom-right{ bottom: 8%; right: 8px; left: auto; top: auto; text-align: right; transform: none; width: 46%; }
 /* When no class is set (old default) keep the old rule as fallback */
 .saver .ss-c:not([class*="ss-pos-"]) { bottom: 16%; transform: none; }
+
+/* ===== Card gap + alignment (home) ===== */
+.prev .stage.gap-tight  { --card-gap: 2px; }
+.prev .stage.gap-normal { --card-gap: 5px; }
+.prev .stage.gap-loose  { --card-gap: 10px; }
+.prev .stage.layout-h-scroll .h-scroll-rail,
+.prev .stage.layout-promo-categories .promo-rail,
+.prev .stage.layout-col-4, .prev .stage.layout-col-3, .prev .stage.layout-col-2 { gap: var(--card-gap, 5px); }
+/* alignment — only where the row isn't already full */
+.prev .stage.align-left.layout-col-4,  .prev .stage.align-left.layout-col-3,  .prev .stage.align-left.layout-col-2  { justify-content: flex-start; }
+.prev .stage.align-center.layout-col-4,.prev .stage.align-center.layout-col-3,.prev .stage.align-center.layout-col-2 { justify-content: center; }
+.prev .stage.align-right.layout-col-4, .prev .stage.align-right.layout-col-3, .prev .stage.align-right.layout-col-2 { justify-content: flex-end; }
+.prev .stage.layout-h-scroll.align-left   .h-scroll-rail { justify-content: flex-start; }
+.prev .stage.layout-h-scroll.align-center .h-scroll-rail { justify-content: center; }
+.prev .stage.layout-h-scroll.align-right  .h-scroll-rail { justify-content: flex-end; }
+.prev .stage.layout-promo-categories.align-left   .promo-rail { justify-content: flex-start; }
+.prev .stage.layout-promo-categories.align-center .promo-rail { justify-content: center; }
+.prev .stage.layout-promo-categories.align-right  .promo-rail { justify-content: flex-end; }
+.prev .stage.shape.align-left   { justify-items: start; }
+.prev .stage.shape.align-center { justify-items: center; }
+.prev .stage.shape.align-right  { justify-items: end; }
+
+/* ===== Intermediate gap / alignment / card shape ===== */
+.prev .stage.int.int-gap-tight  { gap: 2px; }
+.prev .stage.int.int-gap-normal { gap: 4px; }
+.prev .stage.int.int-gap-loose  { gap: 9px; }
+.prev .stage.int.int-align-left   { justify-content: flex-start; }
+.prev .stage.int.int-align-center { justify-content: center; }
+.prev .stage.int.int-align-right  { justify-content: flex-end; }
+/* intermediate card shape — applies to the tile/grid styles' item image */
+.prev .stage.int.int-shape-rect    .item .img { border-radius: 4px; clip-path: none; }
+.prev .stage.int.int-shape-pill    .item .img { border-radius: 999px; clip-path: none; }
+.prev .stage.int.int-shape-circle  .item .img { border-radius: 50%; clip-path: none; }
+.prev .stage.int.int-shape-hexagon .item .img { border-radius: 0; clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
+.prev .stage.int.int-shape-pill.int-pill-tabs .item,
+.prev .stage.int.int-shape-circle.int-circular .item { border-radius: 999px; }
 
 /* ===== Inherited colors info banner ===== */
 .inherited-hint {

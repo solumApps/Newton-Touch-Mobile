@@ -2,51 +2,38 @@
 .lbl { font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
 .lbl .hint { font-weight: 400; text-transform: none; color: #94A3B8; }
 
-/* one clean row: big current-color tile + preset dots */
-.cp-bar { display: flex; align-items: center; gap: 12px; }
-
-/* Big tap-to-open current color */
-.cp-current {
-  position: relative; flex: 0 0 auto;
-  width: 56px; height: 40px; border-radius: 10px;
-  border: 1.5px solid #E2E8F0; box-shadow: 0 1px 2px rgba(15,23,42,.08);
-  cursor: pointer; overflow: hidden; display: flex; align-items: center; justify-content: center;
+/* Friendly swatch grid — big tappable targets, clear selected state */
+.cp-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.sw {
+  width: 40px; height: 40px; border-radius: 10px;
+  border: 1.5px solid #E2E8F0; padding: 0; cursor: pointer; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 2px rgba(15,23,42,.06); transition: transform .12s ease;
 }
-.cp-current input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
-.cp-current .cp-edit {
-  position: absolute; right: 3px; bottom: 2px; font-size: 11px; line-height: 1;
-  color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.55); pointer-events: none;
-}
-.cp-current.is-transparent { background: #fff; }
+.sw:hover { transform: scale(1.06); }
+.sw.sel { border-color: #2F006D; box-shadow: 0 0 0 3px rgba(47,0,109,.2); }
+.sw .tick { color: #fff; font-size: 15px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,.55); }
 
-/* preset dots wrap onto a second line if needed */
-.cp-presets { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.dot {
-  width: 26px; height: 26px; border-radius: 50%;
-  border: 1.5px solid #E2E8F0; padding: 0; cursor: pointer;
-  transition: transform .12s ease;
-}
-.dot:hover { transform: scale(1.12); }
-.dot.sel { border-color: #2F006D; box-shadow: 0 0 0 3px rgba(47,0,109,.18); }
+/* Custom = rainbow tile with a + that opens the OS colour wheel */
+.custom { background: conic-gradient(from 90deg, #ef4444, #f59e0b, #fde047, #22c55e, #06b6d4, #3b82f6, #a855f7, #ef4444); }
+.custom .plus { color: #fff; font-size: 22px; font-weight: 700; line-height: 1; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
+.custom input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
 
-/* compact, secondary hex field */
-.cp-hex {
-  display: inline-flex; align-items: center; gap: 2px; margin-top: 8px;
-  border: 1.5px solid #E2E8F0; border-radius: 8px; padding: 4px 10px;
-  font-family: monospace; font-size: 13px; color: #64748B;
-}
-.cp-hex .hash { color: #94A3B8; }
-.cp-hex input { border: 0; outline: 0; width: 74px; font-family: monospace; font-size: 13px; text-transform: uppercase; background: transparent; }
+/* Current selection readout */
+.cp-current { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.cp-current .chip { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid #E2E8F0; overflow: hidden; flex: 0 0 auto; }
+.cp-current .val { font-family: monospace; font-size: 13px; color: #64748B; text-transform: uppercase; }
 
-/* checkerboard for transparent (tile + dot) */
-.is-transparent .checker, .transparent-dot .checker {
-  display: block; width: 100%; height: 100%;
+/* checkerboard for transparent (swatch + chip) */
+.checker {
+  display: block; width: 100%; height: 100%; border-radius: inherit;
   background-image:
     linear-gradient(45deg, #ccc 25%, transparent 25%),
     linear-gradient(-45deg, #ccc 25%, transparent 25%),
     linear-gradient(45deg, transparent 75%, #ccc 75%),
     linear-gradient(-45deg, transparent 75%, #ccc 75%);
-  background-size: 8px 8px;
-  background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+  background-size: 10px 10px;
+  background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
 }
-.transparent-dot { position: relative; overflow: hidden; background: #fff; }
+.transparent-sw { background: #fff; overflow: hidden; }
+.chip.is-transparent { background: #fff; }
