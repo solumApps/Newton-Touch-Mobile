@@ -638,6 +638,7 @@
 .media-row .media-clear { flex: 0 0 86px; }
 
 .fld label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--nt-text-2); letter-spacing: .5px; margin-bottom: 6px; }
+.required { color: var(--nt-danger); margin-left: 2px; }
 .inp { width: 100%; border: 1.5px solid var(--nt-border); border-radius: var(--nt-r); padding: 13px 14px; font-size: 15px; font-family: inherit; outline: none; box-shadow: var(--nt-shadow-1); }
 .inp:focus { border-color: var(--nt-purple); box-shadow: 0 0 0 3px rgba(47,0,109,.1); }
 table.sum { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 14px; background: #fff; border: 1px solid var(--nt-border); border-radius: var(--nt-r); overflow: hidden; display: table; }
