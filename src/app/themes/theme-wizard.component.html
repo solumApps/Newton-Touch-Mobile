@@ -493,7 +493,7 @@
 
       <div *ngSwitchCase="'review'">
         <div class="step-title">Review &amp; save</div>
-        <div class="fld"><label>Theme name</label>
+        <div class="fld"><label>Theme name <span class="required">*</span></label>
           <input class="inp" [(ngModel)]="name" placeholder="e.g. Holiday Dark" /></div>
           <table class="sum">
             <tr><td>Home layout</td><td>{{ t.homeLayout }}</td></tr>
