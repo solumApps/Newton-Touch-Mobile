@@ -22,7 +22,7 @@ export type HomeLayout =
   | 'bento';
 
 export type CardSize = 'xs' | 'small' | 'normal' | 'large';
-export type NavButtonPosition = 'bottom-left' | 'bottom-center' | 'bottom-right' | 'side-left' | 'side-right';
+export type NavButtonPosition = 'bottom-left' | 'bottom-center' | 'bottom-right' | 'side-left' | 'side-right' | 'hidden';
 export type SaverOverlayPosition = 'center' | 'bottom' | 'top' | 'bottom-left' | 'bottom-right';
 
 export type TextScale = 'compact' | 'normal' | 'large';
@@ -85,7 +85,7 @@ export type ScreensaverMode = 'slideshow' | 'single-image' | 'video';
 export type EslBlinkBy = 'article' | 'label';
 
 /** Header composition. Selected in theme wizard; text fields filled in content-builder. */
-export type HeaderStyle = 'logo+title+caption' | 'logo-only' | 'title+caption' | 'title-only';
+export type HeaderStyle = 'logo+title+caption' | 'logo+title' | 'logo-only' | 'title+caption' | 'title-only';
 export type CardSurface = 'flat' | 'glass' | 'raised' | 'outlined' | 'glow';
 export type NavStyle = 'floating' | 'edge' | 'bottom-center' | 'hidden';
 
