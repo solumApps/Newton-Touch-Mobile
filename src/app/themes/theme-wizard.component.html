@@ -292,9 +292,11 @@
         <p class="hint">Physical size of each sub-category tile/row.</p>
         <div class="seg"><button class="tile" *ngFor="let o of sizes" [class.sel]="t.intermediate.itemSize===o" (click)="t.intermediate.itemSize=o">{{ o | titlecase }}</button></div>
 
-        <div class="step-title sm">Card shape</div>
-        <p class="hint">Shape of each sub-category tile (applies to grid / tile styles).</p>
-        <div class="tiles"><button class="tile" *ngFor="let s of cardShapes" [class.sel]="(t.intermediate.cardShape||'rect')===s.id" (click)="t.intermediate.cardShape=s.id">{{ s.label }}</button></div>
+        <ng-container *ngIf="intShapeMatters">
+          <div class="step-title sm">Card shape</div>
+          <p class="hint">Shape of each sub-category image (this layout shows images).</p>
+          <div class="tiles"><button class="tile" *ngFor="let s of cardShapes" [class.sel]="(t.intermediate.cardShape||'rect')===s.id" (click)="t.intermediate.cardShape=s.id">{{ s.label }}</button></div>
+        </ng-container>
 
         <div class="step-title sm">Card gap</div>
         <div class="seg"><button class="tile" *ngFor="let g of gaps" [class.sel]="(t.intermediate.gap||'normal')===g.id" (click)="t.intermediate.gap=g.id">{{ g.label }}</button></div>
