@@ -43,6 +43,13 @@
             <b>Featured</b>
             <span>Find the right product faster</span>
           </div>
+          <div class="promo-rail" *ngIf="t.homeLayout==='promo-categories'">
+            <div class="card shape-{{t.cardShape}} content-{{t.cardContent}} pos-{{t.cardTextPos}}" *ngFor="let n of slots; let i = index"
+                 [style.color]="t.cardText" [style.borderColor]="t.accent">
+              <div class="img placeholder" [style.background]="t.accent"></div>
+              <div class="meta"><span class="name">{{ labels[i] }}</span></div>
+            </div>
+          </div>
           <div class="h-scroll-rail" *ngIf="t.homeLayout==='h-scroll'">
             <div class="card shape-{{t.cardShape}} content-{{t.cardContent}} pos-{{t.cardTextPos}}" *ngFor="let n of slots; let i = index"
                  [style.color]="t.cardText" [style.borderColor]="t.accent">
@@ -50,7 +57,7 @@
               <div class="meta"><span class="name">{{ labels[i] }}</span></div>
             </div>
           </div>
-          <ng-container *ngIf="t.homeLayout!=='h-scroll'">
+          <ng-container *ngIf="t.homeLayout!=='h-scroll' && t.homeLayout!=='promo-categories'">
             <div class="card shape-{{t.cardShape}} content-{{t.cardContent}} pos-{{t.cardTextPos}}" *ngFor="let n of slots; let i = index"
                  [class.featured]="i===0"
                  [style.color]="t.cardText" [style.borderColor]="t.accent">
@@ -86,6 +93,14 @@
             <b>Best Match</b>
             <span>Find Me</span>
           </div>
+          <div class="hero-prod" *ngIf="t.resultTemplate==='hero-product'">
+            <div class="hp-benefits"><span></span><span></span></div>
+            <div class="hp-product">
+              <div class="hp-img" [style.background]="t.result.accent"></div>
+              <div class="hp-info"><b>Product</b><span class="price">$0.00</span><i class="find" [style.background]="t.result.accent">Find Me</i></div>
+            </div>
+            <div class="hp-headline">Awesome!<em [style.color]="t.result.accent">Loved your pick!</em></div>
+          </div>
           <div class="filters side" *ngIf="t.resultTemplate==='map-filter-list'">
             <span class="filter on" [style.background]="t.result.accent">All</span>
             <span class="filter">Care</span>
@@ -98,12 +113,22 @@
             </div>
           </div>
         </div>
-        <div class="mock-nav"
-             *ngIf="page !== 'home' && page !== 'saver' && (t.navStyle || 'floating') !== 'hidden'"
-             [ngClass]="'nav-pos-'+(t.nav?.position || 'bottom-left')">
-          <span class="mock-btn" [style.color]="t.nav?.backColor || '#fff'" [style.background]="t.nav?.backBg || 'rgba(0,0,0,.35)'">&#8249;</span>
-          <span class="mock-btn" [style.color]="t.nav?.homeColor || '#fff'" [style.background]="t.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</span>
-        </div>
+        <ng-container *ngIf="page !== 'home' && page !== 'saver' && (t.navStyle || 'floating') !== 'hidden'">
+          <!-- Grouped: both buttons together -->
+          <div class="mock-nav" *ngIf="!t.nav?.split" [ngClass]="'nav-pos-'+(t.nav?.position || 'bottom-left')">
+            <span class="mock-btn" [style.color]="t.nav?.backColor || '#fff'" [style.background]="t.nav?.backBg || 'rgba(0,0,0,.35)'">&#8249;</span>
+            <span class="mock-btn" [style.color]="t.nav?.homeColor || '#fff'" [style.background]="t.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</span>
+          </div>
+          <!-- Separate: Back and Home positioned independently -->
+          <ng-container *ngIf="t.nav?.split">
+            <div class="mock-nav" [ngClass]="'nav-pos-'+(t.nav?.backPosition || 'bottom-left')">
+              <span class="mock-btn" [style.color]="t.nav?.backColor || '#fff'" [style.background]="t.nav?.backBg || 'rgba(0,0,0,.35)'">&#8249;</span>
+            </div>
+            <div class="mock-nav" [ngClass]="'nav-pos-'+(t.nav?.homePosition || 'bottom-right')">
+              <span class="mock-btn" [style.color]="t.nav?.homeColor || '#fff'" [style.background]="t.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</span>
+            </div>
+          </ng-container>
+        </ng-container>
 
         <!-- SCREENSAVER -->
         <div *ngSwitchCase="'saver'" class="stage saver saver-{{saverMode}}">
@@ -166,7 +191,7 @@
         <div class="step-title sm">Card size</div>
         <p class="hint">Controls the physical size of each category card.</p>
         <div class="seg">
-          <button class="tile" *ngFor="let s of cardSizes" [class.sel]="(t.cardSize||'normal')===s" (click)="t.cardSize=s">{{ s | titlecase }}</button>
+          <button class="tile" *ngFor="let s of cardSizes" [class.sel]="(t.cardSize||'normal')===s" (click)="t.cardSize=s">{{ cardSizeLabels[s] }}</button>
         </div>
 
         <div class="step-title sm">Card shape</div>
@@ -215,10 +240,7 @@
           <button class="tile" [class.sel]="!t.includeIntermediate" (click)="t.includeIntermediate=false">Skip → Result</button>
         </div>
         <p class="hint">Skip if the app doesn't drill down — a Home tap goes straight to Result.</p>
-        <div class="step-title sm">Navigation buttons</div>
-        <div class="seg">
-          <button class="tile" *ngFor="let n of navStyles" [class.sel]="(t.navStyle||'floating')===n.id" (click)="t.navStyle=n.id">{{ n.label }}</button>
-        </div>
+        <p class="hint">Navigation (Back / Home) buttons are configured on the Intermediate and Result steps, where they actually appear.</p>
       </div>
 
       <div *ngSwitchCase="'colors'">
@@ -253,8 +275,24 @@
       </div>
 
       <div *ngSwitchCase="'intStyle'">
-        <div class="step-title">Intermediate style</div>
+        <div class="step-title">Intermediate design</div>
+        <div class="step-title sm">Layout style</div>
+        <p class="hint">How sub-categories are arranged on the drill-down screen.</p>
         <div class="tiles"><button class="tile" *ngFor="let o of intStyles" [class.sel]="t.intermediateStyle===o" (click)="t.intermediateStyle=o">{{ o }}</button></div>
+
+        <div class="step-title sm">Item size</div>
+        <p class="hint">Physical size of each sub-category tile/row.</p>
+        <div class="seg"><button class="tile" *ngFor="let o of sizes" [class.sel]="t.intermediate.itemSize===o" (click)="t.intermediate.itemSize=o">{{ o | titlecase }}</button></div>
+
+        <div class="step-title sm">Card surface</div>
+        <div class="seg"><button class="tile" *ngFor="let s of cardSurfaces" [class.sel]="(t.cardSurface||'flat')===s.id" (click)="t.cardSurface=s.id">{{ s.label }}</button></div>
+
+        <div class="step-title sm">Header bar</div>
+        <div class="seg">
+          <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
+          <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
+        </div>
+        <p class="hint">Colours, sub-item details and navigation buttons are set on the next step.</p>
       </div>
 
       <div *ngSwitchCase="'intColors'">
@@ -288,6 +326,9 @@
 
         <div class="step-title sm">Navigation buttons</div>
         <p class="hint">Style the Back and Home buttons shown on this page.</p>
+        <div class="seg">
+          <button class="tile" *ngFor="let n of navStyles" [class.sel]="(t.navStyle||'floating')===n.id" (click)="t.navStyle=n.id">{{ n.label }}</button>
+        </div>
         <div class="nav-btn-row">
           <div class="nav-btn-grp">
             <span class="nav-btn-lbl">&#8249; Back</span>
@@ -300,10 +341,27 @@
             <app-color-picker label="Background" [value]="t.nav?.homeBg || 'rgba(0,0,0,0.35)'" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
           </div>
         </div>
-        <div class="step-title sm">Button position</div>
+        <div class="step-title sm">Button layout</div>
         <div class="seg">
-          <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
+          <button class="tile" [class.sel]="!t.nav?.split" (click)="t.nav!.split=false">Grouped together</button>
+          <button class="tile" [class.sel]="t.nav?.split" (click)="t.nav!.split=true">Separate (independent)</button>
         </div>
+        <ng-container *ngIf="!t.nav?.split">
+          <div class="step-title sm">Button position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="t.nav?.split">
+          <div class="step-title sm">&#8249; Back position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.backPosition||'bottom-left')===p.id" (click)="t.nav!.backPosition=p.id">{{ p.label }}</button>
+          </div>
+          <div class="step-title sm">&#8962; Home position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.homePosition||'bottom-right')===p.id" (click)="t.nav!.homePosition=p.id">{{ p.label }}</button>
+          </div>
+        </ng-container>
       </div>
 
       <div *ngSwitchCase="'resTemplate'">
@@ -343,6 +401,9 @@
 
         <div class="step-title sm">Navigation buttons</div>
         <p class="hint">Style the Back and Home buttons shown on this page.</p>
+        <div class="seg">
+          <button class="tile" *ngFor="let n of navStyles" [class.sel]="(t.navStyle||'floating')===n.id" (click)="t.navStyle=n.id">{{ n.label }}</button>
+        </div>
         <div class="nav-btn-row">
           <div class="nav-btn-grp">
             <span class="nav-btn-lbl">&#8249; Back</span>
@@ -355,10 +416,27 @@
             <app-color-picker label="Background" [value]="t.nav?.homeBg || 'rgba(0,0,0,0.35)'" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
           </div>
         </div>
-        <div class="step-title sm">Button position</div>
+        <div class="step-title sm">Button layout</div>
         <div class="seg">
-          <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
+          <button class="tile" [class.sel]="!t.nav?.split" (click)="t.nav!.split=false">Grouped together</button>
+          <button class="tile" [class.sel]="t.nav?.split" (click)="t.nav!.split=true">Separate (independent)</button>
         </div>
+        <ng-container *ngIf="!t.nav?.split">
+          <div class="step-title sm">Button position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="t.nav?.split">
+          <div class="step-title sm">&#8249; Back position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.backPosition||'bottom-left')===p.id" (click)="t.nav!.backPosition=p.id">{{ p.label }}</button>
+          </div>
+          <div class="step-title sm">&#8962; Home position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.homePosition||'bottom-right')===p.id" (click)="t.nav!.homePosition=p.id">{{ p.label }}</button>
+          </div>
+        </ng-container>
       </div>
 
       <div *ngSwitchCase="'anim'">
