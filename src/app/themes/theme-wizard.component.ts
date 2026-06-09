@@ -234,9 +234,22 @@ export class ThemeWizardComponent implements OnInit {
   pageCaption(page: PreviewPage): string {
     return page === 'inter' ? 'Intermediate' : page === 'result' ? 'Result' : page === 'saver' ? 'Screensaver' : 'Home';
   }
-  get showLogo(): boolean { const h = this.t.headerStyle || 'logo-only'; return h === 'logo-only' || h === 'logo+title' || h === 'logo+title+caption'; }
-  get showHeaderTitle(): boolean { return (this.t.headerStyle || 'logo-only') !== 'logo-only'; }
-  get showHeaderCaption(): boolean { return this.t.headerStyle === 'title+caption' || this.t.headerStyle === 'logo+title+caption'; }
+  get isCustomHeader(): boolean { return (this.t.headerLayout || 'preset') === 'custom'; }
+  get showLogo(): boolean {
+    if (this.isCustomHeader) return (this.t.logoPos || 'left') !== 'hidden';
+    const h = this.t.headerStyle || 'logo-only'; return h === 'logo-only' || h === 'logo+title' || h === 'logo+title+caption';
+  }
+  get showHeaderTitle(): boolean {
+    if (this.isCustomHeader) return (this.t.titlePos || 'center') !== 'hidden';
+    return (this.t.headerStyle || 'logo-only') !== 'logo-only';
+  }
+  get showHeaderCaption(): boolean {
+    if (this.isCustomHeader) return (this.t.captionPos || 'center') !== 'hidden';
+    return this.t.headerStyle === 'title+caption' || this.t.headerStyle === 'logo+title+caption';
+  }
+  headerItemPositions: { id: 'left' | 'center' | 'right' | 'hidden'; label: string }[] = [
+    { id: 'left', label: 'Left' }, { id: 'center', label: 'Center' }, { id: 'right', label: 'Right' }, { id: 'hidden', label: 'Hidden' },
+  ];
 
   /** Pages shown in the Review slider (skip Intermediate when disabled). */
   get reviewPages(): PreviewPage[] {

@@ -32,14 +32,33 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--prev-overlay]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
            [ngSwitch]="page">
         <div class="hdr" *ngIf="headerVisible"
-             [ngClass]="['logo-'+(theme?.logoPosition||'left'), 'hdr-style-'+(theme?.headerStyle||'logo-only')]"
+             [ngClass]="isCustomHeader ? 'hdr-custom' : ['logo-'+(theme?.logoPosition||'left'), 'hdr-style-'+(theme?.headerStyle||'logo-only')]"
              [class.hdr-transparent]="isTransparentHeader"
              [style.background]="isTransparentHeader ? 'transparent' : headerColor">
-          <img *ngIf="showLogo" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-          <div class="brand-text" *ngIf="showTitle || showHeaderCaption">
-            <span class="nt" *ngIf="showTitle">{{ titleText }}</span>
-            <span class="cap-line" *ngIf="showHeaderCaption">{{ captionText }}</span>
-          </div>
+          <ng-container *ngIf="!isCustomHeader">
+            <img *ngIf="showLogo" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+            <div class="brand-text" *ngIf="showTitle || showHeaderCaption">
+              <span class="nt" *ngIf="showTitle">{{ titleText }}</span>
+              <span class="cap-line" *ngIf="showHeaderCaption">{{ captionText }}</span>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="isCustomHeader">
+            <div class="hzone left">
+              <img *ngIf="logoPos==='left'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt" *ngIf="titlePos==='left'">{{ titleText }}</span>
+              <span class="cap-line" *ngIf="captionPos==='left'">{{ captionText }}</span>
+            </div>
+            <div class="hzone center">
+              <img *ngIf="logoPos==='center'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt" *ngIf="titlePos==='center'">{{ titleText }}</span>
+              <span class="cap-line" *ngIf="captionPos==='center'">{{ captionText }}</span>
+            </div>
+            <div class="hzone right">
+              <img *ngIf="logoPos==='right'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt" *ngIf="titlePos==='right'">{{ titleText }}</span>
+              <span class="cap-line" *ngIf="captionPos==='right'">{{ captionText }}</span>
+            </div>
+          </ng-container>
         </div>
 
         <!-- HOME -->
@@ -258,9 +277,22 @@ export class ContentPreviewStripComponent {
   // Header style logic mirrors the LCD home component.
   get headerStyle(): string { return this.theme?.headerStyle || 'logo-only'; }
   get isTransparentHeader(): boolean { return this.headerStyle === 'transparent'; }
-  get showLogo(): boolean { return this.headerStyle === 'logo-only' || this.headerStyle === 'logo+title+caption'; }
-  get showTitle(): boolean { return this.headerStyle !== 'logo-only'; }
-  get showHeaderCaption(): boolean { return this.headerStyle === 'title+caption' || this.headerStyle === 'logo+title+caption'; }
+  get isCustomHeader(): boolean { return (this.theme?.headerLayout || 'preset') === 'custom'; }
+  get logoPos(): string { return this.theme?.logoPos || 'left'; }
+  get titlePos(): string { return this.theme?.titlePos || 'center'; }
+  get captionPos(): string { return this.theme?.captionPos || 'center'; }
+  get showLogo(): boolean {
+    if (this.isCustomHeader) return this.logoPos !== 'hidden';
+    return this.headerStyle === 'logo-only' || this.headerStyle === 'logo+title' || this.headerStyle === 'logo+title+caption';
+  }
+  get showTitle(): boolean {
+    if (this.isCustomHeader) return this.titlePos !== 'hidden';
+    return this.headerStyle !== 'logo-only';
+  }
+  get showHeaderCaption(): boolean {
+    if (this.isCustomHeader) return this.captionPos !== 'hidden';
+    return this.headerStyle === 'title+caption' || this.headerStyle === 'logo+title+caption';
+  }
   get titleText(): string { return this.header?.title || this.draftName || ''; }
   get captionText(): string { return this.header?.caption || ''; }
 }
