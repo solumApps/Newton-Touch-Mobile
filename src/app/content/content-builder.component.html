@@ -109,7 +109,8 @@
         <app-card-tree-editor *ngIf="d.themeTokens.includeIntermediate !== false"
           [card]="c" [depth]="1" [maxDepth]="maxDepth" [needsImage]="intermediateNeedsImage"></app-card-tree-editor>
       </div>
-      <p class="note" *ngIf="needsImage">This theme's cards show an image — tap 📷 to upload one per card.</p>
+      <p class="note" *ngIf="needsImage && !uploadIsIcon">This theme's cards show an image — tap 📷 to upload one per card.</p>
+      <p class="note" *ngIf="uploadIsIcon">This theme's cards show an icon + text — tap 📷 to upload an icon per card.</p>
       <p class="note" *ngIf="d.themeTokens.includeIntermediate !== false">
         Drill-down: add sub-items per card for a custom tree<span *ngIf="d.appMode==='category'"> (max 4 levels — matches API <b>category1–4</b> / <b>etc0–3</b>)</span>.
       </p>

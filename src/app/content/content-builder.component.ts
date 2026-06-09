@@ -97,10 +97,14 @@ export class ContentBuilderComponent implements OnInit {
     { value: 'label', label: 'Label ID' },
   ];
 
-  /** Card content that renders an image → image upload is required per item. */
+  /** Card content that renders an image/icon → per-item upload is required. */
   get needsImage(): boolean {
     const c = this.draft?.themeTokens.cardContent;
-    return c === 'image-text' || c === 'image-only';
+    return c === 'image-text' || c === 'image-only' || c === 'icon-text';
+  }
+  /** True when the per-item upload is an ICON (icon+text) rather than a full image. */
+  get uploadIsIcon(): boolean {
+    return this.draft?.themeTokens.cardContent === 'icon-text';
   }
 
   /** Intermediate styles that render an image per item — drives image upload UI. */
