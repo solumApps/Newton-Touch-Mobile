@@ -2,7 +2,7 @@
 .lbl { font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
 .lbl .hint { font-weight: 400; text-transform: none; color: #94A3B8; }
 
-/* Friendly swatch grid — big tappable targets, clear selected state */
+/* Friendly swatch grid */
 .cp-grid { display: flex; flex-wrap: wrap; gap: 10px; }
 .sw {
   width: 40px; height: 40px; border-radius: 10px;
@@ -14,10 +14,38 @@
 .sw.sel { border-color: #2F006D; box-shadow: 0 0 0 3px rgba(47,0,109,.2); }
 .sw .tick { color: #fff; font-size: 15px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,.55); }
 
-/* Custom = rainbow tile with a + that opens the OS colour wheel */
+/* Custom = rainbow tile with a +/× toggle */
 .custom { background: conic-gradient(from 90deg, #ef4444, #f59e0b, #fde047, #22c55e, #06b6d4, #3b82f6, #a855f7, #ef4444); }
 .custom .plus { color: #fff; font-size: 22px; font-weight: 700; line-height: 1; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
-.custom input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+
+/* In-app custom picker panel */
+.cp-custom {
+  margin-top: 12px; padding: 14px; border: 1.5px solid #E2E8F0; border-radius: 12px;
+  background: #fff; box-shadow: 0 6px 18px rgba(15,23,42,.08);
+}
+.cc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.cc-preview { width: 44px; height: 32px; border-radius: 8px; border: 1.5px solid #E2E8F0; flex: 0 0 auto; }
+.cc-hex { display: inline-flex; align-items: center; gap: 2px; font-family: monospace; font-size: 14px; color: #64748B; border: 1.5px solid #E2E8F0; border-radius: 8px; padding: 5px 10px; }
+.cc-hex input { border: 0; outline: 0; width: 78px; font-family: monospace; font-size: 14px; text-transform: uppercase; background: transparent; }
+
+.cc-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+.cc-row > span { flex: 0 0 78px; font-size: 12px; font-weight: 700; color: #64748B; }
+
+/* sliders — coloured tracks, big round thumb (easy to drag on mobile) */
+.cc-slider { -webkit-appearance: none; appearance: none; flex: 1; height: 14px; border-radius: 999px; outline: none; cursor: pointer; }
+.cc-slider.hue { background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); }
+.cc-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%;
+  background: #fff; border: 2px solid #2F006D; box-shadow: 0 1px 4px rgba(0,0,0,.3); cursor: pointer;
+}
+.cc-slider::-moz-range-thumb {
+  width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 2px solid #2F006D;
+  box-shadow: 0 1px 4px rgba(0,0,0,.3); cursor: pointer;
+}
+.cc-done {
+  margin-top: 12px; width: 100%; border: 0; border-radius: 10px; padding: 11px;
+  background: #2F006D; color: #fff; font-weight: 800; font-size: 14px; font-family: inherit; cursor: pointer;
+}
 
 /* Current selection readout */
 .cp-current { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
