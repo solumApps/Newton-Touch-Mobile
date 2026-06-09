@@ -32,18 +32,37 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--prev-overlay]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
            [ngSwitch]="page">
         <div class="hdr" *ngIf="headerVisible"
-             [ngClass]="['logo-'+(theme?.logoPosition||'left'), 'hdr-style-'+(theme?.headerStyle||'logo-only')]"
+             [ngClass]="isCustomHeader ? 'hdr-custom' : ['logo-'+(theme?.logoPosition||'left'), 'hdr-style-'+(theme?.headerStyle||'logo-only')]"
              [class.hdr-transparent]="isTransparentHeader"
              [style.background]="isTransparentHeader ? 'transparent' : headerColor">
-          <img *ngIf="showLogo" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-          <div class="brand-text" *ngIf="showTitle || showHeaderCaption">
-            <span class="nt" *ngIf="showTitle">{{ titleText }}</span>
-            <span class="cap-line" *ngIf="showHeaderCaption">{{ captionText }}</span>
-          </div>
+          <ng-container *ngIf="!isCustomHeader">
+            <img *ngIf="showLogo" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+            <div class="brand-text" *ngIf="showTitle || showHeaderCaption">
+              <span class="nt" *ngIf="showTitle">{{ titleText }}</span>
+              <span class="cap-line" *ngIf="showHeaderCaption">{{ captionText }}</span>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="isCustomHeader">
+            <div class="hzone left">
+              <img *ngIf="logoPos==='left'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt" *ngIf="titlePos==='left'">{{ titleText }}</span>
+              <span class="cap-line" *ngIf="captionPos==='left'">{{ captionText }}</span>
+            </div>
+            <div class="hzone center">
+              <img *ngIf="logoPos==='center'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt" *ngIf="titlePos==='center'">{{ titleText }}</span>
+              <span class="cap-line" *ngIf="captionPos==='center'">{{ captionText }}</span>
+            </div>
+            <div class="hzone right">
+              <img *ngIf="logoPos==='right'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt" *ngIf="titlePos==='right'">{{ titleText }}</span>
+              <span class="cap-line" *ngIf="captionPos==='right'">{{ captionText }}</span>
+            </div>
+          </ng-container>
         </div>
 
         <!-- HOME -->
-        <div *ngSwitchCase="'home'" class="stage layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}}" [class.shape]="shapeCard">
+        <div *ngSwitchCase="'home'" class="stage layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} gap-{{theme?.cardGap||'normal'}}" [class.shape]="shapeCard">
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
             <span>{{ titleText || 'Product Finder' }}</span>
             <b>Start Search</b>
@@ -95,7 +114,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         </div>
 
         <!-- INTERMEDIATE -->
-        <div *ngSwitchCase="'inter'" class="stage int int-{{theme?.intermediateStyle}}"
+        <div *ngSwitchCase="'inter'" class="stage int int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediate?.align||'center'}} int-gap-{{theme?.intermediate?.gap||'normal'}}"
              [style.--int-card]="theme?.intermediate?.cardBackground"
              [style.--int-accent]="theme?.intermediate?.accent"
              [style.--int-text]="theme?.intermediate?.cardText">
@@ -207,12 +226,12 @@ export class ContentPreviewStripComponent {
 
   get scaleNum(): number {
     const s = this.theme?.typography?.textScale;
-    return s === 'compact' ? 0.9 : s === 'large' ? 1.14 : 1;
+    return s === 'compact' ? 0.8 : s === 'large' ? 1.25 : 1;
   }
   get shapeCard(): boolean {
     const sh = this.theme?.cardShape;
     const layout = this.theme?.homeLayout;
-    return (sh === 'circle' || sh === 'hexagon') && !['image-strip', 'fullscreen', 'hero-start', 'promo-categories', 'h-scroll'].includes(layout || '');
+    return (sh === 'circle' || sh === 'hexagon') && !['image-strip', 'fullscreen', 'hero-start', 'promo-categories', 'h-scroll', 'bento'].includes(layout || '');
   }
   get navVisible(): boolean { return (this.theme?.navStyle || 'floating') !== 'hidden'; }
   get saverShowContent(): boolean { return this.theme?.saverOverlay?.showContent !== false; }
@@ -258,9 +277,22 @@ export class ContentPreviewStripComponent {
   // Header style logic mirrors the LCD home component.
   get headerStyle(): string { return this.theme?.headerStyle || 'logo-only'; }
   get isTransparentHeader(): boolean { return this.headerStyle === 'transparent'; }
-  get showLogo(): boolean { return this.headerStyle === 'logo-only' || this.headerStyle === 'logo+title+caption'; }
-  get showTitle(): boolean { return this.headerStyle !== 'logo-only'; }
-  get showHeaderCaption(): boolean { return this.headerStyle === 'title+caption' || this.headerStyle === 'logo+title+caption'; }
+  get isCustomHeader(): boolean { return (this.theme?.headerLayout || 'preset') === 'custom'; }
+  get logoPos(): string { return this.theme?.logoPos || 'left'; }
+  get titlePos(): string { return this.theme?.titlePos || 'center'; }
+  get captionPos(): string { return this.theme?.captionPos || 'center'; }
+  get showLogo(): boolean {
+    if (this.isCustomHeader) return this.logoPos !== 'hidden';
+    return this.headerStyle === 'logo-only' || this.headerStyle === 'logo+title' || this.headerStyle === 'logo+title+caption';
+  }
+  get showTitle(): boolean {
+    if (this.isCustomHeader) return this.titlePos !== 'hidden';
+    return this.headerStyle !== 'logo-only';
+  }
+  get showHeaderCaption(): boolean {
+    if (this.isCustomHeader) return this.captionPos !== 'hidden';
+    return this.headerStyle === 'title+caption' || this.headerStyle === 'logo+title+caption';
+  }
   get titleText(): string { return this.header?.title || this.draftName || ''; }
   get captionText(): string { return this.header?.caption || ''; }
 }

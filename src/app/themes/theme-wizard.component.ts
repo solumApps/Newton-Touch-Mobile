@@ -112,6 +112,10 @@ export class ThemeWizardComponent implements OnInit {
     'side-rail': 'Side rail', 'brand-grid': 'Brand grid', 'brand-rail': 'Brand rail', 'drill-stair': 'Drill stair',
   };
   intStyleLabel(s: IntermediateStyle): string { return this.intStyleLabels[s] || s; }
+  /** Card shape only affects intermediate styles that show a per-item image. */
+  get intShapeMatters(): boolean {
+    return ['image-grid', 'card-strip', 'side-rail', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle);
+  }
   resultTemplates: ResultTemplate[] = ['map-list', 'cards-map', 'dual-list', 'split-panel', 'list-only', 'map-full', 'card-grid', 'minimal', 'esl-focus', 'drill-stair', 'filter-list', 'map-filter-list', 'promo-list', 'catalog-grid', 'product-focus', 'hero-product'];
   transitions: TransitionType[] = ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'];
   speeds: AnimSpeed[] = ['slow', 'normal', 'fast'];
@@ -230,9 +234,22 @@ export class ThemeWizardComponent implements OnInit {
   pageCaption(page: PreviewPage): string {
     return page === 'inter' ? 'Intermediate' : page === 'result' ? 'Result' : page === 'saver' ? 'Screensaver' : 'Home';
   }
-  get showLogo(): boolean { const h = this.t.headerStyle || 'logo-only'; return h === 'logo-only' || h === 'logo+title' || h === 'logo+title+caption'; }
-  get showHeaderTitle(): boolean { return (this.t.headerStyle || 'logo-only') !== 'logo-only'; }
-  get showHeaderCaption(): boolean { return this.t.headerStyle === 'title+caption' || this.t.headerStyle === 'logo+title+caption'; }
+  get isCustomHeader(): boolean { return (this.t.headerLayout || 'preset') === 'custom'; }
+  get showLogo(): boolean {
+    if (this.isCustomHeader) return (this.t.logoPos || 'left') !== 'hidden';
+    const h = this.t.headerStyle || 'logo-only'; return h === 'logo-only' || h === 'logo+title' || h === 'logo+title+caption';
+  }
+  get showHeaderTitle(): boolean {
+    if (this.isCustomHeader) return (this.t.titlePos || 'center') !== 'hidden';
+    return (this.t.headerStyle || 'logo-only') !== 'logo-only';
+  }
+  get showHeaderCaption(): boolean {
+    if (this.isCustomHeader) return (this.t.captionPos || 'center') !== 'hidden';
+    return this.t.headerStyle === 'title+caption' || this.t.headerStyle === 'logo+title+caption';
+  }
+  headerItemPositions: { id: 'left' | 'center' | 'right' | 'hidden'; label: string }[] = [
+    { id: 'left', label: 'Left' }, { id: 'center', label: 'Center' }, { id: 'right', label: 'Right' }, { id: 'hidden', label: 'Hidden' },
+  ];
 
   /** Pages shown in the Review slider (skip Intermediate when disabled). */
   get reviewPages(): PreviewPage[] {

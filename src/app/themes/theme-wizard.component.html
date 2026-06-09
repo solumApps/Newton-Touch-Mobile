@@ -27,10 +27,31 @@
            [style.background]="backgroundForPage(page)"
            [style.fontFamily]="t.typography.fontFamily" [style.--prev-scale]="scaleNum"
            [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [style.--prev-overlay]="t.overlayColor || 'rgba(0,0,0,0.6)'" [ngSwitch]="page">
-        <div class="hdr" *ngIf="headerVisibleFor(page)" [ngClass]="['logo-'+t.logoPosition, 'hdr-style-'+(t.headerStyle || 'logo-only')]" [style.background]="headerColorForPage(page)">
-          <img *ngIf="showLogo" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-          <span class="nt title" *ngIf="showHeaderTitle">Newton Touch</span>
-          <span class="nt caption" *ngIf="showHeaderCaption">{{ pageCaption(page) }}</span>
+        <div class="hdr" *ngIf="headerVisibleFor(page)"
+             [ngClass]="isCustomHeader ? 'hdr-custom' : ['logo-'+t.logoPosition, 'hdr-style-'+(t.headerStyle || 'logo-only')]"
+             [style.background]="headerColorForPage(page)">
+          <ng-container *ngIf="!isCustomHeader">
+            <img *ngIf="showLogo" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+            <span class="nt title" *ngIf="showHeaderTitle">Newton Touch</span>
+            <span class="nt caption" *ngIf="showHeaderCaption">{{ pageCaption(page) }}</span>
+          </ng-container>
+          <ng-container *ngIf="isCustomHeader">
+            <div class="hzone left">
+              <img *ngIf="(t.logoPos||'left')==='left'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt title" *ngIf="(t.titlePos||'center')==='left'">Newton Touch</span>
+              <span class="nt caption" *ngIf="(t.captionPos||'center')==='left'">{{ pageCaption(page) }}</span>
+            </div>
+            <div class="hzone center">
+              <img *ngIf="(t.logoPos||'left')==='center'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt title" *ngIf="(t.titlePos||'center')==='center'">Newton Touch</span>
+              <span class="nt caption" *ngIf="(t.captionPos||'center')==='center'">{{ pageCaption(page) }}</span>
+            </div>
+            <div class="hzone right">
+              <img *ngIf="(t.logoPos||'left')==='right'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt title" *ngIf="(t.titlePos||'center')==='right'">Newton Touch</span>
+              <span class="nt caption" *ngIf="(t.captionPos||'center')==='right'">{{ pageCaption(page) }}</span>
+            </div>
+          </ng-container>
         </div>
 
         <!-- HOME -->
@@ -236,10 +257,34 @@
           <button class="tile" [class.sel]="!t.showHeader" (click)="t.showHeader=false">Hide</button>
         </div>
         <ng-container *ngIf="t.showHeader">
-          <div class="step-title sm">Header style</div>
+          <div class="step-title sm">Header layout</div>
           <div class="seg">
-            <button class="tile" *ngFor="let h of headerStyles" [class.sel]="(t.headerStyle||'logo-only')===h.id" (click)="t.headerStyle=h.id">{{ h.label }}</button>
+            <button class="tile" [class.sel]="!isCustomHeader" (click)="t.headerLayout='preset'">Preset combos</button>
+            <button class="tile" [class.sel]="isCustomHeader" (click)="t.headerLayout='custom'">Custom (independent)</button>
           </div>
+
+          <ng-container *ngIf="!isCustomHeader">
+            <div class="step-title sm">Header style</div>
+            <div class="seg">
+              <button class="tile" *ngFor="let h of headerStyles" [class.sel]="(t.headerStyle||'logo-only')===h.id" (click)="t.headerStyle=h.id">{{ h.label }}</button>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="isCustomHeader">
+            <p class="hint">Position each header element independently — or hide it.</p>
+            <div class="step-title sm">Logo position</div>
+            <div class="seg">
+              <button class="tile" *ngFor="let p of headerItemPositions" [class.sel]="(t.logoPos||'left')===p.id" (click)="t.logoPos=p.id">{{ p.label }}</button>
+            </div>
+            <div class="step-title sm">Title position</div>
+            <div class="seg">
+              <button class="tile" *ngFor="let p of headerItemPositions" [class.sel]="(t.titlePos||'center')===p.id" (click)="t.titlePos=p.id">{{ p.label }}</button>
+            </div>
+            <div class="step-title sm">Caption position</div>
+            <div class="seg">
+              <button class="tile" *ngFor="let p of headerItemPositions" [class.sel]="(t.captionPos||'center')===p.id" (click)="t.captionPos=p.id">{{ p.label }}</button>
+            </div>
+          </ng-container>
           <p class="hint">Text fields (title / caption) are filled in the content section.</p>
         </ng-container>
         <div class="step-title sm">Intermediate page</div>
@@ -292,9 +337,11 @@
         <p class="hint">Physical size of each sub-category tile/row.</p>
         <div class="seg"><button class="tile" *ngFor="let o of sizes" [class.sel]="t.intermediate.itemSize===o" (click)="t.intermediate.itemSize=o">{{ o | titlecase }}</button></div>
 
-        <div class="step-title sm">Card shape</div>
-        <p class="hint">Shape of each sub-category tile (applies to grid / tile styles).</p>
-        <div class="tiles"><button class="tile" *ngFor="let s of cardShapes" [class.sel]="(t.intermediate.cardShape||'rect')===s.id" (click)="t.intermediate.cardShape=s.id">{{ s.label }}</button></div>
+        <ng-container *ngIf="intShapeMatters">
+          <div class="step-title sm">Card shape</div>
+          <p class="hint">Shape of each sub-category image (this layout shows images).</p>
+          <div class="tiles"><button class="tile" *ngFor="let s of cardShapes" [class.sel]="(t.intermediate.cardShape||'rect')===s.id" (click)="t.intermediate.cardShape=s.id">{{ s.label }}</button></div>
+        </ng-container>
 
         <div class="step-title sm">Card gap</div>
         <div class="seg"><button class="tile" *ngFor="let g of gaps" [class.sel]="(t.intermediate.gap||'normal')===g.id" (click)="t.intermediate.gap=g.id">{{ g.label }}</button></div>

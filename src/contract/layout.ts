@@ -86,6 +86,10 @@ export type EslBlinkBy = 'article' | 'label';
 
 /** Header composition. Selected in theme wizard; text fields filled in content-builder. */
 export type HeaderStyle = 'logo+title+caption' | 'logo+title' | 'logo-only' | 'title+caption' | 'title-only';
+/** Header layout mode: 'preset' = use HeaderStyle combos; 'custom' = position each element independently. */
+export type HeaderLayoutMode = 'preset' | 'custom';
+/** Independent position for a single header element (logo / title / caption). */
+export type HeaderItemPos = 'left' | 'center' | 'right' | 'hidden';
 export type CardSurface = 'flat' | 'glass' | 'raised' | 'outlined' | 'glow';
 export type NavStyle = 'floating' | 'edge' | 'bottom-center' | 'hidden';
 
@@ -144,6 +148,12 @@ export interface ThemeTokens {
   showHeader: boolean;
   /** Header composition. Defaults to 'logo-only' for backward compat. */
   headerStyle?: HeaderStyle;
+  /** Header layout mode. 'preset' (default) uses headerStyle; 'custom' positions each
+   *  element (logo/title/caption) independently via logoPos/titlePos/captionPos. */
+  headerLayout?: HeaderLayoutMode;
+  logoPos?: HeaderItemPos;
+  titlePos?: HeaderItemPos;
+  captionPos?: HeaderItemPos;
   /** When true the header background becomes transparent and the page background
    *  (solid or image) extends behind the header. Great with backgroundImage. */
   transparentHeader?: boolean;

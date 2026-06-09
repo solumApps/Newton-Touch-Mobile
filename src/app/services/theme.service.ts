@@ -43,6 +43,10 @@ export class ThemeService {
       cardTextPos: 'overlay-bottom',
       showHeader: true,
       headerStyle: 'logo-only',
+      headerLayout: 'preset',
+      logoPos: 'left',
+      titlePos: 'center',
+      captionPos: 'center',
       includeIntermediate: true,
       intermediateStyle: 'pill-tabs',
       resultTemplate: 'map-list',
@@ -90,6 +94,10 @@ export class ThemeService {
     delete (out as any).cardStyle;
     out.showHeader = t?.showHeader ?? true;
     out.headerStyle = t?.headerStyle ?? 'logo-only';
+    out.headerLayout = t?.headerLayout ?? 'preset';
+    out.logoPos = t?.logoPos ?? 'left';
+    out.titlePos = t?.titlePos ?? 'center';
+    out.captionPos = t?.captionPos ?? 'center';
     out.overlayColor = t?.overlayColor ?? 'rgba(0,0,0,0.6)';
     out.cardSurface = t?.cardSurface ?? 'flat';
     out.navStyle = t?.navStyle ?? 'floating';
@@ -126,9 +134,10 @@ export class ThemeService {
       { id: 'pre_bookstore', name: 'Bookstore Classic', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#6B3410', background: 'linear-gradient(135deg,#FEF3E2,#F5E0BB)', cardBackground: '#FFFFFF', cardText: '#3E2410', accent: '#B45309',
         logoPosition: 'left', homeLayout: 'grid-2x3', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'below',
+        cardSize: 'normal', cardAlign: 'center', cardGap: 'loose', cardSurface: 'raised',
         showHeader: true, headerStyle: 'title+caption',
         includeIntermediate: true, intermediateStyle: 'card-strip', resultTemplate: 'dual-list',
-        intermediate: { headerColor: '#6B3410', background: '#FEF3E2', cardBackground: '#FFFFFF', cardText: '#3E2410', accent: '#B45309', itemSize: 'medium', showHeader: true },
+        intermediate: { headerColor: '#6B3410', background: '#FEF3E2', cardBackground: '#FFFFFF', cardText: '#3E2410', accent: '#B45309', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'left', gap: 'normal' },
         result: { headerColor: '#6B3410', background: '#FEF3E2', cardBackground: '#FFFFFF', cardText: '#3E2410', accent: '#B45309', pathColor: '#B45309', pathStyle: 'dotted', showHeader: true },
         animation: { transition: 'fade-slide', speed: 'slow', applyToAll: true },
         loader: { style: 'logo', color: '#B45309' },
@@ -139,9 +148,10 @@ export class ThemeService {
       { id: 'pre_tech', name: 'Tech Showroom', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#B91C1C', background: 'linear-gradient(135deg,#1A0000,#3F0F0F)', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#EF4444',
         logoPosition: 'left', homeLayout: 'grid-2x2', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-bottom',
+        cardSize: 'large', cardAlign: 'center', cardGap: 'tight', cardSurface: 'glow',
         showHeader: true, headerStyle: 'logo+title+caption',
         includeIntermediate: true, intermediateStyle: 'drill-stair', resultTemplate: 'drill-stair',
-        intermediate: { headerColor: '#7F1D1D', background: '#1A0000', cardBackground: 'rgba(255,255,255,0.06)', cardText: '#FFFFFF', accent: '#EF4444', itemSize: 'large', showHeader: true },
+        intermediate: { headerColor: '#7F1D1D', background: '#1A0000', cardBackground: 'rgba(255,255,255,0.06)', cardText: '#FFFFFF', accent: '#EF4444', itemSize: 'large', showHeader: true, cardShape: 'rect', align: 'center', gap: 'tight' },
         result: { headerColor: '#7F1D1D', background: '#FFFFFF', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#EF4444', pathColor: '#EF4444', pathStyle: 'animated', showHeader: true },
         animation: { transition: 'slide-left', speed: 'fast', applyToAll: true },
         loader: { style: 'dot-pulse', color: '#EF4444' },
@@ -152,9 +162,10 @@ export class ThemeService {
       { id: 'pre_pharmacy', name: 'Pharmacy Care', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#1E40AF', background: '#F8FAFC', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#06B6D4',
         logoPosition: 'center', homeLayout: 'col-4', cardShape: 'rect', cardContent: 'icon-text', cardTextPos: 'center',
+        cardSize: 'normal', cardAlign: 'center', cardGap: 'normal', cardSurface: 'outlined',
         showHeader: true, headerStyle: 'logo+title+caption',
         includeIntermediate: true, intermediateStyle: 'pill-tabs', resultTemplate: 'cards-map',
-        intermediate: { headerColor: '#1E40AF', background: '#ECFEFF', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#06B6D4', itemSize: 'medium', showHeader: true },
+        intermediate: { headerColor: '#1E40AF', background: '#ECFEFF', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#06B6D4', itemSize: 'medium', showHeader: true, cardShape: 'pill', align: 'center', gap: 'normal' },
         result: { headerColor: '#1E40AF', background: '#F1F5F9', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#06B6D4', pathColor: '#06B6D4', pathStyle: 'solid', showHeader: true },
         animation: { transition: 'scale-up', speed: 'normal', applyToAll: true },
         loader: { style: 'spinner', color: '#06B6D4' },
@@ -165,9 +176,10 @@ export class ThemeService {
       { id: 'pre_cafe', name: 'Café Express', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#6F4E37', background: 'linear-gradient(135deg,#FAF3E7,#E8D5B5)', cardBackground: '#FFFFFF', cardText: '#3F2A1A', accent: '#D97706',
         logoPosition: 'center', homeLayout: 'hero-list', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-bottom',
+        cardSize: 'normal', cardAlign: 'center', cardGap: 'normal', cardSurface: 'raised',
         showHeader: true, headerStyle: 'title-only',
-        includeIntermediate: false, intermediateStyle: 'scroll-list', resultTemplate: 'filter-list',
-        intermediate: { headerColor: '#6F4E37', background: '#FAF3E7', cardBackground: '#FFFFFF', cardText: '#3F2A1A', accent: '#D97706', itemSize: 'medium', showHeader: true },
+        includeIntermediate: false, intermediateStyle: 'card-strip', resultTemplate: 'filter-list',
+        intermediate: { headerColor: '#6F4E37', background: '#FAF3E7', cardBackground: '#FFFFFF', cardText: '#3F2A1A', accent: '#D97706', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', gap: 'normal' },
         result: { headerColor: '#6F4E37', background: '#FAF3E7', cardBackground: '#FFFFFF', cardText: '#3F2A1A', accent: '#D97706', pathColor: '#D97706', pathStyle: 'solid', showHeader: true },
         animation: { transition: 'fade-slide', speed: 'normal', applyToAll: true },
         loader: { style: 'skeleton', color: '#D97706' },
@@ -178,9 +190,10 @@ export class ThemeService {
       { id: 'pre_boutique', name: 'Boutique Glamour', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#C2185B', background: 'linear-gradient(135deg,#FBE4EC,#E8C8D6)', cardBackground: 'rgba(255,255,255,0.85)', cardText: '#4A1424', accent: '#E8B4B8',
         logoPosition: 'right', homeLayout: 'grid-2x2', cardShape: 'circle', cardContent: 'image-only', cardTextPos: 'below',
+        cardSize: 'normal', cardAlign: 'center', cardGap: 'loose', cardSurface: 'glass',
         showHeader: true, headerStyle: 'title+caption',
         includeIntermediate: false, intermediateStyle: 'image-grid', resultTemplate: 'minimal',
-        intermediate: { headerColor: '#C2185B', background: '#FBE4EC', cardBackground: 'rgba(255,255,255,0.85)', cardText: '#4A1424', accent: '#E8B4B8', itemSize: 'large', showHeader: true },
+        intermediate: { headerColor: '#C2185B', background: '#FBE4EC', cardBackground: 'rgba(255,255,255,0.85)', cardText: '#4A1424', accent: '#E8B4B8', itemSize: 'large', showHeader: true, cardShape: 'circle', align: 'center', gap: 'loose' },
         result: { headerColor: '#C2185B', background: '#FBE4EC', cardBackground: 'rgba(255,255,255,0.85)', cardText: '#4A1424', accent: '#E8B4B8', pathColor: '#E8B4B8', pathStyle: 'dashed', showHeader: true },
         animation: { transition: 'shimmer', speed: 'normal', applyToAll: true },
         loader: { style: 'progress', color: '#E8B4B8' },
