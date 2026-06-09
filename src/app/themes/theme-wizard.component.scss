@@ -78,10 +78,7 @@
 .prev .hdr.hdr-style-title-only .nt { margin-left: 0; }
 .prev .hdr.hdr-style-title\+caption { gap: 5px; }
 .prev .stage { flex: 1; padding: 5px; overflow: hidden; box-sizing: border-box; }
-.prev .mock-nav { position: absolute; left: 50%; bottom: 5px; z-index: 3; transform: translateX(-50%); display: flex; gap: 8px; }
-.prev .mock-nav span { width: 18px; height: 18px; border-radius: 50%; border: 1px solid currentColor; display: flex; align-items: center; justify-content: center; color: var(--prev-text,#fff); background: rgba(0,0,0,.35); font-size: 12px; }
-.prev.nav-edge .mock-nav { left: auto; right: 7px; bottom: 50%; transform: translateY(50%); flex-direction: column; }
-.prev.nav-bottom-center .mock-nav { bottom: 2px; }
+/* mock-nav positioning lives in the dedicated block below (.prev .mock-nav.nav-pos-*) */
 .prev-cap { text-align: center; font-size: 10px; font-weight: 700; color: var(--nt-text-2); margin: 6px 0 14px; text-transform: uppercase; letter-spacing: .5px; }
 
 /* ===== Transition + loader DEMO (anim step) ===== */
@@ -222,13 +219,27 @@
 .prev .stage.layout-hero-start .hero-copy b { margin-top: 6px; padding: 2px 22px; border-radius: 999px; background: var(--prev-card); color: var(--prev-accent); font-size: 7px; }
 .prev .stage.layout-hero-start .card { display: none; }
 
-.prev .stage.layout-promo-categories { display: flex; align-items: center; justify-content: flex-end; padding: 7px 10px 7px 42%; position: relative; }
-.prev .stage.layout-promo-categories .promo-copy { position: absolute; left: 10px; top: 9px; bottom: 9px; width: 35%; display: flex; flex-direction: column; justify-content: center; color: var(--prev-text,#fff); }
+.prev .stage.layout-promo-categories { display: block; position: relative; padding: 0; }
+.prev .stage.layout-promo-categories .promo-copy { position: absolute; left: 10px; top: 9px; bottom: 9px; width: 33%; display: flex; flex-direction: column; justify-content: center; color: var(--prev-text,#fff); z-index: 2; }
 .prev .stage.layout-promo-categories .promo-copy b { color: var(--prev-accent); font-size: 6px; text-transform: uppercase; margin-bottom: 3px; }
 .prev .stage.layout-promo-categories .promo-copy span { font-size: 11px; line-height: 1.05; font-weight: 900; text-transform: uppercase; }
-.prev .stage.layout-promo-categories .card { flex: 0 0 21%; height: 70%; margin-left: 5px; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-.prev .stage.layout-promo-categories .card:nth-of-type(n+6) { display: none; }
-.prev .stage.layout-promo-categories .card .img { width: 68%; height: 48%; margin: 0 0 3px; border-radius: 50%; }
+/* card area = horizontal scroller showing ~2 cards; the copy stays pinned left */
+.prev .stage.layout-promo-categories .promo-rail {
+  position: absolute; left: 40%; right: 0; top: 0; bottom: 0;
+  display: flex; align-items: center; gap: 6px;
+  overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+  padding: 7px 8px; scroll-snap-type: x mandatory; scroll-padding-left: 8px;
+}
+.prev .stage.layout-promo-categories .promo-rail::-webkit-scrollbar { display: none; }
+.prev .stage.layout-promo-categories .promo-rail .card {
+  flex: 0 0 46%; height: 78%; scroll-snap-align: start;
+  flex-direction: column; align-items: center; justify-content: center; text-align: center;
+}
+.prev .stage.layout-promo-categories .promo-rail .card .img { width: 64%; height: 50%; margin: 0 0 3px; border-radius: 50%; }
+/* size variants change how many cards peek into view (no overflow — it scrolls) */
+.prev .stage.layout-promo-categories.card-size-xs    .promo-rail .card { flex-basis: 38%; transform: none; }
+.prev .stage.layout-promo-categories.card-size-small .promo-rail .card { flex-basis: 42%; transform: none; }
+.prev .stage.layout-promo-categories.card-size-large .promo-rail .card { flex-basis: 58%; transform: none; }
 
 .prev .stage.layout-circular { display: flex; align-items: center; justify-content: space-evenly; flex-wrap: wrap; align-content: center; }
 .prev .stage.layout-circular .card { position: relative; height: 78%; aspect-ratio: 1; width: auto; border-radius: 50%; align-items: center; justify-content: center; }
@@ -469,6 +480,29 @@
 .prev .stage.int.int-brand-grid .item .img { width: 72%; height: 48%; margin: 0 0 4px; background-color: #fff; background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 1; }
 .prev .stage.int.int-brand-grid .item .name { font-size: 5.6px; text-transform: uppercase; }
 
+/* brand-rail: round brand tiles in a scrollable row + bold side headline */
+.prev .stage.int.int-brand-rail { flex-direction: row; align-items: center; justify-content: flex-start; gap: 5px; padding: 4px 40% 4px 7px; overflow-x: auto; scrollbar-width: none; position: relative; }
+.prev .stage.int.int-brand-rail::-webkit-scrollbar { display: none; }
+.prev .stage.int.int-brand-rail .item { flex: 0 0 auto; width: auto; height: 62%; aspect-ratio: 1; border-radius: 50%; background: #fff; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2px; box-shadow: 0 2px 4px rgba(0,0,0,.18); }
+.prev .stage.int.int-brand-rail .item .img { display: block; width: 70%; height: 50%; background: var(--int-accent); border-radius: 4px; opacity: .85; margin: 0; }
+.prev .stage.int.int-brand-rail .item .name { font-size: 5px; font-weight: 900; color: #111; margin-top: 1px; white-space: nowrap; }
+.prev .stage.int.int-brand-rail::after { content: 'Which one?'; position: absolute; right: 7px; top: 50%; transform: translateY(-50%); width: 34%; text-align: right; font-size: 11px; font-weight: 900; line-height: 1.02; text-transform: uppercase; color: var(--prev-text, #fff); }
+
+/* hero-product result: benefits • hero product • celebratory side headline */
+.prev .stage.result.res-hero-product { align-items: center; justify-content: space-between; gap: 4px; }
+.prev .stage.result.res-hero-product .map, .prev .stage.result.res-hero-product .list { display: none; }
+.prev .stage.result.res-hero-product .hero-prod { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 100%; gap: 4px; }
+.prev .stage.result.res-hero-product .hp-benefits { flex: 0 0 22%; display: flex; flex-direction: column; gap: 4px; }
+.prev .stage.result.res-hero-product .hp-benefits span { height: 4px; border-radius: 2px; background: var(--prev-text, #fff); opacity: .5; }
+.prev .stage.result.res-hero-product .hp-product { flex: 0 0 42%; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.prev .stage.result.res-hero-product .hp-img { width: 26px; height: 60%; border-radius: 4px; opacity: .9; }
+.prev .stage.result.res-hero-product .hp-info { display: flex; flex-direction: column; align-items: flex-start; color: var(--prev-text, #fff); }
+.prev .stage.result.res-hero-product .hp-info b { font-size: 7px; }
+.prev .stage.result.res-hero-product .hp-info .price { font-size: 8px; font-weight: 900; }
+.prev .stage.result.res-hero-product .hp-info .find { font-style: normal; border-radius: 999px; color: #111; font-size: 5px; font-weight: 900; padding: 1px 6px; margin-top: 2px; text-transform: uppercase; }
+.prev .stage.result.res-hero-product .hp-headline { flex: 0 0 30%; text-align: right; font-size: 12px; font-weight: 900; line-height: 1; text-transform: uppercase; color: var(--prev-text, #fff); }
+.prev .stage.result.res-hero-product .hp-headline em { display: block; font-style: normal; font-size: 8px; margin-top: 2px; }
+
 /* drill-stair: stepped columns each showing one level's pick + neighbours */
 .prev .stage.int.int-drill-stair { flex-direction: row; padding: 0; margin: 0; }
 .prev .stage.int.int-drill-stair .item {
@@ -598,16 +632,33 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 
 /* ===== h-scroll layout preview ===== */
 .prev .stage.layout-h-scroll { display: flex; flex-direction: column; justify-content: center; padding: 0; overflow: hidden; }
-.prev .stage.layout-h-scroll .h-scroll-rail { display: flex; overflow-x: auto; scrollbar-width: none; align-items: center; height: 100%; padding: 4px 6px 4px 16px; gap: 5px; scroll-snap-type: x mandatory; }
+.prev .stage.layout-h-scroll .h-scroll-rail { display: flex; overflow-x: auto; scrollbar-width: none; align-items: center; height: 100%; padding: 4px 10px 4px 20px; gap: 6px; scroll-snap-type: x mandatory; scroll-padding-left: 20px; }
 .prev .stage.layout-h-scroll .h-scroll-rail::-webkit-scrollbar { display: none; }
 .prev .stage.layout-h-scroll .h-scroll-rail .card { flex: 0 0 17%; height: 88%; scroll-snap-align: start; }
+/* first card keeps clear of the left edge even when scrolled to start */
+.prev .stage.layout-h-scroll .h-scroll-rail .card:first-child { margin-left: 4px; }
+/* Pill = horizontal capsule (clearly different from a circle). */
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-pill {
+  flex-basis: 26%; height: 60%; border-radius: 999px; clip-path: none;
+}
+/* Circle / Hexagon = true square-cell shapes with an overlay label bubble. */
 .prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle,
 .prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon {
-  border-radius: 5px;
-  clip-path: none;
+  flex: 0 0 auto; width: auto; aspect-ratio: 1; height: 84%; position: relative;
 }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle { border-radius: 50%; clip-path: none; }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon { border-radius: 0; clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle .img,
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon .img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle .meta,
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon .meta {
+  position: absolute; left: 8%; right: 8%; bottom: 9%; z-index: 1; text-align: center;
+  background: rgba(0,0,0,.5); border-radius: 999px; padding: 0 2px;
+}
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle .name,
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon .name { color: #fff; }
 .prev .stage.layout-h-scroll .h-scroll-rail .card.shape-pill.content-image-text.pos-below {
-  border-radius: 5px;
+  border-radius: 999px;
 }
 .prev .stage.layout-h-scroll .h-scroll-rail .card.content-image-text.pos-below .img { min-height: 0; }
 .prev .stage.layout-h-scroll .h-scroll-rail .card.content-image-text.pos-below .meta { width: 100%; min-width: 0; }
@@ -618,12 +669,73 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
   text-overflow: ellipsis;
 }
 
-/* ===== Card size variants ===== */
-.prev .stage.card-size-small .card { transform: scale(.82); transform-origin: center; }
-.prev .stage.card-size-large  .card { transform: scale(1.08); transform-origin: center; }
+/* ===== Card size variants =====
+   Sizes are geometry-based to GUARANTEE no overflow/overlap. Layouts that have
+   explicit per-size dimensions (grids/columns/h-scroll) override the transform.
+   Other layouts shrink for xs/small and stay at the (already-fitting) normal
+   size for large — Large never scales geometry up beyond the frame. */
+.prev .stage.card-size-xs    .card { transform: scale(.72); transform-origin: center; }
+.prev .stage.card-size-small .card { transform: scale(.86); transform-origin: center; }
+.prev .stage.card-size-large .card { transform: none; }
+
+/* grid 3×2 — space-between means widths<100% just widen the gaps (never overflow) */
+.prev .stage.layout-grid-2x3.card-size-xs    .card { width: 28%; height: 40%; transform: none; }
+.prev .stage.layout-grid-2x3.card-size-small .card { width: 30%; height: 44%; transform: none; }
+.prev .stage.layout-grid-2x3.card-size-large .card { width: 33%; height: 49%; transform: none; }
+/* grid 2×2 */
+.prev .stage.layout-grid-2x2.card-size-xs    .card { width: 42%; height: 42%; transform: none; }
+.prev .stage.layout-grid-2x2.card-size-small .card { width: 45%; height: 45%; transform: none; }
+.prev .stage.layout-grid-2x2.card-size-large .card { width: 49.5%; height: 49.5%; transform: none; }
+/* 4 columns */
+.prev .stage.layout-col-4.card-size-xs    .card { width: 19%; height: 78%; transform: none; }
+.prev .stage.layout-col-4.card-size-small .card { width: 21.5%; height: 88%; transform: none; }
+.prev .stage.layout-col-4.card-size-large .card { width: 24%; height: 100%; transform: none; }
+/* shape grids (circle/hex centered squares) — shrink only; large stays normal */
+.prev .stage.shape.card-size-large .card { transform: none; }
 /* h-scroll specific */
-.prev .stage.layout-h-scroll.card-size-small .h-scroll-rail .card { flex-basis: 13%; height: 75%; }
-.prev .stage.layout-h-scroll.card-size-large  .h-scroll-rail .card { flex-basis: 22%; height: 100%; }
+.prev .stage.layout-h-scroll.card-size-xs    .h-scroll-rail .card { flex-basis: 12%; height: 70%; transform: none; }
+.prev .stage.layout-h-scroll.card-size-small .h-scroll-rail .card { flex-basis: 14%; height: 80%; transform: none; }
+.prev .stage.layout-h-scroll.card-size-large .h-scroll-rail .card { flex-basis: 22%; height: 96%; transform: none; }
+/* keep the capsule/round overrides winning for pill/circle/hex at every size */
+.prev .stage.layout-h-scroll[class*="card-size-"] .h-scroll-rail .card.shape-pill { flex-basis: 26%; height: 60%; }
+.prev .stage.layout-h-scroll[class*="card-size-"] .h-scroll-rail .card.shape-circle,
+.prev .stage.layout-h-scroll[class*="card-size-"] .h-scroll-rail .card.shape-hexagon { flex-basis: auto; width: auto; }
+
+/* ===== Bento grid — 1 large hero tile + 4 smaller tiles (overflow-proof grid) ===== */
+.prev .stage.layout-bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr); gap: 4px; }
+.prev .stage.layout-bento .card { width: auto !important; height: auto !important; transform: none !important; }
+.prev .stage.layout-bento .card.featured { grid-column: 1 / 3; grid-row: 1 / 3; }
+.prev .stage.layout-bento .card:nth-child(n+6) { display: none; }
+.prev .stage.layout-bento .card .name { font-size: calc(var(--prev-scale, 1) * 6.5px); }
+.prev .stage.layout-bento .card.featured .name { font-size: calc(var(--prev-scale, 1) * 9px); }
+.prev .stage.layout-bento.card-size-large .card .name { font-size: calc(var(--prev-scale, 1) * 7.5px); }
+.prev .stage.layout-bento.card-size-xs .card .name { font-size: calc(var(--prev-scale, 1) * 5.5px); }
+
+/* ===== Shape (circle/hexagon) card sizing =====
+   The .shape layouts pin card height with !important, which blocked the normal
+   card-size rules — so resizing did nothing. Resize the shape cells directly
+   (height drives the square size); never use transform here. Values stay <=96%
+   so Large can't overflow its row/column. */
+.prev .stage.shape[class*="card-size-"] .card { transform: none !important; }
+/* 4 columns */
+.prev .stage.shape.layout-col-4.card-size-xs    .card { height: 56% !important; }
+.prev .stage.shape.layout-col-4.card-size-small .card { height: 66% !important; }
+.prev .stage.shape.layout-col-4.card-size-large .card { height: 92% !important; }
+/* grid 3×2 */
+.prev .stage.shape.layout-grid-2x3.card-size-xs    .card { height: 70% !important; }
+.prev .stage.shape.layout-grid-2x3.card-size-small .card { height: 80% !important; }
+.prev .stage.shape.layout-grid-2x3.card-size-large .card { height: 96% !important; }
+/* grid 2×2 */
+.prev .stage.shape.layout-grid-2x2.card-size-xs    .card { height: 70% !important; }
+.prev .stage.shape.layout-grid-2x2.card-size-small .card { height: 80% !important; }
+.prev .stage.shape.layout-grid-2x2.card-size-large .card { height: 96% !important; }
+/* hero + list */
+.prev .stage.shape.layout-hero-list.card-size-xs    .card.featured { height: 70% !important; }
+.prev .stage.shape.layout-hero-list.card-size-small .card.featured { height: 80% !important; }
+.prev .stage.shape.layout-hero-list.card-size-large .card.featured { height: 94% !important; }
+.prev .stage.shape.layout-hero-list.card-size-xs    .card:not(.featured) { height: 62% !important; }
+.prev .stage.shape.layout-hero-list.card-size-small .card:not(.featured) { height: 72% !important; }
+.prev .stage.shape.layout-hero-list.card-size-large .card:not(.featured) { height: 88% !important; }
 
 /* ===== Styled mock-nav (colored buttons + position classes) ===== */
 .prev .mock-nav {
