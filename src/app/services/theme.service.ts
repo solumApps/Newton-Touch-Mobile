@@ -36,15 +36,17 @@ export class ThemeService {
       logoPosition: 'left',
       homeLayout: 'grid-2x3',
       cardSize: 'normal',
+      cardAlign: 'center',
+      cardGap: 'normal',
       cardShape: 'rect',
       cardContent: 'image-text',
       cardTextPos: 'overlay-bottom',
       showHeader: true,
       headerStyle: 'logo-only',
       includeIntermediate: true,
-      intermediateStyle: 'accordion',
+      intermediateStyle: 'pill-tabs',
       resultTemplate: 'map-list',
-      intermediate: { headerColor: 'rgba(0,0,0,0.45)', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true },
+      intermediate: { headerColor: 'rgba(0,0,0,0.45)', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', gap: 'normal' },
       result: { headerColor: '#2F006D', background: '#0A0A1A', cardBackground: 'rgba(255,255,255,0.06)', cardText: '#FFFFFF', accent: '#FFCD00', pathColor: '#FFCD00', pathStyle: 'dashed', showHeader: true },
       animation: { transition: 'fade-slide', speed: 'normal', applyToAll: true },
       loader: { style: 'spinner', color: '#FFCD00' },
@@ -92,6 +94,12 @@ export class ThemeService {
     out.cardSurface = t?.cardSurface ?? 'flat';
     out.navStyle = t?.navStyle ?? 'floating';
     out.cardSize = t?.cardSize ?? 'normal';
+    out.cardAlign = t?.cardAlign ?? 'center';
+    out.cardGap = t?.cardGap ?? 'normal';
+    // Migrate removed styles on read so older saved themes still match the pickers.
+    if ((out.homeLayout as string) === 'list') out.homeLayout = 'grid-2x3';
+    if ((out.intermediateStyle as string) === 'accordion') out.intermediateStyle = 'pill-tabs';
+    if ((out.intermediateStyle as string) === 'scroll-list') out.intermediateStyle = 'card-strip';
     out.nav = { ...d.nav, ...(t?.nav || {}) };
     out.intermediate = { ...d.intermediate, ...(t?.intermediate || {}), showHeader: t?.intermediate?.showHeader ?? true };
     out.result = { ...d.result, ...(t?.result || {}), showHeader: t?.result?.showHeader ?? true };

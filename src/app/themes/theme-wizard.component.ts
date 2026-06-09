@@ -59,9 +59,9 @@ export class ThemeWizardComponent implements OnInit {
   slots = [0, 1, 2, 3, 4, 5];
   labels = ['Bakery', 'Dairy', 'Produce', 'Meat', 'Frozen', 'Drinks'];
 
-  homeLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-4', 'hero-list', 'list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'h-scroll', 'bento'];
+  homeLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-2', 'col-3', 'col-4', 'hero-list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'h-scroll', 'bento'];
   layoutLabels: Record<HomeLayout, string> = {
-    'grid-2x3': 'Grid (3×2)', 'grid-2x2': 'Grid (2×2)', 'col-4': '4 columns',
+    'grid-2x3': 'Grid (3×2)', 'grid-2x2': 'Grid (2×2)', 'col-2': '2 columns', 'col-3': '3 columns', 'col-4': '4 columns',
     'hero-list': 'Hero + list', 'list': 'List rows', 'fullscreen': 'Fullscreen',
     'image-strip': 'Image strips', 'hero-start': 'Hero start', 'promo-categories': 'Promo categories',
     'h-scroll': 'Horizontal scroll', 'bento': 'Bento grid',
@@ -105,7 +105,13 @@ export class ThemeWizardComponent implements OnInit {
   textFits: { id: TextFit; label: string }[] = [
     { id: 'shrink', label: 'Auto-shrink' }, { id: 'wrap', label: 'Wrap 2 lines' }, { id: 'clip', label: 'Clip …' },
   ];
-  intStyles: IntermediateStyle[] = ['accordion', 'pill-tabs', 'image-grid', 'hex-grid', 'circular', 'scroll-list', 'card-strip', 'fullscreen', 'center-tiles', 'side-rail', 'brand-grid', 'brand-rail', 'drill-stair'];
+  intStyles: IntermediateStyle[] = ['pill-tabs', 'image-grid', 'hex-grid', 'circular', 'card-strip', 'fullscreen', 'center-tiles', 'side-rail', 'brand-grid', 'brand-rail', 'drill-stair'];
+  intStyleLabels: Partial<Record<IntermediateStyle, string>> = {
+    'pill-tabs': 'Pills', 'image-grid': 'Image grid', 'hex-grid': 'Hex grid', 'circular': 'Circular',
+    'card-strip': 'Card strip', 'center-tiles': 'Center tiles',
+    'side-rail': 'Side rail', 'brand-grid': 'Brand grid', 'brand-rail': 'Brand rail', 'drill-stair': 'Drill stair',
+  };
+  intStyleLabel(s: IntermediateStyle): string { return this.intStyleLabels[s] || s; }
   resultTemplates: ResultTemplate[] = ['map-list', 'cards-map', 'dual-list', 'split-panel', 'list-only', 'map-full', 'card-grid', 'minimal', 'esl-focus', 'drill-stair', 'filter-list', 'map-filter-list', 'promo-list', 'catalog-grid', 'product-focus', 'hero-product'];
   transitions: TransitionType[] = ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'];
   speeds: AnimSpeed[] = ['slow', 'normal', 'fast'];
@@ -133,6 +139,16 @@ export class ThemeWizardComponent implements OnInit {
   ];
   cardSizes: Array<'xs' | 'small' | 'normal' | 'large'> = ['xs', 'small', 'normal', 'large'];
   cardSizeLabels: Record<'xs' | 'small' | 'normal' | 'large', string> = { xs: 'XS', small: 'Small', normal: 'Normal', large: 'Large' };
+  aligns: { id: 'left' | 'center' | 'right'; label: string }[] = [
+    { id: 'left', label: 'Left' }, { id: 'center', label: 'Center' }, { id: 'right', label: 'Right' },
+  ];
+  gaps: { id: 'tight' | 'normal' | 'loose'; label: string }[] = [
+    { id: 'tight', label: 'Tight' }, { id: 'normal', label: 'Normal' }, { id: 'loose', label: 'Loose' },
+  ];
+  /** Alignment only changes layouts that don't already fill the row. */
+  get alignMatters(): boolean {
+    return ['h-scroll', 'promo-categories', 'col-2', 'col-3', 'col-4'].includes(this.t.homeLayout) || this.shapeCard;
+  }
   navButtonPositions: { id: NavButtonPosition; label: string }[] = [
     { id: 'bottom-left',   label: 'Bottom left' },
     { id: 'bottom-center', label: 'Bottom center' },
