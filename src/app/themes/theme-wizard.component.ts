@@ -114,6 +114,7 @@ export class ThemeWizardComponent implements OnInit {
   headerStyles: { id: HeaderStyle; label: string }[] = [
     { id: 'logo-only', label: 'Logo only' },
     { id: 'title-only', label: 'Title only' },
+    { id: 'logo+title', label: 'Logo + Title' },
     { id: 'title+caption', label: 'Title + Caption' },
     { id: 'logo+title+caption', label: 'Logo + Title + Caption' },
   ];
@@ -138,6 +139,7 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'bottom-right',  label: 'Bottom right' },
     { id: 'side-left',     label: 'Side left' },
     { id: 'side-right',    label: 'Side right' },
+    { id: 'hidden',        label: 'Hidden' },
   ];
   saverPositions: { id: SaverOverlayPosition; label: string }[] = [
     { id: 'center',       label: 'Center' },
@@ -186,7 +188,7 @@ export class ThemeWizardComponent implements OnInit {
     return !['image-strip', 'fullscreen', 'hero-start', 'promo-categories', 'h-scroll', 'bento'].includes(this.t.homeLayout);
   }
 
-  get scaleNum(): number { return this.t.typography.textScale === 'compact' ? 0.9 : this.t.typography.textScale === 'large' ? 1.14 : 1; }
+  get scaleNum(): number { return this.t.typography.textScale === 'compact' ? 0.8 : this.t.typography.textScale === 'large' ? 1.25 : 1; }
 
   /** Header visibility per page (saver never shows a header). */
   headerVisibleFor(page: PreviewPage): boolean {
@@ -212,7 +214,7 @@ export class ThemeWizardComponent implements OnInit {
   pageCaption(page: PreviewPage): string {
     return page === 'inter' ? 'Intermediate' : page === 'result' ? 'Result' : page === 'saver' ? 'Screensaver' : 'Home';
   }
-  get showLogo(): boolean { return (this.t.headerStyle || 'logo-only') === 'logo-only' || this.t.headerStyle === 'logo+title+caption'; }
+  get showLogo(): boolean { const h = this.t.headerStyle || 'logo-only'; return h === 'logo-only' || h === 'logo+title' || h === 'logo+title+caption'; }
   get showHeaderTitle(): boolean { return (this.t.headerStyle || 'logo-only') !== 'logo-only'; }
   get showHeaderCaption(): boolean { return this.t.headerStyle === 'title+caption' || this.t.headerStyle === 'logo+title+caption'; }
 

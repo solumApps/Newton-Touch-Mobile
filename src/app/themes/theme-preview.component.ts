@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonIcon, IonModal } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { ellipsisHorizontal, createOutline, downloadOutline, copyOutline, arrowForward } from 'ionicons/icons';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { ThemeService, SavedTheme } from '../services/theme.service';
 import { NtButtonComponent, NtBadgeComponent, NtSectionHeaderComponent } from '../shared/ui';
 
@@ -51,13 +53,33 @@ export class ThemePreviewComponent implements OnInit {
     await this.moreModal?.dismiss();
   }
 
-  download(): void {
+  async download(): Promise<void> {
     if (!this.theme) return;
-    const blob = new Blob([this.themes.export(this.theme)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `${this.theme.name.replace(/\s+/g, '')}.solumtheme`; a.click();
-    URL.revokeObjectURL(url);
-    this.msg = 'Exported .solumtheme';
+    const data = this.themes.export(this.theme);
+    const filename = `${this.theme.name.replace(/\s+/g, '')}.solumtheme`;
+    // Web: trigger a browser download via an object URL.
+    if (Capacitor.getPlatform() === 'web') {
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+      URL.revokeObjectURL(url);
+      this.msg = 'Exported .solumtheme';
+      return;
+    }
+    // Native (Android/iOS): the blob/anchor trick is a no-op — write to the
+    // device Documents folder with the Filesystem plugin so it's visible in Files.
+    try {
+      await Filesystem.writeFile({
+        path: filename,
+        data,
+        directory: Directory.Documents,
+        encoding: Encoding.UTF8,
+        recursive: true,
+      });
+      this.msg = `Saved to Documents/${filename}`;
+    } catch (e: any) {
+      this.msg = 'Export failed: ' + (e?.message || e);
+    }
   }
 
   async copy(): Promise<void> {

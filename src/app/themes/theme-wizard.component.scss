@@ -169,9 +169,18 @@
 .prev.surface-glow .stage .card,
 .prev.surface-glow .stage.int .item,
 .prev.surface-glow .stage.result .prod { box-shadow: 0 0 10px var(--prev-accent); border-color: var(--prev-accent) !important; }
-/* text-fit in preview */
-.prev.fit-wrap .name, .prev.fit-shrink .name { white-space: normal; }
-.prev.fit-shrink .name { font-size: calc(var(--prev-scale, 1) * 6px); }
+/* text-fit in preview — applies to home/intermediate/result text and stays in bounds.
+   clip = single line + ellipsis · wrap = up to 2 lines · shrink = smaller, normal wrap */
+.prev.fit-clip .name, .prev.fit-clip .item .name, .prev.fit-clip .list .prod {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.prev.fit-wrap .name, .prev.fit-wrap .item .name,
+.prev.fit-shrink .name, .prev.fit-shrink .item .name {
+  white-space: normal; overflow: hidden;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+}
+.prev.fit-shrink .name, .prev.fit-shrink .item .name { font-size: calc(var(--prev-scale, 1) * 6px); }
+.prev.fit-shrink .list .prod { font-size: calc(var(--prev-scale, 1) * 6px); }
 
 /* ===== HOME layouts — gap/space-distributed so rows NEVER overflow ===== */
 /* grids: distribute spare space as gaps; heights sized so all rows fit. */
@@ -429,7 +438,7 @@
 .prev .stage.int .item { display: flex; align-items: center; flex: 1; margin: 1.5px; border-radius: 4px; padding: 0 5px; overflow: hidden;
   background: var(--int-card); color: var(--int-text); }
 .prev .stage.int .item .img { width: 14%; height: 70%; border-radius: 2px; background: var(--int-accent); opacity: .55; margin-right: 4px; }
-.prev .stage.int .item .name { font-size: 7px; font-weight: 700; white-space: nowrap; }
+.prev .stage.int .item .name { font-size: calc(var(--prev-scale, 1) * 7px); font-weight: 700; white-space: nowrap; }
 /* active state only where the style inherently has one */
 .prev .stage.int.int-pill-tabs .item.open { background: var(--int-accent); color: #fff; }
 .prev .stage.int.int-accordion .item.open { border-left: 3px solid var(--int-accent); }
@@ -517,6 +526,19 @@
 .prev .stage.int.int-drill-stair .item.open { color: #fff; font-weight: 900; }
 .prev .stage.int.int-drill-stair .item.open .name { font-size: 8px; }
 
+/* ===== Intermediate item size (medium = base; small/large adjust within bounds) =====
+   Applies to every intermediate style, including side-rail / brand-grid / brand-rail.
+   Uses transform so neighbours keep their slots (no reflow/overflow of the strip). */
+.prev .stage.int.int-size-small .item  { transform: scale(.86); transform-origin: center; }
+.prev .stage.int.int-size-large .item  { transform: scale(1.12); transform-origin: center; }
+/* brand-rail tiles are round & scrollable — resize the cell height directly for a cleaner result */
+.prev .stage.int.int-brand-rail.int-size-small .item { transform: none; height: 50%; }
+.prev .stage.int.int-brand-rail.int-size-large .item { transform: none; height: 74%; }
+.prev .stage.int.int-side-rail.int-size-small .item   { transform: none; height: 50%; max-width: 15%; }
+.prev .stage.int.int-side-rail.int-size-large .item   { transform: none; height: 74%; max-width: 21%; }
+.prev .stage.int.int-brand-grid.int-size-small .item  { transform: none; flex-basis: 15%; height: 54%; }
+.prev .stage.int.int-brand-grid.int-size-large .item  { transform: none; flex-basis: 21%; height: 74%; }
+
 /* ===== RESULT ===== */
 .prev .stage.result { display: flex; gap: 4px; }
 .prev .stage.result .map { flex: 1; border: 1.5px dashed; border-radius: 4px; position: relative; }
@@ -526,7 +548,7 @@
 .prev .stage.result .map .path.path-animated { box-shadow: 0 0 0 2px rgba(255,255,255,.18); animation: tw-path 1s linear infinite; }
 @keyframes tw-path { 0%, 100% { opacity: .4; transform: translateX(0); } 50% { opacity: 1; transform: translateX(8%); } }
 .prev .stage.result .list { flex: 1; display: flex; flex-direction: column; gap: 3px; }
-.prev .stage.result .list .prod { display: flex; align-items: center; font-size: 7px; font-weight: 700; padding: 2px 5px; border-radius: 3px; border: 1.5px solid transparent; }
+.prev .stage.result .list .prod { display: flex; align-items: center; font-size: calc(var(--prev-scale, 1) * 7px); font-weight: 700; padding: 2px 5px; border-radius: 3px; border: 1.5px solid transparent; }
 .prev .stage.result .list .prod .dot { width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; flex-shrink: 0; }
 /* map-full: map only */
 .prev .stage.result.res-map-full .list { display: none; }

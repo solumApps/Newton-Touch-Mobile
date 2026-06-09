@@ -1,7 +1,9 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './services/auth.guard';
+import { authGuard, entryGuard } from './services/auth.guard';
 
 export const routes: Routes = [
+  // Resume to home when already signed in with a store selected; else the auth flow.
+  { path: '', pathMatch: 'full', canMatch: [entryGuard], redirectTo: 'tabs/themes' },
   { path: '', pathMatch: 'full', redirectTo: 'auth/environment' },
 
   // Theme wizard (Create New Theme / Edit)
