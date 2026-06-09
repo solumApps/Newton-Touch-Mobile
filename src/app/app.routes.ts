@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './services/auth.guard';
+import { authGuard, startupGuard } from './services/auth.guard';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'auth/environment' },
+  { path: '', pathMatch: 'full', canActivate: [startupGuard], component: class StartupRouteComponent {} },
 
   // Theme wizard (Create New Theme / Edit)
   { path: 'theme-preview/:id', loadComponent: () => import('./themes/theme-preview.component').then((m) => m.ThemePreviewComponent) },
