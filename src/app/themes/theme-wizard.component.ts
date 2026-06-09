@@ -112,6 +112,10 @@ export class ThemeWizardComponent implements OnInit {
     'side-rail': 'Side rail', 'brand-grid': 'Brand grid', 'brand-rail': 'Brand rail', 'drill-stair': 'Drill stair',
   };
   intStyleLabel(s: IntermediateStyle): string { return this.intStyleLabels[s] || s; }
+  /** Card shape only affects intermediate styles that show a per-item image. */
+  get intShapeMatters(): boolean {
+    return ['image-grid', 'card-strip', 'side-rail', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle);
+  }
   resultTemplates: ResultTemplate[] = ['map-list', 'cards-map', 'dual-list', 'split-panel', 'list-only', 'map-full', 'card-grid', 'minimal', 'esl-focus', 'drill-stair', 'filter-list', 'map-filter-list', 'promo-list', 'catalog-grid', 'product-focus', 'hero-product'];
   transitions: TransitionType[] = ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'];
   speeds: AnimSpeed[] = ['slow', 'normal', 'fast'];

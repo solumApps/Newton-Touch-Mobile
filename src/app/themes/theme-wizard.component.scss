@@ -467,10 +467,11 @@
 /* active state only where the style inherently has one */
 .prev .stage.int.int-pill-tabs .item.open { background: var(--int-accent); color: #fff; }
 .prev .stage.int.int-accordion .item.open { border-left: 3px solid var(--int-accent); }
-.prev .stage.int.int-pill-tabs { flex-direction: row; align-items: center; justify-content: center; flex-wrap: wrap; align-content: center; gap: 5px; }
-.prev .stage.int.int-pill-tabs .item { flex: 0 0 auto; border-radius: 999px; padding: 5px 14px; height: auto; margin: 0; }
+.prev .stage.int.int-pill-tabs { flex-direction: row; align-items: center; justify-content: center; flex-wrap: nowrap; gap: 6px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; padding: 0 6px; }
+.prev .stage.int.int-pill-tabs::-webkit-scrollbar { display: none; }
+.prev .stage.int.int-pill-tabs .item { flex: 0 0 auto; border-radius: 999px; padding: 7px 16px; height: auto; margin: 0; }
 .prev .stage.int.int-pill-tabs .item .img { display: none; }
-.prev .stage.int.int-pill-tabs .item .name { font-size: calc(var(--prev-scale, 1) * 8px); }
+.prev .stage.int.int-pill-tabs .item .name { font-size: calc(var(--prev-scale, 1) * 9px); white-space: nowrap; }
 .prev .stage.int.int-card-strip { flex-direction: row; }
 .prev .stage.int.int-image-grid { flex-direction: row; flex-wrap: wrap; align-content: flex-start; }
 .prev .stage.int.int-image-grid .item { flex: 0 0 31%; height: 46%; flex-direction: column; }
@@ -845,9 +846,15 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 .prev .stage.int.int-align-left   { justify-content: flex-start; }
 .prev .stage.int.int-align-center { justify-content: center; }
 .prev .stage.int.int-align-right  { justify-content: flex-end; }
-/* intermediate card shape — applies to the tile/grid styles' item image */
-.prev .stage.int.int-shape-rect    .item .img { border-radius: 4px; clip-path: none; }
+/* intermediate card shape — applies to the image of image-showing styles.
+   Circle/Hexagon force a square image so they aren't stretched into ellipses. */
+.prev .stage.int.int-shape-rect    .item .img { border-radius: 3px; clip-path: none; }
 .prev .stage.int.int-shape-pill    .item .img { border-radius: 999px; clip-path: none; }
+.prev .stage.int.int-shape-circle  .item .img,
+.prev .stage.int.int-shape-hexagon .item .img {
+  flex: 0 0 auto !important; width: auto !important; height: 60% !important;
+  aspect-ratio: 1 !important; margin: 0 auto 1px !important; align-self: center;
+}
 .prev .stage.int.int-shape-circle  .item .img { border-radius: 50%; clip-path: none; }
 .prev .stage.int.int-shape-hexagon .item .img { border-radius: 0; clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
 .prev .stage.int.int-shape-pill.int-pill-tabs .item,
