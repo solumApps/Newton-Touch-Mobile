@@ -23,6 +23,7 @@ interface Step { key: string; page: PreviewPage; }
 })
 export class ThemeWizardComponent implements OnInit {
   @ViewChild('wizardSteps') wizardSteps?: ElementRef<HTMLElement>;
+  @ViewChild(IonContent) content?: IonContent;
   name = '';
   id: string | null = null;
   openedFromPreview = false;
@@ -337,28 +338,29 @@ export class ThemeWizardComponent implements OnInit {
 
   next(): void {
     if (this.stepIndex < this.visibleSteps.length - 1) this.stepIndex++;
-    this.scrollActiveStep();
+    this.afterStepChange();
     if (this.step.key === 'anim') this.replayTransition();
     if (this.step.key === 'intColors') this.syncInterFromHome();
     if (this.step.key === 'resColors') this.syncResultFromHome();
   }
   prev(): void {
     if (this.stepIndex > 0) this.stepIndex--;
-    this.scrollActiveStep();
+    this.afterStepChange();
     if (this.step.key === 'anim') this.replayTransition();
   }
 
   goStep(i: number): void {
     if (i < 0 || i >= this.visibleSteps.length) return;
     this.stepIndex = i;
-    this.scrollActiveStep();
+    this.afterStepChange();
     if (this.step.key === 'anim') this.replayTransition();
     if (this.step.key === 'intColors') this.syncInterFromHome();
     if (this.step.key === 'resColors') this.syncResultFromHome();
   }
 
-  private scrollActiveStep(): void {
+  private afterStepChange(): void {
     setTimeout(() => {
+      void this.content?.scrollToTop(0);
       const host = this.wizardSteps?.nativeElement;
       const active = host?.querySelector<HTMLElement>('.wizard-step.active');
       active?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });

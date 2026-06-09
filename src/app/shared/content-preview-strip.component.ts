@@ -76,6 +76,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <ng-container *ngIf="(home?.length||0) > 0; else hScrollPlaceholders">
               <div *ngFor="let c of homeSlice"
                    class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
+                   [class.has-img]="!!c.image"
                    [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
                 <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
                 <div class="meta"><span class="name">{{ c.name || 'Item' }}</span></div>
@@ -96,6 +97,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <div *ngFor="let c of homeSlice; let i = index"
                    class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
                    [class.featured]="i===0"
+                   [class.has-img]="!!c.image"
                    [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
                 <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
                 <div class="meta"><span class="name">{{ c.name || 'Item' }}</span></div>

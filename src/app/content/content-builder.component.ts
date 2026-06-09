@@ -28,6 +28,7 @@ interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' 
 })
 export class ContentBuilderComponent implements OnInit {
   @ViewChild('builderSteps') builderSteps?: ElementRef<HTMLElement>;
+  @ViewChild(IonContent) contentViewport?: IonContent;
   draft?: ContentDraft;
   apiProducts: ApiProduct[] = [];
   selected = new Set<string>();
@@ -51,9 +52,9 @@ export class ContentBuilderComponent implements OnInit {
   get isFirst(): boolean { return this.stepIndex <= 0; }
   get isLast(): boolean { return this.stepIndex >= this.visibleSteps.length - 1; }
   get progressPct(): number { return ((this.stepIndex + 1) / this.visibleSteps.length) * 100; }
-  next(): void { if (!this.isLast) { this.stepIndex++; this.scrollActiveStep(); this.save(); } }
-  prev(): void { if (!this.isFirst) { this.stepIndex--; this.scrollActiveStep(); } }
-  goto(i: number): void { if (i >= 0 && i < this.visibleSteps.length) { this.stepIndex = i; this.scrollActiveStep(); } }
+  next(): void { if (!this.isLast) { this.stepIndex++; this.afterStepChange(); this.save(); } }
+  prev(): void { if (!this.isFirst) { this.stepIndex--; this.afterStepChange(); } }
+  goto(i: number): void { if (i >= 0 && i < this.visibleSteps.length) { this.stepIndex = i; this.afterStepChange(); } }
 
   /** Review slider — shows all pages (with real data) as a horizontal scroll
    *  so the user can swipe through Home / Intermediate / Result / Screensaver
@@ -80,8 +81,9 @@ export class ContentBuilderComponent implements OnInit {
     this.reviewSlideIdx = idx;
   }
 
-  private scrollActiveStep(): void {
+  private afterStepChange(): void {
     setTimeout(() => {
+      void this.contentViewport?.scrollToTop(0);
       const host = this.builderSteps?.nativeElement;
       const active = host?.querySelector<HTMLElement>('.step.active');
       active?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
