@@ -73,3 +73,7 @@ testem.log
 .DS_Store
 Thumbs.db
 
+.ionic/
+android/
+package-lock.json
+.angular/

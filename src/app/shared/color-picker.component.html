@@ -1,13 +1,23 @@
 <div class="cp">
-  <div class="lbl">{{ label }}<span class="hint" *ngIf="hint"> — {{ hint }}</span></div>
-  <div class="row">
-    <button *ngFor="let c of presets" class="sw" [class.sel]="c===value" [style.background]="c" (click)="pick(c)"></button>
-    <button class="sw transparent-sw" [class.sel]="value==='transparent'" (click)="pick('transparent')" title="Transparent">
-      <span class="checker"></span>
-    </button>
-    <label class="sw custom" title="Custom — color wheel + hex">🎨
+  <div class="lbl">{{ label }}<span class="hint" *ngIf="hint"> · {{ hint }}</span></div>
+  <div class="cp-bar">
+    <!-- Big current-color tile = tap to open the OS color wheel (primary action) -->
+    <label class="cp-current" [class.is-transparent]="value==='transparent'"
+           [style.background]="value==='transparent' ? null : value" title="Tap to pick any color">
+      <span class="checker" *ngIf="value==='transparent'"></span>
       <input type="color" [value]="toHex(value)" (input)="pick($any($event.target).value)" />
+      <span class="cp-edit" aria-hidden="true">✎</span>
     </label>
+
+    <!-- Quick presets + transparent -->
+    <div class="cp-presets">
+      <button *ngFor="let c of presets" class="dot" [class.sel]="c===value" [style.background]="c" (click)="pick(c)"></button>
+      <button class="dot transparent-dot" [class.sel]="value==='transparent'" (click)="pick('transparent')" title="Transparent">
+        <span class="checker"></span>
+      </button>
+    </div>
   </div>
-  <div class="hex">#<input [ngModel]="strip(value)" (ngModelChange)="onHex($event)" maxlength="6" placeholder="2F006D" /></div>
+
+  <!-- Compact hex (optional fine-tuning) -->
+  <div class="cp-hex"><span class="hash">#</span><input [ngModel]="strip(value)" (ngModelChange)="onHex($event)" maxlength="6" placeholder="hex" /></div>
 </div>

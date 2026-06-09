@@ -68,7 +68,7 @@
         </div>
 
         <!-- INTERMEDIATE -->
-        <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}}"
+        <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}} int-size-{{t.intermediate.itemSize||'medium'}}"
              [style.--int-card]="t.intermediate.cardBackground" [style.--int-accent]="t.intermediate.accent" [style.--int-text]="t.intermediate.cardText">
           <div class="rail" *ngIf="t.intermediateStyle==='side-rail'">
             <b>Finder</b><span>Category</span><span>Model</span><span>Year</span>
@@ -113,18 +113,18 @@
             </div>
           </div>
         </div>
-        <ng-container *ngIf="page !== 'home' && page !== 'saver' && (t.navStyle || 'floating') !== 'hidden'">
-          <!-- Grouped: both buttons together -->
-          <div class="mock-nav" *ngIf="!t.nav?.split" [ngClass]="'nav-pos-'+(t.nav?.position || 'bottom-left')">
+        <ng-container *ngIf="page !== 'home' && page !== 'saver'">
+          <!-- Grouped: both buttons together (hidden when grouped position is Hidden) -->
+          <div class="mock-nav" *ngIf="!t.nav?.split && (t.nav?.position || 'bottom-left') !== 'hidden'" [ngClass]="'nav-pos-'+(t.nav?.position || 'bottom-left')">
             <span class="mock-btn" [style.color]="t.nav?.backColor || '#fff'" [style.background]="t.nav?.backBg || 'rgba(0,0,0,.35)'">&#8249;</span>
             <span class="mock-btn" [style.color]="t.nav?.homeColor || '#fff'" [style.background]="t.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</span>
           </div>
-          <!-- Separate: Back and Home positioned independently -->
+          <!-- Separate: Back and Home positioned (and hidden) independently -->
           <ng-container *ngIf="t.nav?.split">
-            <div class="mock-nav" [ngClass]="'nav-pos-'+(t.nav?.backPosition || 'bottom-left')">
+            <div class="mock-nav" *ngIf="(t.nav?.backPosition || 'bottom-left') !== 'hidden'" [ngClass]="'nav-pos-'+(t.nav?.backPosition || 'bottom-left')">
               <span class="mock-btn" [style.color]="t.nav?.backColor || '#fff'" [style.background]="t.nav?.backBg || 'rgba(0,0,0,.35)'">&#8249;</span>
             </div>
-            <div class="mock-nav" [ngClass]="'nav-pos-'+(t.nav?.homePosition || 'bottom-right')">
+            <div class="mock-nav" *ngIf="(t.nav?.homePosition || 'bottom-right') !== 'hidden'" [ngClass]="'nav-pos-'+(t.nav?.homePosition || 'bottom-right')">
               <span class="mock-btn" [style.color]="t.nav?.homeColor || '#fff'" [style.background]="t.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</span>
             </div>
           </ng-container>
@@ -227,12 +227,6 @@
             <button class="tile" *ngFor="let h of headerStyles" [class.sel]="(t.headerStyle||'logo-only')===h.id" (click)="t.headerStyle=h.id">{{ h.label }}</button>
           </div>
           <p class="hint">Text fields (title / caption) are filled in the content section.</p>
-          <div class="step-title sm">Transparent header</div>
-          <div class="seg">
-            <button class="tile" [class.sel]="t.transparentHeader" (click)="t.transparentHeader=true">On — image extends behind</button>
-            <button class="tile" [class.sel]="!t.transparentHeader" (click)="t.transparentHeader=false">Off — solid colour</button>
-          </div>
-          <p class="hint">Best with a background image. The header floats over the page background.</p>
         </ng-container>
         <div class="step-title sm">Intermediate page</div>
         <div class="seg">
@@ -316,19 +310,8 @@
           <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
           <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
         </div>
-        <ng-container *ngIf="t.intermediate.showHeader">
-          <div class="step-title sm">Transparent header</div>
-          <div class="seg">
-            <button class="tile" [class.sel]="t.intermediate.transparentHeader" (click)="t.intermediate.transparentHeader=true">On</button>
-            <button class="tile" [class.sel]="!t.intermediate.transparentHeader" (click)="t.intermediate.transparentHeader=false">Off</button>
-          </div>
-        </ng-container>
-
         <div class="step-title sm">Navigation buttons</div>
-        <p class="hint">Style the Back and Home buttons shown on this page.</p>
-        <div class="seg">
-          <button class="tile" *ngFor="let n of navStyles" [class.sel]="(t.navStyle||'floating')===n.id" (click)="t.navStyle=n.id">{{ n.label }}</button>
-        </div>
+        <p class="hint">Style the Back and Home buttons. Set a position to “Hidden” to hide that button.</p>
         <div class="nav-btn-row">
           <div class="nav-btn-grp">
             <span class="nav-btn-lbl">&#8249; Back</span>
@@ -391,19 +374,8 @@
           <button class="tile" [class.sel]="t.result.showHeader" (click)="t.result.showHeader=true">Show</button>
           <button class="tile" [class.sel]="!t.result.showHeader" (click)="t.result.showHeader=false">Hide</button>
         </div>
-        <ng-container *ngIf="t.result.showHeader">
-          <div class="step-title sm">Transparent header</div>
-          <div class="seg">
-            <button class="tile" [class.sel]="t.result.transparentHeader" (click)="t.result.transparentHeader=true">On</button>
-            <button class="tile" [class.sel]="!t.result.transparentHeader" (click)="t.result.transparentHeader=false">Off</button>
-          </div>
-        </ng-container>
-
         <div class="step-title sm">Navigation buttons</div>
-        <p class="hint">Style the Back and Home buttons shown on this page.</p>
-        <div class="seg">
-          <button class="tile" *ngFor="let n of navStyles" [class.sel]="(t.navStyle||'floating')===n.id" (click)="t.navStyle=n.id">{{ n.label }}</button>
-        </div>
+        <p class="hint">Style the Back and Home buttons. Set a position to “Hidden” to hide that button.</p>
         <div class="nav-btn-row">
           <div class="nav-btn-grp">
             <span class="nav-btn-lbl">&#8249; Back</span>
