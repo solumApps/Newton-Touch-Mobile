@@ -43,7 +43,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         </div>
 
         <!-- HOME -->
-        <div *ngSwitchCase="'home'" class="stage layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}}" [class.shape]="shapeCard">
+        <div *ngSwitchCase="'home'" class="stage layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} gap-{{theme?.cardGap||'normal'}}" [class.shape]="shapeCard">
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
             <span>{{ titleText || 'Product Finder' }}</span>
             <b>Start Search</b>
@@ -95,7 +95,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         </div>
 
         <!-- INTERMEDIATE -->
-        <div *ngSwitchCase="'inter'" class="stage int int-{{theme?.intermediateStyle}}"
+        <div *ngSwitchCase="'inter'" class="stage int int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediate?.align||'center'}} int-gap-{{theme?.intermediate?.gap||'normal'}}"
              [style.--int-card]="theme?.intermediate?.cardBackground"
              [style.--int-accent]="theme?.intermediate?.accent"
              [style.--int-text]="theme?.intermediate?.cardText">
@@ -207,12 +207,12 @@ export class ContentPreviewStripComponent {
 
   get scaleNum(): number {
     const s = this.theme?.typography?.textScale;
-    return s === 'compact' ? 0.9 : s === 'large' ? 1.14 : 1;
+    return s === 'compact' ? 0.8 : s === 'large' ? 1.25 : 1;
   }
   get shapeCard(): boolean {
     const sh = this.theme?.cardShape;
     const layout = this.theme?.homeLayout;
-    return (sh === 'circle' || sh === 'hexagon') && !['image-strip', 'fullscreen', 'hero-start', 'promo-categories', 'h-scroll'].includes(layout || '');
+    return (sh === 'circle' || sh === 'hexagon') && !['image-strip', 'fullscreen', 'hero-start', 'promo-categories', 'h-scroll', 'bento'].includes(layout || '');
   }
   get navVisible(): boolean { return (this.theme?.navStyle || 'floating') !== 'hidden'; }
   get saverShowContent(): boolean { return this.theme?.saverOverlay?.showContent !== false; }
