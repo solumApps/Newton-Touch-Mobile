@@ -51,15 +51,37 @@ export class SessionService {
       headers: { 'Content-Type': 'application/json' },
       data: { username, password },
     });
-    const msg = res.data?.responseMessage;
+    const body = this.parseHttpData(res.data);
+    const msg = body?.responseMessage;
     const token = msg?.access_token;
-    if (!token) throw new Error(res.data?.responseMessage?.toString?.() || 'Invalid credentials');
+    if (!token) throw new Error(this.responseError(body) || 'Invalid credentials');
     this.refreshToken = msg?.refresh_token || '';
     this.session = { token, username, environment: w.environment };
     this.loaded = true;
     await Preferences.set({ key: KEY, value: JSON.stringify(this.session) });
     // Make the token available to the Category API.
-    await this.ws.set({ username, token });
+    await this.ws.set({
+      username,
+      token,
+      companyId: '',
+      companyName: '',
+      storeId: '',
+      storeName: '',
+    });
+  }
+
+  private parseHttpData(data: unknown): any {
+    if (typeof data !== 'string') return data ?? {};
+    try {
+      return JSON.parse(data);
+    } catch {
+      return {};
+    }
+  }
+
+  private responseError(body: any): string {
+    const message = body?.responseMessage ?? body?.message ?? body?.error;
+    return typeof message === 'string' ? message : '';
   }
 
   async signOut(): Promise<void> {
