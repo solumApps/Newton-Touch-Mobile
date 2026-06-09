@@ -42,24 +42,19 @@ export class WorkspaceComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     try {
       const currentWs = await this.ws.get();
-      const { companies, stores } = await this.ws.login(currentWs.companyId || undefined);
+      const { companies, stores } = await this.ws.login();
       this.companies = companies;
 
       const hasSavedCompany = !!(currentWs.companyId && companies.some((c) => c.id === currentWs.companyId));
       if (hasSavedCompany) {
         this.companyId = currentWs.companyId;
-        this.stores = stores;
-        const hasSavedStore = !!(currentWs.storeId && stores.some((s) => s.id === currentWs.storeId));
-        this.storeId = hasSavedStore ? currentWs.storeId : (stores[0]?.id ?? '');
+        this.stores = companies[0]?.id === this.companyId ? stores : await this.ws.fetchStores(this.companyId);
+        const hasSavedStore = !!(currentWs.storeId && this.stores.some((s) => s.id === currentWs.storeId));
+        this.storeId = hasSavedStore ? currentWs.storeId : (this.stores[0]?.id ?? '');
       } else {
         this.companyId = companies[0]?.id ?? '';
-        if (this.companyId) {
-          this.stores = await this.ws.fetchStores(this.companyId);
-          this.storeId = this.stores[0]?.id ?? '';
-        } else {
-          this.stores = [];
-          this.storeId = '';
-        }
+        this.stores = this.companyId ? stores : [];
+        this.storeId = this.stores[0]?.id ?? '';
       }
     } catch (e: any) {
       this.error = e?.message || 'Failed to load workspace';
