@@ -12,23 +12,21 @@ import { filter } from 'rxjs';
   template: '<ion-app><ion-router-outlet (ionRouteDidChange)="applyStatusBarColor()"></ion-router-outlet></ion-app>',
 })
 export class AppComponent implements AfterViewInit {
-  private readonly fallbackStatusBarColor = '#2F006D';
   private readonly authStatusBarColor = '#F8FAFC';
   private readonly tabsStatusBarColor = '#2F006D';
+  private readonly transitionUpdateDelays = [0, 100, 250, 600];
+  private lastStatusBarColor = '';
+  private lastStatusBarStyle: Style | null = null;
+  private prepareStatusBarPromise: Promise<void> | null = null;
   private statusBarReady = false;
-  private currentUrl = '';
 
   constructor(private router: Router) {
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
-      .subscribe((event) => {
-        this.currentUrl = event.urlAfterRedirects;
-        this.applyStatusBarColor();
-      });
+      .subscribe(() => this.applyStatusBarColor());
   }
 
   ngAfterViewInit(): void {
-    this.currentUrl = this.router.url;
     this.applyStatusBarColor();
   }
 
@@ -36,17 +34,17 @@ export class AppComponent implements AfterViewInit {
     if (!Capacitor.isNativePlatform()) return;
 
     await this.prepareStatusBar();
-    this.scheduleStatusBarUpdate(0);
-    this.scheduleStatusBarUpdate(100);
-    this.scheduleStatusBarUpdate(250);
-    this.scheduleStatusBarUpdate(600);
+    this.transitionUpdateDelays.forEach((delay) => this.scheduleStatusBarUpdate(delay));
   }
 
   private async prepareStatusBar(): Promise<void> {
     if (this.statusBarReady) return;
 
-    await StatusBar.setOverlaysWebView({ overlay: false });
-    this.statusBarReady = true;
+    this.prepareStatusBarPromise ??= StatusBar.setOverlaysWebView({ overlay: false }).then(() => {
+      this.statusBarReady = true;
+    });
+
+    await this.prepareStatusBarPromise;
   }
 
   private scheduleStatusBarUpdate(delay: number): void {
@@ -56,14 +54,20 @@ export class AppComponent implements AfterViewInit {
   }
 
   private async updateStatusBarFromHeader(): Promise<void> {
-    const color = this.getRouteStatusBarColor() || this.getActiveHeaderColor() || this.fallbackStatusBarColor;
+    const color = this.getRouteStatusBarColor() || this.getActiveHeaderColor() || this.tabsStatusBarColor;
+    const style = this.isLightColor(color) ? Style.Light : Style.Dark;
+
+    if (color === this.lastStatusBarColor && style === this.lastStatusBarStyle) return;
 
     await StatusBar.setBackgroundColor({ color });
-    await StatusBar.setStyle({ style: this.isLightColor(color) ? Style.Light : Style.Dark });
+    await StatusBar.setStyle({ style });
+
+    this.lastStatusBarColor = color;
+    this.lastStatusBarStyle = style;
   }
 
   private getRouteStatusBarColor(): string | null {
-    const url = this.currentUrl.split('?')[0];
+    const url = this.router.url.split('?')[0];
 
     if (url.startsWith('/auth/environment') || url.startsWith('/auth/login')) {
       return this.authStatusBarColor;
