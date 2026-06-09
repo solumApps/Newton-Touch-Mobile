@@ -109,10 +109,11 @@ export class ContentBuilderComponent implements OnInit {
     return this.draft?.themeTokens.cardContent === 'icon-text';
   }
 
-  /** Intermediate styles that render an image per item — drives image upload UI. */
+  /** Intermediate styles that render an image/logo per item — drives image upload UI. */
   get intermediateNeedsImage(): boolean {
     const s = this.draft?.themeTokens.intermediateStyle;
-    return s === 'image-grid' || s === 'circular' || s === 'card-strip' || s === 'fullscreen';
+    return s === 'image-grid' || s === 'circular' || s === 'card-strip' || s === 'fullscreen'
+      || s === 'side-rail' || s === 'brand-grid' || s === 'brand-rail';
   }
 
   /** Show the flat intermediate editor only when the theme includes an intermediate page

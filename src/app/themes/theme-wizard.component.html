@@ -115,10 +115,13 @@
             <span>Find Me</span>
           </div>
           <div class="hero-prod" *ngIf="t.resultTemplate==='hero-product'">
-            <div class="hp-benefits"><span></span><span></span></div>
+            <div class="hp-benefits">
+              <span [style.--b]="t.result.accent">Made for your pick</span>
+              <span [style.--b]="t.result.accent">Fresh &amp; ready to go</span>
+            </div>
             <div class="hp-product">
               <div class="hp-img" [style.background]="t.result.accent"></div>
-              <div class="hp-info"><b>Product</b><span class="price">$0.00</span><i class="find" [style.background]="t.result.accent">Find Me</i></div>
+              <div class="hp-info"><b>Product Name</b><span class="price">$0.00</span><i class="find" [style.background]="t.result.accent">Find Me</i></div>
             </div>
             <div class="hp-headline">Awesome!<em [style.color]="t.result.accent">Loved your pick!</em></div>
           </div>
