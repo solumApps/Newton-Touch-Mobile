@@ -77,6 +77,13 @@
 .prev .hdr.logo-right { justify-content: flex-end; }
 .prev .hdr.hdr-style-title-only .nt { margin-left: 0; }
 .prev .hdr.hdr-style-title\+caption { gap: 5px; }
+/* custom header — 3 independent zones (left / center / right) */
+.prev .hdr.hdr-custom { display: grid; grid-template-columns: 1fr auto 1fr; gap: 4px; }
+.prev .hdr.hdr-custom .hzone { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.prev .hdr.hdr-custom .hzone.left { justify-content: flex-start; }
+.prev .hdr.hdr-custom .hzone.center { justify-content: center; }
+.prev .hdr.hdr-custom .hzone.right { justify-content: flex-end; }
+.prev .hdr.hdr-custom .nt { margin-left: 0; }
 .prev .stage { flex: 1; padding: 5px; overflow: hidden; box-sizing: border-box; }
 /* mock-nav positioning lives in the dedicated block below (.prev .mock-nav.nav-pos-*) */
 .prev-cap { text-align: center; font-size: 10px; font-weight: 700; color: var(--nt-text-2); margin: 6px 0 14px; text-transform: uppercase; letter-spacing: .5px; }
@@ -323,6 +330,11 @@
 .prev .stage .card.content-image-text.pos-overlay-bottom .meta { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(transparent, var(--prev-overlay, rgba(0,0,0,.6))); color: var(--prev-text, #fff); }
 .prev .stage .card.content-image-text.pos-overlay-top .meta { position: absolute; left: 0; right: 0; top: 0; background: linear-gradient(var(--prev-overlay, rgba(0,0,0,.6)), transparent); color: var(--prev-text, #fff); }
 .prev .stage .card.content-image-text.pos-center .meta { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--prev-text, #fff); text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+/* below (non-shape): image on top, label beneath; image flexes so the label always fits */
+.prev .stage .card.content-image-text.pos-below { display: flex; flex-direction: column; }
+.prev .stage .card.content-image-text.pos-below .img { position: static; flex: 1 1 auto; min-height: 0; width: 100%; }
+.prev .stage .card.content-image-text.pos-below .meta { position: static; flex: 0 0 auto; width: 100%; background: transparent; }
+.prev .stage .card.content-image-text.pos-below .name { white-space: normal; }
 
 /* Curved/pointed shapes need an inset label band; otherwise overlay text lands
    on the clipped edge and becomes unreadable on the LCD-ratio preview. */
@@ -330,13 +342,13 @@
 .prev .stage .card.shape-circle.content-image-text.pos-overlay-bottom .meta,
 .prev .stage .card.shape-hexagon.content-image-text.pos-overlay-bottom .meta {
   left: 10%; right: 10%; bottom: 11%; border-radius: 999px;
-  background: rgba(0,0,0,.52); padding: 1px 4px;
+  background: var(--prev-overlay, rgba(0,0,0,.52)); padding: 1px 4px;
 }
 .prev .stage .card.shape-pill.content-image-text.pos-overlay-top .meta,
 .prev .stage .card.shape-circle.content-image-text.pos-overlay-top .meta,
 .prev .stage .card.shape-hexagon.content-image-text.pos-overlay-top .meta {
   left: 10%; right: 10%; top: 11%; border-radius: 999px;
-  background: rgba(0,0,0,.52); padding: 1px 4px;
+  background: var(--prev-overlay, rgba(0,0,0,.52)); padding: 1px 4px;
 }
 .prev .stage .card.shape-pill.content-image-text.pos-overlay-bottom .name,
 .prev .stage .card.shape-pill.content-image-text.pos-overlay-top .name,
@@ -403,11 +415,11 @@
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .prev .stage.shape .card.content-image-text.pos-overlay-bottom .meta {
   position: absolute; left: 12%; right: 12%; bottom: 12%; width: auto;
-  border-radius: 999px; background: rgba(0,0,0,.52); padding: 1px 4px;
+  border-radius: 999px; background: var(--prev-overlay, rgba(0,0,0,.52)); padding: 1px 4px;
 }
 .prev .stage.shape .card.content-image-text.pos-overlay-top .meta {
   position: absolute; left: 12%; right: 12%; top: 12%; width: auto;
-  border-radius: 999px; background: rgba(0,0,0,.52); padding: 1px 4px;
+  border-radius: 999px; background: var(--prev-overlay, rgba(0,0,0,.52)); padding: 1px 4px;
 }
 .prev .stage.shape .card.content-image-text.pos-center .meta {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;

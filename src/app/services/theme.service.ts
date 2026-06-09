@@ -43,6 +43,10 @@ export class ThemeService {
       cardTextPos: 'overlay-bottom',
       showHeader: true,
       headerStyle: 'logo-only',
+      headerLayout: 'preset',
+      logoPos: 'left',
+      titlePos: 'center',
+      captionPos: 'center',
       includeIntermediate: true,
       intermediateStyle: 'pill-tabs',
       resultTemplate: 'map-list',
@@ -90,6 +94,10 @@ export class ThemeService {
     delete (out as any).cardStyle;
     out.showHeader = t?.showHeader ?? true;
     out.headerStyle = t?.headerStyle ?? 'logo-only';
+    out.headerLayout = t?.headerLayout ?? 'preset';
+    out.logoPos = t?.logoPos ?? 'left';
+    out.titlePos = t?.titlePos ?? 'center';
+    out.captionPos = t?.captionPos ?? 'center';
     out.overlayColor = t?.overlayColor ?? 'rgba(0,0,0,0.6)';
     out.cardSurface = t?.cardSurface ?? 'flat';
     out.navStyle = t?.navStyle ?? 'floating';

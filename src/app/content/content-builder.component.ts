@@ -136,9 +136,19 @@ export class ContentBuilderComponent implements OnInit {
 
   /** Header style derived from the theme — determines which header text inputs to show. */
   get headerStyle(): string { return this.draft?.themeTokens.headerStyle || 'logo-only'; }
-  get needsHeaderTitle(): boolean { return this.headerStyle !== 'logo-only'; }
-  get needsHeaderCaption(): boolean { return this.headerStyle === 'title+caption' || this.headerStyle === 'logo+title+caption'; }
-  get showLogo(): boolean { return this.headerStyle === 'logo-only' || this.headerStyle === 'logo+title+caption'; }
+  get isCustomHeader(): boolean { return (this.draft?.themeTokens.headerLayout || 'preset') === 'custom'; }
+  get needsHeaderTitle(): boolean {
+    if (this.isCustomHeader) return (this.draft?.themeTokens.titlePos || 'center') !== 'hidden';
+    return this.headerStyle !== 'logo-only';
+  }
+  get needsHeaderCaption(): boolean {
+    if (this.isCustomHeader) return (this.draft?.themeTokens.captionPos || 'center') !== 'hidden';
+    return this.headerStyle === 'title+caption' || this.headerStyle === 'logo+title+caption';
+  }
+  get showLogo(): boolean {
+    if (this.isCustomHeader) return (this.draft?.themeTokens.logoPos || 'left') !== 'hidden';
+    return this.headerStyle === 'logo-only' || this.headerStyle === 'logo+title' || this.headerStyle === 'logo+title+caption';
+  }
   get headerStyleLabel(): string {
     const m: Record<string, string> = { 'logo-only': 'Logo only', 'title-only': 'Title only', 'title+caption': 'Title + Caption', 'logo+title+caption': 'Logo + Title + Caption' };
     return m[this.headerStyle] || this.headerStyle;
