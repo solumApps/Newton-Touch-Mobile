@@ -72,7 +72,7 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'rect', label: 'Rectangle' }, { id: 'pill', label: 'Pill' }, { id: 'circle', label: 'Circle' }, { id: 'hexagon', label: 'Hexagon' },
   ];
   cardContents: { id: CardContent; label: string }[] = [
-    { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' },
+    { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' }, { id: 'text-only', label: 'Text only' },
     { id: 'icon-text', label: 'Icon + Text' }, { id: 'color-block', label: 'Colour block + Text' }, { id: 'gradient', label: 'Gradient' },
   ];
   cardTextPositions: { id: CardTextPos; label: string }[] = [
@@ -189,9 +189,6 @@ export class ThemeWizardComponent implements OnInit {
       if (existing) {
         this.name = existing.name;
         this.t = ThemeService.normalize(JSON.parse(JSON.stringify(existing.tokens)));
-        if (this.t.cardContent === 'text-only') {
-          this.t.cardContent = 'color-block';
-        }
       }
     }
   }
@@ -222,6 +219,13 @@ export class ThemeWizardComponent implements OnInit {
     return page === 'inter' ? this.t.intermediate.headerColor
       : page === 'result' ? this.t.result.headerColor
       : this.t.headerColor;
+  }
+  /** Per-page transparent-header flag — mirrors the LCD's hdr-transparent handling. */
+  transparentFor(page: PreviewPage): boolean {
+    return page === 'inter' ? !!this.t.intermediate.transparentHeader
+      : page === 'result' ? !!this.t.result.transparentHeader
+      : page === 'saver' ? false
+      : !!this.t.transparentHeader;
   }
   backgroundForPage(page: PreviewPage): string {
     const bg = page === 'inter' ? this.t.intermediate.background

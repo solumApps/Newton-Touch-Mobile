@@ -22,38 +22,22 @@
         th.tokens.resultTemplate }}</p>
     </div>
 
-    <!-- Page thumbnails -->
+    <!-- Page thumbnails — real token-driven previews (same renderer as the
+         content builder and the featured-theme cards: app-content-preview-strip). -->
     <div class="thumbs">
       <div class="t">
-        <div class="lcd" [style.background]="th.tokens.background">
-          <div class="hdr" [style.background]="th.tokens.headerColor"><span class="logo-bar"></span></div>
-          <div class="area">
-            <div class="cell" [style.background]="th.tokens.cardBackground"
-              [style.border]="'1px solid '+th.tokens.accent"></div>
-            <div class="cell" [style.background]="th.tokens.cardBackground"></div>
-            <div class="cell" [style.background]="th.tokens.cardBackground"></div>
-          </div>
-        </div>
+        <app-content-preview-strip [theme]="th.tokens" page="home" [draftName]="th.name"
+          [showStripCaption]="false"></app-content-preview-strip>
         <div class="cap">Home</div>
       </div>
       <div class="t" *ngIf="th.tokens.includeIntermediate">
-        <div class="lcd" [style.background]="th.tokens.intermediate.background">
-          <div class="hdr" [style.background]="th.tokens.intermediate.headerColor"><span class="logo-bar"></span></div>
-          <div class="area" style="flex-direction:column">
-            <div class="cell" style="margin:1.5px 0" [style.background]="th.tokens.accent"></div>
-            <div class="cell" style="margin:1.5px 0" [style.background]="th.tokens.intermediate.cardBackground"></div>
-          </div>
-        </div>
+        <app-content-preview-strip [theme]="th.tokens" page="inter" [draftName]="th.name"
+          [showStripCaption]="false"></app-content-preview-strip>
         <div class="cap">Intermediate</div>
       </div>
       <div class="t">
-        <div class="lcd" [style.background]="th.tokens.result.background">
-          <div class="hdr" [style.background]="th.tokens.result.headerColor"><span class="logo-bar"></span></div>
-          <div class="area">
-            <div class="cell" [style.background]="th.tokens.result.cardBackground"></div>
-            <div class="cell" [style.background]="th.tokens.result.accent"></div>
-          </div>
-        </div>
+        <app-content-preview-strip [theme]="th.tokens" page="result" [draftName]="th.name"
+          [showStripCaption]="false"></app-content-preview-strip>
         <div class="cap">Result</div>
       </div>
     </div>

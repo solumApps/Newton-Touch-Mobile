@@ -184,7 +184,13 @@ table.sum td:first-child {
   margin-bottom: 8px;
   box-shadow: 0 8px 20px rgba(15,23,42,.06);
 }
-.preview-block app-content-preview-strip { display: block; max-height: 30vh; overflow: hidden; }
+/* Cap by WIDTH (strip is aspect-ratio 1920/540) so the whole LCD frame always
+   fits within ~30vh — never crop it (clipped bottom edge on wide/desktop web). */
+.preview-block app-content-preview-strip {
+  display: block;
+  width: min(100%, calc(30vh * (1920 / 540)));
+  margin: 0 auto;
+}
 
 .foot {
   padding: 10px 16px calc(10px + env(safe-area-inset-bottom));

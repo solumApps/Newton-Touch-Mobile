@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Preferences } from '@capacitor/preferences';
 import type { ThemeTokens, HomeLayout, CardStyle, CardShape, CardContent, CardTextPos } from '@contract/layout';
+import { THEME_ENUM_VALUES, coerceEnum } from '@contract/layout';
 import { DEFAULT_FONT, FONTS } from '../shared/fonts';
 
 /** Default saverOverlay — shown centered with white text, no bg box. */
@@ -112,11 +113,51 @@ export class ThemeService {
     if ((out.homeLayout as string) === 'list') out.homeLayout = 'grid-2x3';
     if ((out.intermediateStyle as string) === 'accordion') out.intermediateStyle = 'pill-tabs';
     if ((out.intermediateStyle as string) === 'scroll-list') out.intermediateStyle = 'card-strip';
-    out.nav = { ...d.nav, ...(t?.nav || {}) };
+    const nav = { ...d.nav, ...(t?.nav || {}) };
+    out.nav = nav;
     out.intermediate = { ...d.intermediate, ...(t?.intermediate || {}), showHeader: t?.intermediate?.showHeader ?? true };
     out.result = { ...d.result, ...(t?.result || {}), showHeader: t?.result?.showHeader ?? true };
+    // Deep-merge animation + loader too — a partial object from an older/newer
+    // .solumtheme file must never leave undefined fields behind.
+    out.animation = { ...d.animation, ...(t?.animation || {}) };
+    out.loader = { ...d.loader, ...(t?.loader || {}) };
     out.typography = { ...d.typography, ...(t?.typography || {}) };
-    out.saverOverlay = { ...DEFAULT_SAVER_OVERLAY, ...(t?.saverOverlay || {}) };
+    const saver = { ...DEFAULT_SAVER_OVERLAY, ...(t?.saverOverlay || {}) };
+    out.saverOverlay = saver;
+    // Enum safety net: coerce unknown/invalid values (e.g. from a newer app
+    // version's export) to defaults with a console warning — never pass through.
+    const E = THEME_ENUM_VALUES;
+    out.logoPosition = coerceEnum(out.logoPosition, E.logoPosition, d.logoPosition, 'logoPosition');
+    out.homeLayout = coerceEnum(out.homeLayout, E.homeLayout, d.homeLayout, 'homeLayout');
+    out.cardSize = coerceEnum(out.cardSize, E.cardSize, 'normal', 'cardSize');
+    out.cardAlign = coerceEnum(out.cardAlign, E.align, 'center', 'cardAlign');
+    out.cardGap = coerceEnum(out.cardGap, E.gap, 'normal', 'cardGap');
+    out.cardShape = coerceEnum(out.cardShape, E.cardShape, d.cardShape, 'cardShape');
+    out.cardContent = coerceEnum(out.cardContent, E.cardContent, d.cardContent, 'cardContent');
+    out.cardTextPos = coerceEnum(out.cardTextPos, E.cardTextPos, d.cardTextPos, 'cardTextPos');
+    out.cardSurface = coerceEnum(out.cardSurface, E.cardSurface, 'flat', 'cardSurface');
+    out.navStyle = coerceEnum(out.navStyle, E.navStyle, 'floating', 'navStyle');
+    out.headerStyle = coerceEnum(out.headerStyle, E.headerStyle, 'logo-only', 'headerStyle');
+    out.headerLayout = coerceEnum(out.headerLayout, E.headerLayout, 'preset', 'headerLayout');
+    out.logoPos = coerceEnum(out.logoPos, E.headerItemPos, 'left', 'logoPos');
+    out.titlePos = coerceEnum(out.titlePos, E.headerItemPos, 'center', 'titlePos');
+    out.captionPos = coerceEnum(out.captionPos, E.headerItemPos, 'center', 'captionPos');
+    out.intermediateStyle = coerceEnum(out.intermediateStyle, E.intermediateStyle, d.intermediateStyle, 'intermediateStyle');
+    out.resultTemplate = coerceEnum(out.resultTemplate, E.resultTemplate, d.resultTemplate, 'resultTemplate');
+    nav.position = coerceEnum(nav.position, E.navButtonPosition, 'bottom-left', 'nav.position');
+    if (nav.backPosition !== undefined) nav.backPosition = coerceEnum(nav.backPosition, E.navButtonPosition, 'bottom-left', 'nav.backPosition');
+    if (nav.homePosition !== undefined) nav.homePosition = coerceEnum(nav.homePosition, E.navButtonPosition, 'bottom-right', 'nav.homePosition');
+    out.intermediate.itemSize = coerceEnum(out.intermediate.itemSize, E.itemSize, d.intermediate.itemSize, 'intermediate.itemSize');
+    out.intermediate.cardShape = coerceEnum(out.intermediate.cardShape, E.cardShape, 'rect', 'intermediate.cardShape');
+    out.intermediate.align = coerceEnum(out.intermediate.align, E.align, 'center', 'intermediate.align');
+    out.intermediate.gap = coerceEnum(out.intermediate.gap, E.gap, 'normal', 'intermediate.gap');
+    out.result.pathStyle = coerceEnum(out.result.pathStyle, E.pathStyle, d.result.pathStyle, 'result.pathStyle');
+    out.animation.transition = coerceEnum(out.animation.transition, E.transition, d.animation.transition, 'animation.transition');
+    out.animation.speed = coerceEnum(out.animation.speed, E.animSpeed, d.animation.speed, 'animation.speed');
+    out.loader.style = coerceEnum(out.loader.style, E.loaderStyle, d.loader.style, 'loader.style');
+    out.typography.textScale = coerceEnum(out.typography.textScale, E.textScale, d.typography.textScale, 'typography.textScale');
+    out.typography.textFit = coerceEnum(out.typography.textFit, E.textFit, d.typography.textFit, 'typography.textFit');
+    saver.position = coerceEnum(saver.position, E.saverOverlayPosition, 'center', 'saverOverlay.position');
     return out;
   }
 
@@ -134,74 +175,79 @@ export class ThemeService {
       typography: { ...d.typography, ...(over.typography || {}) },
     });
     return [
-      // 1) Bookstore Classic — warm sepia bookshop kiosk · slab serif · refined.
-      { id: 'pre_bookstore', name: 'Bookstore Classic', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#6B3410', background: 'linear-gradient(135deg,#FEF3E2,#F5E0BB)', cardBackground: '#FFFFFF', cardText: '#3E2410', accent: '#B45309',
-        logoPosition: 'left', homeLayout: 'grid-2x3', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'below',
-        cardSize: 'normal', cardAlign: 'center', cardGap: 'loose', cardSurface: 'raised',
-        showHeader: true, headerStyle: 'title+caption',
-        includeIntermediate: true, intermediateStyle: 'card-strip', resultTemplate: 'dual-list',
-        intermediate: { headerColor: '#6B3410', background: '#FEF3E2', cardBackground: '#FFFFFF', cardText: '#3E2410', accent: '#B45309', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'left', gap: 'normal' },
-        result: { headerColor: '#6B3410', background: '#FEF3E2', cardBackground: '#FFFFFF', cardText: '#3E2410', accent: '#B45309', pathColor: '#B45309', pathStyle: 'dotted', showHeader: true },
-        animation: { transition: 'fade-slide', speed: 'slow', applyToAll: true },
-        loader: { style: 'logo', color: '#B45309' },
-        typography: { fontFamily: font('slab'), textScale: 'normal', textFit: 'wrap', baseTextColor: '#3E2410' },
-      }) },
-
-      // 2) Tech Showroom — bold electronics kiosk · drill-stair flow (Staples-style) · brutalist red/black.
-      { id: 'pre_tech', name: 'Tech Showroom', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#B91C1C', background: 'linear-gradient(135deg,#1A0000,#3F0F0F)', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#EF4444',
-        logoPosition: 'left', homeLayout: 'grid-2x2', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-bottom',
-        cardSize: 'large', cardAlign: 'center', cardGap: 'tight', cardSurface: 'glow',
-        showHeader: true, headerStyle: 'logo+title+caption',
-        includeIntermediate: true, intermediateStyle: 'drill-stair', resultTemplate: 'drill-stair',
-        intermediate: { headerColor: '#7F1D1D', background: '#1A0000', cardBackground: 'rgba(255,255,255,0.06)', cardText: '#FFFFFF', accent: '#EF4444', itemSize: 'large', showHeader: true, cardShape: 'rect', align: 'center', gap: 'tight' },
-        result: { headerColor: '#7F1D1D', background: '#FFFFFF', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#EF4444', pathColor: '#EF4444', pathStyle: 'animated', showHeader: true },
-        animation: { transition: 'slide-left', speed: 'fast', applyToAll: true },
-        loader: { style: 'dot-pulse', color: '#EF4444' },
-        typography: { fontFamily: font('bebas'), textScale: 'large', textFit: 'shrink', baseTextColor: '#FFFFFF' },
-      }) },
-
-      // 3) Pharmacy Care — clinical blue/white · icon-text categories · in-store routing.
-      { id: 'pre_pharmacy', name: 'Pharmacy Care', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#1E40AF', background: '#F8FAFC', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#06B6D4',
-        logoPosition: 'center', homeLayout: 'col-4', cardShape: 'rect', cardContent: 'icon-text', cardTextPos: 'center',
-        cardSize: 'normal', cardAlign: 'center', cardGap: 'normal', cardSurface: 'outlined',
-        showHeader: true, headerStyle: 'logo+title+caption',
-        includeIntermediate: true, intermediateStyle: 'pill-tabs', resultTemplate: 'cards-map',
-        intermediate: { headerColor: '#1E40AF', background: '#ECFEFF', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#06B6D4', itemSize: 'medium', showHeader: true, cardShape: 'pill', align: 'center', gap: 'normal' },
-        result: { headerColor: '#1E40AF', background: '#F1F5F9', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#06B6D4', pathColor: '#06B6D4', pathStyle: 'solid', showHeader: true },
-        animation: { transition: 'scale-up', speed: 'normal', applyToAll: true },
-        loader: { style: 'spinner', color: '#06B6D4' },
-        typography: { fontFamily: font('inter'), textScale: 'normal', textFit: 'wrap', baseTextColor: '#0F172A' },
-      }) },
-
-      // 4) Café Express — direct browsing, no intermediate · warm espresso · filter-list result.
-      { id: 'pre_cafe', name: 'Café Express', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#6F4E37', background: 'linear-gradient(135deg,#FAF3E7,#E8D5B5)', cardBackground: '#FFFFFF', cardText: '#3F2A1A', accent: '#D97706',
-        logoPosition: 'center', homeLayout: 'hero-list', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-bottom',
-        cardSize: 'normal', cardAlign: 'center', cardGap: 'normal', cardSurface: 'raised',
-        showHeader: true, headerStyle: 'title-only',
-        includeIntermediate: false, intermediateStyle: 'card-strip', resultTemplate: 'filter-list',
-        intermediate: { headerColor: '#6F4E37', background: '#FAF3E7', cardBackground: '#FFFFFF', cardText: '#3F2A1A', accent: '#D97706', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', gap: 'normal' },
-        result: { headerColor: '#6F4E37', background: '#FAF3E7', cardBackground: '#FFFFFF', cardText: '#3F2A1A', accent: '#D97706', pathColor: '#D97706', pathStyle: 'solid', showHeader: true },
+      // 1) Fresh Market — vibrant grocery kiosk · promo rail with big featured copy · garden greens.
+      { id: 'pre_fresh_market', name: 'Fresh Market', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#15803D', background: 'linear-gradient(135deg,#F0FDF4,#DCFCE7)', cardBackground: '#FFFFFF', cardText: '#14532D', accent: '#22C55E', overlayColor: 'rgba(20,83,45,0.65)',
+        logoPosition: 'left', homeLayout: 'promo-categories', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-bottom',
+        cardSize: 'large', cardAlign: 'left', cardGap: 'normal', cardSurface: 'raised',
+        showHeader: true, headerStyle: 'logo+title',
+        includeIntermediate: true, intermediateStyle: 'image-grid', resultTemplate: 'promo-list',
+        intermediate: { headerColor: '#15803D', background: '#F0FDF4', cardBackground: '#FFFFFF', cardText: '#14532D', accent: '#22C55E', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', gap: 'normal' },
+        result: { headerColor: '#15803D', background: '#F0FDF4', cardBackground: '#FFFFFF', cardText: '#14532D', accent: '#16A34A', pathColor: '#16A34A', pathStyle: 'solid', showHeader: true },
         animation: { transition: 'fade-slide', speed: 'normal', applyToAll: true },
-        loader: { style: 'skeleton', color: '#D97706' },
-        typography: { fontFamily: font('source'), textScale: 'large', textFit: 'shrink', baseTextColor: '#3F2A1A' },
+        loader: { style: 'progress', color: '#22C55E' },
+        typography: { fontFamily: font('source'), textScale: 'normal', textFit: 'wrap', baseTextColor: '#14532D' },
+        saverOverlay: { showContent: true, title: 'Fresh Market', subtitle: 'Touch to find today’s freshest picks', position: 'bottom', textColor: '#FFFFFF', bgColor: 'rgba(20,83,45,0.55)' },
       }) },
 
-      // 5) Boutique Glamour — visual-first fashion lookbook, no intermediate · rose-gold · elegant.
-      { id: 'pre_boutique', name: 'Boutique Glamour', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#C2185B', background: 'linear-gradient(135deg,#FBE4EC,#E8C8D6)', cardBackground: 'rgba(255,255,255,0.85)', cardText: '#4A1424', accent: '#E8B4B8',
-        logoPosition: 'right', homeLayout: 'grid-2x2', cardShape: 'circle', cardContent: 'image-only', cardTextPos: 'below',
-        cardSize: 'normal', cardAlign: 'center', cardGap: 'loose', cardSurface: 'glass',
+      // 2) Volt Mega Store — dark electronics superstore · neon-cyan bento tiles · glow surface.
+      { id: 'pre_volt', name: 'Volt Mega Store', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#0B1220', background: 'linear-gradient(135deg,#050B14,#0E1B2C)', cardBackground: 'rgba(34,211,238,0.08)', cardText: '#E6FBFF', accent: '#22D3EE', overlayColor: 'rgba(2,12,27,0.72)',
+        logoPosition: 'left', homeLayout: 'bento', cardShape: 'rect', cardContent: 'gradient', cardTextPos: 'center',
+        cardSize: 'normal', cardAlign: 'center', cardGap: 'tight', cardSurface: 'glow',
+        showHeader: true, headerStyle: 'logo+title+caption',
+        includeIntermediate: true, intermediateStyle: 'side-rail', resultTemplate: 'card-grid',
+        intermediate: { headerColor: '#0B1220', background: '#050B14', cardBackground: 'rgba(34,211,238,0.07)', cardText: '#E6FBFF', accent: '#22D3EE', itemSize: 'large', showHeader: true, cardShape: 'rect', align: 'center', gap: 'tight' },
+        result: { headerColor: '#0B1220', background: '#070F1A', cardBackground: 'rgba(255,255,255,0.06)', cardText: '#E6FBFF', accent: '#22D3EE', pathColor: '#22D3EE', pathStyle: 'animated', showHeader: true },
+        animation: { transition: 'slide-left', speed: 'fast', applyToAll: true },
+        loader: { style: 'dot-pulse', color: '#22D3EE' },
+        typography: { fontFamily: font('inter'), textScale: 'normal', textFit: 'shrink', baseTextColor: '#E6FBFF' },
+        saverOverlay: { showContent: true, title: 'Volt Mega Store', subtitle: 'Tap to explore the latest tech', position: 'bottom-right', textColor: '#22D3EE', bgColor: 'rgba(5,11,20,0.6)' },
+      }) },
+
+      // 3) Atelier Mode — elegant fashion boutique · horizontal pill lookbook rail, no intermediate.
+      { id: 'pre_atelier', name: 'Atelier Mode', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#1C1917', background: 'linear-gradient(160deg,#FAF7F2,#EDE5DA)', cardBackground: '#FFFFFF', cardText: '#1C1917', accent: '#A16207', overlayColor: 'rgba(28,25,23,0.55)',
+        logoPosition: 'center', homeLayout: 'h-scroll', cardShape: 'pill', cardContent: 'image-text', cardTextPos: 'below',
+        cardSize: 'large', cardAlign: 'center', cardGap: 'loose', cardSurface: 'flat',
         showHeader: true, headerStyle: 'title+caption',
-        includeIntermediate: false, intermediateStyle: 'image-grid', resultTemplate: 'minimal',
-        intermediate: { headerColor: '#C2185B', background: '#FBE4EC', cardBackground: 'rgba(255,255,255,0.85)', cardText: '#4A1424', accent: '#E8B4B8', itemSize: 'large', showHeader: true, cardShape: 'circle', align: 'center', gap: 'loose' },
-        result: { headerColor: '#C2185B', background: '#FBE4EC', cardBackground: 'rgba(255,255,255,0.85)', cardText: '#4A1424', accent: '#E8B4B8', pathColor: '#E8B4B8', pathStyle: 'dashed', showHeader: true },
+        includeIntermediate: false, intermediateStyle: 'card-strip', resultTemplate: 'catalog-grid',
+        intermediate: { headerColor: '#1C1917', background: '#FAF7F2', cardBackground: '#FFFFFF', cardText: '#1C1917', accent: '#A16207', itemSize: 'medium', showHeader: true, cardShape: 'pill', align: 'center', gap: 'loose' },
+        result: { headerColor: '#1C1917', background: '#FAF7F2', cardBackground: '#FFFFFF', cardText: '#1C1917', accent: '#A16207', pathColor: '#A16207', pathStyle: 'dotted', showHeader: true },
         animation: { transition: 'shimmer', speed: 'normal', applyToAll: true },
-        loader: { style: 'progress', color: '#E8B4B8' },
-        typography: { fontFamily: font('nunito'), textScale: 'normal', textFit: 'wrap', baseTextColor: '#4A1424' },
+        loader: { style: 'skeleton', color: '#A16207' },
+        typography: { fontFamily: font('nunito'), textScale: 'normal', textFit: 'wrap', baseTextColor: '#1C1917' },
+        saverOverlay: { showContent: true, title: 'Atelier Mode', subtitle: 'Touch to browse the collection', position: 'center', textColor: '#FFFFFF', bgColor: 'transparent' },
+      }) },
+
+      // 4) Summit Sports — bold sports & outdoor wall · full-height image strips · blaze orange.
+      { id: 'pre_summit', name: 'Summit Sports', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#EA580C', background: 'linear-gradient(135deg,#1C1917,#292524)', cardBackground: 'rgba(255,255,255,0.10)', cardText: '#FFFFFF', accent: '#F97316', overlayColor: 'rgba(0,0,0,0.45)',
+        logoPosition: 'center', homeLayout: 'image-strip', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-top',
+        cardSize: 'normal', cardAlign: 'center', cardGap: 'tight', cardSurface: 'outlined',
+        showHeader: true, headerStyle: 'title-only',
+        includeIntermediate: true, intermediateStyle: 'center-tiles', resultTemplate: 'map-full',
+        intermediate: { headerColor: '#EA580C', background: '#1C1917', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#F97316', itemSize: 'large', showHeader: true, cardShape: 'rect', align: 'center', gap: 'tight' },
+        result: { headerColor: '#EA580C', background: '#171412', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#F97316', pathColor: '#F97316', pathStyle: 'solid', showHeader: true },
+        animation: { transition: 'scale-up', speed: 'fast', applyToAll: true },
+        loader: { style: 'spinner', color: '#F97316' },
+        typography: { fontFamily: font('bebas'), textScale: 'large', textFit: 'shrink', baseTextColor: '#FFFFFF' },
+        saverOverlay: { showContent: true, title: 'Summit Sports', subtitle: 'Touch to gear up', position: 'bottom-left', textColor: '#FFFFFF', bgColor: 'rgba(0,0,0,0.45)' },
+      }) },
+
+      // 5) Maison Lumière — premium gold-on-black · hexagon text tiles · glass surface · hero product reveal.
+      { id: 'pre_maison', name: 'Maison Lumière', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#0A0A0A', background: 'linear-gradient(135deg,#050505,#1A1408)', cardBackground: 'rgba(212,175,55,0.10)', cardText: '#F5E7C6', accent: '#D4AF37', overlayColor: 'rgba(10,10,10,0.70)',
+        logoPosition: 'center', homeLayout: 'grid-2x2', cardShape: 'hexagon', cardContent: 'text-only', cardTextPos: 'center',
+        cardSize: 'small', cardAlign: 'center', cardGap: 'loose', cardSurface: 'glass',
+        showHeader: true, headerStyle: 'logo+title',
+        includeIntermediate: true, intermediateStyle: 'hex-grid', resultTemplate: 'product-focus',
+        intermediate: { headerColor: '#0A0A0A', background: '#0B0905', cardBackground: 'rgba(212,175,55,0.10)', cardText: '#F5E7C6', accent: '#D4AF37', itemSize: 'medium', showHeader: true, cardShape: 'hexagon', align: 'center', gap: 'loose' },
+        result: { headerColor: '#0A0A0A', background: '#0B0905', cardBackground: 'rgba(245,231,198,0.06)', cardText: '#F5E7C6', accent: '#D4AF37', pathColor: '#D4AF37', pathStyle: 'dashed', showHeader: true },
+        animation: { transition: 'fade-slide', speed: 'slow', applyToAll: true },
+        loader: { style: 'logo', color: '#D4AF37' },
+        typography: { fontFamily: font('jakarta'), textScale: 'normal', textFit: 'shrink', baseTextColor: '#F5E7C6' },
+        saverOverlay: { showContent: true, title: 'Maison Lumière', subtitle: 'Touch to discover the collection', position: 'center', textColor: '#F5E7C6', bgColor: 'transparent' },
       }) },
     ];
   }
@@ -257,6 +303,9 @@ export class ThemeService {
   async import(text: string): Promise<SavedTheme> {
     const obj = JSON.parse(text);
     if (obj.kind !== 'solumtheme') throw new Error('Not a .solumtheme file');
+    if (typeof obj.version === 'number' && obj.version > FILE_VERSION) {
+      console.warn(`[nt-theme] Importing .solumtheme v${obj.version} into an app that writes v${FILE_VERSION} — unknown fields/values will be coerced to defaults.`);
+    }
     // Version-check: merge onto defaults so unknown/missing tokens fall back safely.
     const tokens: ThemeTokens = ThemeService.normalize(obj.tokens || {});
     const theme: SavedTheme = { id: 'thm_' + Date.now(), name: (obj.name || 'Imported Theme'), tokens, updatedAt: Date.now() };

@@ -223,6 +223,47 @@ export interface ResultContent {
   products: ResultProduct[];
 }
 
+/** Runtime enum value sets — kept in lockstep with the type unions above.
+ *  Used by the mobile import/normalize path AND the LCD ingest path to coerce
+ *  unknown enum values (from an older/newer app version, or a hand-edited
+ *  file) to safe defaults instead of passing them through into CSS classes. */
+export const THEME_ENUM_VALUES = {
+  logoPosition: ['left', 'center', 'right'],
+  homeLayout: ['grid-2x3', 'grid-2x2', 'col-2', 'col-3', 'col-4', 'hero-list', 'list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'h-scroll', 'bento'],
+  cardSize: ['xs', 'small', 'normal', 'large'],
+  cardShape: ['rect', 'pill', 'circle', 'hexagon'],
+  cardContent: ['image-text', 'image-only', 'text-only', 'icon-text', 'color-block', 'gradient'],
+  cardTextPos: ['overlay-top', 'overlay-bottom', 'below', 'center'],
+  cardSurface: ['flat', 'glass', 'raised', 'outlined', 'glow'],
+  navStyle: ['floating', 'edge', 'bottom-center', 'hidden'],
+  navButtonPosition: ['bottom-left', 'bottom-center', 'bottom-right', 'side-left', 'side-right', 'hidden'],
+  headerStyle: ['logo+title+caption', 'logo+title', 'logo-only', 'title+caption', 'title-only'],
+  headerLayout: ['preset', 'custom'],
+  headerItemPos: ['left', 'center', 'right', 'hidden'],
+  align: ['left', 'center', 'right'],
+  gap: ['tight', 'normal', 'loose'],
+  intermediateStyle: ['accordion', 'pill-tabs', 'image-grid', 'hex-grid', 'circular', 'scroll-list', 'card-strip', 'fullscreen', 'side-rail', 'center-tiles', 'brand-grid', 'drill-stair', 'brand-rail'],
+  resultTemplate: ['map-list', 'cards-map', 'dual-list', 'split-panel', 'list-only', 'map-full', 'card-grid', 'minimal', 'esl-focus', 'drill-stair', 'filter-list', 'map-filter-list', 'promo-list', 'catalog-grid', 'product-focus', 'hero-product'],
+  itemSize: ['small', 'medium', 'large'],
+  pathStyle: ['dashed', 'solid', 'dotted', 'animated'],
+  transition: ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'],
+  animSpeed: ['slow', 'normal', 'fast'],
+  loaderStyle: ['spinner', 'dot-pulse', 'progress', 'logo', 'skeleton'],
+  textScale: ['compact', 'normal', 'large'],
+  textFit: ['shrink', 'wrap', 'clip'],
+  saverOverlayPosition: ['center', 'bottom', 'top', 'bottom-left', 'bottom-right'],
+} as const;
+
+/** Coerce a (possibly unknown) enum value to a member of `allowed`. Unknown
+ *  non-empty values log a warning and fall back — never passed through. */
+export function coerceEnum<T extends string>(v: unknown, allowed: readonly string[], fallback: T, field?: string): T {
+  if (typeof v === 'string' && allowed.indexOf(v) >= 0) return v as T;
+  if (v !== undefined && v !== null && v !== '' && field) {
+    try { console.warn(`[nt-layout] Unknown ${field} value "${v}" — coerced to "${fallback}"`); } catch { /* no console */ }
+  }
+  return fallback;
+}
+
 export interface LayoutJson {
   schemaVersion: 1;
   contentName: string;

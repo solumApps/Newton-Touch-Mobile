@@ -278,7 +278,11 @@ export class ContentPreviewStripComponent {
 
   // Header style logic mirrors the LCD home component.
   get headerStyle(): string { return this.theme?.headerStyle || 'logo-only'; }
-  get isTransparentHeader(): boolean { return this.headerStyle === 'transparent'; }
+  get isTransparentHeader(): boolean {
+    if (this.page === 'inter') return !!this.theme?.intermediate?.transparentHeader;
+    if (this.page === 'result') return !!this.theme?.result?.transparentHeader;
+    return !!this.theme?.transparentHeader;
+  }
   get isCustomHeader(): boolean { return (this.theme?.headerLayout || 'preset') === 'custom'; }
   get logoPos(): string { return this.theme?.logoPos || 'left'; }
   get titlePos(): string { return this.theme?.titlePos || 'center'; }

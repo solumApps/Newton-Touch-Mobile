@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Preferences } from '@capacitor/preferences';
 import type { LayoutJson, AppMode, ThemeTokens, CardItem, ResultProduct, EslLink, EslBlinkBy, Screensaver, FieldSource, ResultContent } from '@contract/layout';
+import { ThemeService } from './theme.service';
+import { freshMarketSampleDraft, FRESH_MARKET_SAMPLE_ID } from './sample-content';
 
 export interface ContentDraft {
   id: string;
@@ -26,6 +28,8 @@ export interface ContentDraft {
 }
 
 const KEY = 'nt.content';
+/** Set once after seeding built-in sample drafts — deleting a sample never resurrects it. */
+const SEED_FLAG = 'nt.content.samplesSeeded';
 
 @Injectable({ providedIn: 'root' })
 export class ContentService {
@@ -37,9 +41,29 @@ export class ContentService {
   async list(): Promise<ContentDraft[]> {
     if (!this.cache.length) {
       const { value } = await Preferences.get({ key: KEY });
-      this.cache = value ? JSON.parse(value) : [];
+      const raw: ContentDraft[] = value ? JSON.parse(value) : [];
+      // Normalize stored theme tokens on read (mk()-style merge onto defaults +
+      // enum coercion) so drafts saved by an older app version always deploy a
+      // full, current-shape ThemeTokens — previews and the LCD stay in lockstep.
+      this.cache = raw.map((d) => ({ ...d, themeTokens: ThemeService.normalize(d.themeTokens || {}) }));
+      await this.seedSamplesOnce();
     }
     return this.cache;
+  }
+
+  /** Seed the built-in "Fresh Market – Sample" draft exactly once (first run).
+   *  Guarded by SEED_FLAG so a user deleting the sample never sees it return. */
+  private async seedSamplesOnce(): Promise<void> {
+    const { value: seeded } = await Preferences.get({ key: SEED_FLAG });
+    if (seeded) return;
+    if (!this.cache.some((d) => d.id === FRESH_MARKET_SAMPLE_ID)) {
+      const theme = ThemeService.predefined().find((t) => t.id === 'pre_fresh_market');
+      if (theme) {
+        this.cache = [...this.cache, freshMarketSampleDraft(theme)];
+        await Preferences.set({ key: KEY, value: JSON.stringify(this.cache) });
+      }
+    }
+    await Preferences.set({ key: SEED_FLAG, value: '1' });
   }
 
   async save(d: ContentDraft): Promise<void> {
@@ -67,6 +91,15 @@ export class ContentService {
 
   /** Compile a draft into the deployable layout.json (the contract LCD renders). */
   build(d: ContentDraft): LayoutJson {
+    // Map coordinates are RELATIVE percentages (0–100) per the contract — clamp
+    // free-typed values so an out-of-range number can never push the marker
+    // off the map on the 1920-wide kiosk.
+    const clampPct = (v?: number): number | undefined =>
+      v == null || isNaN(Number(v)) ? undefined : Math.min(100, Math.max(0, Number(v)));
+    const result: ResultContent = {
+      ...d.result,
+      products: (d.result?.products || []).map((p) => ({ ...p, mapX: clampPct(p.mapX), mapY: clampPct(p.mapY) })),
+    };
     const payload: LayoutJson = {
       schemaVersion: 1,
       contentName: d.name,
@@ -74,7 +107,7 @@ export class ContentService {
       theme: d.themeTokens,
       home: d.home,
       intermediate: d.intermediate,
-      result: d.result,
+      result,
       screensaver: d.screensaver,
     };
     if (d.header && (d.header.title || d.header.caption)) payload.header = { ...d.header };

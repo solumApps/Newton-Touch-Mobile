@@ -117,51 +117,15 @@
   border-color: rgba(47,0,109,0.18);
 }
 .pre-card:active { transform: translateY(0); }
+/* The mini-LCD itself is rendered by <app-content-preview-strip> — the SAME
+   token-driven renderer the content-builder, theme wizard and theme preview use.
+   No hand-rolled layout/shape mocks here anymore: the strip's own (global,
+   `.prev`-prefixed) styles draw the real homeLayout / cardShape / cardContent /
+   cardTextPos / surface for each theme. This wrapper only frames it. */
 .pre-lcd {
-  aspect-ratio: 1920/540;
-  display: flex; flex-direction: column;
-  position: relative;
-  overflow: hidden;
+  padding: 10px 10px 0;
+  background: linear-gradient(180deg, var(--nt-surface), transparent);
 }
-.pre-hd {
-  height: 26%;
-  display: flex; align-items: center;
-  padding: 0 8px; gap: 6px;
-}
-.pre-hd-logo { width: 22px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.7); }
-.pre-hd-title { width: 50px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.4); }
-.pre-cells { flex: 1; display: flex; padding: 6px; gap: 4px; }
-.pre-cell {
-  flex: 1;
-  border-radius: 4px;
-  border: 1.5px solid transparent;
-  opacity: .85;
-}
-.pre-lcd.layout-grid-2x3 .pre-cells {
-  display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr);
-}
-.pre-lcd.layout-grid-2x2 .pre-cells {
-  display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);
-}
-.pre-lcd.layout-col-4 .pre-cells { display: grid; grid-template-columns: repeat(4, 1fr); }
-.pre-lcd.layout-hero-list .pre-cells { display: grid; grid-template-columns: 1.3fr 1fr; grid-template-rows: repeat(3, 1fr); }
-.pre-lcd.layout-hero-list .pre-cell.featured { grid-row: 1 / 4; }
-.pre-lcd.layout-list .pre-cells { display: flex; flex-direction: column; }
-.pre-lcd.layout-list .pre-cell { min-height: 8px; border-radius: 999px; }
-.pre-lcd.layout-image-strip .pre-cells { padding: 0; gap: 0; }
-.pre-lcd.layout-image-strip .pre-cell { border-radius: 0; border-width: 0 1px 0 0; }
-.pre-lcd.layout-hero-start .pre-cells::before {
-  content: ''; position: absolute; left: 38%; right: 38%; top: 58%;
-  height: 8px; border-radius: 999px; background: var(--pre-accent);
-}
-.pre-lcd.layout-hero-start .pre-cell { display: none; }
-.pre-lcd.layout-promo-categories .pre-cells { padding-left: 38%; align-items: center; }
-.pre-lcd.layout-promo-categories::before {
-  content: ''; position: absolute; left: 10px; top: 42%; width: 28%; height: 22%;
-  border-radius: 5px; background: var(--pre-accent); opacity: .9;
-}
-.pre-lcd.shape-circle .pre-cell { border-radius: 50%; aspect-ratio: 1; align-self: center; }
-.pre-lcd.shape-hexagon .pre-cell { clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); border-radius: 0; aspect-ratio: 1; align-self: center; }
 .pre-body { padding: 12px 14px; }
 .pre-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pre-nm { font-size: 14px; font-weight: 800; color: var(--nt-text); letter-spacing: -.1px; }

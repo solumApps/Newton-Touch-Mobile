@@ -13,6 +13,8 @@
 .prev .hdr {
   height: 17%; display: flex; align-items: center; padding: 0 10px;
 }
+/* Transparent header — mirrors LCD .hdr.hdr-transparent: page background extends behind it. */
+.prev .hdr.hdr-transparent { background: transparent !important; position: absolute; left: 0; right: 0; top: 0; z-index: 2; }
 /* custom header — 3 zones; elements in a zone stack vertically (top/below) */
 .prev .hdr.hdr-custom { display: grid; grid-template-columns: 1fr auto 1fr; gap: 4px; align-items: center; }
 .prev .hdr.hdr-custom .hzone { display: flex; flex-direction: column; justify-content: center; gap: 1px; min-width: 0; height: 100%; overflow: hidden; }

@@ -99,8 +99,23 @@ export class DeployComponent implements OnInit, OnDestroy {
       if (raw === 'svg+xml') raw = 'svg';
       return raw;
     };
+    /** The LCD receiver decodes the payload after the comma as BASE64 binary.
+     *  Re-encode utf8/url-encoded data URIs (e.g. `data:image/svg+xml;utf8,…`
+     *  used by the built-in sample art) to base64 so the written file isn't
+     *  corrupted on the kiosk. Base64 URIs pass through untouched. */
+    const toBase64DataUri = (uri: string): string => {
+      const comma = uri.indexOf(',');
+      if (comma < 0) return uri;
+      const head = uri.slice(0, comma);
+      if (/;base64$/i.test(head)) return uri;
+      const mime = (/^data:([^;,]+)/.exec(head) || [])[1] || 'image/png';
+      try {
+        const text = decodeURIComponent(uri.slice(comma + 1));
+        return `data:${mime};base64,` + btoa(unescape(encodeURIComponent(text)));
+      } catch { return uri; }
+    };
     const take = (v?: string): string | undefined => {
-      if (v && v.startsWith('data:')) { const id = 'img_' + (n++); images.push({ id, data: v, ext: extFrom(v) }); return 'ntimg:' + id; }
+      if (v && v.startsWith('data:')) { const id = 'img_' + (n++); images.push({ id, data: toBase64DataUri(v), ext: extFrom(v) }); return 'ntimg:' + id; }
       return v;
     };
     const cards = (arr?: CardItem[]) => arr?.forEach((c) => { c.image = take(c.image); if (c.children) cards(c.children); });

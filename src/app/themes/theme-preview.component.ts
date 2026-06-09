@@ -8,13 +8,14 @@ import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { ThemeService, SavedTheme } from '../services/theme.service';
+import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
 import { NtButtonComponent, NtBadgeComponent, NtSectionHeaderComponent } from '../shared/ui';
 
 /** B2 — Theme preview: hero + 3 LCD thumbnails + expanded config summary + palette + actions. */
 @Component({
   selector: 'app-theme-preview',
   standalone: true,
-  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonIcon, IonModal, NtButtonComponent, NtBadgeComponent, NtSectionHeaderComponent],
+  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonIcon, IonModal, ContentPreviewStripComponent, NtButtonComponent, NtBadgeComponent, NtSectionHeaderComponent],
   templateUrl: './theme-preview.component.html',
   styleUrls: ['./theme-preview.component.scss'],
 })

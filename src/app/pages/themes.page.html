@@ -39,17 +39,13 @@
     <nt-section-header title="Featured themes" subtitle="Polished, ready-to-use designs"></nt-section-header>
     <div class="pre-slider" #featuredRail (scroll)="onFeaturedScroll(featuredRail)">
       <button class="pre-card" *ngFor="let t of predefined" (click)="use(t)" [attr.aria-label]="'Use theme ' + t.name">
-        <div class="pre-lcd layout-{{ t.tokens.homeLayout }} shape-{{ t.tokens.cardShape }}" [style.background]="t.tokens.background" [style.--pre-accent]="t.tokens.accent">
-          <div class="pre-hd" [style.background]="t.tokens.headerColor">
-            <span class="pre-hd-logo"></span>
-            <span class="pre-hd-title"></span>
-          </div>
-          <div class="pre-cells">
-            <div class="pre-cell featured" [style.background]="t.tokens.cardBackground" [style.border-color]="t.tokens.accent"></div>
-            <div class="pre-cell" [style.background]="t.tokens.cardBackground"></div>
-            <div class="pre-cell" [style.background]="t.tokens.cardBackground"></div>
-            <div class="pre-cell extra" [style.background]="t.tokens.cardBackground"></div>
-          </div>
+        <!-- Real token-driven preview — same renderer as the content builder & theme preview. -->
+        <div class="pre-lcd">
+          <app-content-preview-strip
+            [theme]="t.tokens"
+            page="home"
+            [draftName]="t.name"
+            [showStripCaption]="false"></app-content-preview-strip>
         </div>
         <div class="pre-body">
           <div class="pre-row">

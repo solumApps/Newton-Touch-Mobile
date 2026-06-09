@@ -19,39 +19,19 @@
   letter-spacing: .1px;
 }
 
-/* Page thumbnails — sticky, premium */
+/* Page thumbnails — full-width stacked strips, each drawn by the REAL
+   token-driven renderer (app-content-preview-strip). No hand-rolled
+   .lcd/.hdr/.cell mocks: layout, shapes, content type, surface, intermediate
+   style and result template all come from the same `.prev` pipeline the
+   content builder uses, so this preview always matches the featured card
+   and the eventual LCD render. */
 .thumbs {
   display: flex;
-  gap: 10px;
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  background: var(--ion-background-color, #fff);
-  padding: 8px 0 12px;
-  margin: 0 -4px;
-}
-.t { flex: 1; min-width: 0; padding: 0 4px; }
-.lcd {
-  aspect-ratio: 1920/540;
-  border-radius: 8px;
-  overflow: hidden;
-  display: flex;
   flex-direction: column;
-  border: 1px solid var(--nt-border);
-  box-shadow: var(--nt-shadow-1);
+  gap: 14px;
+  padding: 8px 0 16px;
 }
-.lcd .hdr {
-  height: 26%;
-  display: flex;
-  align-items: center;
-  padding: 0 6px;
-}
-.lcd .hdr .logo-bar {
-  width: 50%; max-width: 40px; height: 3px; border-radius: 2px;
-  background: rgba(255,255,255,0.6);
-}
-.lcd .area { flex: 1; display: flex; padding: 4px; gap: 3px; }
-.cell { flex: 1; border-radius: 2px; }
+.t { width: 100%; min-width: 0; }
 .cap {
   font-size: 10px;
   color: var(--nt-text-2);

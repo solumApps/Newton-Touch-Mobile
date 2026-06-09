@@ -29,7 +29,8 @@
            [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [style.--prev-overlay]="t.overlayColor || 'rgba(0,0,0,0.6)'" [ngSwitch]="page">
         <div class="hdr" *ngIf="headerVisibleFor(page)"
              [ngClass]="isCustomHeader ? 'hdr-custom' : ['logo-'+t.logoPosition, 'hdr-style-'+(t.headerStyle || 'logo-only')]"
-             [style.background]="headerColorForPage(page)">
+             [class.hdr-transparent]="transparentFor(page)"
+             [style.background]="transparentFor(page) ? 'transparent' : headerColorForPage(page)">
           <ng-container *ngIf="!isCustomHeader">
             <img *ngIf="showLogo" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
             <span class="nt title" *ngIf="showHeaderTitle">Newton Touch</span>
@@ -260,6 +261,12 @@
           <button class="tile" [class.sel]="!t.showHeader" (click)="t.showHeader=false">Hide</button>
         </div>
         <ng-container *ngIf="t.showHeader">
+          <div class="step-title sm">Header background</div>
+          <p class="hint">Transparent lets the page background (solid or image) extend behind the header.</p>
+          <div class="seg">
+            <button class="tile" [class.sel]="!t.transparentHeader" (click)="t.transparentHeader=false">Solid</button>
+            <button class="tile" [class.sel]="!!t.transparentHeader" (click)="t.transparentHeader=true">Transparent</button>
+          </div>
           <div class="step-title sm">Header layout</div>
           <div class="seg">
             <button class="tile" [class.sel]="!isCustomHeader" (click)="t.headerLayout='preset'">Preset combos</button>
@@ -360,6 +367,13 @@
           <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
           <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
         </div>
+        <ng-container *ngIf="t.intermediate.showHeader">
+          <div class="step-title sm">Header background</div>
+          <div class="seg">
+            <button class="tile" [class.sel]="!t.intermediate.transparentHeader" (click)="t.intermediate.transparentHeader=false">Solid</button>
+            <button class="tile" [class.sel]="!!t.intermediate.transparentHeader" (click)="t.intermediate.transparentHeader=true">Transparent</button>
+          </div>
+        </ng-container>
         <p class="hint">Colours, sub-item details and navigation buttons are set on the next step.</p>
       </div>
 
@@ -397,6 +411,10 @@
             <app-color-picker label="Icon color" [value]="t.nav?.homeColor || '#FFFFFF'" (valueChange)="t.nav!.homeColor=$event"></app-color-picker>
             <app-color-picker label="Background" [value]="t.nav?.homeBg || 'rgba(0,0,0,0.35)'" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
           </div>
+        </div>
+        <div class="step-title sm">Nav bar style</div>
+        <div class="seg">
+          <button class="tile" *ngFor="let s of navStyles" [class.sel]="(t.navStyle||'floating')===s.id" (click)="t.navStyle=s.id">{{ s.label }}</button>
         </div>
         <div class="step-title sm">Button layout</div>
         <div class="seg">
@@ -448,6 +466,13 @@
           <button class="tile" [class.sel]="t.result.showHeader" (click)="t.result.showHeader=true">Show</button>
           <button class="tile" [class.sel]="!t.result.showHeader" (click)="t.result.showHeader=false">Hide</button>
         </div>
+        <ng-container *ngIf="t.result.showHeader">
+          <div class="step-title sm">Header background</div>
+          <div class="seg">
+            <button class="tile" [class.sel]="!t.result.transparentHeader" (click)="t.result.transparentHeader=false">Solid</button>
+            <button class="tile" [class.sel]="!!t.result.transparentHeader" (click)="t.result.transparentHeader=true">Transparent</button>
+          </div>
+        </ng-container>
         <div class="step-title sm">Navigation buttons</div>
         <p class="hint">Style the Back and Home buttons. Set a position to “Hidden” to hide that button.</p>
         <div class="nav-btn-row">
@@ -461,6 +486,10 @@
             <app-color-picker label="Icon color" [value]="t.nav?.homeColor || '#FFFFFF'" (valueChange)="t.nav!.homeColor=$event"></app-color-picker>
             <app-color-picker label="Background" [value]="t.nav?.homeBg || 'rgba(0,0,0,0.35)'" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
           </div>
+        </div>
+        <div class="step-title sm">Nav bar style</div>
+        <div class="seg">
+          <button class="tile" *ngFor="let s of navStyles" [class.sel]="(t.navStyle||'floating')===s.id" (click)="t.navStyle=s.id">{{ s.label }}</button>
         </div>
         <div class="step-title sm">Button layout</div>
         <div class="seg">

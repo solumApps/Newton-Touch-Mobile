@@ -7,6 +7,7 @@ import { searchOutline, swapVerticalOutline, chevronForward, cloudUploadOutline,
 import { ThemeService, SavedTheme } from '../services/theme.service';
 import { WorkspaceService } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
+import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
 import { NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderComponent } from '../shared/ui';
 import { Subscription } from 'rxjs';
 
@@ -15,7 +16,7 @@ type Sort = 'Name' | 'Recent';
 @Component({
   selector: 'app-themes',
   standalone: true,
-  imports: [CommonModule, IonContent, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonModal, PageHeaderComponent, NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderComponent],
+  imports: [CommonModule, IonContent, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonModal, PageHeaderComponent, ContentPreviewStripComponent, NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderComponent],
   templateUrl: './themes.page.html',
   styleUrls: ['./themes.page.scss'],
 })
