@@ -45,10 +45,18 @@ export class ThemesPage implements OnInit, OnDestroy {
     addIcons({ searchOutline, swapVerticalOutline, chevronForward, cloudUploadOutline, trashOutline, colorPaletteOutline });
   }
 
+  private themesSub?: Subscription;
+
   async ngOnInit(): Promise<void> {
     this.wsSub = this.ws.changed.subscribe(w => {
       this.company = w.companyName || '';
       this.store = w.storeName || '';
+      this.cdr.detectChanges();
+    });
+    // Refresh the list whenever a theme is saved/removed/imported — covers the case
+    // where returning from the wizard doesn't re-fire the Ionic view lifecycle.
+    this.themesSub = this.themes.changed.subscribe(async () => {
+      this.mine = await this.themes.list();
       this.cdr.detectChanges();
     });
     this.predefined = ThemeService.predefined();
@@ -56,9 +64,10 @@ export class ThemesPage implements OnInit, OnDestroy {
     this.loading = false;
     await this.loadWorkspace();
   }
-  
+
   ngOnDestroy(): void {
     this.wsSub?.unsubscribe();
+    this.themesSub?.unsubscribe();
   }
   async ionViewWillEnter(): Promise<void> {
     this.mine = await this.themes.list();
