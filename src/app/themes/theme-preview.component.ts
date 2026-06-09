@@ -6,6 +6,7 @@ import { addIcons } from 'ionicons';
 import { ellipsisHorizontal, createOutline, downloadOutline, copyOutline, arrowForward } from 'ionicons/icons';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 import { ThemeService, SavedTheme } from '../services/theme.service';
 import { NtButtonComponent, NtBadgeComponent, NtSectionHeaderComponent } from '../shared/ui';
 
@@ -66,19 +67,23 @@ export class ThemePreviewComponent implements OnInit {
       this.msg = 'Exported .solumtheme';
       return;
     }
-    // Native (Android/iOS): the blob/anchor trick is a no-op — write to the
-    // device Documents folder with the Filesystem plugin so it's visible in Files.
+    // Native (Android/iOS): the blob/anchor trick is a no-op. Write the file to the
+    // app's Cache dir (always writable, no permission needed) then open the system
+    // share sheet so the user can save it to Files, send it, etc.
     try {
-      await Filesystem.writeFile({
-        path: filename,
-        data,
-        directory: Directory.Documents,
-        encoding: Encoding.UTF8,
-        recursive: true,
-      });
-      this.msg = `Saved to Documents/${filename}`;
+      await Filesystem.writeFile({ path: filename, data, directory: Directory.Cache, encoding: Encoding.UTF8, recursive: true });
+      const { uri } = await Filesystem.getUri({ path: filename, directory: Directory.Cache });
+      const canShare = await Share.canShare().catch(() => ({ value: false }));
+      if (canShare.value) {
+        await Share.share({ title: this.theme.name, text: `Newton Touch theme: ${this.theme.name}`, url: uri, dialogTitle: 'Export .solumtheme' });
+        this.msg = 'Theme exported';
+      } else {
+        this.msg = `Exported ${filename} → ${uri}`;   // sharing unavailable → report saved path
+      }
     } catch (e: any) {
-      this.msg = 'Export failed: ' + (e?.message || e);
+      // User dismissing the share sheet also rejects — don't treat that as a hard error.
+      const m = e?.message || String(e);
+      this.msg = /cancel|dismiss/i.test(m) ? 'Export cancelled' : 'Export failed: ' + m;
     }
   }
 
