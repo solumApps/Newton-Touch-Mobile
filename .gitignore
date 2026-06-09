@@ -3,42 +3,73 @@
 
 *~
 *.sw[mnpcod]
-*.log
+.tmp
 *.tmp
 *.tmp.*
+UserInterfaceState.xcuserstate
+$RECYCLE.BIN/
+
+*.log
 log.txt
-*.sublime-project
-*.sublime-workspace
-.vscode/
-npm-debug.log*
-yarn-error.log*
 
-.idea/
-.DS_Store
-.sourcemaps/
-.sass-cache/
-.tmp/
-.versions/
-coverage/
-dist/
-node_modules/
-typings/
-node/
-.angular/
-out-tsc/
-www/
 
-# Capacitor
-ios/App/Pods/
-ios/App/App.xcworkspace/xcuserdata/
-ios/App/App/xcuserdata/
-android/.gradle/
-android/app/build/
-android/build/
-android/local.properties
-android/.idea/
-android/.project
-android/app/.cxx/
+
+/.sourcemaps
+/.versions
+/coverage
 
 # Ionic
-.ionic/
+/.ionic
+/www
+/platforms
+/plugins
+package-lock.json
+
+
+# Compiled output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# IDEs and editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+
+# Miscellaneous
+/.angular
+/.angular/cache
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+/android
+/ios
+/image-cropper-test
+
+# System files
+.DS_Store
+Thumbs.db
+

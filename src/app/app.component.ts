@@ -1,10 +1,129 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { Capacitor } from '@capacitor/core';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [IonApp, IonRouterOutlet],
-  template: '<ion-app><ion-router-outlet></ion-router-outlet></ion-app>',
+  template: '<ion-app><ion-router-outlet (ionRouteDidChange)="applyStatusBarColor()"></ion-router-outlet></ion-app>',
 })
-export class AppComponent {}
+export class AppComponent implements AfterViewInit {
+  private readonly fallbackStatusBarColor = '#2F006D';
+  private readonly authStatusBarColor = '#F8FAFC';
+  private readonly tabsStatusBarColor = '#2F006D';
+  private statusBarReady = false;
+  private currentUrl = '';
+
+  constructor(private router: Router) {
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        this.currentUrl = event.urlAfterRedirects;
+        this.applyStatusBarColor();
+      });
+  }
+
+  ngAfterViewInit(): void {
+    this.currentUrl = this.router.url;
+    this.applyStatusBarColor();
+  }
+
+  async applyStatusBarColor(): Promise<void> {
+    if (!Capacitor.isNativePlatform()) return;
+
+    await this.prepareStatusBar();
+    this.scheduleStatusBarUpdate(0);
+    this.scheduleStatusBarUpdate(100);
+    this.scheduleStatusBarUpdate(250);
+    this.scheduleStatusBarUpdate(600);
+  }
+
+  private async prepareStatusBar(): Promise<void> {
+    if (this.statusBarReady) return;
+
+    await StatusBar.setOverlaysWebView({ overlay: false });
+    this.statusBarReady = true;
+  }
+
+  private scheduleStatusBarUpdate(delay: number): void {
+    window.setTimeout(() => {
+      requestAnimationFrame(() => void this.updateStatusBarFromHeader());
+    }, delay);
+  }
+
+  private async updateStatusBarFromHeader(): Promise<void> {
+    const color = this.getRouteStatusBarColor() || this.getActiveHeaderColor() || this.fallbackStatusBarColor;
+
+    await StatusBar.setBackgroundColor({ color });
+    await StatusBar.setStyle({ style: this.isLightColor(color) ? Style.Light : Style.Dark });
+  }
+
+  private getRouteStatusBarColor(): string | null {
+    const url = this.currentUrl.split('?')[0];
+
+    if (url.startsWith('/auth/environment') || url.startsWith('/auth/login')) {
+      return this.authStatusBarColor;
+    }
+
+    if (url.startsWith('/tabs')) {
+      return this.tabsStatusBarColor;
+    }
+
+    return null;
+  }
+
+  private getActiveHeaderColor(): string | null {
+    const toolbars = Array.from(document.querySelectorAll<HTMLElement>('ion-header ion-toolbar'))
+      .filter((toolbar) => !toolbar.closest('.ion-page-hidden'));
+    const toolbar = toolbars.at(-1);
+
+    if (!toolbar) return null;
+
+    const styles = getComputedStyle(toolbar);
+    const toolbarBackground = styles.getPropertyValue('--background') || styles.backgroundColor;
+    return this.toStatusBarColor(toolbarBackground);
+  }
+
+  private toStatusBarColor(value: string): string | null {
+    const resolved = this.resolveCssVars(value.trim());
+
+    const hex = resolved.match(/#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b/)?.[0];
+    if (hex) return this.expandHex(hex);
+
+    const rgb = resolved.match(/rgba?\(([^)]+)\)/)?.[1];
+    if (!rgb) return null;
+
+    const [r, g, b] = rgb.split(',').map((part) => Number.parseFloat(part.trim()));
+    if ([r, g, b].some((part) => Number.isNaN(part))) return null;
+
+    return this.rgbToHex(r, g, b);
+  }
+
+  private resolveCssVars(value: string): string {
+    return value.replace(/var\((--[^),\s]+)(?:,\s*([^)]+))?\)/g, (_match, name: string, fallback: string) => {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback || '';
+    });
+  }
+
+  private expandHex(hex: string): string {
+    if (hex.length === 7) return hex.toUpperCase();
+
+    const [, r, g, b] = hex;
+    return `#${r}${r}${g}${g}${b}${b}`.toUpperCase();
+  }
+
+  private rgbToHex(r: number, g: number, b: number): string {
+    return `#${[r, g, b].map((part) => Math.round(part).toString(16).padStart(2, '0')).join('')}`.toUpperCase();
+  }
+
+  private isLightColor(hex: string): boolean {
+    const r = Number.parseInt(hex.slice(1, 3), 16);
+    const g = Number.parseInt(hex.slice(3, 5), 16);
+    const b = Number.parseInt(hex.slice(5, 7), 16);
+    return (r * 299 + g * 587 + b * 114) / 1000 > 186;
+  }
+}
