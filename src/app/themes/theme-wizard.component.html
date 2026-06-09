@@ -34,7 +34,7 @@
         </div>
 
         <!-- HOME -->
-        <div *ngSwitchCase="'home'" class="stage layout-{{t.homeLayout}} card-size-{{t.cardSize||'normal'}}" [class.shape]="shapeCard">
+        <div *ngSwitchCase="'home'" class="stage layout-{{t.homeLayout}} card-size-{{t.cardSize||'normal'}} align-{{t.cardAlign||'center'}} gap-{{t.cardGap||'normal'}}" [class.shape]="shapeCard">
           <div class="hero-copy" *ngIf="t.homeLayout==='hero-start'">
             <span>Product Finder</span>
             <b>Start Search</b>
@@ -68,7 +68,7 @@
         </div>
 
         <!-- INTERMEDIATE -->
-        <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}} int-size-{{t.intermediate.itemSize||'medium'}}"
+        <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}} int-size-{{t.intermediate.itemSize||'medium'}} int-shape-{{t.intermediate.cardShape||'rect'}} int-align-{{t.intermediate.align||'center'}} int-gap-{{t.intermediate.gap||'normal'}}"
              [style.--int-card]="t.intermediate.cardBackground" [style.--int-accent]="t.intermediate.accent" [style.--int-text]="t.intermediate.cardText">
           <div class="rail" *ngIf="t.intermediateStyle==='side-rail'">
             <b>Finder</b><span>Category</span><span>Model</span><span>Year</span>
@@ -194,6 +194,20 @@
           <button class="tile" *ngFor="let s of cardSizes" [class.sel]="(t.cardSize||'normal')===s" (click)="t.cardSize=s">{{ cardSizeLabels[s] }}</button>
         </div>
 
+        <div class="step-title sm">Card gap</div>
+        <p class="hint">Spacing between cards. Overflow scrolls automatically.</p>
+        <div class="seg">
+          <button class="tile" *ngFor="let g of gaps" [class.sel]="(t.cardGap||'normal')===g.id" (click)="t.cardGap=g.id">{{ g.label }}</button>
+        </div>
+
+        <ng-container *ngIf="alignMatters">
+          <div class="step-title sm">Card alignment</div>
+          <p class="hint">Aligns cards within the row — handy when there are only a few.</p>
+          <div class="seg">
+            <button class="tile" *ngFor="let a of aligns" [class.sel]="(t.cardAlign||'center')===a.id" (click)="t.cardAlign=a.id">{{ a.label }}</button>
+          </div>
+        </ng-container>
+
         <div class="step-title sm">Card shape</div>
         <div class="tiles">
           <button class="tile" *ngFor="let s of availableCardShapes" [class.sel]="t.cardShape===s.id" (click)="t.cardShape=s.id">{{ s.label }}</button>
@@ -272,11 +286,21 @@
         <div class="step-title">Intermediate design</div>
         <div class="step-title sm">Layout style</div>
         <p class="hint">How sub-categories are arranged on the drill-down screen.</p>
-        <div class="tiles"><button class="tile" *ngFor="let o of intStyles" [class.sel]="t.intermediateStyle===o" (click)="t.intermediateStyle=o">{{ o }}</button></div>
+        <div class="tiles"><button class="tile" *ngFor="let o of intStyles" [class.sel]="t.intermediateStyle===o" (click)="t.intermediateStyle=o">{{ intStyleLabel(o) }}</button></div>
 
         <div class="step-title sm">Item size</div>
         <p class="hint">Physical size of each sub-category tile/row.</p>
         <div class="seg"><button class="tile" *ngFor="let o of sizes" [class.sel]="t.intermediate.itemSize===o" (click)="t.intermediate.itemSize=o">{{ o | titlecase }}</button></div>
+
+        <div class="step-title sm">Card shape</div>
+        <p class="hint">Shape of each sub-category tile (applies to grid / tile styles).</p>
+        <div class="tiles"><button class="tile" *ngFor="let s of cardShapes" [class.sel]="(t.intermediate.cardShape||'rect')===s.id" (click)="t.intermediate.cardShape=s.id">{{ s.label }}</button></div>
+
+        <div class="step-title sm">Card gap</div>
+        <div class="seg"><button class="tile" *ngFor="let g of gaps" [class.sel]="(t.intermediate.gap||'normal')===g.id" (click)="t.intermediate.gap=g.id">{{ g.label }}</button></div>
+
+        <div class="step-title sm">Card alignment</div>
+        <div class="seg"><button class="tile" *ngFor="let a of aligns" [class.sel]="(t.intermediate.align||'center')===a.id" (click)="t.intermediate.align=a.id">{{ a.label }}</button></div>
 
         <div class="step-title sm">Card surface</div>
         <div class="seg"><button class="tile" *ngFor="let s of cardSurfaces" [class.sel]="(t.cardSurface||'flat')===s.id" (click)="t.cardSurface=s.id">{{ s.label }}</button></div>
