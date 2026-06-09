@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 import { Preferences } from '@capacitor/preferences';
 import type { LayoutJson, AppMode, ThemeTokens, CardItem, ResultProduct, EslLink, EslBlinkBy, Screensaver, FieldSource, ResultContent } from '@contract/layout';
 
@@ -29,6 +30,9 @@ const KEY = 'nt.content';
 @Injectable({ providedIn: 'root' })
 export class ContentService {
   private cache: ContentDraft[] = [];
+  /** Emits when the draft list changes (save / remove) so list views refresh
+   *  immediately regardless of Ionic view-lifecycle timing. */
+  readonly changed = new Subject<void>();
 
   async list(): Promise<ContentDraft[]> {
     if (!this.cache.length) {
@@ -48,6 +52,7 @@ export class ContentService {
     if (i >= 0) next[i] = d; else next.push(d);
     this.cache = next;
     await Preferences.set({ key: KEY, value: JSON.stringify(next) });
+    this.changed.next();
   }
 
   /** Delete a content draft. */
@@ -57,6 +62,7 @@ export class ContentService {
     const next = this.cache.filter((c) => c.id !== id);
     this.cache = next;
     await Preferences.set({ key: KEY, value: JSON.stringify(next) });
+    this.changed.next();
   }
 
   /** Compile a draft into the deployable layout.json (the contract LCD renders). */

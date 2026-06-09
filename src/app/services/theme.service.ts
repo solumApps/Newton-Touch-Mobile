@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 import { Preferences } from '@capacitor/preferences';
 import type { ThemeTokens, HomeLayout, CardStyle, CardShape, CardContent, CardTextPos } from '@contract/layout';
 import { DEFAULT_FONT, FONTS } from '../shared/fonts';
@@ -21,6 +22,9 @@ const FILE_VERSION = 1;
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private cache: SavedTheme[] = [];
+  /** Emits whenever the saved-theme list changes (save / remove / import) so list
+   *  views refresh immediately, independent of Ionic view lifecycle timing. */
+  readonly changed = new Subject<void>();
 
   static defaultTokens(): ThemeTokens {
     return {
@@ -225,6 +229,7 @@ export class ThemeService {
     if (i >= 0) next[i] = theme; else next.push(theme);
     this.cache = next;
     await Preferences.set({ key: KEY, value: JSON.stringify(next) });
+    this.changed.next();
   }
 
   /** Delete a saved theme (predefined themes are read-only and cannot be deleted). */
@@ -234,6 +239,7 @@ export class ThemeService {
     const next = this.cache.filter((t) => t.id !== id);
     this.cache = next;
     await Preferences.set({ key: KEY, value: JSON.stringify(next) });
+    this.changed.next();
   }
 
   /** Editing a predefined theme creates a copy in My Themes. */

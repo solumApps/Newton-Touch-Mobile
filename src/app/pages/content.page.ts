@@ -27,6 +27,7 @@ export class ContentPage implements OnInit, OnDestroy {
   confirmOpen = false;
   confirmDraft: ContentDraft | null = null;
   private wsSub?: Subscription;
+  private contentSub?: Subscription;
 
   constructor(
     private content: ContentService,
@@ -43,6 +44,12 @@ export class ContentPage implements OnInit, OnDestroy {
       this.store = w.storeName || '';
       this.cdr.detectChanges();
     });
+    // Refresh when a draft is saved/removed — covers returning from the builder
+    // when the Ionic view lifecycle doesn't re-fire.
+    this.contentSub = this.content.changed.subscribe(async () => {
+      this.drafts = await this.content.list();
+      this.cdr.detectChanges();
+    });
     this.drafts = await this.content.list();
     this.loading = false;
     await this.loadWorkspace();
@@ -50,6 +57,7 @@ export class ContentPage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.wsSub?.unsubscribe();
+    this.contentSub?.unsubscribe();
   }
 
   async ionViewWillEnter(): Promise<void> {
