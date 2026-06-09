@@ -3,8 +3,8 @@ import { authGuard, entryGuard } from './services/auth.guard';
 
 export const routes: Routes = [
   // Resume to home when already signed in with a store selected; else the auth flow.
-  { path: '', pathMatch: 'full', canMatch: [entryGuard], redirectTo: 'tabs/themes' },
-  { path: '', pathMatch: 'full', redirectTo: 'auth/environment' },
+  // entryGuard returns a UrlTree (redirect), so this route renders nothing itself.
+  { path: '', pathMatch: 'full', canActivate: [entryGuard], children: [] },
 
   // Theme wizard (Create New Theme / Edit)
   { path: 'theme-preview/:id', loadComponent: () => import('./themes/theme-preview.component').then((m) => m.ThemePreviewComponent) },
