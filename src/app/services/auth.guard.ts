@@ -10,6 +10,11 @@ export const authGuard: CanActivateFn = async () => {
   return (await session.isAuthed()) ? true : router.parseUrl('/auth/environment');
 };
 
+/** App launch route: resume the main app when a valid session is already stored. */
+export const startupGuard: CanActivateFn = async () => {
+  const session = inject(SessionService);
+  const router = inject(Router);
+  return router.parseUrl((await session.isAuthed()) ? '/tabs/themes' : '/auth/environment');
 /**
  * Entry guard for the root path. Returns true only when the user is fully set up
  * (signed in AND a store selected) so the app can resume straight to the home tabs

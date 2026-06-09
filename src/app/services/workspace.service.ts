@@ -88,7 +88,14 @@ export class WorkspaceService {
 
   /** Set environment by name → also sets the matching base server URL. */
   async setEnvironment(name: string): Promise<void> {
-    await this.set({ environment: name, serverUrl: SERVERS[name] ?? '' });
+    await this.set({
+      environment: name,
+      serverUrl: SERVERS[name] ?? '',
+      companyId: '',
+      companyName: '',
+      storeId: '',
+      storeName: '',
+    });
   }
 
   /**
@@ -100,14 +107,47 @@ export class WorkspaceService {
     const w = await this.get();
     if (!w.serverUrl || !w.token) throw new Error('Not signed in');
     const url = `${httpBase(w.serverUrl)}/common/api/v2/common/login` + (companyId ? `?company=${encodeURIComponent(companyId)}` : '');
-    const res = await CapacitorHttp.post({ url, headers: { Authorization: `Bearer ${w.token}`, 'Content-Type': 'application/json' }, data: {} });
-    let body: any = res.data ?? {};
-    if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
-    const root: any = body.data ?? body;           // change-company returns at top level
-    const companies: Company[] = (root.company ?? root.companyList ?? []).map((c: any) => this.mapCompany(c));
-    const rawStores = root.managedStores ?? body.managedStores ?? root.storeList ?? [];
-    const stores: Store[] = rawStores.map((s: any) => this.mapStore(s));
+    const res = await CapacitorHttp.post({
+      url,
+      headers: { Authorization: `Bearer ${w.token}`, 'Content-Type': 'application/json' },
+    });
+    const body = this.parseHttpData(res.data);
+    if (res.status < 200 || res.status >= 300) {
+      throw new Error(this.responseError(body) || `Workspace login failed (${res.status})`);
+    }
+
+    const root: any = this.objectOrNull(body?.data) ?? body;
+    const companies = this.toArray(root?.company ?? root?.companyList ?? root?.companies)
+      .map((c: any) => this.mapCompany(c))
+      .filter((c) => c.id);
+    const stores = this.toArray(root?.managedStores ?? body?.managedStores ?? root?.storeList ?? root?.stores)
+      .map((s: any) => this.mapStore(s))
+      .filter((s) => s.id);
     return { companies, stores };
+  }
+
+  private parseHttpData(data: unknown): any {
+    if (typeof data !== 'string') return data ?? {};
+    try {
+      return JSON.parse(data);
+    } catch {
+      return {};
+    }
+  }
+
+  private responseError(body: any): string {
+    const message = body?.responseMessage ?? body?.message ?? body?.error;
+    return typeof message === 'string' ? message : '';
+  }
+
+  private objectOrNull(value: any): any | null {
+    return value && typeof value === 'object' ? value : null;
+  }
+
+  private toArray(value: any): any[] {
+    if (Array.isArray(value)) return value;
+    if (value == null) return [];
+    return [value];
   }
 
   /** Company element may be a plain string (code) OR an object — handle both. */
@@ -123,8 +163,8 @@ export class WorkspaceService {
   private mapStore(s: any): Store {
     if (s == null) return { id: '', code: '', name: '' };
     if (typeof s === 'string') return { id: s, code: s, name: s };
-    const code = String(s.code ?? s.storeCode ?? s.store ?? s.storeId ?? s.id ?? '');
-    const name = String(s.name ?? s.storeName ?? s.label ?? s.displayName ?? code);
+    const code = String(s.code ?? s.storeCode ?? s.stationCode ?? s.store ?? s.storeId ?? s.id ?? '');
+    const name = String(s.name ?? s.storeName ?? s.stationName ?? s.label ?? s.displayName ?? code);
     return { id: code, code, name };
   }
 
