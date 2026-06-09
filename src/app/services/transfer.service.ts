@@ -85,7 +85,9 @@ export class TransferService {
       const ws = await this.ensureRelay();
       onPercent(20);
       return new Promise<void>((resolve, reject) => {
-        const timer = setTimeout(() => { this.ackResolve = undefined; reject(new Error('No ack from display — is the LCD tab open & connected to the relay?')); }, 8000);
+        // Scale timeout with payload size: 8 s base + 2 s per 100 KB.
+        const timeoutMs = 8000 + Math.ceil(text.length / 102400) * 2000;
+        const timer = setTimeout(() => { this.ackResolve = undefined; reject(new Error('No ack from display — is the LCD tab open & connected to the relay?')); }, timeoutMs);
         this.ackResolve = () => { clearTimeout(timer); onPercent(100); resolve(); };
         try { ws.send(JSON.stringify({ type: 'deploy', to: host, payload: text })); onPercent(60); }
         catch (e) { clearTimeout(timer); reject(e as Error); }
@@ -103,5 +105,16 @@ export class TransferService {
         await LanTransfer.sendString({ text });
       } catch (e) { await cleanup(); reject(e); }
     });
+  }
+
+  /**
+   * Browser-relay only: send a payload WITHOUT waiting for a deploy_ack.
+   * Used for image payloads — the LCD only acks the final layout, not
+   * intermediary image messages.  On native this is a no-op (use send()).
+   */
+  async sendRelayNoAck(host: string, text: string): Promise<void> {
+    if (this.isNative) return;            // caller should use send() on native
+    const ws = await this.ensureRelay();
+    ws.send(JSON.stringify({ type: 'deploy', to: host, payload: text }));
   }
 }
