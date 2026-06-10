@@ -10,7 +10,7 @@ import { ImagePickerService } from '../services/image-picker.service';
 import { SelectFieldComponent, SelectOption } from '../shared/select-field.component';
 import { CardTreeEditorComponent } from './card-tree-editor.component';
 import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
-import type { ResultProduct, CardItem } from '@contract/layout';
+import type { ResultProduct, CardItem, ImageFit } from '@contract/layout';
 
 type StepKey = 'home' | 'inter' | 'result' | 'saver' | 'review';
 interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' | 'saver'; }
@@ -176,6 +176,13 @@ export class ContentBuilderComponent implements OnInit {
   async pickImage(item: CardItem | ResultProduct): Promise<void> {
     const dataUrl = await this.picker.pick();
     if (dataUrl) item.image = dataUrl;
+  }
+
+  /** Per-image fit segment (shown when an image is set). 'cover' = default → field omitted. */
+  readonly fitOpts: ImageFit[] = ['cover', 'contain', 'fill'];
+  fitOf(item: CardItem | ResultProduct): ImageFit { return item.imageFit || 'cover'; }
+  setFit(item: CardItem | ResultProduct, fit: ImageFit): void {
+    item.imageFit = fit === 'cover' ? undefined : fit;
   }
 
   async fetch(): Promise<void> {

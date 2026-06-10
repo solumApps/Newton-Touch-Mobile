@@ -1,6 +1,7 @@
 import { Component, Input, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import type { ThemeTokens, CardItem, ResultProduct, Screensaver } from '@contract/layout';
+import { imageFitSize } from '@contract/layout';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
@@ -80,7 +81,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                    class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
                    [class.has-img]="!!c.image"
                    [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
-                <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
+                <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
                 <div class="meta"><span class="name">{{ c.name || 'Item' }}</span></div>
               </div>
             </ng-container>
@@ -101,7 +102,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                    [class.featured]="i===0"
                    [class.has-img]="!!c.image"
                    [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
-                <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
+                <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
                 <div class="meta"><span class="name">{{ c.name || 'Item' }}</span></div>
               </div>
             </ng-container>
@@ -128,7 +129,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           <ng-container *ngIf="(intermediateSource?.length||0) > 0; else interPlaceholders">
             <div class="item" *ngFor="let it of intermediateSlice; let i = index" [class.open]="i===0">
-              <div class="img" [style.background-image]="it.image ? 'url('+it.image+')' : null"></div>
+              <div class="img" [style.background-image]="it.image ? 'url('+it.image+')' : null" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
               <span class="name">{{ it.name || 'Item' }}</span>
             </div>
           </ng-container>
@@ -218,6 +219,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
   `,
 })
 export class ContentPreviewStripComponent {
+  /** Per-item image fit → CSS background-size (null = preview default) — matches the LCD. */
+  fitSize = imageFitSize;
   @Input() theme?: ThemeTokens;
   @Input() page: PreviewPage = 'home';
   @Input() home: CardItem[] = [];

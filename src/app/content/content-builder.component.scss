@@ -60,6 +60,12 @@
 .inp:focus { border-color: var(--nt-purple); box-shadow: 0 0 0 3px rgba(47,0,109,.1); }
 .del { border: none; background: none; color: var(--nt-muted); font-size: 15px; cursor: pointer; padding: 6px; }
 
+/* Per-image fit segment (Cover / Contain / Fill) — shown only when an image is set. */
+.fit-seg { display: flex; align-items: center; gap: 6px; margin: -2px 0 10px; }
+.fit-seg .fit-lbl { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; color: var(--nt-muted); }
+.fit-seg .mini { padding: 4px 11px; font-size: 11px; box-shadow: none; }
+.fit-seg .mini.sel { background: var(--nt-brand-ink); color: #fff; }
+
 .pcard {
   border: 1px solid var(--nt-border); border-radius: var(--nt-r-lg); padding: 12px; margin-bottom: 10px;
   box-shadow: var(--nt-shadow-2); background: var(--nt-card);

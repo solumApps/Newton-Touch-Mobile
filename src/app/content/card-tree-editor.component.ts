@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ImagePickerService } from '../services/image-picker.service';
-import type { CardItem } from '@contract/layout';
+import type { CardItem, ImageFit } from '@contract/layout';
 
 /**
  * Recursive card editor — renders a CardItem with name/image inputs and an
@@ -20,6 +20,10 @@ import type { CardItem } from '@contract/layout';
         <div class="thumb" *ngIf="needsImage" [style.background-image]="child.image ? 'url('+child.image+')' : null" (click)="pickImage(child)">{{ child.image ? '' : '📷' }}</div>
         <input class="inp" [(ngModel)]="child.name" placeholder="Sub-item name" />
         <button class="del" (click)="remove(i)">✕</button>
+      </div>
+      <div class="fit-seg" *ngIf="needsImage && child.image">
+        <span class="fit-lbl">Fit</span>
+        <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(child)===f" (click)="setFit(child, f)">{{ f | titlecase }}</button>
       </div>
       <div class="nest">
         <app-card-tree-editor [card]="child" [depth]="depth + 1" [maxDepth]="maxDepth" [needsImage]="needsImage"></app-card-tree-editor>
@@ -39,6 +43,10 @@ import type { CardItem } from '@contract/layout';
     .thumb.wide { width: 100%; height: auto; min-height: 130px; border-radius: 10px; border: 2px dashed var(--nt-border); background: var(--nt-tint, #F8F5FF); font-size: 13px; font-weight: 600; color: var(--nt-muted); flex-shrink: 1; }
     .erow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
     .mini { border: 1.5px solid var(--nt-brand-ink); color: var(--nt-brand-ink); background: var(--nt-card); border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; }
+    .fit-seg { display: flex; align-items: center; gap: 6px; margin: -2px 0 8px; }
+    .fit-seg .fit-lbl { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; color: var(--nt-muted); }
+    .fit-seg .mini { padding: 3px 10px; font-size: 11px; border-radius: 999px; }
+    .fit-seg .mini.sel { background: var(--nt-brand-ink); color: #fff; }
   `],
 })
 export class CardTreeEditorComponent {
@@ -64,4 +72,9 @@ export class CardTreeEditorComponent {
     const d = await this.picker.pick();
     if (d) c.image = d;
   }
+
+  /** Per-image fit segment (shown when an image is set). 'cover' = default → field omitted. */
+  readonly fitOpts: ImageFit[] = ['cover', 'contain', 'fill'];
+  fitOf(c: CardItem): ImageFit { return c.imageFit || 'cover'; }
+  setFit(c: CardItem, fit: ImageFit): void { c.imageFit = fit === 'cover' ? undefined : fit; }
 }

@@ -106,6 +106,10 @@
           <input class="inp" [(ngModel)]="c.name" placeholder="Card name" />
           <button class="del" (click)="removeCard(i)">✕</button>
         </div>
+        <div class="seg fit-seg" *ngIf="needsImage && c.image">
+          <span class="fit-lbl">Fit</span>
+          <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(c)===f" (click)="setFit(c, f)">{{ f | titlecase }}</button>
+        </div>
         <div class="prow">
           <input class="inp" [(ngModel)]="c.price" placeholder="Price (optional)" />
           <input class="inp" [(ngModel)]="c.unit" placeholder="Unit (optional)" />
@@ -132,11 +136,17 @@
       </p>
       <ng-container *ngIf="showIntermediateEditor">
         <div class="sec"><span>Intermediate items ({{ d.intermediate.length }})</span><button class="mini" (click)="addIntermediate()">+ Add</button></div>
-        <div class="erow" *ngFor="let it of d.intermediate; let i = index">
-          <div class="thumb" *ngIf="intermediateNeedsImage" [style.background-image]="it.image ? 'url('+it.image+')' : null" (click)="pickImage(it)">{{ it.image ? '' : '📷' }}</div>
-          <input class="inp" [(ngModel)]="it.name" placeholder="Item name" />
-          <button class="del" (click)="removeIntermediate(i)">✕</button>
-        </div>
+        <ng-container *ngFor="let it of d.intermediate; let i = index">
+          <div class="erow">
+            <div class="thumb" *ngIf="intermediateNeedsImage" [style.background-image]="it.image ? 'url('+it.image+')' : null" (click)="pickImage(it)">{{ it.image ? '' : '📷' }}</div>
+            <input class="inp" [(ngModel)]="it.name" placeholder="Item name" />
+            <button class="del" (click)="removeIntermediate(i)">✕</button>
+          </div>
+          <div class="seg fit-seg" *ngIf="intermediateNeedsImage && it.image">
+            <span class="fit-lbl">Fit</span>
+            <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(it)===f" (click)="setFit(it, f)">{{ f | titlecase }}</button>
+          </div>
+        </ng-container>
       </ng-container>
     </div>
 
@@ -168,6 +178,10 @@
           <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>
           <input class="inp" [(ngModel)]="p.name" placeholder="Product name" />
           <button class="del" (click)="removeProduct(i)">✕</button>
+        </div>
+        <div class="seg fit-seg" *ngIf="p.image">
+          <span class="fit-lbl">Fit</span>
+          <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(p)===f" (click)="setFit(p, f)">{{ f | titlecase }}</button>
         </div>
         <div class="prow">
           <input class="inp" [(ngModel)]="p.price" placeholder="Price" />

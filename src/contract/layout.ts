@@ -30,6 +30,9 @@ export type TextScale = 'compact' | 'normal' | 'large';
  *  grids scroll vertically; rails/strips/pill-rows scroll horizontally. */
 export type ScrollMode = 'auto' | 'vertical' | 'horizontal';
 export type TextFit = 'shrink' | 'wrap' | 'clip';
+/** Per-image fit inside its card/shape container. Undefined = 'cover'
+ *  (legacy behaviour — layout CSS decides cover/contain per variant). */
+export type ImageFit = 'cover' | 'contain' | 'fill';
 
 /** LEGACY single-axis card style — kept only for migration of old saved themes. */
 export type CardStyle =
@@ -192,6 +195,8 @@ export interface CardItem {
   id: string;
   name: string;
   image?: string;              // data URI or relative asset path
+  /** How the image fills its card/shape. Undefined = 'cover' (current behaviour). */
+  imageFit?: ImageFit;
   price?: string;
   unit?: string;
   articleId?: string;          // for ESL blink (Category / +ESL)
@@ -208,6 +213,8 @@ export interface ResultProduct {
   name: string;
   price?: string;
   image?: string;
+  /** How the image fills its product tile/shape. Undefined = 'cover' (current behaviour). */
+  imageFit?: ImageFit;
   aisle?: string;
   shelf?: string;
   articleId?: string;          // for ESL blink
@@ -274,6 +281,7 @@ export const THEME_ENUM_VALUES = {
   loaderStyle: ['spinner', 'dot-pulse', 'progress', 'logo', 'skeleton'],
   textScale: ['compact', 'normal', 'large'],
   textFit: ['shrink', 'wrap', 'clip'],
+  imageFit: ['cover', 'contain', 'fill'],
   saverOverlayPosition: ['center', 'bottom', 'top', 'bottom-left', 'bottom-right'],
 } as const;
 
@@ -285,6 +293,19 @@ export function coerceEnum<T extends string>(v: unknown, allowed: readonly strin
     try { console.warn(`[nt-layout] Unknown ${field} value "${v}" — coerced to "${fallback}"`); } catch { /* no console */ }
   }
   return fallback;
+}
+
+/** CSS background-size for a per-item ImageFit. Returns null when unset/unknown
+ *  so the layout's own default (cover, or contain for logo-style tiles) applies.
+ *  Bind alongside background-repeat:no-repeat when a fit is set, so 'contain'
+ *  never tiles inside a card. */
+export function imageFitSize(fit?: ImageFit | string): string | null {
+  switch (fit) {
+    case 'cover': return 'cover';
+    case 'contain': return 'contain';
+    case 'fill': return '100% 100%';
+    default: return null;
+  }
 }
 
 export const MIN_COLUMNS = 1;
