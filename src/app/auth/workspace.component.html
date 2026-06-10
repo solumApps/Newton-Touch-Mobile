@@ -21,6 +21,7 @@
       <div class="skel skel-row"></div>
     </ng-container>
     <p class="err" *ngIf="error">{{ error }}</p>
+    <button class="btn-resignin" *ngIf="sessionExpired" (click)="signInAgain()">Sign in again →</button>
 
     <ng-container *ngIf="!loading && !error">
       <div class="step">Step 1 · Select company</div>

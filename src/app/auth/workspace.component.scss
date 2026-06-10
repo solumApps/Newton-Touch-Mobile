@@ -6,4 +6,9 @@ h2 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 800; 
 .step .sp { color: var(--nt-muted); font-weight: 400; text-transform: none; }
 .center { text-align: center; padding: 30px; }
 .err { color: #DC2626; font-size: 13px; }
+.btn-resignin {
+  margin-top: 12px; padding: 12px 18px; border: none; border-radius: 12px;
+  background: var(--nt-purple, #2F006D); color: #fff; font-weight: 700; font-size: 14px;
+  &:active { opacity: .85; }
+}
 .ft { padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); background: var(--nt-card); border-top: 1px solid var(--nt-border); }

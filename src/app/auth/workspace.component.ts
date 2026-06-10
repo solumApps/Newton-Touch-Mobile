@@ -5,6 +5,7 @@ import { IonButton, IonButtons, IonHeader, IonToolbar, IonContent, IonFooter, Io
 import { addIcons } from 'ionicons';
 import { chevronBack } from 'ionicons/icons';
 import { WorkspaceService, Company, Store } from '../services/workspace.service';
+import { SessionService } from '../services/session.service';
 import { BrandComponent } from '../shared/brand.component';
 import { SelectFieldComponent, SelectOption } from '../shared/select-field.component';
 
@@ -27,11 +28,12 @@ export class WorkspaceComponent implements OnInit {
   loading = true;
   loadingStores = false;
   error = '';
+  sessionExpired = false;
   returnTo = '';
   companyOpen = false;
   storeOpen = false;
 
-  constructor(private ws: WorkspaceService, private router: Router, private route: ActivatedRoute) {
+  constructor(private ws: WorkspaceService, private session: SessionService, private router: Router, private route: ActivatedRoute) {
     this.returnTo = this.route.snapshot.queryParamMap.get('returnTo') || '';
     addIcons({ chevronBack });
   }
@@ -57,10 +59,26 @@ export class WorkspaceComponent implements OnInit {
         this.storeId = this.stores[0]?.id ?? '';
       }
     } catch (e: any) {
-      this.error = e?.message || 'Failed to load workspace';
+      this.handleError(e, 'Failed to load workspace');
     } finally {
       this.loading = false;
     }
+  }
+
+  /** Auth-aware error handling: expired token → friendly message + re-sign-in path. */
+  private handleError(e: any, fallback: string): void {
+    if (e?.authExpired) {
+      this.sessionExpired = true;
+      this.error = 'Your session has expired. Please sign in again.';
+    } else {
+      this.error = e?.message || fallback;
+    }
+  }
+
+  /** Clear the stale session and go to the sign-in page (it returns here after login). */
+  async signInAgain(): Promise<void> {
+    await this.session.signOut();
+    this.router.navigateByUrl('/auth/login');
   }
 
   async selectCompany(id: string): Promise<void> {
@@ -71,7 +89,7 @@ export class WorkspaceComponent implements OnInit {
       this.stores = await this.ws.fetchStores(id);   // change-company API
       this.storeId = this.stores[0]?.id ?? '';
     } catch (e: any) {
-      this.error = e?.message || 'Failed to load stores';
+      this.handleError(e, 'Failed to load stores');
     } finally {
       this.loadingStores = false;
     }

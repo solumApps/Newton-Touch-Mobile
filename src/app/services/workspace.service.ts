@@ -113,7 +113,11 @@ export class WorkspaceService {
     });
     const body = this.parseHttpData(res.data);
     if (res.status < 200 || res.status >= 300) {
-      throw new Error(this.responseError(body) || `Workspace login failed (${res.status})`);
+      const msg = this.responseError(body) || `Workspace login failed (${res.status})`;
+      const err: Error & { authExpired?: boolean } = new Error(msg);
+      // 401 / TOKEN_EXPIRED → stored access token is no longer valid; caller should re-authenticate.
+      err.authExpired = res.status === 401 || /TOKEN_EXPIRED|UNAUTHORIZED/i.test(msg);
+      throw err;
     }
 
     const root: any = this.objectOrNull(body?.data) ?? body;
