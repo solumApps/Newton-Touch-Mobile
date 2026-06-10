@@ -359,10 +359,19 @@
 .prev .stage.int .item .name { font-size: 7px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .prev .stage.int.int-pill-tabs .item.open { background: var(--int-accent); color: #fff; }
 .prev .stage.int.int-accordion .item.open { border-left: 3px solid var(--int-accent); }
-.prev .stage.int.int-pill-tabs { flex-direction: row; align-items: flex-start; flex-wrap: wrap; align-content: flex-start; }
+/* mirrors LCD: single row, horizontal scroll on overflow, bigger capsules + size variants */
+.prev .stage.int.int-pill-tabs { flex-direction: row; align-items: center; flex-wrap: nowrap;
+  overflow-x: auto; scrollbar-width: none; }
+.prev .stage.int.int-pill-tabs::-webkit-scrollbar { display: none; }
+.prev .stage.int.int-pill-tabs .item:first-child { margin-left: auto; }
+.prev .stage.int.int-pill-tabs .item:last-child { margin-right: auto; }
 /* pill geometry/typography matches home-page pill cards */
-.prev .stage.int.int-pill-tabs .item { flex: 0 0 auto; border-radius: 999px; padding: 2px 8px; height: 22%; }
-.prev .stage.int.int-pill-tabs .item .name { font-size: calc(var(--prev-scale, 1) * 5.5px); font-weight: 700; }
+.prev .stage.int.int-pill-tabs .item { flex: 0 0 auto; border-radius: 999px; padding: 3px 11px; height: 30%; }
+.prev .stage.int.int-pill-tabs .item .name { font-size: calc(var(--prev-scale, 1) * 7px); font-weight: 700; }
+.prev .stage.int.int-pill-tabs.int-size-small .item { height: 22%; padding: 2px 8px; }
+.prev .stage.int.int-pill-tabs.int-size-small .item .name { font-size: calc(var(--prev-scale, 1) * 5.5px); }
+.prev .stage.int.int-pill-tabs.int-size-large .item { height: 38%; padding: 4px 14px; }
+.prev .stage.int.int-pill-tabs.int-size-large .item .name { font-size: calc(var(--prev-scale, 1) * 9px); }
 .prev .stage.int.int-pill-tabs .item .img { display: none; }
 .prev .stage.int.int-card-strip { flex-direction: row; }
 .prev .stage.int.int-image-grid { flex-direction: row; flex-wrap: wrap; align-content: flex-start; }
@@ -372,8 +381,12 @@
 .prev .stage.int.int-hex-grid .item { flex: 0 0 auto; width: auto; height: 52%; aspect-ratio: 1; flex-direction: column; justify-content: center; clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); padding: 0 6px; }
 .prev .stage.int.int-hex-grid .item .img { display: none; }
 .prev .stage.int.int-hex-grid .item .name { font-size: 5.5px; line-height: 1.1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-.prev .stage.int.int-circular { flex-direction: row; flex-wrap: wrap; align-items: center; align-content: center; justify-content: space-evenly; }
-.prev .stage.int.int-circular .item { flex: 0 0 auto; width: auto; height: 72%; aspect-ratio: 1; border-radius: 50%; flex-direction: column; justify-content: center; }
+/* single row of fixed circles — extras scroll horizontally (mirrors LCD) */
+.prev .stage.int.int-circular { flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 8px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; padding: 0 8px; }
+.prev .stage.int.int-circular::-webkit-scrollbar { display: none; }
+.prev .stage.int.int-circular .item:first-child { margin-left: auto; }
+.prev .stage.int.int-circular .item:last-child { margin-right: auto; }
+.prev .stage.int.int-circular .item { flex: 0 0 auto; width: auto; height: 68%; aspect-ratio: 1; border-radius: 50%; flex-direction: column; justify-content: center; }
 .prev .stage.int.int-circular .item .img { display: none; }
 .prev .stage.int.int-accordion .item { flex: 0 0 18%; }
 .prev .stage.int.int-accordion .item.open { flex: 1 1 auto; align-items: flex-start; padding-top: 4px; }
