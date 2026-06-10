@@ -114,6 +114,12 @@ export class ThemesPage implements OnInit, OnDestroy {
     return list;
   }
 
+  /** Empty-state CTA: clears the search when one is active, otherwise creates. */
+  emptyAction(): void {
+    if (this.q) { this.q = ''; return; }
+    this.createNew();
+  }
+
   /** Open the modal confirm dialog (replaces blocking JS confirm). */
   del(t: SavedTheme): void {
     this.confirmTheme = t;

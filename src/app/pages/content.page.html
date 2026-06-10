@@ -1,6 +1,10 @@
 <app-page-header [company]="company" [store]="store"></app-page-header>
 
 <ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <div class="wrap">
     <div class="hero">
       <h1 class="hero-title">Content</h1>
@@ -18,7 +22,7 @@
     <ng-container *ngIf="!loading">
       <ng-container *ngFor="let g of groups">
         <nt-section-header [title]="g.label" [subtitle]="g.drafts.length + (g.drafts.length === 1 ? ' item' : ' items')"></nt-section-header>
-        <ion-list class="slides" lines="none">
+        <ion-list class="slides" lines="none" [class.deployed]="g.label === 'Deployed'">
           <ion-item-sliding *ngFor="let c of g.drafts">
             <ion-item button detail="false" (click)="open(c)">
               <div class="item">
@@ -31,9 +35,19 @@
                     <nt-badge *ngIf="!c.deployedTo && c.status !== 'complete'" variant="draft">Draft</nt-badge>
                   </div>
                   <div class="th">{{ c.themeName }} · {{ modeLabel(c.appMode) }}</div>
+                  <!-- Deployment info on two rows so it can't wrap badly on narrow screens:
+                       row 1 = device, row 2 = relative-time badge. -->
                   <div class="dep" *ngIf="c.deployedTo">
-                    <ion-icon name="tv-outline" aria-hidden="true"></ion-icon>
-                    <span>{{ c.deployedTo }}<span *ngIf="c.deployedAt"> · {{ ago(c.deployedAt) }}</span></span>
+                    <div class="dep-dev">
+                      <ion-icon name="tv-outline" aria-hidden="true"></ion-icon>
+                      <span class="dep-name">{{ c.deployedTo }}</span>
+                    </div>
+                    <div class="dep-when" *ngIf="c.deployedAt">
+                      <span class="when-badge">
+                        <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+                        {{ ago(c.deployedAt) }}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <ion-icon class="chev" name="chevron-forward" aria-hidden="true"></ion-icon>
@@ -49,10 +63,10 @@
 
     <nt-empty *ngIf="!loading && !filtered().length"
       icon="documents-outline"
-      title="No content yet"
+      [title]="q ? 'No matching content' : 'No content yet'"
       [description]="q ? 'No matches for your search.' : 'Pick a theme and start building a collection for your displays.'"
-      [actionLabel]="q ? '' : '+ Create content'"
-      (action)="create()"></nt-empty>
+      [actionLabel]="q ? 'Clear search' : '+ Create content'"
+      (action)="emptyAction()"></nt-empty>
   </div>
 </ion-content>
 

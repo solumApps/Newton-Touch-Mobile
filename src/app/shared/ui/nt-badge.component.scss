@@ -18,7 +18,7 @@
 }
 
 .nt-badge.v-neutral     { background: var(--nt-surface);        color: var(--nt-text-2);  border-color: var(--nt-border); }
-.nt-badge.v-predefined  { background: var(--nt-tint);           color: var(--nt-purple);  border-color: rgba(47,0,109,0.15); }
+.nt-badge.v-predefined  { background: var(--nt-tint);           color: var(--nt-brand-ink); border-color: rgba(47,0,109,0.15); }
 .nt-badge.v-draft       { background: var(--nt-surface);        color: var(--nt-text-2);  border-color: var(--nt-border); }
 .nt-badge.v-complete    { background: var(--nt-info-tint);      color: var(--nt-info);    border-color: rgba(14,165,233,0.2); }
 .nt-badge.v-deployed,
@@ -27,7 +27,7 @@
 .nt-badge.v-live .d     { animation: nt-pulse 1.6s ease-in-out infinite; }
 .nt-badge.v-offline     { background: var(--nt-surface);        color: var(--nt-muted);   border-color: var(--nt-border); }
 .nt-badge.v-info        { background: var(--nt-info-tint);      color: var(--nt-info);    border-color: rgba(14,165,233,0.2); }
-.nt-badge.v-warn        { background: var(--nt-warn-tint);      color: #B45309;           border-color: rgba(245,158,11,0.25); }
+.nt-badge.v-warn        { background: var(--nt-warn-tint);      color: var(--nt-warn-ink); border-color: rgba(245,158,11,0.25); }
 .nt-badge.v-danger      { background: var(--nt-danger-tint);    color: var(--nt-danger);  border-color: rgba(220,38,38,0.2); }
 
 @keyframes nt-pulse {

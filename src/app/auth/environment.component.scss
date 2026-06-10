@@ -1,4 +1,4 @@
-.blank-header ion-toolbar { --background: #F8FAFC; --color: var(--nt-text); padding-left: 6px;}
+.blank-header ion-toolbar { --background: var(--nt-surface); --color: var(--nt-text); padding-left: 6px;}
 .wrap { padding: 8px 20px 24px; }
 .brand-center {
   display: block; text-align: center; margin: 24px 0 8px;
@@ -18,7 +18,7 @@
 }
 .server-row {
   width: 100%; display: flex; align-items: center; justify-content: space-between;
-  background: #fff; border: 1.5px solid var(--nt-border); border-radius: 10px;
+  background: var(--nt-card); border: 1.5px solid var(--nt-border); border-radius: 10px;
   padding: 14px; margin-bottom: 10px; font-family: inherit; cursor: pointer; text-align: left;
 }
 .server-row.selected { border-color: var(--nt-purple); background: var(--nt-tint); }
@@ -35,8 +35,8 @@
 .fld:focus { border-color: var(--nt-purple); }
 .err { color: #DC2626; font-size: 12px; margin: 6px 0 0; }
 
-.ft ion-toolbar, .ft { --background: #fff; }
-.ft { padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid var(--nt-border); }
+.ft ion-toolbar, .ft { --background: var(--nt-card); }
+.ft { padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); background: var(--nt-card); border-top: 1px solid var(--nt-border); }
 ion-header { box-shadow: none; }
 .private-server-btn {
   font-size:10px

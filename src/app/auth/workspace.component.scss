@@ -6,4 +6,4 @@ h2 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 800; 
 .step .sp { color: var(--nt-muted); font-weight: 400; text-transform: none; }
 .center { text-align: center; padding: 30px; }
 .err { color: #DC2626; font-size: 13px; }
-.ft { padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid var(--nt-border); }
+.ft { padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); background: var(--nt-card); border-top: 1px solid var(--nt-border); }

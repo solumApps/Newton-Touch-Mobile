@@ -1,6 +1,6 @@
 .cp { margin: 12px 0; }
-.lbl { font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
-.lbl .hint { font-weight: 400; text-transform: none; color: #94A3B8; }
+.lbl { font-size: 12px; font-weight: 700; color: var(--nt-text-2); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
+.lbl .hint { font-weight: 400; text-transform: none; color: var(--nt-muted); }
 
 /* Friendly swatch grid */
 .cp-grid { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -20,16 +20,16 @@
 
 /* In-app custom picker panel */
 .cp-custom {
-  margin-top: 12px; padding: 14px; border: 1.5px solid #E2E8F0; border-radius: 12px;
-  background: #fff; box-shadow: 0 6px 18px rgba(15,23,42,.08);
+  margin-top: 12px; padding: 14px; border: 1.5px solid var(--nt-border); border-radius: 12px;
+  background: var(--nt-card); box-shadow: 0 6px 18px rgba(15,23,42,.08);
 }
 .cc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .cc-preview { width: 44px; height: 32px; border-radius: 8px; border: 1.5px solid #E2E8F0; flex: 0 0 auto; }
-.cc-hex { display: inline-flex; align-items: center; gap: 2px; font-family: monospace; font-size: 14px; color: #64748B; border: 1.5px solid #E2E8F0; border-radius: 8px; padding: 5px 10px; }
-.cc-hex input { border: 0; outline: 0; width: 78px; font-family: monospace; font-size: 14px; text-transform: uppercase; background: transparent; }
+.cc-hex { display: inline-flex; align-items: center; gap: 2px; font-family: monospace; font-size: 14px; color: var(--nt-text-2); border: 1.5px solid var(--nt-border); border-radius: 8px; padding: 5px 10px; }
+.cc-hex input { border: 0; outline: 0; width: 78px; font-family: monospace; font-size: 14px; text-transform: uppercase; background: transparent; color: var(--nt-text); }
 
 .cc-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
-.cc-row > span { flex: 0 0 78px; font-size: 12px; font-weight: 700; color: #64748B; }
+.cc-row > span { flex: 0 0 78px; font-size: 12px; font-weight: 700; color: var(--nt-text-2); }
 
 /* sliders — coloured tracks, big round thumb (easy to drag on mobile) */
 .cc-slider { -webkit-appearance: none; appearance: none; flex: 1; height: 14px; border-radius: 999px; outline: none; cursor: pointer; }
@@ -50,7 +50,7 @@
 /* Current selection readout */
 .cp-current { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
 .cp-current .chip { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid #E2E8F0; overflow: hidden; flex: 0 0 auto; }
-.cp-current .val { font-family: monospace; font-size: 13px; color: #64748B; text-transform: uppercase; }
+.cp-current .val { font-family: monospace; font-size: 13px; color: var(--nt-text-2); text-transform: uppercase; }
 
 /* checkerboard for transparent (swatch + chip) */
 .checker {

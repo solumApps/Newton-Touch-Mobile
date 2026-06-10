@@ -2,9 +2,9 @@
    Behavior unchanged (ion-tab-button routing intact). */
 
 ion-tab-bar.nt-tabbar {
-  --background: #fff;
+  --background: var(--nt-card);
   --color: var(--nt-muted);
-  --color-selected: var(--nt-purple);
+  --color-selected: var(--nt-brand-ink);
   border-top: 1px solid var(--nt-border);
   height: 64px;
   padding: 4px 8px calc(4px + env(safe-area-inset-bottom));
@@ -16,7 +16,7 @@ ion-tab-bar.nt-tabbar {
 ion-tab-bar.nt-tabbar ion-tab-button {
   --background: transparent;
   --color: var(--nt-muted);
-  --color-selected: var(--nt-purple);
+  --color-selected: var(--nt-brand-ink);
   --padding-top: 0;
   --padding-bottom: 0;
   --padding-start: 0;
@@ -62,7 +62,7 @@ ion-tab-bar.nt-tabbar ion-tab-button {
 
 /* Active state — pill background + brand colour + subtle lift. */
 ion-tab-bar.nt-tabbar ion-tab-button.tab-selected .nt-tab-pill {
-  color: var(--nt-purple);
+  color: var(--nt-brand-ink);
 }
 ion-tab-bar.nt-tabbar ion-tab-button.tab-selected .nt-tab-pill::after {
   width: 24px;

@@ -7,6 +7,7 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { addIcons } from 'ionicons';
 import { warningOutline } from 'ionicons/icons';
 import { filter } from 'rxjs';
+import { AppearanceService } from './services/appearance.service';
 
 @Component({
   selector: 'app-root',
@@ -42,8 +43,11 @@ export class AppComponent implements AfterViewInit {
   private statusBarReady = false;
   showExitAlert = false;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, appearance: AppearanceService) {
     addIcons({ warningOutline });
+
+    // Apply persisted appearance (System/Light/Dark) before first paint settles.
+    void appearance.init();
 
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))

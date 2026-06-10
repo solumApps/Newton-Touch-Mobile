@@ -13,7 +13,7 @@
 .wizard-steps {
   display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
   padding: 8px 14px;
-  background: #fff;
+  background: var(--nt-card);
   border-bottom: 1px solid var(--nt-border);
 }
 .wizard-steps::-webkit-scrollbar { display: none; }
@@ -23,7 +23,7 @@
   min-height: 32px; padding: 0 11px;
   border-radius: 999px;
   border: 1.5px solid var(--nt-border);
-  background: #fff; color: var(--nt-text-2);
+  background: var(--nt-card); color: var(--nt-text-2);
   font-family: inherit; font-size: 11px; font-weight: 800;
   white-space: nowrap; cursor: pointer;
   transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
@@ -50,7 +50,7 @@
 .scroll {
   padding: 0 16px 28px; min-height: 100%;
   touch-action: pan-y; overscroll-behavior-y: contain;
-  background: linear-gradient(180deg, #fff 0, var(--nt-surface) 100%);
+  background: linear-gradient(180deg, var(--nt-card) 0, var(--nt-surface) 100%);
 }
 
 /* Keep the live preview visible while the controls below scroll. */
@@ -129,7 +129,7 @@
 @keyframes tw-logo { 0%, 100% { transform: scale(.7); opacity: .5; } 50% { transform: scale(1); opacity: 1; } }
 .ldr-skeleton { width: 38px; height: 14px; border-radius: 4px; background: linear-gradient(90deg, rgba(0,0,0,.08), var(--ldr), rgba(0,0,0,.08)); background-size: 200% 100%; animation: tw-shim 1.2s linear infinite; }
 @keyframes tw-shim { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.replay { float: right; border: 1.5px solid var(--nt-purple); color: var(--nt-purple); background: #fff; border-radius: 8px; font-size: 11px; font-weight: 700; padding: 4px 10px; font-family: inherit; cursor: pointer; }
+.replay { float: right; border: 1.5px solid var(--nt-brand-ink); color: var(--nt-brand-ink); background: var(--nt-card); border-radius: 8px; font-size: 11px; font-weight: 700; padding: 4px 10px; font-family: inherit; cursor: pointer; }
 
 /* ===== Screensaver mock ===== */
 .prev .stage.saver { position: relative; padding: 0; display: block; overflow: hidden; }
@@ -702,13 +702,13 @@
 .tile {
   min-height: 46px;
   border: 1.5px solid var(--nt-border); border-radius: var(--nt-r); padding: 11px 12px; font-size: 13px;
-  background: #fff; color: var(--nt-text-2); font-family: inherit; cursor: pointer; text-align: center; text-transform: capitalize;
+  background: var(--nt-card); color: var(--nt-text-2); font-family: inherit; cursor: pointer; text-align: center; text-transform: capitalize;
   box-shadow: var(--nt-shadow-1);
   transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
 }
 .tile:hover { border-color: rgba(47,0,109,.32); box-shadow: var(--nt-shadow-2); }
 .tile.sel {
-  border-color: var(--nt-purple); background: var(--nt-tint); color: var(--nt-purple);
+  border-color: var(--nt-brand-ink); background: var(--nt-tint); color: var(--nt-brand-ink);
   font-weight: 900; box-shadow: inset 0 0 0 1px var(--nt-purple), var(--nt-shadow-1);
 }
 .tile .rec { color: var(--nt-yellow); margin-left: 4px; font-size: 11px; vertical-align: middle; }
@@ -721,13 +721,13 @@
 .required { color: var(--nt-danger); margin-left: 2px; }
 .inp { width: 100%; border: 1.5px solid var(--nt-border); border-radius: var(--nt-r); padding: 13px 14px; font-size: 15px; font-family: inherit; outline: none; box-shadow: var(--nt-shadow-1); }
 .inp:focus { border-color: var(--nt-purple); box-shadow: 0 0 0 3px rgba(47,0,109,.1); }
-table.sum { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 14px; background: #fff; border: 1px solid var(--nt-border); border-radius: var(--nt-r); overflow: hidden; display: table; }
+table.sum { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 14px; background: var(--nt-card); border: 1px solid var(--nt-border); border-radius: var(--nt-r); overflow: hidden; display: table; }
 table.sum td { padding: 10px 12px; border-top: 1px solid var(--nt-border); }
 table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 
 .nav {
   display: flex; gap: 10px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-  background: rgba(255,255,255,.96); border-top: 1px solid var(--nt-border);
+  background: var(--nt-card); border-top: 1px solid var(--nt-border);
   box-shadow: 0 -8px 24px rgba(15,23,42,.06);
   backdrop-filter: blur(10px);
 }

@@ -53,7 +53,7 @@
 
 /* Settings rows */
 .grp {
-  background: #fff;
+  background: var(--nt-card);
   border: 1px solid var(--nt-border);
   border-radius: var(--nt-r);
   overflow: hidden;
@@ -67,7 +67,7 @@
   padding: 14px;
   border: none;
   border-bottom: 1px solid var(--nt-border);
-  background: #fff;
+  background: var(--nt-card);
   font-family: inherit;
   cursor: pointer;
   text-align: left;
@@ -79,7 +79,7 @@
   width: 36px; height: 36px;
   border-radius: var(--nt-r-sm);
   background: var(--nt-tint);
-  color: var(--nt-purple);
+  color: var(--nt-brand-ink);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
@@ -91,7 +91,42 @@
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .row .rl .s .dim { color: var(--nt-muted); }
+/* Server URL — ellipsized by default; tap the subtitle to reveal the full value. */
+.row .rl .s.url.open { white-space: normal; word-break: break-all; }
 .row .chev { color: var(--nt-muted); font-size: 18px; flex-shrink: 0; }
+
+/* Non-navigating row (e.g. Appearance) */
+.row.static { cursor: default; flex-wrap: wrap; }
+.row.static:hover { background: var(--nt-card); }
+
+/* Segmented control — System / Light / Dark */
+.seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--nt-r-full);
+  background: var(--nt-surface);
+  border: 1px solid var(--nt-border);
+  flex-shrink: 0;
+}
+.seg-b {
+  border: none;
+  background: transparent;
+  border-radius: var(--nt-r-full);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--nt-text-2);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+.seg-b:hover { color: var(--nt-text); }
+.seg-b.on {
+  background: var(--nt-purple);
+  color: #fff;
+  font-weight: 700;
+}
 
 /* Sign out */
 .signout {
@@ -104,7 +139,7 @@
   min-height: 44px;
   border: 1.5px solid var(--nt-danger);
   color: var(--nt-danger);
-  background: #fff;
+  background: var(--nt-card);
   border-radius: var(--nt-r-full);
   padding: 0 18px;
   font-size: 14px;
@@ -119,38 +154,17 @@
 .ver { text-align: center; color: var(--nt-muted); font-size: 11px; margin-top: 16px; }
 
 
-.nt-confirm { background: #fff; padding: 24px 22px 22px; text-align: center; }
+.nt-confirm { background: var(--nt-card); padding: 24px 22px 22px; text-align: center; }
 .nt-confirm-ic {
   width: 56px; height: 56px;
   border-radius: 50%;
   background: var(--nt-warn-tint);
-  color: #B45309;
+  color: var(--nt-warn-ink);
   margin: 0 auto 14px;
   display: flex; align-items: center; justify-content: center;
 }
-.nt-confirm-ic.warn { background: var(--nt-warn-tint); color: #B45309; }
+.nt-confirm-ic.warn { background: var(--nt-warn-tint); color: var(--nt-warn-ink); }
 .nt-confirm-ic ion-icon { font-size: 26px; }
 .nt-confirm h2 { margin: 0 0 6px; font-size: 18px; font-weight: 800; color: var(--nt-text); }
 .nt-confirm p { margin: 0 0 18px; font-size: 13px; line-height: 1.5; color: var(--nt-text-2); }
 .nt-confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.nt-confirm-actions button {
-  min-height: 44px;
-  border-radius: var(--nt-r-full);
-  border: none;
-  font-size: 14px;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 150ms ease;
-}
-.nt-confirm-actions .btn-cancel {
-  background: #fff;
-  color: var(--nt-purple);
-  border: 2px solid var(--nt-purple);
-}
-.nt-confirm-actions .btn-cancel:hover { background: var(--nt-tint); }
-.nt-confirm-actions .btn-yes {
-  background: var(--nt-danger);
-  color: #fff;
-}
-.nt-confirm-actions .btn-yes:hover { background: #B91C1C; }

@@ -3,16 +3,18 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IonContent, IonModal, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { businessOutline, globeOutline, keyOutline, logOutOutline, chevronForward, warningOutline } from 'ionicons/icons';
+import { businessOutline, globeOutline, keyOutline, logOutOutline, chevronForward, warningOutline, contrastOutline } from 'ionicons/icons';
 import { SessionService, Session } from '../services/session.service';
 import { WorkspaceService, Workspace } from '../services/workspace.service';
+import { AppearanceService, AppearanceMode } from '../services/appearance.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
+import { NtButtonComponent } from '../shared/ui';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, IonContent, IonModal, IonIcon, PageHeaderComponent],
+  imports: [CommonModule, IonContent, IonModal, IonIcon, PageHeaderComponent, NtButtonComponent],
   templateUrl: './settings.page.html',
   styleUrls: ['./settings.page.scss'],
 })
@@ -20,15 +22,26 @@ export class SettingsPage implements OnInit, OnDestroy {
   session: Session | null = null;
   ws: Workspace | null = null;
   showSignOutAlert = false;
+  /** Long server URLs are ellipsized; tapping the subtitle reveals the full value. */
+  urlExpanded = false;
   private wsSub?: Subscription;
+
+  appearanceModes: AppearanceMode[] = ['system', 'light', 'dark'];
 
   constructor(
     private sessionSvc: SessionService,
     private wsSvc: WorkspaceService,
+    private appearanceSvc: AppearanceService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
-    addIcons({ businessOutline, globeOutline, keyOutline, logOutOutline, chevronForward, warningOutline });
+    addIcons({ businessOutline, globeOutline, keyOutline, logOutOutline, chevronForward, warningOutline, contrastOutline });
+  }
+
+  get appearance(): AppearanceMode { return this.appearanceSvc.mode; }
+  async setAppearance(mode: AppearanceMode): Promise<void> {
+    await this.appearanceSvc.set(mode);
+    this.cdr.detectChanges();
   }
 
   get initials(): string {
@@ -53,6 +66,12 @@ export class SettingsPage implements OnInit, OnDestroy {
     this.session = await this.sessionSvc.current();
     this.ws = await this.wsSvc.get();
     this.cdr.detectChanges();
+  }
+
+  /** Toggle full server-URL display without triggering the row navigation. */
+  toggleUrl(ev: Event): void {
+    ev.stopPropagation();
+    this.urlExpanded = !this.urlExpanded;
   }
 
   changeWorkspace(): void { this.router.navigate(['/auth/workspace'], { queryParams: { returnTo: '/tabs/settings' } }); }

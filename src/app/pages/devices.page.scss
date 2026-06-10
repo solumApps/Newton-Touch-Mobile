@@ -22,9 +22,9 @@
 .scan {
   display: inline-flex; align-items: center; gap: 8px;
   min-height: 44px;
-  border: 1.5px solid var(--nt-purple);
-  color: var(--nt-purple);
-  background: #fff;
+  border: 1.5px solid var(--nt-brand-ink);
+  color: var(--nt-brand-ink);
+  background: var(--nt-card);
   border-radius: var(--nt-r-full);
   padding: 0 18px;
   font-size: 13px;
@@ -55,7 +55,8 @@
   font-size: 14px;
   font-family: inherit;
   outline: none;
-  background: #fff;
+  background: var(--nt-card);
+  color: var(--nt-text);
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 .srch input:focus { border-color: var(--nt-purple); box-shadow: 0 0 0 3px rgba(47,0,109,0.1); }
@@ -68,7 +69,7 @@
 .slides { background: transparent; margin-top: 4px; }
 .slides ion-item-sliding { margin-bottom: 10px; }
 .slides ion-item {
-  --background: #fff;
+  --background: var(--nt-card);
   --border-radius: var(--nt-r);
   --padding-start: 12px;
   --inner-padding-end: 12px;
@@ -87,26 +88,32 @@
   width: 44px; height: 44px;
   border-radius: var(--nt-r);
   background: var(--nt-tint);
-  color: var(--nt-purple);
+  color: var(--nt-brand-ink);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
 .dev-ic ion-icon { font-size: 22px; }
+/* Static status dot (≥12px) — colour change carries state; the adjacent
+   "Active/Idle" badge carries the text label. One-shot ping on state change. */
 .state-dot {
-  position: absolute; bottom: 2px; right: 2px;
-  width: 10px; height: 10px;
+  position: absolute; bottom: 0; right: 0;
+  width: 12px; height: 12px;
   border-radius: 50%;
-  background: var(--nt-muted);
-  border: 2px solid #fff;
+  background: var(--nt-text-2); /* idle — 4.7:1 on white */
+  border: 2px solid var(--nt-card);
+  transition: background-color 300ms ease;
 }
 .state-dot.live {
   background: var(--nt-success);
-  box-shadow: 0 0 0 0 rgba(22,163,74,0.4);
-  animation: nt-state-pulse 2s ease-in-out infinite;
+  animation: nt-state-in 600ms ease-out 1; /* one-shot, not looping */
 }
-@keyframes nt-state-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(22,163,74,0.5); }
-  50%      { box-shadow: 0 0 0 6px rgba(22,163,74,0); }
+@keyframes nt-state-in {
+  0%   { box-shadow: 0 0 0 0 rgba(22,163,74,0.45); }
+  100% { box-shadow: 0 0 0 8px rgba(22,163,74,0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .state-dot { transition: none; }
+  .state-dot.live { animation: none; }
 }
 .dev .meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .dev .top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -114,22 +121,21 @@
 .dev .sub { font-size: 12px; color: var(--nt-text-2); font-feature-settings: 'tnum'; }
 .dev .sub2 { font-size: 11px; color: var(--nt-muted); }
 .muted { color: var(--nt-muted); }
-.push {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: var(--nt-purple);
-  color: #fff;
+/* Row overflow trigger — actions moved out of the row tap zone into a sheet. */
+.more {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px;
   border: none;
-  border-radius: var(--nt-r-full);
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 700;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--nt-text-2);
   font-family: inherit;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 150ms ease, box-shadow 150ms ease;
+  transition: background 150ms ease, color 150ms ease;
 }
-.push:hover { background: #3D0E89; box-shadow: var(--nt-shadow-2); }
-.push ion-icon { font-size: 14px; }
+.more:hover, .more:active { background: var(--nt-tint); color: var(--nt-brand-ink); }
+.more ion-icon { font-size: 18px; }
 
 /* Floating action button */
 .fab {
@@ -173,10 +179,20 @@
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 .fld-i:focus { border-color: var(--nt-purple); box-shadow: 0 0 0 3px rgba(47,0,109,0.1); }
+/* Live validation field states */
+.fld-i.ok { border-color: var(--nt-success); }
+.fld-i.ok:focus { border-color: var(--nt-success); box-shadow: 0 0 0 3px rgba(22,163,74,0.12); }
+.fld-i.err { border-color: var(--nt-danger); }
+.fld-i.err:focus { border-color: var(--nt-danger); box-shadow: 0 0 0 3px rgba(220,38,38,0.12); }
+.fld-msg { display: block; font-size: 11px; font-weight: 600; margin-top: 5px; line-height: 1.4; }
+.fld-msg.err { color: var(--nt-danger); }
+.fld-msg.ok { color: var(--nt-success); }
 .nt-sheet-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+/* Device-card-height skeleton (matches Content/Themes shimmer pattern) */
+.skel-card { height: 78px; border-radius: var(--nt-r); margin-bottom: 10px; }
 
 
-.nt-confirm { background: #fff; padding: 24px 22px 22px; text-align: center; }
+.nt-confirm { background: var(--nt-card); padding: 24px 22px 22px; text-align: center; }
 .nt-confirm-ic {
   width: 56px; height: 56px;
   border-radius: 50%;

@@ -84,10 +84,10 @@
 
     <nt-empty *ngIf="!loading && !filteredMine.length"
       icon="color-palette-outline"
-      title="No saved themes yet"
+      [title]="q ? 'No matching themes' : 'No saved themes yet'"
       [description]="q ? 'No matches for your search. Try a different filter or term.' : 'Start with a featured theme or build your own from scratch.'"
-      [actionLabel]="q ? '' : '+ Create theme'"
-      (action)="createNew()"></nt-empty>
+      [actionLabel]="q ? 'Clear search' : '+ Create theme'"
+      (action)="emptyAction()"></nt-empty>
 
     <p class="msg" [class.err]="msgErr" *ngIf="msg">{{ msg }}</p>
   </div>

@@ -1,6 +1,10 @@
 <app-page-header [company]="company" [store]="store"></app-page-header>
 
 <ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <div class="wrap">
     <div class="hero">
       <div class="hero-row">
@@ -24,7 +28,7 @@
     <p class="note info" *ngIf="scanning">Searching the local network for SOLUM displays…</p>
     <p class="note" *ngIf="!native">Live scan only works on a physical device on Wi-Fi (not in a browser). Add a display by IP using the button below.</p>
 
-    <div *ngIf="loading"><div class="skel skel-row" *ngFor="let s of skel"></div></div>
+    <div *ngIf="loading"><div class="skel skel-card" *ngFor="let s of skel"></div></div>
 
     <ion-list class="slides" lines="none" *ngIf="!loading && filtered().length">
       <ion-item-sliding *ngFor="let d of filtered()">
@@ -42,13 +46,12 @@
               </div>
               <div class="sub">{{ d.ip }}:{{ d.port }}</div>
               <div class="sub2">
-                <span *ngIf="d.lastContentName">{{ d.lastContentName }} · {{ ago(d.lastDeployedAt) }}</span>
+                <span *ngIf="d.lastContentName">{{ d.lastContentName }} · last push {{ ago(d.lastDeployedAt) }}</span>
                 <span *ngIf="!d.lastContentName" class="muted">No content deployed</span>
               </div>
             </div>
-            <button class="push" (click)="push()" aria-label="Push content to this device">
-              <ion-icon name="send-outline" aria-hidden="true"></ion-icon>
-              <span>Push</span>
+            <button class="more" (click)="$event.stopPropagation(); openSheet(d)" [attr.aria-label]="'Actions for ' + d.name">
+              <ion-icon name="ellipsis-vertical" aria-hidden="true"></ion-icon>
             </button>
           </div>
         </ion-item>
@@ -61,9 +64,9 @@
     <nt-empty *ngIf="!loading && !filtered().length"
       icon="tv-outline"
       title="No displays paired yet"
-      description="Tap Scan to discover SOLUM displays on Wi-Fi, or add one manually by IP."
-      actionLabel="+ Add display by IP"
-      (action)="addModalOpen=true"></nt-empty>
+      [description]="q ? 'No matches for your search.' : 'Tap Scan to discover SOLUM displays on Wi-Fi, or add one manually by IP.'"
+      [actionLabel]="q ? 'Clear search' : '+ Add display by IP'"
+      (action)="emptyAction()"></nt-empty>
   </div>
 </ion-content>
 
@@ -71,6 +74,26 @@
 <button class="fab" *ngIf="!loading && filtered().length" (click)="addModalOpen=true" aria-label="Add display by IP">
   <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
 </button>
+
+<!-- Per-device actions bottom sheet -->
+<ion-modal [isOpen]="sheetOpen" (didDismiss)="sheetOpen=false" class="nt-sheet-modal">
+  <ng-template>
+    <div class="nt-sheet">
+      <div class="nt-sheet-grab"></div>
+      <h3 class="nt-sheet-title">{{ sheetDev?.name }}</h3>
+      <p class="nt-sheet-desc">{{ sheetDev?.ip }}:{{ sheetDev?.port }}</p>
+      <button class="nt-sheet-row" (click)="sheetPush()">
+        <ion-icon name="send-outline" aria-hidden="true"></ion-icon>
+        Push content
+      </button>
+      <button class="nt-sheet-row danger" (click)="sheetDelete()">
+        <ion-icon name="trash-outline" aria-hidden="true"></ion-icon>
+        Remove device
+      </button>
+      <button class="nt-sheet-row cancel" (click)="sheetOpen=false">Cancel</button>
+    </div>
+  </ng-template>
+</ion-modal>
 
 <!-- Add by IP modal -->
 <ion-modal [isOpen]="addModalOpen" (didDismiss)="addModalOpen=false" class="nt-sheet-modal">
@@ -85,12 +108,22 @@
       </label>
       <label class="fld">
         <span class="fld-l">IPv4 address</span>
-        <input class="fld-i" [(ngModel)]="newIp" placeholder="192.168.x.x" inputmode="decimal" />
+        <input class="fld-i" [class.ok]="newIp && ipValid()" [class.err]="newIp && !ipValid()"
+               [(ngModel)]="newIp" placeholder="192.168.x.x" inputmode="decimal"
+               [attr.aria-invalid]="newIp ? !ipValid() : null" />
+        <span class="fld-msg err" *ngIf="newIp && !ipValid()">Enter a valid IPv4 address (e.g. 192.168.1.20).</span>
+        <span class="fld-msg ok" *ngIf="newIp && ipValid()">Looks good.</span>
       </label>
-      <p class="note err" *ngIf="addMsg">{{ addMsg }}</p>
+      <label class="fld">
+        <span class="fld-l">Port</span>
+        <input class="fld-i" [class.ok]="newPort && portValid()" [class.err]="newPort && !portValid()"
+               [(ngModel)]="newPort" placeholder="8082" inputmode="numeric"
+               [attr.aria-invalid]="newPort ? !portValid() : null" />
+        <span class="fld-msg err" *ngIf="newPort && !portValid()">Port must be between 1 and 65535.</span>
+      </label>
       <div class="nt-sheet-actions">
         <nt-button variant="outline" size="md" [block]="true" (onClick)="addModalOpen=false">Cancel</nt-button>
-        <nt-button variant="primary" size="md" [block]="true" [disabled]="!validIp()" (onClick)="addManual()">Add display</nt-button>
+        <nt-button variant="primary" size="md" [block]="true" [disabled]="!formValid()" (onClick)="addManual()">Add display</nt-button>
       </div>
     </div>
   </ng-template>
@@ -114,7 +147,7 @@
 <ion-toast
   [isOpen]="showToast"
   [message]="toastMsg"
-  [duration]="4000"
-  color="danger"
+  [duration]="2500"
+  [color]="toastColor"
   (didDismiss)="showToast = false">
 </ion-toast>

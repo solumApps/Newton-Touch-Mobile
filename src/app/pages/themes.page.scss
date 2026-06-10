@@ -40,7 +40,8 @@
   font-size: 13px;
   font-family: inherit;
   outline: none;
-  background: #fff;
+  background: var(--nt-card);
+  color: var(--nt-text);
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 .srch input:focus { border-color: var(--nt-purple); box-shadow: 0 0 0 3px rgba(47,0,109,0.1); }
@@ -53,7 +54,7 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--nt-text-2);
-  background: #fff;
+  background: var(--nt-card);
   white-space: nowrap;
   font-family: inherit;
   cursor: pointer;
@@ -76,13 +77,13 @@
   font-weight: 600;
   border: 1.5px solid var(--nt-border);
   color: var(--nt-text-2);
-  background: #fff;
+  background: var(--nt-card);
   white-space: nowrap;
   cursor: pointer;
   font-family: inherit;
   transition: all 150ms ease;
 }
-.fchip:hover { border-color: var(--nt-purple); color: var(--nt-purple); }
+.fchip:hover { border-color: var(--nt-brand-ink); color: var(--nt-brand-ink); }
 .fchip.act { background: var(--nt-purple); color: #fff; border-color: var(--nt-purple); }
 
 /* Featured themes — horizontal carousel. Cards stay inside the page
@@ -100,7 +101,7 @@
   flex: 0 0 min(78vw, 360px);
   scroll-snap-align: start;
   display: flex; flex-direction: column;
-  background: #fff;
+  background: var(--nt-card);
   border: 1px solid var(--nt-border);
   border-radius: var(--nt-r-lg);
   overflow: hidden;
@@ -151,7 +152,7 @@
 .slides { background: transparent; margin-top: 4px; }
 .slides ion-item-sliding { margin-bottom: 10px; }
 .slides ion-item {
-  --background: #fff; --border-radius: var(--nt-r); --padding-start: 12px; --inner-padding-end: 12px;
+  --background: var(--nt-card); --border-radius: var(--nt-r); --padding-start: 12px; --inner-padding-end: 12px;
   --min-height: 0;
   border: 1px solid var(--nt-border); border-radius: var(--nt-r);
   box-shadow: var(--nt-shadow-1);
@@ -172,7 +173,7 @@
 
 
 .nt-confirm {
-  background: #fff;
+  background: var(--nt-card);
   padding: 24px 22px 22px;
   text-align: center;
 }

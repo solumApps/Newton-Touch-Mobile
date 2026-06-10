@@ -31,6 +31,24 @@
       </button>
     </div>
 
+    <!-- Appearance -->
+    <div class="section-label">Appearance</div>
+    <div class="grp">
+      <div class="row static">
+        <span class="ico"><ion-icon name="contrast-outline" aria-hidden="true"></ion-icon></span>
+        <span class="rl">
+          <span class="t">Appearance</span>
+          <span class="s">Dark mode follows your system unless overridden</span>
+        </span>
+        <div class="seg" role="radiogroup" aria-label="Appearance mode">
+          <button *ngFor="let m of appearanceModes"
+                  class="seg-b" [class.on]="appearance === m"
+                  role="radio" [attr.aria-checked]="appearance === m"
+                  (click)="setAppearance(m)">{{ m | titlecase }}</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Environment -->
     <div class="section-label">Environment</div>
     <div class="grp">
@@ -38,7 +56,8 @@
         <span class="ico"><ion-icon name="globe-outline" aria-hidden="true"></ion-icon></span>
         <span class="rl">
           <span class="t">Server</span>
-          <span class="s">{{ ws?.environment }}<span class="dim" *ngIf="ws?.serverUrl"> · {{ ws?.serverUrl
+          <span class="s url" [class.open]="urlExpanded" (click)="toggleUrl($event)"
+                [attr.title]="ws?.serverUrl || null">{{ ws?.environment }}<span class="dim" *ngIf="ws?.serverUrl"> · {{ ws?.serverUrl
               }}</span></span>
         </span>
         <ion-icon class="chev" name="chevron-forward" aria-hidden="true"></ion-icon>
@@ -68,8 +87,8 @@
       <h2>Sign out?</h2>
       <p>You'll need to sign in again to access your themes, content, and devices.</p>
       <div class="nt-confirm-actions">
-        <button class="btn-cancel" (click)="showSignOutAlert = false">Cancel</button>
-        <button class="btn-yes" (click)="confirmSignOut()">Sign out</button>
+        <nt-button variant="outline" size="md" [block]="true" (onClick)="showSignOutAlert = false">Cancel</nt-button>
+        <nt-button variant="danger" size="md" [block]="true" (onClick)="confirmSignOut()">Sign out</nt-button>
       </div>
     </div>
   </ng-template>

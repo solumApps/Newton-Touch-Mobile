@@ -25,8 +25,13 @@
   --nt-text-2: #64748B;
   --nt-muted: #94A3B8;
   --nt-border: #E2E8F0;
-  --nt-surface: #F8FAFC;
+  --nt-surface: #F8FAFC;   /* page background */
+  --nt-card: #ffffff;      /* elevated surfaces: cards, sheets, inputs, footers */
   --nt-tint: #F8F5FF;
+  /* Brand colour used as FOREGROUND (text/icons). Same as --nt-purple in light
+     mode; lightened in dark mode so it stays readable on dark surfaces, while
+     --nt-purple itself remains a fill colour (always paired with white text). */
+  --nt-brand-ink: #2F006D;
 
   /* Semantic status colors (additive — never used as text on white < 14pt) */
   --nt-success: #16A34A;
@@ -34,9 +39,14 @@
   --nt-danger: #DC2626;
   --nt-danger-tint: #FEE2E2;
   --nt-warn: #F59E0B;
+  --nt-warn-ink: #B45309;  /* warn-coloured text/icons on warn-tint */
   --nt-warn-tint: #FEF3C7;
   --nt-info: #0EA5E9;
   --nt-info-tint: #E0F2FE;
+
+  /* Skeleton shimmer */
+  --nt-skel: #EEF1F5;
+  --nt-skel-shine: rgba(255,255,255,.65);
 
   /* Elevation scale */
   --nt-shadow-1: 0 1px 2px rgba(15,23,42,0.04);
@@ -59,7 +69,61 @@
 
   --ion-font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --ion-background-color: #F8FAFC;
+  --ion-background-color-rgb: 248, 250, 252;
   --ion-text-color: #0F172A;
+  --ion-text-color-rgb: 15, 23, 42;
+}
+
+/* ===== Dark scheme token overrides =====
+   Applied (a) automatically via prefers-color-scheme unless the user forced
+   Light, and (b) when the user forces Dark from Settings (html.nt-dark).
+   NOTE: kiosk/theme previews are untouched — they render the theme's own
+   colors via inline token bindings, never these app-chrome tokens. */
+@mixin nt-dark-tokens {
+  color-scheme: dark;
+
+  --nt-gray: #2A3447;
+  --nt-text: #F1F5F9;        /* ~15:1 on card */
+  --nt-text-2: #A7B4C6;      /* ~7:1 on card */
+  --nt-muted: #7E8CA0;       /* ~4.6:1 on card */
+  --nt-border: #2D3A4E;
+  --nt-surface: #0D1322;     /* page background */
+  --nt-card: #1B2436;        /* elevated surfaces */
+  --nt-tint: #2B2150;        /* purple-tinted surface */
+  --nt-brand-ink: #BBA4F6;   /* readable brand accent on dark surfaces */
+
+  --nt-success: #4ADE80;
+  --nt-success-tint: rgba(74, 222, 128, 0.14);
+  --nt-danger: #EF4444;
+  --nt-danger-tint: rgba(239, 68, 68, 0.16);
+  --nt-warn: #FBBF24;
+  --nt-warn-ink: #FBBF24;
+  --nt-warn-tint: rgba(251, 191, 36, 0.16);
+  --nt-info: #38BDF8;
+  --nt-info-tint: rgba(56, 189, 248, 0.16);
+
+  --nt-skel: #243049;
+  --nt-skel-shine: rgba(255, 255, 255, 0.08);
+
+  --nt-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --nt-shadow-2: 0 1px 2px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.4);
+  --nt-shadow-3: 0 4px 8px rgba(0, 0, 0, 0.4), 0 12px 24px rgba(0, 0, 0, 0.5);
+
+  --ion-background-color: #0D1322;
+  --ion-background-color-rgb: 13, 19, 34;
+  --ion-text-color: #F1F5F9;
+  --ion-text-color-rgb: 241, 245, 249;
+}
+
+/* Manual override from Settings → Appearance: Dark */
+html.nt-dark {
+  @include nt-dark-tokens;
+}
+/* System preference (default) — unless the user forced Light */
+@media (prefers-color-scheme: dark) {
+  html:not(.nt-light) {
+    @include nt-dark-tokens;
+  }
 }
 
 html {
@@ -99,22 +163,22 @@ ion-toolbar ion-buttons ion-button {
 }
 ion-toolbar ion-buttons ion-button.cta-y { --color: var(--nt-yellow); }
 ion-tab-bar {
-  --background: #ffffff;
+  --background: var(--nt-card);
   border-top: 1px solid var(--nt-border);
   height: 56px;
 }
-ion-tab-button { --color: #94A3B8; --color-selected: #2F006D; font-size: 9px; }
+ion-tab-button { --color: var(--nt-muted); --color-selected: var(--nt-brand-ink); font-size: 9px; }
 
 /* ===== Brand wordmark (SOLUM logo + Newton Touch subtitle) ===== */
 .nt-brand { display: flex; align-items: center; gap: 8px; }
 .nt-brand img { height: 22px; }
 .nt-brand .sub { font-size: 10px; color: var(--nt-muted); letter-spacing: .5px; text-transform: uppercase; }
-.nt-wordmark { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 900; letter-spacing: 1px; color: var(--nt-purple); }
+.nt-wordmark { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 900; letter-spacing: 1px; color: var(--nt-brand-ink); }
 
 /* ===== Wireframe primitives — unified radius (10px panels, 999px pills) + subtle elevation ===== */
 .crd {
-  background: #fff; border: 1px solid var(--nt-border); border-radius: 10px; padding: 12px 14px;
-  box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 4px 12px rgba(15,23,42,0.05);
+  background: var(--nt-card); border: 1px solid var(--nt-border); border-radius: 10px; padding: 12px 14px;
+  box-shadow: var(--nt-shadow-2);
 }
 .crd.sel { border: 2px solid var(--nt-purple); background: var(--nt-tint); }
 
@@ -128,15 +192,15 @@ ion-tab-button { --color: #94A3B8; --color-selected: #2F006D; font-size: 9px; }
 /* Button helpers — pill-shaped, consistent across the app */
 .btn-y { background: var(--nt-yellow); color: #000; font-weight: 800; border: none; border-radius: 999px; padding: 13px 16px; width: 100%; font-family: inherit; font-size: 14px; }
 .btn-g { background: var(--nt-purple); color: #fff; font-weight: 700; border: none; border-radius: 999px; padding: 13px 16px; width: 100%; font-family: inherit; font-size: 14px; }
-.btn-o { background: #fff; color: var(--nt-purple); font-weight: 700; border: 2px solid var(--nt-purple); border-radius: 999px; padding: 12px 16px; width: 100%; font-family: inherit; font-size: 14px; }
+.btn-o { background: var(--nt-card); color: var(--nt-brand-ink); font-weight: 700; border: 2px solid var(--nt-brand-ink); border-radius: 999px; padding: 12px 16px; width: 100%; font-family: inherit; font-size: 14px; }
 
 /* Make the primary ion-button look like the yellow CTA, secondary = purple */
 ion-button.cta { --background: #FFCD00; --background-activated: #E6B800; --color: #000; --border-radius: 999px; font-weight: 800; text-transform: none; }
 ion-button.cta-purple { --background: #2F006D; --color: #fff; --border-radius: 999px; font-weight: 700; text-transform: none; }
-ion-button.cta-outline { --background: #fff; --color: #2F006D; --border-radius: 999px; --border-width: 2px; --border-style: solid; --border-color: #2F006D; font-weight: 700; text-transform: none; }
+ion-button.cta-outline { --background: var(--nt-card); --color: var(--nt-brand-ink); --border-radius: 999px; --border-width: 2px; --border-style: solid; --border-color: var(--nt-brand-ink); font-weight: 700; text-transform: none; }
 
 /* Flat cards (kill heavy ion-card shadow to match wireframe) */
-ion-card { box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 4px 12px rgba(15,23,42,0.05); border: 1px solid var(--nt-border); border-radius: 10px; margin: 8px 0; }
+ion-card { background: var(--nt-card); box-shadow: var(--nt-shadow-2); border: 1px solid var(--nt-border); border-radius: 10px; margin: 8px 0; }
 
 /* ===== Header / page-title typography (consistent across pages) ===== */
 ion-title { font-weight: 700; letter-spacing: -.1px; }
@@ -160,17 +224,21 @@ ion-searchbar {
 .btn-y:disabled, .btn-g:disabled, .btn-o:disabled { opacity: .45; }
 
 /* ===== Skeleton loading ===== */
-.skel { position: relative; overflow: hidden; background: #EEF1F5; border-radius: 8px; }
+.skel { position: relative; overflow: hidden; background: var(--nt-skel); border-radius: 8px; }
 .skel::after {
   content: ''; position: absolute; inset: 0; transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent);
+  background: linear-gradient(90deg, transparent, var(--nt-skel-shine), transparent);
   animation: nt-skel 1.2s infinite;
 }
 @keyframes nt-skel { 100% { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) {
+  .skel::after { animation: none; }
+}
 .skel-row { height: 56px; margin-bottom: 8px; }
 .skel-line { height: 12px; border-radius: 6px; }
 input{
-  background: #fff;
+  background: var(--nt-card);
+  color: var(--nt-text);
 }
 
 @media (min-width: 900px) {
@@ -201,7 +269,7 @@ ion-modal.nt-confirm-modal::part(content) {
 }
 
 .nt-confirm {
-  background: #fff;
+  background: var(--nt-card);
   padding: 24px 22px 22px;
   text-align: center;
 }
@@ -218,7 +286,7 @@ ion-modal.nt-confirm-modal::part(content) {
 }
 .nt-confirm-ic.warn {
   background: var(--nt-warn-tint);
-  color: #B45309;
+  color: var(--nt-warn-ink);
 }
 .nt-confirm-ic ion-icon {
   font-size: 26px;
@@ -251,9 +319,9 @@ ion-modal.nt-confirm-modal::part(content) {
   transition: background 150ms ease;
 }
 .nt-confirm-actions .btn-cancel {
-  background: #fff;
-  color: var(--nt-purple);
-  border: 2px solid var(--nt-purple);
+  background: var(--nt-card);
+  color: var(--nt-brand-ink);
+  border: 2px solid var(--nt-brand-ink);
 }
 .nt-confirm-actions .btn-cancel:hover {
   background: var(--nt-tint);
@@ -282,7 +350,7 @@ ion-modal.nt-sheet-modal::part(content) {
 
 /* Sheet content styling */
 .nt-sheet {
-  background: #fff;
+  background: var(--nt-card);
   padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
 }
 .nt-sheet-grab {
@@ -315,6 +383,15 @@ ion-modal.nt-sheet-modal::part(content) {
 .nt-sheet-row ion-icon {
   font-size: 22px;
   color: var(--nt-text-2);
+}
+.nt-sheet-row.danger {
+  color: var(--nt-danger);
+}
+.nt-sheet-row.danger ion-icon {
+  color: var(--nt-danger);
+}
+.nt-sheet-row.danger:hover {
+  background: var(--nt-danger-tint);
 }
 .nt-sheet-row.cancel {
   justify-content: center;

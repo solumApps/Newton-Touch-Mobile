@@ -5,13 +5,13 @@
 }
 .ghost-action { font-weight: 900; font-size: 20px; }
 :host ::ng-deep ion-content {
-  --background: linear-gradient(180deg, #fff 0, var(--nt-surface) 100%);
+  --background: linear-gradient(180deg, var(--nt-card) 0, var(--nt-surface) 100%);
 }
 
 .tband {
   display: flex; align-items: center; gap: 10px; margin: 0 0 12px;
   padding: 12px;
-  background: #fff; border: 1px solid var(--nt-border); border-radius: var(--nt-r-lg);
+  background: var(--nt-card); border: 1px solid var(--nt-border); border-radius: var(--nt-r-lg);
   box-shadow: var(--nt-shadow-1);
 }
 .tband .sw { width: 38px; height: 38px; border-radius: var(--nt-r); flex-shrink: 0; border: 1px solid var(--nt-border); }
@@ -20,15 +20,15 @@
 
 .sec { display: flex; align-items: center; justify-content: space-between; margin: 20px 0 10px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .65px; color: var(--nt-text-2); }
 .mini {
-  border: 1.5px solid var(--nt-purple); color: var(--nt-purple); background: #fff;
+  border: 1.5px solid var(--nt-brand-ink); color: var(--nt-brand-ink); background: var(--nt-card);
   border-radius: 999px; padding: 7px 13px; font-size: 12px; font-weight: 900;
   font-family: inherit; cursor: pointer; box-shadow: var(--nt-shadow-1);
 }
 .mini:hover { background: var(--nt-tint); }
 .note { font-size: 12px; line-height: 1.5; color: var(--nt-muted); margin: 6px 0; }
 .chip { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: var(--nt-border); color: var(--nt-muted); margin-left: 6px; }
-.chip.on { background: #DCFCE7; color: #16A34A; }
-.note.err { color: #DC2626; }
+.chip.on { background: var(--nt-success-tint); color: var(--nt-success); }
+.note.err { color: var(--nt-danger); }
 
 .pick { display: flex; align-items: center; gap: 10px; padding: 9px 4px; border-bottom: 1px solid var(--nt-border); }
 .pick input { width: 18px; height: 18px; }
@@ -36,7 +36,7 @@
 .pm { display: block; font-size: 10px; color: var(--nt-muted); font-weight: 400; }
 
 .erow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.thumb { width: 44px; height: 44px; border-radius: var(--nt-r); border: 1.5px dashed #cbd5e1; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; flex-shrink: 0; background-color: #fff; }
+.thumb { width: 44px; height: 44px; border-radius: var(--nt-r); border: 1.5px dashed var(--nt-border); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; flex-shrink: 0; background-color: var(--nt-card); }
 /* Wide upload tile (e.g. Result map image) — full-width drop area, generous tap target. */
 .thumb.wide { width: 100%; height: auto; min-height: 130px; border-radius: 10px; border: 2px dashed var(--nt-border); background: var(--nt-tint, #F8F5FF); font-size: 13px; font-weight: 600; color: var(--nt-muted); flex-shrink: 1; }
 .thumb.wide[style*="url("] { background-color: transparent; border-style: solid; border-color: var(--nt-border); color: transparent; }
@@ -46,7 +46,7 @@
 
 .pcard {
   border: 1px solid var(--nt-border); border-radius: var(--nt-r-lg); padding: 12px; margin-bottom: 10px;
-  box-shadow: var(--nt-shadow-2); background: #fff;
+  box-shadow: var(--nt-shadow-2); background: var(--nt-card);
 }
 .prow { display: flex; gap: 8px; margin-top: 8px; }
 
@@ -107,7 +107,7 @@ table.sum td:first-child {
 .tt-sub { font-size: 10px; font-weight: 500; opacity: .78; text-transform: lowercase; letter-spacing: .2px; margin-top: 2px; }
 .save-btn { --color: var(--nt-yellow); font-weight: 800; letter-spacing: .3px; }
 
-.stepper { padding: 8px 14px 6px; background: #fff; border-top: 1px solid var(--nt-border); }
+.stepper { padding: 8px 14px 6px; background: var(--nt-card); border-top: 1px solid var(--nt-border); }
 .stepper-track {
   display: flex;
   align-items: center;
@@ -179,7 +179,7 @@ table.sum td:first-child {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: linear-gradient(180deg, #fff 0, rgba(255,255,255,.96) 100%);
+  background: var(--nt-surface);
   padding: 0 0 8px;
   margin-bottom: 8px;
   box-shadow: 0 8px 20px rgba(15,23,42,.06);
@@ -194,7 +194,7 @@ table.sum td:first-child {
 
 .foot {
   padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
-  background: rgba(255,255,255,.96); border-top: 1px solid var(--nt-border);
+  background: var(--nt-card); border-top: 1px solid var(--nt-border);
   box-shadow: 0 -8px 24px rgba(15,23,42,.06);
   backdrop-filter: blur(10px);
 }

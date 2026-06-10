@@ -42,9 +42,9 @@
 .nt-btn.v-secondary:hover:not(:disabled) { background: #3D0E89; box-shadow: var(--nt-shadow-2); }
 
 .nt-btn.v-outline {
-  background: #fff;
-  color: var(--nt-purple);
-  border: 2px solid var(--nt-purple);
+  background: var(--nt-card);
+  color: var(--nt-brand-ink);
+  border: 2px solid var(--nt-brand-ink);
 }
 .nt-btn.v-outline:hover:not(:disabled) { background: var(--nt-tint); }
 

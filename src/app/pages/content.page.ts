@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonContent, IonFooter, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonModal } from '@ionic/angular/standalone';
+import { IonContent, IonFooter, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonModal, IonRefresher, IonRefresherContent } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { searchOutline, chevronForward, trashOutline, documentsOutline } from 'ionicons/icons';
+import { searchOutline, chevronForward, trashOutline, documentsOutline, tvOutline, timeOutline } from 'ionicons/icons';
 import { Router } from '@angular/router';
 import { ContentService, ContentDraft } from '../services/content.service';
 import { WorkspaceService } from '../services/workspace.service';
@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-content',
   standalone: true,
-  imports: [CommonModule, IonContent, IonFooter, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonModal, PageHeaderComponent, NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderComponent],
+  imports: [CommonModule, IonContent, IonFooter, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonModal, IonRefresher, IonRefresherContent, PageHeaderComponent, NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderComponent],
   templateUrl: './content.page.html',
   styleUrls: ['./content.page.scss'],
 })
@@ -35,7 +35,7 @@ export class ContentPage implements OnInit, OnDestroy {
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
-    addIcons({ searchOutline, chevronForward, trashOutline, documentsOutline });
+    addIcons({ searchOutline, chevronForward, trashOutline, documentsOutline, tvOutline, timeOutline });
   }
 
   async ngOnInit(): Promise<void> {
@@ -71,6 +71,19 @@ export class ContentPage implements OnInit, OnDestroy {
     this.company = w.companyName || '';
     this.store = w.storeName || '';
     this.cdr.detectChanges();
+  }
+
+  /** Pull-to-refresh — re-runs the existing reload methods. */
+  async doRefresh(ev: Event): Promise<void> {
+    this.drafts = await this.content.list();
+    await this.loadWorkspace();
+    (ev.target as any)?.complete();
+  }
+
+  /** Empty-state CTA: clears the search when one is active, otherwise creates. */
+  emptyAction(): void {
+    if (this.q) { this.q = ''; return; }
+    this.create();
   }
 
   filtered(): ContentDraft[] {
