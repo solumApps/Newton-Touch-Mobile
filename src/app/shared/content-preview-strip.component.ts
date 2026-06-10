@@ -1,4 +1,4 @@
-import { Component, Input, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import type { ThemeTokens, CardItem, ResultProduct, Screensaver } from '@contract/layout';
 import { imageFitSize } from '@contract/layout';
@@ -6,14 +6,16 @@ import { imageFitSize } from '@contract/layout';
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
 /**
- * Reusable mini-LCD preview strip driven by real draft data. Used in the
- * content-builder step wizard so each step shows a live preview reflecting the
- * user's edits + the chosen theme.
+ * Reusable mini-LCD preview strip driven by real draft data.
  *
- * Encapsulation is None: the preview SCSS uses generic class names
- * (`.prev .stage …`) and we want them to apply to this component's markup the
- * same way they apply in the theme-wizard. The class names are unique enough
- * (prefixed `.prev`) that they don't collide with the rest of the app.
+ * The preview emits the SAME class names + DOM structure as the LCD renderer
+ * (apps/newtontouch-lcd pages) and is styled by the SHARED stylesheet
+ * src/styles/_nt-layouts.scss (imported globally). The stage (.prev.nt-stage)
+ * enforces the 1920:540 aspect and exposes the var-based stage units
+ * --nt-vw / --nt-vh / --nt-vmin in px, computed from the measured stage width.
+ *
+ * Encapsulation is None so the global shared rules apply unscoped; the local
+ * SCSS keeps only studio chrome (frame, caption, screensaver mock).
  */
 @Component({
   selector: 'app-content-preview-strip',
@@ -23,47 +25,57 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
   styleUrls: ['./content-preview-strip.component.scss'],
   template: `
     <div class="cps-wrap">
-      <div class="prev" [ngClass]="['fit-'+(theme?.typography?.textFit||'shrink'), 'surface-'+(theme?.cardSurface || 'flat'), 'nav-'+(theme?.navStyle || 'floating')]"
+      <div class="prev nt-stage" #ntStage [ngClass]="prevClasses"
            [style.background]="backgroundForPage"
            [style.fontFamily]="theme?.typography?.fontFamily"
-           [style.--prev-scale]="scaleNum"
-           [style.--prev-accent]="theme?.accent"
-           [style.--prev-card]="theme?.cardBackground"
-           [style.--prev-text]="theme?.cardText"
-           [style.--prev-overlay]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
+           [style.--nt-text-scale]="scaleNum"
+           [style.--nt-font]="theme?.typography?.fontFamily"
+           [style.--nt-accent]="theme?.accent"
+           [style.--nt-card]="theme?.cardBackground"
+           [style.--nt-text]="theme?.cardText"
+           [style.--nt-overlay]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
+           [style.--nt-int-card]="theme?.intermediate?.cardBackground"
+           [style.--nt-int-accent]="theme?.intermediate?.accent"
+           [style.--nt-int-text]="theme?.intermediate?.cardText"
+           [style.--nt-res-card]="theme?.result?.cardBackground"
+           [style.--nt-res-accent]="theme?.result?.accent"
+           [style.--nt-res-text]="theme?.result?.cardText"
+           [style.--nt-path]="theme?.result?.pathColor"
            [ngSwitch]="page">
+        <!-- HEADER (LCD markup: .hdr > .brand-logo + .brand-text(.title/.caption)) -->
         <div class="hdr" *ngIf="headerVisible"
-             [ngClass]="isCustomHeader ? 'hdr-custom' : ['logo-'+(theme?.logoPosition||'left'), 'hdr-style-'+(theme?.headerStyle||'logo-only')]"
-             [class.hdr-transparent]="isTransparentHeader"
+             [class.right]="logoRight && !isCustomHeader" [class.center]="logoCenter && !isCustomHeader"
+             [class.hdr-transparent]="isTransparentHeader" [class.hdr-custom]="isCustomHeader"
+             [ngClass]="isCustomHeader ? '' : ('hdr-style-' + headerStyle)"
              [style.background]="isTransparentHeader ? 'transparent' : headerColor">
           <ng-container *ngIf="!isCustomHeader">
-            <img *ngIf="showLogo" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+            <img *ngIf="showLogo" src="assets/solum-logo-white.svg" alt="Logo" class="brand-logo" />
             <div class="brand-text" *ngIf="showTitle || showHeaderCaption">
-              <span class="nt" *ngIf="showTitle">{{ titleText }}</span>
-              <span class="cap-line" *ngIf="showHeaderCaption">{{ captionText }}</span>
+              <span class="title" *ngIf="showTitle">{{ titleText }}</span>
+              <span class="caption" *ngIf="showHeaderCaption">{{ captionText }}</span>
             </div>
           </ng-container>
           <ng-container *ngIf="isCustomHeader">
             <div class="hzone left">
-              <img *ngIf="logoPos==='left'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-              <span class="nt" *ngIf="titlePos==='left'">{{ titleText }}</span>
-              <span class="cap-line" *ngIf="captionPos==='left'">{{ captionText }}</span>
+              <img *ngIf="logoPos==='left'" src="assets/solum-logo-white.svg" alt="Logo" class="brand-logo" />
+              <span class="title" *ngIf="titlePos==='left'">{{ titleText }}</span>
+              <span class="caption" *ngIf="captionPos==='left'">{{ captionText }}</span>
             </div>
             <div class="hzone center">
-              <img *ngIf="logoPos==='center'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-              <span class="nt" *ngIf="titlePos==='center'">{{ titleText }}</span>
-              <span class="cap-line" *ngIf="captionPos==='center'">{{ captionText }}</span>
+              <img *ngIf="logoPos==='center'" src="assets/solum-logo-white.svg" alt="Logo" class="brand-logo" />
+              <span class="title" *ngIf="titlePos==='center'">{{ titleText }}</span>
+              <span class="caption" *ngIf="captionPos==='center'">{{ captionText }}</span>
             </div>
             <div class="hzone right">
-              <img *ngIf="logoPos==='right'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-              <span class="nt" *ngIf="titlePos==='right'">{{ titleText }}</span>
-              <span class="cap-line" *ngIf="captionPos==='right'">{{ captionText }}</span>
+              <img *ngIf="logoPos==='right'" src="assets/solum-logo-white.svg" alt="Logo" class="brand-logo" />
+              <span class="title" *ngIf="titlePos==='right'">{{ titleText }}</span>
+              <span class="caption" *ngIf="captionPos==='right'">{{ captionText }}</span>
             </div>
           </ng-container>
         </div>
 
-        <!-- HOME -->
-        <div *ngSwitchCase="'home'" class="stage layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} gap-{{theme?.cardGap||'normal'}}" [class.shape]="shapeCard"
+        <!-- HOME (LCD markup: .cards.layout-*) -->
+        <div *ngSwitchCase="'home'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} gap-{{theme?.cardGap||'normal'}}" [class.shape]="shapeCard"
              [class.has-cols]="theme?.columns !== undefined" [style.--cols]="theme?.columns"
              [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'">
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
@@ -74,135 +86,217 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <b>Featured</b>
             <span>{{ titleText || 'Find the right product faster' }}</span>
           </div>
-          <!-- h-scroll layout: single scrollable rail -->
+          <!-- promo-categories: scrollable rail, copy pinned left (mirrors LCD) -->
+          <div class="promo-rail" *ngIf="theme?.homeLayout==='promo-categories'">
+            <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
+                 [class.has-img]="!!c.image" *ngFor="let c of homeCells">
+              <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
+              <div class="meta"><span class="name">{{ c.name }}</span></div>
+            </div>
+          </div>
+          <!-- h-scroll: single horizontally-scrolling rail -->
           <div class="h-scroll-rail" *ngIf="theme?.homeLayout==='h-scroll'">
-            <ng-container *ngIf="(home?.length||0) > 0; else hScrollPlaceholders">
-              <div *ngFor="let c of homeSlice"
-                   class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                   [class.has-img]="!!c.image"
-                   [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
-                <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
-                <div class="meta"><span class="name">{{ c.name || 'Item' }}</span></div>
-              </div>
-            </ng-container>
-            <ng-template #hScrollPlaceholders>
-              <div *ngFor="let n of placeholderSlots; let i = index"
-                   class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                   [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
-                <div class="img placeholder" [style.background]="theme?.accent"></div>
-                <div class="meta"><span class="name">{{ placeholderLabels[i] }}</span></div>
-              </div>
-            </ng-template>
+            <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
+                 [class.has-img]="!!c.image" *ngFor="let c of homeCells">
+              <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
+              <div class="meta"><span class="name">{{ c.name }}</span></div>
+            </div>
           </div>
           <!-- all other layouts -->
-          <ng-container *ngIf="theme?.homeLayout!=='h-scroll'">
-            <ng-container *ngIf="(home?.length||0) > 0; else homePlaceholders">
-              <div *ngFor="let c of homeSlice; let i = index"
-                   class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                   [class.featured]="i===0"
-                   [class.has-img]="!!c.image"
-                   [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
-                <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
-                <div class="meta"><span class="name">{{ c.name || 'Item' }}</span></div>
-              </div>
-            </ng-container>
-            <ng-template #homePlaceholders>
-              <div *ngFor="let n of placeholderSlots; let i = index"
-                   class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                   [class.featured]="i===0"
-                   [style.color]="theme?.cardText" [style.borderColor]="theme?.accent">
-                <div class="img placeholder" [style.background]="theme?.accent"></div>
-                <div class="meta"><span class="name">{{ placeholderLabels[i] }}</span></div>
-              </div>
-            </ng-template>
+          <ng-container *ngIf="theme?.homeLayout!=='h-scroll' && theme?.homeLayout!=='promo-categories'">
+            <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
+                 [class.featured]="i===0" [class.has-img]="!!c.image" *ngFor="let c of homeCells; let i = index">
+              <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
+              <div class="meta"><span class="name">{{ c.name }}</span></div>
+            </div>
           </ng-container>
         </div>
 
-        <!-- INTERMEDIATE -->
-        <div *ngSwitchCase="'inter'" class="stage int int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediate?.align||'center'}} int-gap-{{theme?.intermediate?.gap||'normal'}}"
-             [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'"
-             [style.--int-card]="theme?.intermediate?.cardBackground"
-             [style.--int-accent]="theme?.intermediate?.accent"
-             [style.--int-text]="theme?.intermediate?.cardText">
-          <div class="rail" *ngIf="theme?.intermediateStyle==='side-rail'">
-            <b>{{ titleText || 'Finder' }}</b><span>Category</span><span>Model</span><span>Result</span>
-          </div>
-          <ng-container *ngIf="(intermediateSource?.length||0) > 0; else interPlaceholders">
-            <div class="item" *ngFor="let it of intermediateSlice; let i = index" [class.open]="i===0">
-              <div class="img" [style.background-image]="it.image ? 'url('+it.image+')' : null" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
-              <span class="name">{{ it.name || 'Item' }}</span>
+        <!-- INTERMEDIATE (LCD markup: .body.int-*) -->
+        <ng-container *ngSwitchCase="'inter'">
+          <!-- drill-stair: side-by-side columns (mirrors LCD .col structure) -->
+          <div class="body int-drill-stair" *ngIf="theme?.intermediateStyle==='drill-stair'; else flatInter">
+            <div class="col">
+              <div class="col-label">Category</div>
+              <div class="col-items">
+                <div class="col-item" *ngFor="let it of interCells; let i = index" [class.picked]="i===0">{{ it.name }}</div>
+              </div>
             </div>
-          </ng-container>
-          <ng-template #interPlaceholders>
-            <div class="item" *ngFor="let n of placeholderSlots; let i = index" [class.open]="i===0">
-              <div class="img"></div>
-              <span class="name">{{ placeholderLabels[i] }}</span>
+            <div class="col col-result">
+              <div class="rprod">
+                <div class="rprod-name">{{ interCells[0].name }}</div>
+                <div class="rprod-price">$0.00</div>
+                <div class="rprod-aisle">Aisle 1</div>
+              </div>
+            </div>
+          </div>
+          <ng-template #flatInter>
+            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediate?.align||'center'}} int-gap-{{theme?.intermediate?.gap||'normal'}}"
+                 [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'">
+              <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0">
+                <div class="img" [style.background-image]="it.image ? 'url('+it.image+')' : null" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
+                <span class="name">{{ it.name }}</span>
+              </div>
             </div>
           </ng-template>
-        </div>
+        </ng-container>
 
-        <!-- RESULT -->
-        <div *ngSwitchCase="'result'" class="stage result res-{{theme?.resultTemplate}}"
-             [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'">
-          <div class="map" [style.borderColor]="theme?.result?.pathColor" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
-            <div class="path path-{{theme?.result?.pathStyle}}" [style.background]="theme?.result?.pathColor" [style.borderColor]="theme?.result?.pathColor"></div>
+        <!-- RESULT (LCD markup: res-* class on the stage, .body variants inside) -->
+        <ng-container *ngSwitchCase="'result'">
+          <!-- drill-stair -->
+          <div class="body stair" *ngIf="resTpl==='drill-stair'">
+            <div class="scol">
+              <div class="scol-label">Category</div>
+              <div class="scol-items">
+                <div class="scol-item" *ngFor="let p of resultCells; let i = index" [class.picked]="i===0">{{ p.name }}</div>
+              </div>
+            </div>
+            <div class="scol scol-result">
+              <div class="rprod">
+                <div class="rprod-img" *ngIf="found?.image" [style.background-image]="'url('+found?.image+')'" [style.background-size]="fitSize(found?.imageFit)" [style.background-repeat]="found?.imageFit ? 'no-repeat' : null"></div>
+                <div class="rprod-name">{{ found?.name || 'Product' }}</div>
+                <div class="rprod-price" *ngIf="found?.price">{{ found?.price }}</div>
+                <div class="rprod-aisle" *ngIf="found?.aisle">Aisle {{ found?.aisle }}</div>
+              </div>
+            </div>
           </div>
-          <div class="promo" *ngIf="theme?.resultTemplate==='promo-list'" [style.background-image]="result?.promoImage ? 'url('+result?.promoImage+')' : null"></div>
-          <div class="focus" *ngIf="theme?.resultTemplate==='product-focus'">
-            <b>{{ (result?.products?.[0]?.price) || 'Best Match' }}</b>
-            <span>Find Me</span>
+          <!-- drill-filter -->
+          <div class="body stair" *ngIf="resTpl==='drill-filter'">
+            <div class="scol">
+              <div class="scol-items">
+                <div class="scol-item" *ngFor="let p of resultCells.slice(0,3); let i = index" [class.picked]="i===0">{{ p.name }}</div>
+              </div>
+            </div>
+            <div class="scol scol-flist">
+              <div class="filter-tabs">
+                <div class="ftab active">Popular</div>
+                <div class="ftab">Alphabetic</div>
+              </div>
+              <div class="filter-list">
+                <div class="fitem" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+                  <span class="fnum">{{ i + 1 }}</span>
+                  <div class="finfo">
+                    <div class="fnm">{{ p.name }}</div>
+                    <div class="fmeta" *ngIf="p.price">Price {{ p.price }}<span *ngIf="p.aisle"> · Zone {{ p.aisle }}</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="hero-prod" *ngIf="theme?.resultTemplate==='hero-product'">
-            <div class="hp-benefits" [style.--b]="theme?.result?.accent">
-              <span>Great pick</span><span>In stock</span><span>Top rated</span>
+          <!-- filter-list -->
+          <div class="body filter-body" *ngIf="resTpl==='filter-list'">
+            <div class="filter-tabs">
+              <div class="ftab active">Popular</div>
+              <div class="ftab">Alphabetical</div>
+            </div>
+            <div class="filter-list">
+              <div class="fitem" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+                <span class="fnum">{{ i + 1 }}</span>
+                <div class="finfo">
+                  <div class="fnm">{{ p.name }}</div>
+                  <div class="fmeta" *ngIf="p.price">Price {{ p.price }}<span *ngIf="p.aisle"> · Zone {{ p.aisle }}</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- map-filter-list -->
+          <div class="body map-filter-body" *ngIf="resTpl==='map-filter-list'">
+            <div class="map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
+              <div class="route route-{{theme?.result?.pathStyle}}"></div>
+              <div class="marker" [style.top]="markerTop" [style.left]="markerLeft"></div>
+            </div>
+            <div class="filter-rail">
+              <div class="ftab active">Popular</div>
+              <div class="ftab">Alphabetical</div>
+            </div>
+            <div class="filter-list">
+              <div class="fitem" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+                <span class="fnum">{{ i + 1 }}</span>
+                <div class="finfo">
+                  <div class="fnm">{{ p.name }}</div>
+                  <div class="fmeta" *ngIf="p.price">Price {{ p.price }}<span *ngIf="p.aisle"> · Zone {{ p.aisle }}</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- promo-list -->
+          <div class="body promo-body" *ngIf="resTpl==='promo-list'">
+            <div class="promo-panel" [style.background-image]="result?.promoImage ? 'url('+result?.promoImage+')' : null">
+              <div class="promo-fallback" *ngIf="!result?.promoImage">Promotion</div>
+            </div>
+            <div class="promo-products">
+              <div class="filter-tabs">
+                <div class="ftab active">Popular</div>
+                <div class="ftab">Alphabetical</div>
+              </div>
+              <div class="prod" [class.found]="i===0" *ngFor="let p of resultCells.slice(0,5); let i = index">
+                <div class="info">
+                  <div class="nm">{{ p.name }}<span class="price" *ngIf="p.price"> · {{ p.price }}</span></div>
+                  <div class="loc" *ngIf="p.aisle">ZONE {{ p.aisle }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="selected-tags">
+              <div class="tag" *ngFor="let p of resultCells.slice(0,4)">#{{ p.aisle || p.name }}</div>
+            </div>
+          </div>
+          <!-- product-focus -->
+          <div class="body product-focus-body" *ngIf="resTpl==='product-focus'">
+            <div class="focus-copy">
+              <div class="label">Best Match</div>
+              <div class="name">{{ found?.name || 'Product' }}</div>
+              <div class="meta" *ngIf="found?.aisle">Aisle {{ found?.aisle }}</div>
+              <div class="price" *ngIf="found?.price">{{ found?.price }}</div>
+              <button type="button">Find Me</button>
+            </div>
+            <div class="focus-image" *ngIf="found?.image" [style.background-image]="'url('+found?.image+')'" [style.background-size]="fitSize(found?.imageFit)" [style.background-repeat]="found?.imageFit ? 'no-repeat' : null"></div>
+            <div class="focus-list">
+              <div class="mini" *ngFor="let p of resultCells.slice(0,4); let i = index" [class.found]="i===0">{{ p.name }}</div>
+            </div>
+          </div>
+          <!-- hero-product -->
+          <div class="body hero-product-body" *ngIf="resTpl==='hero-product'">
+            <div class="hp-benefits">
+              <div class="hp-bullet">Made for what you picked</div>
+              <div class="hp-bullet">Fresh, quality &amp; ready to go</div>
             </div>
             <div class="hp-product">
-              <span class="hp-img" [style.background-image]="(result?.products?.[0]?.image) ? 'url('+result?.products?.[0]?.image+')' : null" [style.background]="!(result?.products?.[0]?.image) ? theme?.result?.cardBackground : null"></span>
+              <div class="hp-img" [style.background-image]="found?.image ? 'url('+found?.image+')' : null" [style.background-size]="fitSize(found?.imageFit)" [style.background-repeat]="found?.imageFit ? 'no-repeat' : null"></div>
               <div class="hp-info">
-                <b>{{ result?.products?.[0]?.name || 'Product' }}</b>
-                <span class="price">{{ (result?.products?.[0]?.price) || '' }}</span>
-                <i class="find" [style.background]="theme?.result?.accent">Find Me</i>
+                <div class="hp-tag">Popular</div>
+                <div class="hp-name">{{ found?.name || 'Product' }}</div>
+                <div class="hp-price" *ngIf="found?.price">{{ found?.price }}</div>
+                <button type="button">Find Me</button>
               </div>
             </div>
-            <div class="hp-headline">Loved<em [style.color]="theme?.result?.accent">your pick!</em></div>
+            <div class="hp-headline">Awesome!<span>Loved your pick!</span></div>
           </div>
-          <div class="filters side" *ngIf="theme?.resultTemplate==='map-filter-list'">
-            <span class="filter on" [style.background]="theme?.result?.accent">All</span>
-            <span class="filter">Care</span>
-          </div>
-          <div class="stair-mock" *ngIf="theme?.resultTemplate==='drill-filter'">
-            <span class="sc" [style.background]="theme?.result?.accent"></span>
-            <span class="sc" [style.background]="theme?.result?.accent"></span>
-          </div>
-          <div class="list">
-            <ng-container *ngIf="(result?.products?.length||0) > 0; else prodPlaceholders">
-              <div class="prod" *ngFor="let p of resultSlice; let i = index" [class.found]="i===0"
-                   [style.background]="theme?.result?.cardBackground" [style.color]="theme?.result?.cardText"
-                   [style.borderColor]="i===0 ? theme?.result?.accent : 'transparent'">
-                <span class="dot" [style.background]="theme?.result?.accent"></span>{{ p.name || 'Product' }}
+          <!-- default: map + list -->
+          <div class="body" *ngIf="!specialResult">
+            <div class="map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
+              <div class="route route-{{theme?.result?.pathStyle}}"></div>
+              <div class="marker" [style.top]="markerTop" [style.left]="markerLeft"></div>
+            </div>
+            <div class="list">
+              <div class="prod" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+                <div class="img" [style.background-image]="p.image ? 'url('+p.image+')' : null" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
+                <div class="info">
+                  <div class="nm">{{ p.name }}<span class="price" *ngIf="p.price"> · {{ p.price }}</span></div>
+                  <div class="loc" *ngIf="p.aisle">AISLE {{ p.aisle }}</div>
+                </div>
               </div>
-            </ng-container>
-            <ng-template #prodPlaceholders>
-              <div class="prod" *ngFor="let n of [0,1,2]; let i = index" [class.found]="i===0"
-                   [style.background]="theme?.result?.cardBackground" [style.color]="theme?.result?.cardText"
-                   [style.borderColor]="i===0 ? theme?.result?.accent : 'transparent'">
-                <span class="dot" [style.background]="theme?.result?.accent"></span>Product
-              </div>
-            </ng-template>
+            </div>
           </div>
-        </div>
-        <div class="mock-nav"
-             *ngIf="page !== 'home' && page !== 'saver' && navVisible"
-             [ngClass]="'nav-pos-'+(theme?.nav?.position || 'bottom-left')">
-          <span class="mock-btn"
-                [style.color]="theme?.nav?.backColor || '#fff'"
-                [style.background]="theme?.nav?.backBg || 'rgba(0,0,0,.35)'">&#8249;</span>
-          <span class="mock-btn"
-                [style.color]="theme?.nav?.homeColor || '#fff'"
-                [style.background]="theme?.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</span>
+        </ng-container>
+
+        <!-- NAV (LCD markup: .nav.nav-pos-* > .fb) -->
+        <div class="nav nav-pos-{{theme?.nav?.position || 'bottom-left'}}"
+             *ngIf="page !== 'home' && page !== 'saver' && navVisible">
+          <div class="fb" [style.color]="theme?.nav?.backColor || '#fff'" [style.background]="theme?.nav?.backBg || 'rgba(0,0,0,.35)'">&#8592;</div>
+          <div class="fb" [style.color]="theme?.nav?.homeColor || '#fff'" [style.background]="theme?.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</div>
         </div>
 
-        <!-- SCREENSAVER -->
+        <!-- SCREENSAVER (studio mock — no LCD equivalent layout) -->
         <div *ngSwitchCase="'saver'" class="stage saver saver-{{screensaver?.mode || 'slideshow'}}">
           <div class="ss-media">
             <ng-container *ngIf="(screensaver?.media?.length||0) > 0; else saverPlaceholders">
@@ -232,7 +326,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
     </div>
   `,
 })
-export class ContentPreviewStripComponent {
+export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   /** Per-item image fit → CSS background-size (null = preview default) — matches the LCD. */
   fitSize = imageFitSize;
   @Input() theme?: ThemeTokens;
@@ -248,8 +342,60 @@ export class ContentPreviewStripComponent {
   @Input() showStripCaption = true;
   @Input() draftName?: string;
 
+  @ViewChild('ntStage') ntStage?: ElementRef<HTMLElement>;
+  private resizeObserver?: { disconnect(): void };
+
   readonly placeholderSlots = [0, 1, 2, 3, 4, 5];
   readonly placeholderLabels = ['Bakery', 'Dairy', 'Produce', 'Meat', 'Frozen', 'Drinks'];
+
+  /* ===== Stage units: --nt-vw/--nt-vh/--nt-vmin in px from the measured stage width.
+     Stage height is locked to width * 540/1920 (LCD aspect) by the chrome CSS. ===== */
+  applyStageUnits = (): void => {
+    const el = this.ntStage?.nativeElement;
+    if (!el) return;
+    const w = el.clientWidth || 0;
+    if (!w) return;
+    const vw = w / 100;
+    const vh = (w * 540 / 1920) / 100;
+    el.style.setProperty('--nt-vw', vw + 'px');
+    el.style.setProperty('--nt-vh', vh + 'px');
+    el.style.setProperty('--nt-vmin', vh + 'px'); /* height < width on a 1920x540 stage */
+  };
+  ngAfterViewInit(): void {
+    this.applyStageUnits();
+    const RO: any = (window as any).ResizeObserver;
+    if (RO && this.ntStage?.nativeElement) {
+      this.resizeObserver = new RO(() => this.applyStageUnits());
+      (this.resizeObserver as any).observe(this.ntStage.nativeElement);
+    } else {
+      window.addEventListener('resize', this.applyStageUnits);
+    }
+  }
+  ngOnDestroy(): void {
+    if (this.resizeObserver) this.resizeObserver.disconnect();
+    window.removeEventListener('resize', this.applyStageUnits);
+  }
+
+  /* ===== Stage classes (page scope + result template, mirrors the LCD wrap) ===== */
+  get prevClasses(): string[] {
+    const cls = [
+      'fit-' + (this.theme?.typography?.textFit || 'shrink'),
+      'surface-' + (this.theme?.cardSurface || 'flat'),
+      'nav-' + (this.theme?.navStyle || 'floating'),
+    ];
+    if (this.page === 'inter') cls.push('nt-inter');
+    else if (this.page === 'result') {
+      cls.push('nt-result', 'res-' + this.resTpl);
+      if (this.theme?.scrollMode === 'vertical') cls.push('scroll-vertical');
+      if (this.theme?.scrollMode === 'horizontal') cls.push('scroll-horizontal');
+    } else if (this.page === 'home') cls.push('nt-home');
+    return cls;
+  }
+  get resTpl(): string { return this.theme?.resultTemplate || 'map-list'; }
+  get specialResult(): boolean {
+    return ['drill-stair', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'product-focus', 'hero-product'].includes(this.resTpl);
+  }
+  get found(): ResultProduct | undefined { return this.resultCells[0]; }
 
   get scaleNum(): number {
     const s = this.theme?.typography?.textScale;
@@ -260,7 +406,9 @@ export class ContentPreviewStripComponent {
     const layout = this.theme?.homeLayout;
     return (sh === 'circle' || sh === 'hexagon') && !['image-strip', 'fullscreen', 'hero-start', 'promo-categories', 'h-scroll', 'bento'].includes(layout || '');
   }
-  get navVisible(): boolean { return (this.theme?.navStyle || 'floating') !== 'hidden'; }
+  get navVisible(): boolean {
+    return (this.theme?.navStyle || 'floating') !== 'hidden' && (this.theme?.nav?.position || 'bottom-left') !== 'hidden';
+  }
   get saverShowContent(): boolean { return this.theme?.saverOverlay?.showContent !== false; }
   get headerColor(): string | undefined {
     return this.page === 'inter' ? this.theme?.intermediate?.headerColor
@@ -288,18 +436,30 @@ export class ContentPreviewStripComponent {
       : this.page === 'saver' ? 'Screensaver'
       : 'Home';
   }
-  get homeSlice(): CardItem[] { return (this.home || []).slice(0, 6); }
+  /* Cells with placeholder fallback (real data when present, labels otherwise). */
+  get homeCells(): CardItem[] {
+    const real = (this.home || []).slice(0, 6);
+    if (real.length) return real.map(c => ({ ...c, name: c.name || 'Item' }));
+    return this.placeholderSlots.map(i => ({ id: 'ph' + i, name: this.placeholderLabels[i] } as CardItem));
+  }
   get intermediateSource(): CardItem[] {
     // Mirror the LCD runtime (IntermediateComponent.load): the intermediate page
     // shows the *opened* node's OWN children first, and only falls back to the
     // SHARED default intermediate list when that node has no custom subtree.
-    // The preview drills from the first home card, so use its children if present.
     const ownChildren = this.home?.[0]?.children || [];
     if (ownChildren.length) return ownChildren;
     return this.intermediate || [];
   }
-  get intermediateSlice(): CardItem[] { return this.intermediateSource.slice(0, 6); }
-  get resultSlice(): ResultProduct[] { return (this.result?.products || []).slice(0, 6); }
+  get interCells(): CardItem[] {
+    const real = this.intermediateSource.slice(0, 6);
+    if (real.length) return real.map(c => ({ ...c, name: c.name || 'Item' }));
+    return this.placeholderSlots.map(i => ({ id: 'ph' + i, name: this.placeholderLabels[i] } as CardItem));
+  }
+  get resultCells(): ResultProduct[] {
+    const real = (this.result?.products || []).slice(0, 6);
+    if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
+    return [0, 1, 2].map(i => ({ id: 'ph' + i, name: 'Product ' + (i + 1) } as ResultProduct));
+  }
   get saverBadge(): string {
     const m = this.screensaver?.mode;
     return m === 'single-image' ? 'Single image' : m === 'video' ? 'Video' : 'Slideshow';
@@ -307,6 +467,8 @@ export class ContentPreviewStripComponent {
 
   // Header style logic mirrors the LCD home component.
   get headerStyle(): string { return this.theme?.headerStyle || 'logo-only'; }
+  get logoRight(): boolean { return this.theme?.logoPosition === 'right'; }
+  get logoCenter(): boolean { return this.theme?.logoPosition === 'center'; }
   get isTransparentHeader(): boolean {
     if (this.page === 'inter') return !!this.theme?.intermediate?.transparentHeader;
     if (this.page === 'result') return !!this.theme?.result?.transparentHeader;
@@ -328,6 +490,13 @@ export class ContentPreviewStripComponent {
     if (this.isCustomHeader) return this.captionPos !== 'hidden';
     return this.headerStyle === 'title+caption' || this.headerStyle === 'logo+title+caption';
   }
-  get titleText(): string { return this.header?.title || this.draftName || ''; }
-  get captionText(): string { return this.header?.caption || ''; }
+  /* Fallback copy so headerStyle/custom-position changes are VISIBLE in contexts
+     without header content (e.g. the theme wizard preview). Mirrors LCD defaults
+     (title → content name, caption → 'Welcome'). */
+  get titleText(): string { return this.header?.title || this.draftName || 'Newton Touch'; }
+  get captionText(): string { return this.header?.caption || 'Welcome'; }
+
+  /* Marker dot position — mirrors LCD ResultComponent (mapY/mapX %, default 30/25). */
+  get markerTop(): string { const f = this.found; return (f && f.mapY != null ? f.mapY : 30) + '%'; }
+  get markerLeft(): string { const f = this.found; return (f && f.mapX != null ? f.mapX : 25) + '%'; }
 }

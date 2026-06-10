@@ -22,7 +22,12 @@
 <ion-content>
   <div class="scroll">
     <!-- ===== Reusable mini-LCD preview for any page ===== -->
+    <!-- Unified preview: the shared ContentPreviewStripComponent renders the
+         LCD markup + shared _nt-layouts.scss styles (placeholder data). -->
     <ng-template #pageView let-page="page">
+      <app-content-preview-strip [theme]="t" [page]="page" [screensaver]="$any({ mode: saverMode })" [showStripCaption]="false"></app-content-preview-strip>
+    </ng-template>
+    <ng-template #pageViewLegacy let-page="page">
       <div class="prev" [ngClass]="['fit-'+t.typography.textFit, 'surface-'+(t.cardSurface || 'flat'), 'nav-'+(t.navStyle || 'floating')]"
            [style.background]="backgroundForPage(page)"
            [style.fontFamily]="t.typography.fontFamily" [style.--prev-scale]="scaleNum"

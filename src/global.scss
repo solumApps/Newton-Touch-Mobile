@@ -5,6 +5,10 @@
 @import "@ionic/angular/css/padding.css";
 @import "@ionic/angular/css/flex-utils.css";
 
+/* Shared LCD layout system (byte-identical with newtontouch-lcd). Preview stages
+   (.nt-stage) get their --nt-vw/--nt-vh/--nt-vmin unit vars set from TS. */
+@import "./styles/nt-layouts";
+
 /* ===== SOLUM design tokens (from wireframes) ===== */
 :root {
   color-scheme: light;

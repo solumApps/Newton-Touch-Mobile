@@ -161,6 +161,28 @@
           <button class="del" *ngIf="d.result.mapImage" (click)="d.result.mapImage=undefined">✕</button>
         </div>
         <p class="note">Template <b>{{ d.themeTokens.resultTemplate }}</b> shows a store map.</p>
+
+        <!-- Tap-to-place marker: pick a product, then tap the map to set its mapX/mapY -->
+        <ng-container *ngIf="d.result.mapImage && d.result.products.length">
+          <div class="sec"><span>Marker placement</span></div>
+          <p class="note">Select a product, then tap the map where it lives — the LCD shows the dot there.</p>
+          <div class="seg fit-seg marker-seg">
+            <button class="mini" *ngFor="let p of d.result.products; let i = index"
+                    [class.sel]="markerIdx===i" (click)="markerIdx=i">{{ p.name || ('Product ' + (i+1)) }}</button>
+          </div>
+          <div class="map-place" #mapBox (click)="placeMarker($event, mapBox)"
+               [style.background-image]="'url('+d.result.mapImage+')'">
+            <ng-container *ngFor="let p of d.result.products; let i = index">
+              <span class="map-dot" *ngIf="p.mapX != null && p.mapY != null"
+                    [class.sel]="markerIdx===i"
+                    [style.left.%]="p.mapX" [style.top.%]="p.mapY"
+                    [style.background]="d.themeTokens.result.pathColor"></span>
+            </ng-container>
+          </div>
+          <app-color-picker label="Marker &amp; route color" hint="map dot + route line"
+            [value]="d.themeTokens.result.pathColor"
+            (valueChange)="d.themeTokens.result.pathColor=$event"></app-color-picker>
+        </ng-container>
       </ng-container>
 
       <ng-container *ngIf="resultNeedsPromo">

@@ -8,6 +8,7 @@ import { CategoryApiService, ApiProduct } from '../services/category-api.service
 import { WorkspaceService } from '../services/workspace.service';
 import { ImagePickerService } from '../services/image-picker.service';
 import { SelectFieldComponent, SelectOption } from '../shared/select-field.component';
+import { ColorPickerComponent } from '../shared/color-picker.component';
 import { CardTreeEditorComponent } from './card-tree-editor.component';
 import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
 import type { ResultProduct, CardItem, ImageFit } from '@contract/layout';
@@ -22,7 +23,7 @@ interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' 
 @Component({
   selector: 'app-content-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonModal, SelectFieldComponent, CardTreeEditorComponent, ContentPreviewStripComponent],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonModal, SelectFieldComponent, ColorPickerComponent, CardTreeEditorComponent, ContentPreviewStripComponent],
   templateUrl: './content-builder.component.html',
   styleUrls: ['./content-builder.component.scss'],
 })
@@ -159,7 +160,7 @@ export class ContentBuilderComponent implements OnInit {
     return this.headerStyle === 'logo-only' || this.headerStyle === 'logo+title' || this.headerStyle === 'logo+title+caption';
   }
   get headerStyleLabel(): string {
-    const m: Record<string, string> = { 'logo-only': 'Logo only', 'title-only': 'Title only', 'title+caption': 'Title + Caption', 'logo+title+caption': 'Logo + Title + Caption' };
+    const m: Record<string, string> = { 'logo-only': 'Logo only', 'logo+title': 'Logo + Title', 'title-only': 'Title only', 'title+caption': 'Title + Caption', 'logo+title+caption': 'Logo + Title + Caption' };
     return m[this.headerStyle] || this.headerStyle;
   }
   setHeader(field: 'title' | 'caption' | 'logo', value: string): void {
@@ -249,6 +250,21 @@ export class ContentBuilderComponent implements OnInit {
     this.draft!.result = { ...this.draft!.result, products: this.draft!.result.products.filter((_, idx) => idx !== i) };
   }
   removeIntermediate(i: number): void { this.draft!.intermediate = this.draft!.intermediate.filter((_, idx) => idx !== i); }
+
+  /** Tap-to-place map marker: which product the next map tap positions. */
+  markerIdx = 0;
+  /** Set the selected product's mapX/mapY (0–100 %) from a tap on the map preview. */
+  placeMarker(ev: MouseEvent, box: HTMLElement): void {
+    const products = this.draft?.result.products || [];
+    if (this.markerIdx >= products.length) this.markerIdx = 0;
+    const p = products[this.markerIdx];
+    const r = box.getBoundingClientRect();
+    if (!p || !r.width || !r.height) return;
+    p.mapX = Math.round(Math.max(0, Math.min(100, ((ev.clientX - r.left) / r.width) * 100)));
+    p.mapY = Math.round(Math.max(0, Math.min(100, ((ev.clientY - r.top) / r.height) * 100)));
+    // New products array reference so the preview strip re-renders the dot immediately.
+    this.draft!.result = { ...this.draft!.result, products: [...products] };
+  }
 
   /** Pick the result map background image. */
   async pickMap(): Promise<void> {

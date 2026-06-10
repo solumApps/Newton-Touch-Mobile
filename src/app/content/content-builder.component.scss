@@ -36,6 +36,22 @@
 .mini:hover { background: var(--nt-tint); }
 .mini:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
+/* Tap-to-place map marker (Result step) — 1920:540-ish map preview with dots. */
+.marker-seg { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
+.marker-seg .mini.sel { background: var(--nt-brand-ink); color: var(--nt-card); }
+.map-place {
+  position: relative; width: 100%; height: 150px; margin: 0 0 10px;
+  border: 1px solid var(--nt-border); border-radius: var(--nt-r);
+  background-size: cover; background-position: center; background-color: var(--nt-tint, #F4F1FA);
+  cursor: crosshair; overflow: hidden;
+}
+.map-dot {
+  position: absolute; width: 12px; height: 12px; border-radius: 50%;
+  transform: translate(-50%, -50%); background: #FFCD00;
+  border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .4); opacity: .55; pointer-events: none;
+}
+.map-dot.sel { opacity: 1; width: 16px; height: 16px; }
+
 /* Pre-deploy validation modal list (modal shell styled globally via .nt-confirm). */
 .val-list { list-style: none; margin: 10px 0 14px; padding: 0; text-align: left; }
 .val-list li { font-size: 13px; line-height: 1.5; margin: 6px 0; }

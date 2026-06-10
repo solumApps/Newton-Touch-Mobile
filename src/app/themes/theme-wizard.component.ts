@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter } from '@ionic/angular/standalone';
 import { ColorPickerComponent } from '../shared/color-picker.component';
+import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
 import { ThemeService, SavedTheme } from '../services/theme.service';
 import { ImagePickerService } from '../services/image-picker.service';
 import { FONTS } from '../shared/fonts';
@@ -18,7 +19,7 @@ interface Step { key: string; page: PreviewPage; }
 @Component({
   selector: 'app-theme-wizard',
   standalone: true,
-  imports: [CommonModule, FormsModule, ColorPickerComponent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter],
+  imports: [CommonModule, FormsModule, ColorPickerComponent, ContentPreviewStripComponent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter],
   templateUrl: './theme-wizard.component.html',
   styleUrls: ['./theme-wizard.component.scss'],
 })
