@@ -4,6 +4,7 @@ import { Preferences } from '@capacitor/preferences';
 import type { ThemeTokens, HomeLayout, CardStyle, CardShape, CardContent, CardTextPos } from '@contract/layout';
 import { THEME_ENUM_VALUES, coerceEnum, coerceColumns } from '@contract/layout';
 import { DEFAULT_FONT, FONTS } from '../shared/fonts';
+import { ImageStoreService } from './image-store.service';
 
 /** Default saverOverlay — shown centered with white text, no bg box. */
 const DEFAULT_SAVER_OVERLAY = { showContent: true, title: 'Newton Touch', subtitle: 'Touch screen to begin', position: 'center' as const, textColor: '#FFFFFF', bgColor: 'transparent' };
@@ -26,6 +27,8 @@ export class ThemeService {
   /** Emits whenever the saved-theme list changes (save / remove / import) so list
    *  views refresh immediately, independent of Ionic view lifecycle timing. */
   readonly changed = new Subject<void>();
+
+  constructor(private images: ImageStoreService) {}
 
   static defaultTokens(): ThemeTokens {
     return {
@@ -266,9 +269,51 @@ export class ThemeService {
     if (!this.cache.length) {
       const { value } = await Preferences.get({ key: KEY });
       const raw: SavedTheme[] = value ? JSON.parse(value) : [];
-      this.cache = raw.map((t) => ({ ...t, tokens: ThemeService.normalize(t.tokens) }));
+      // Resolve idb: backgroundImage refs eagerly so consumers always see data URIs.
+      this.cache = await Promise.all(raw.map(async (t) => ({ ...t, tokens: await this.mapMedia(ThemeService.normalize(t.tokens), (v) => this.resolveRef(v)) })));
     }
     return this.cache;
+  }
+
+  // ---- Media externalization (QuotaExceededError fix) ----
+  // Same pattern as ContentService: Preferences is localStorage-backed (~5 MB),
+  // so backgroundImage data URIs are persisted as `idb:<id>` refs (blobs in
+  // IndexedDB, 't' namespace) and resolved back to data URIs on read. Themes
+  // saved by older versions hold raw data URIs — externalized on next save.
+
+  private async resolveRef(v: string): Promise<string> {
+    if (!v.startsWith('idb:')) return v;
+    const data = await this.images.get(v.slice(4));
+    if (data === undefined) console.warn(`[nt-theme] Missing image blob ${v} — was it gc'd externally?`);
+    return data ?? v;
+  }
+
+  /** Map every media-bearing token (root/intermediate/result backgroundImage) through `fn`. */
+  private async mapMedia(t: ThemeTokens, fn: (v: string) => Promise<string>): Promise<ThemeTokens> {
+    const val = async (v?: string): Promise<string | undefined> => (v ? await fn(v) : v);
+    return {
+      ...t,
+      backgroundImage: await val(t.backgroundImage),
+      intermediate: { ...t.intermediate, backgroundImage: await val(t.intermediate?.backgroundImage) },
+      result: { ...t.result, backgroundImage: await val(t.result?.backgroundImage) },
+    };
+  }
+
+  /** Persist themes with media externalized to IndexedDB, then gc orphaned blobs. */
+  private async persist(next: SavedTheme[]): Promise<void> {
+    const live = new Set<string>();
+    const collect = async (v: string): Promise<string> => {
+      const r = v.startsWith('data:') ? 'idb:' + (await this.images.put(v, 't')) : v;
+      if (r.startsWith('idb:')) live.add(r.slice(4));
+      return r;
+    };
+    const stored = await Promise.all(next.map(async (t) => ({ ...t, tokens: await this.mapMedia(t.tokens, collect) })));
+    try {
+      await Preferences.set({ key: KEY, value: JSON.stringify(stored) });
+    } catch (e) {
+      console.error('[nt-theme] Failed to persist themes (storage quota exceeded?) — changes are in memory only this session.', e);
+    }
+    await this.images.gc(live, 't');
   }
 
   async save(theme: SavedTheme): Promise<void> {
@@ -280,7 +325,7 @@ export class ThemeService {
     const next = [...this.cache];
     if (i >= 0) next[i] = theme; else next.push(theme);
     this.cache = next;
-    await Preferences.set({ key: KEY, value: JSON.stringify(next) });
+    await this.persist(next);
     this.changed.next();
   }
 
@@ -290,7 +335,7 @@ export class ThemeService {
     // New array reference (not in-place mutation) so list consumers re-render.
     const next = this.cache.filter((t) => t.id !== id);
     this.cache = next;
-    await Preferences.set({ key: KEY, value: JSON.stringify(next) });
+    await this.persist(next);
     this.changed.next();
   }
 

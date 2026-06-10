@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import { Preferences } from '@capacitor/preferences';
 import type { LayoutJson, AppMode, ThemeTokens, CardItem, ResultProduct, EslLink, EslBlinkBy, Screensaver, FieldSource, ResultContent } from '@contract/layout';
 import { ThemeService } from './theme.service';
+import { ImageStoreService } from './image-store.service';
 import { freshMarketSampleDraft, FRESH_MARKET_SAMPLE_ID } from './sample-content';
 
 export interface ContentDraft {
@@ -38,6 +39,8 @@ export class ContentService {
    *  immediately regardless of Ionic view-lifecycle timing. */
   readonly changed = new Subject<void>();
 
+  constructor(private images: ImageStoreService) {}
+
   async list(): Promise<ContentDraft[]> {
     if (!this.cache.length) {
       const { value } = await Preferences.get({ key: KEY });
@@ -45,10 +48,82 @@ export class ContentService {
       // Normalize stored theme tokens on read (mk()-style merge onto defaults +
       // enum coercion) so drafts saved by an older app version always deploy a
       // full, current-shape ThemeTokens — previews and the LCD stay in lockstep.
-      this.cache = raw.map((d) => ({ ...d, themeTokens: ThemeService.normalize(d.themeTokens || {}) }));
+      // Then resolve idb: media refs back to data URIs EAGERLY so every consumer
+      // (builder, previews, deploy/externalizeImages) keeps seeing plain data URIs.
+      this.cache = await Promise.all(
+        raw.map((d) => this.mapMedia({ ...d, themeTokens: ThemeService.normalize(d.themeTokens || {}) }, (v) => this.resolveRef(v))),
+      );
       await this.seedSamplesOnce();
     }
     return this.cache;
+  }
+
+  // ---- Media externalization (QuotaExceededError fix) ----
+  // Preferences is localStorage-backed (~5 MB) — base64 media must NOT live in
+  // the nt.content JSON. On persist, every `data:` URI in a draft is swapped for
+  // an `idb:<id>` ref (blob goes to IndexedDB via ImageStoreService); on read the
+  // refs are resolved back, so the in-memory cache always holds real data URIs.
+  // Drafts saved by older app versions hold raw data URIs in Preferences — they
+  // load unchanged and get externalized automatically on their next save.
+
+  private async externalizeRef(v: string): Promise<string> {
+    return v.startsWith('data:') ? 'idb:' + (await this.images.put(v, 'c')) : v;
+  }
+
+  private async resolveRef(v: string): Promise<string> {
+    if (!v.startsWith('idb:')) return v;
+    const data = await this.images.get(v.slice(4));
+    if (data === undefined) console.warn(`[nt-content] Missing image blob ${v} — was it gc'd externally?`);
+    return data ?? v;
+  }
+
+  /** Deep-walk every media-bearing field of a draft, mapping each ref through `fn`.
+   *  Walked: home/intermediate card trees (incl. nested children), result
+   *  map/promo/product images, screensaver media, header logo, and the draft's
+   *  themeTokens backgroundImages (root + intermediate + result sub-themes). */
+  private async mapMedia(d: ContentDraft, fn: (v: string) => Promise<string>): Promise<ContentDraft> {
+    const val = async (v?: string): Promise<string | undefined> => (v ? await fn(v) : v);
+    const cards = async (items?: CardItem[]): Promise<CardItem[] | undefined> =>
+      items ? Promise.all(items.map(async (c) => ({ ...c, image: await val(c.image), children: await cards(c.children) }))) : items;
+    const t = d.themeTokens;
+    return {
+      ...d,
+      themeTokens: {
+        ...t,
+        backgroundImage: await val(t.backgroundImage),
+        intermediate: { ...t.intermediate, backgroundImage: await val(t.intermediate?.backgroundImage) },
+        result: { ...t.result, backgroundImage: await val(t.result?.backgroundImage) },
+      },
+      home: (await cards(d.home)) ?? [],
+      intermediate: (await cards(d.intermediate)) ?? [],
+      result: {
+        ...d.result,
+        mapImage: await val(d.result?.mapImage),
+        promoImage: await val(d.result?.promoImage),
+        products: await Promise.all((d.result?.products || []).map(async (p) => ({ ...p, image: await val(p.image) }))),
+      },
+      screensaver: { ...d.screensaver, media: await Promise.all((d.screensaver?.media || []).map((m) => fn(m))) },
+      header: d.header ? { ...d.header, logo: await val(d.header.logo) } : d.header,
+    };
+  }
+
+  /** Persist drafts with media externalized to IndexedDB, then gc orphaned blobs.
+   *  A quota error logs loudly instead of crashing the caller — the in-memory
+   *  cache stays correct either way. */
+  private async persist(next: ContentDraft[]): Promise<void> {
+    const live = new Set<string>();
+    const collect = async (v: string): Promise<string> => {
+      const r = await this.externalizeRef(v);
+      if (r.startsWith('idb:')) live.add(r.slice(4));
+      return r;
+    };
+    const stored = await Promise.all(next.map((d) => this.mapMedia(d, collect)));
+    try {
+      await Preferences.set({ key: KEY, value: JSON.stringify(stored) });
+    } catch (e) {
+      console.error('[nt-content] Failed to persist drafts (storage quota exceeded?) — changes are in memory only this session.', e);
+    }
+    await this.images.gc(live, 'c');
   }
 
   /** Seed the built-in "Fresh Market – Sample" draft exactly once (first run).
@@ -60,7 +135,7 @@ export class ContentService {
       const theme = ThemeService.predefined().find((t) => t.id === 'pre_fresh_market');
       if (theme) {
         this.cache = [...this.cache, freshMarketSampleDraft(theme)];
-        await Preferences.set({ key: KEY, value: JSON.stringify(this.cache) });
+        await this.persist(this.cache);
       }
     }
     await Preferences.set({ key: SEED_FLAG, value: '1' });
@@ -75,7 +150,7 @@ export class ContentService {
     const next = [...this.cache];
     if (i >= 0) next[i] = d; else next.push(d);
     this.cache = next;
-    await Preferences.set({ key: KEY, value: JSON.stringify(next) });
+    await this.persist(next);
     this.changed.next();
   }
 
@@ -85,7 +160,7 @@ export class ContentService {
     // New array reference (not in-place mutation) so list consumers re-render.
     const next = this.cache.filter((c) => c.id !== id);
     this.cache = next;
-    await Preferences.set({ key: KEY, value: JSON.stringify(next) });
+    await this.persist(next);
     this.changed.next();
   }
 
