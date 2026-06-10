@@ -244,9 +244,10 @@
 .prev .stage.layout-list .card .meta { flex: 1; }
 .prev .stage.layout-list .card:nth-child(n+5) { display: none; }
 
-.prev .stage.layout-hero-list { display: flex; flex-wrap: wrap; align-content: space-between; justify-content: space-between; }
-.prev .stage.layout-hero-list .card.featured { flex: 0 0 100%; height: 52%; }
-.prev .stage.layout-hero-list .card:not(.featured) { flex: 0 0 31%; height: 36%; }
+/* Mirrors the LCD hero-list grid: hero pinned left (46% × 3 rows), uniform rows right. */
+.prev .stage.layout-hero-list { display: grid; grid-template-columns: 46% minmax(0, 1fr); grid-auto-rows: 33.33%; column-gap: 3px; align-items: center; }
+.prev .stage.layout-hero-list .card.featured { grid-row: 1 / span 3; width: 100%; height: 97%; }
+.prev .stage.layout-hero-list .card:not(.featured) { width: 100%; height: 92%; }
 .prev .stage.layout-hero-list .card:nth-child(n+5) { display: none; }
 
 .prev .stage.layout-pill-row { display: flex; flex-direction: column; justify-content: space-around; }
