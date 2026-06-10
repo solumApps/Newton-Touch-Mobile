@@ -110,7 +110,9 @@ export class ContentService {
       result,
       screensaver: d.screensaver,
     };
-    if (d.header && (d.header.title || d.header.caption)) payload.header = { ...d.header };
+    // Include the header whenever ANY field is set — a logo-only header was
+    // previously dropped here, so the deployed LCD never showed the custom logo.
+    if (d.header && (d.header.title || d.header.caption || d.header.logo)) payload.header = { ...d.header };
     if (d.appMode === 'prototype-esl') {
       payload.eslLinks = d.eslLinks ?? [];
       payload.eslBlinkBy = d.eslBlinkBy ?? 'article';

@@ -62,7 +62,9 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         </div>
 
         <!-- HOME -->
-        <div *ngSwitchCase="'home'" class="stage layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} gap-{{theme?.cardGap||'normal'}}" [class.shape]="shapeCard">
+        <div *ngSwitchCase="'home'" class="stage layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} gap-{{theme?.cardGap||'normal'}}" [class.shape]="shapeCard"
+             [class.has-cols]="theme?.columns !== undefined" [style.--cols]="theme?.columns"
+             [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'">
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
             <span>{{ titleText || 'Product Finder' }}</span>
             <b>Start Search</b>
@@ -117,6 +119,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
         <!-- INTERMEDIATE -->
         <div *ngSwitchCase="'inter'" class="stage int int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediate?.align||'center'}} int-gap-{{theme?.intermediate?.gap||'normal'}}"
+             [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'"
              [style.--int-card]="theme?.intermediate?.cardBackground"
              [style.--int-accent]="theme?.intermediate?.accent"
              [style.--int-text]="theme?.intermediate?.cardText">
@@ -138,7 +141,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         </div>
 
         <!-- RESULT -->
-        <div *ngSwitchCase="'result'" class="stage result res-{{theme?.resultTemplate}}">
+        <div *ngSwitchCase="'result'" class="stage result res-{{theme?.resultTemplate}}"
+             [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'">
           <div class="map" [style.borderColor]="theme?.result?.pathColor" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
             <div class="path path-{{theme?.result?.pathStyle}}" [style.background]="theme?.result?.pathColor" [style.borderColor]="theme?.result?.pathColor"></div>
           </div>
@@ -269,9 +273,13 @@ export class ContentPreviewStripComponent {
   }
   get homeSlice(): CardItem[] { return (this.home || []).slice(0, 6); }
   get intermediateSource(): CardItem[] {
-    // Use the explicit intermediate array; fall back to the first home card's children.
-    if (this.intermediate && this.intermediate.length) return this.intermediate;
-    return this.home?.[0]?.children || [];
+    // Mirror the LCD runtime (IntermediateComponent.load): the intermediate page
+    // shows the *opened* node's OWN children first, and only falls back to the
+    // SHARED default intermediate list when that node has no custom subtree.
+    // The preview drills from the first home card, so use its children if present.
+    const ownChildren = this.home?.[0]?.children || [];
+    if (ownChildren.length) return ownChildren;
+    return this.intermediate || [];
   }
   get intermediateSlice(): CardItem[] { return this.intermediateSource.slice(0, 6); }
   get resultSlice(): ResultProduct[] { return (this.result?.products || []).slice(0, 6); }

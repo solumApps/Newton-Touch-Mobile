@@ -7,7 +7,8 @@ import { ColorPickerComponent } from '../shared/color-picker.component';
 import { ThemeService, SavedTheme } from '../services/theme.service';
 import { ImagePickerService } from '../services/image-picker.service';
 import { FONTS } from '../shared/fonts';
-import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, SaverOverlayPosition } from '@contract/layout';
+import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, SaverOverlayPosition, ScrollMode } from '@contract/layout';
+import { MIN_COLUMNS, MAX_COLUMNS, columnsForLayout, coerceColumns } from '@contract/layout';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 interface Step { key: string; page: PreviewPage; }
@@ -87,6 +88,8 @@ export class ThemeWizardComponent implements OnInit {
 
   pickLayout(l: HomeLayout): void {
     this.t.homeLayout = l;
+    // Reset the free column count so the new layout's default applies.
+    this.t.columns = undefined;
     // Auto-reset circle/hexagon when switching to shape-incompatible layouts
     if (this.noShapeLayouts.includes(l) &&
         (this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon')) {
@@ -101,6 +104,25 @@ export class ThemeWizardComponent implements OnInit {
     }
     return this.cardShapes;
   }
+  // ----- Free column count (grid/column layouts) -----
+  readonly minColumns = MIN_COLUMNS;
+  readonly maxColumns = MAX_COLUMNS;
+  /** Layouts whose column count can be freely overridden. */
+  private readonly columnLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-2', 'col-3', 'col-4'];
+  get columnsMatter(): boolean { return this.columnLayouts.includes(this.t.homeLayout); }
+  /** Effective count shown in the stepper: override, else derived from the layout. */
+  get effectiveColumns(): number { return this.t.columns ?? columnsForLayout(this.t.homeLayout); }
+  stepColumns(delta: number): void {
+    const next = Math.min(this.maxColumns, Math.max(this.minColumns, this.effectiveColumns + delta));
+    this.t.columns = next;
+  }
+  setColumns(v: string): void { this.t.columns = coerceColumns(v); }
+  resetColumns(): void { this.t.columns = undefined; }
+
+  // ----- Overflow scrolling -----
+  scrollModes: { id: ScrollMode; label: string }[] = [
+    { id: 'auto', label: 'Auto' }, { id: 'vertical', label: 'Vertical' }, { id: 'horizontal', label: 'Horizontal' },
+  ];
   fonts = FONTS;
   textScales: TextScale[] = ['compact', 'normal', 'large'];
   textFits: { id: TextFit; label: string }[] = [
@@ -292,6 +314,11 @@ export class ThemeWizardComponent implements OnInit {
     if (page === 'inter') this.t.intermediate.backgroundImage = dataUrl;
     else if (page === 'result') this.t.result.backgroundImage = dataUrl;
     else this.t.backgroundImage = dataUrl;
+  }
+
+  /** Reset a nav-button colour to its built-in default (undefined = default). */
+  resetNavColor(field: 'backColor' | 'backBg' | 'homeColor' | 'homeBg'): void {
+    if (this.t.nav) this.t.nav[field] = undefined;
   }
 
   clearBackground(page: PreviewPage): void {

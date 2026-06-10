@@ -44,5 +44,6 @@
       <span class="checker" *ngIf="value==='transparent'"></span>
     </span>
     <span class="val">{{ value }}</span>
+    <button type="button" class="cp-reset" *ngIf="allowReset" (click)="doReset()">Reset to default</button>
   </div>
 </div>

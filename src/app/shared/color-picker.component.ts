@@ -21,11 +21,16 @@ export class ColorPickerComponent {
   @Input() value = '#2F006D';
   @Input() presets: string[] = ['#2F006D', '#001973', '#0F172A', '#FFCD00', '#10B981', '#FFFFFF', '#EF4444'];
   @Output() valueChange = new EventEmitter<string>();
+  /** When set, shows a "Reset to default" affordance. Clicking emits `reset` so the
+   *  parent can clear the stored value (undefined = use the built-in default). */
+  @Input() allowReset = false;
+  @Output() reset = new EventEmitter<void>();
 
   customOpen = false;
   hue = 270; sat = 65; light = 45;
 
   pick(c: string): void { this.value = c; this.valueChange.emit(c); }
+  doReset(): void { this.customOpen = false; this.reset.emit(); }
   onHex(h: string): void { if (/^[0-9a-fA-F]{6}$/.test(h)) this.pick('#' + h); }
   strip(v: string): string { return v?.startsWith('#') ? v.slice(1) : ''; }
   toHex(v: string): string { return /^#[0-9a-fA-F]{6}$/.test(v) ? v : '#2F006D'; }

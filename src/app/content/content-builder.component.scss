@@ -4,6 +4,15 @@
   --min-height: 58px;
 }
 .ghost-action { font-weight: 900; font-size: 20px; }
+
+/* Drill-down subtree indicator on each home card editor. */
+.subtree-flag { margin: 2px 0 6px; }
+.subtree-flag .badge {
+  display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .2px;
+  padding: 3px 9px; border-radius: 999px;
+  color: var(--nt-muted); background: var(--nt-tint, #F4F1FA); border: 1px solid var(--nt-border);
+}
+.subtree-flag .badge.on { color: var(--nt-purple); background: var(--nt-tint, #F4F1FA); border-color: var(--nt-purple); }
 :host ::ng-deep ion-content {
   --background: linear-gradient(180deg, var(--nt-card) 0, var(--nt-surface) 100%);
 }
@@ -25,6 +34,13 @@
   font-family: inherit; cursor: pointer; box-shadow: var(--nt-shadow-1);
 }
 .mini:hover { background: var(--nt-tint); }
+.mini:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+/* Pre-deploy validation modal list (modal shell styled globally via .nt-confirm). */
+.val-list { list-style: none; margin: 10px 0 14px; padding: 0; text-align: left; }
+.val-list li { font-size: 13px; line-height: 1.5; margin: 6px 0; }
+.val-err { color: var(--nt-danger); font-weight: 700; }
+.val-warn { color: var(--nt-muted); }
 .note { font-size: 12px; line-height: 1.5; color: var(--nt-muted); margin: 6px 0; }
 .chip { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: var(--nt-border); color: var(--nt-muted); margin-left: 6px; }
 .chip.on { background: var(--nt-success-tint); color: var(--nt-success); }

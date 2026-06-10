@@ -189,6 +189,15 @@
 .prev.surface-glow .stage .card.shape-hexagon { box-shadow: none !important; filter: drop-shadow(0 0 5px var(--prev-accent)); }
 .prev.surface-raised .stage.int.int-hex-grid .item,
 .prev.surface-raised .stage .card.shape-hexagon { box-shadow: none !important; filter: drop-shadow(0 3px 4px rgba(0,0,0,.3)); }
+/* clip-path clips BORDERS too → paint hexagon outlines as a stacked drop-shadow ring */
+.prev.surface-outlined .stage.int.int-hex-grid .item,
+.prev.surface-outlined .stage .card.shape-hexagon { border-color: transparent !important;
+  filter: drop-shadow(0 0 1px var(--prev-accent)) drop-shadow(0 0 1px var(--prev-accent)) drop-shadow(0 0 1px var(--prev-accent)); }
+.prev.surface-glass .stage.int.int-hex-grid .item,
+.prev.surface-glass .stage .card.shape-hexagon { border-color: transparent !important;
+  filter: drop-shadow(0 0 1px rgba(255,255,255,.68)) drop-shadow(0 0 1px rgba(255,255,255,.68)); }
+.prev.surface-glow .stage.int.int-hex-grid .item,
+.prev.surface-glow .stage .card.shape-hexagon { border-color: transparent !important; }
 /* text-fit in preview — applies to home/intermediate/result text and stays in bounds.
    clip = single line + ellipsis · wrap = up to 2 lines · shrink = smaller, normal wrap */
 .prev.fit-clip .name, .prev.fit-clip .item .name, .prev.fit-clip .list .prod {
@@ -201,28 +210,33 @@
 }
 .prev.fit-shrink .name, .prev.fit-shrink .item .name { font-size: calc(var(--prev-scale, 1) * 6px); }
 .prev.fit-shrink .list .prod { font-size: calc(var(--prev-scale, 1) * 6px); }
+/* Shape (circle/hexagon) cards: labels stay single-line + ellipsis regardless of the
+   text-fit mode — the 2-line box clamp breaks words ("Froz en") inside small shapes. */
+.prev.fit-wrap .stage.shape .card .name, .prev.fit-shrink .stage.shape .card .name {
+  display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; -webkit-line-clamp: unset;
+}
 
 /* ===== HOME layouts — gap/space-distributed so rows NEVER overflow ===== */
 /* grids: distribute spare space as gaps; heights sized so all rows fit. */
 .prev .stage.layout-grid-2x3 { display: flex; flex-wrap: wrap; justify-content: space-between; align-content: space-between; }
 .prev .stage.layout-grid-2x3 .card { width: 31%; height: 45%; }
-.prev .stage.layout-grid-2x3 .card:nth-child(n+7) { display: none; }
+.prev .stage.layout-grid-2x3:not(.has-cols) .card:nth-child(n+7) { display: none; }
 
 .prev .stage.layout-grid-2x2 { display: flex; flex-wrap: wrap; justify-content: space-between; align-content: space-between; }
 .prev .stage.layout-grid-2x2 .card { width: 47%; height: 45.5%; }
-.prev .stage.layout-grid-2x2 .card:nth-child(n+5) { display: none; }
+.prev .stage.layout-grid-2x2:not(.has-cols) .card:nth-child(n+5) { display: none; }
 
 .prev .stage.layout-col-4 { display: flex; justify-content: center; align-items: center; }
 .prev .stage.layout-col-4 .card { width: 22.5%; height: 92%; }
-.prev .stage.layout-col-4 .card:nth-child(n+5) { display: none; }
+.prev .stage.layout-col-4:not(.has-cols) .card:nth-child(n+5) { display: none; }
 
 .prev .stage.layout-col-3 { display: flex; justify-content: center; align-items: center; }
 .prev .stage.layout-col-3 .card { width: 30%; height: 92%; }
-.prev .stage.layout-col-3 .card:nth-child(n+4) { display: none; }
+.prev .stage.layout-col-3:not(.has-cols) .card:nth-child(n+4) { display: none; }
 
 .prev .stage.layout-col-2 { display: flex; justify-content: center; align-items: center; }
 .prev .stage.layout-col-2 .card { width: 46%; height: 92%; }
-.prev .stage.layout-col-2 .card:nth-child(n+3) { display: none; }
+.prev .stage.layout-col-2:not(.has-cols) .card:nth-child(n+3) { display: none; }
 
 .prev .stage.layout-list { display: flex; flex-direction: column; justify-content: space-between; }
 .prev .stage.layout-list .card { width: 100%; height: 22%; flex-direction: row; align-items: center; }
@@ -290,6 +304,12 @@
   bottom: auto !important; top: auto !important; width: 100%; background: transparent !important; padding: 0;
 }
 .prev .stage.layout-promo-categories .promo-rail .card .name { color: var(--prev-text, #fff); text-shadow: none; }
+/* promo tiles are chromeless on the LCD — surfaces must not re-add a card ring
+   (with shape=circle this rendered as a "circle inside a circle"). */
+.prev[class*="surface-"] .stage.layout-promo-categories .card {
+  background: transparent !important; border: 0 !important; box-shadow: none !important; filter: none !important;
+}
+.prev .stage.layout-promo-categories .card.shape-circle .img { background-size: cover; }
 
 .prev .stage.layout-circular { display: flex; align-items: center; justify-content: space-evenly; flex-wrap: wrap; align-content: center; }
 .prev .stage.layout-circular .card { position: relative; height: 78%; aspect-ratio: 1; width: auto; border-radius: 50%; align-items: center; justify-content: center; }
@@ -332,7 +352,7 @@
 .prev .stage .card.content-text-only .name { font-weight: 700; text-transform: none; letter-spacing: normal; }
 .prev .stage .card.content-color-block { box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
 .prev .stage .card.content-color-block .name { font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; }
-.prev .stage .card.content-gradient { background: linear-gradient(135deg, var(--prev-accent), var(--prev-card)) !important; }
+.prev .stage .card.content-gradient { background: linear-gradient(160deg, var(--prev-accent), var(--prev-card)) !important; }
 /* text position (image + text) — 'below' = default column flow (img top, label under) */
 .prev .stage .card.content-image-text.pos-overlay-bottom,
 .prev .stage .card.content-image-text.pos-overlay-top,
@@ -390,15 +410,17 @@
   align-items: center; justify-items: center;
 }
 .prev .stage.shape.layout-grid-2x2 .card { width: auto !important; height: 88% !important; aspect-ratio: 1; margin: 0; }
-.prev .stage.shape.layout-grid-2x3 .card:nth-child(n+7) { display: none !important; }
-.prev .stage.shape.layout-grid-2x2 .card:nth-child(n+5) { display: none !important; }
+.prev .stage.shape.layout-grid-2x3:not(.has-cols) .card:nth-child(n+7) { display: none !important; }
+.prev .stage.shape.layout-grid-2x2:not(.has-cols) .card:nth-child(n+5) { display: none !important; }
+/* grid-auto-rows (not grid-template-rows:1fr): extra rows keep a real height and
+   scroll, instead of collapsing onto the labels of the row above — mirrors the LCD. */
 .prev .stage.shape.layout-col-4 {
-  display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr; align-items: center; justify-items: center;
+  display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 92%; align-items: center; justify-items: center;
 }
 .prev .stage.shape.layout-col-4 .card { width: auto !important; height: 76% !important; aspect-ratio: 1; margin: 0; }
-.prev .stage.shape.layout-col-3 { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr; align-items: center; justify-items: center; }
+.prev .stage.shape.layout-col-3 { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 92%; align-items: center; justify-items: center; }
 .prev .stage.shape.layout-col-3 .card { width: auto !important; height: 80% !important; aspect-ratio: 1; margin: 0; }
-.prev .stage.shape.layout-col-2 { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: 1fr; align-items: center; justify-items: center; }
+.prev .stage.shape.layout-col-2 { display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-rows: 92%; align-items: center; justify-items: center; }
 .prev .stage.shape.layout-col-2 .card { width: auto !important; height: 86% !important; aspect-ratio: 1; margin: 0; }
 .prev .stage.shape.layout-hero-list {
   display: grid; grid-template-columns: 45% 1fr; grid-template-rows: repeat(3, 1fr);
@@ -520,7 +542,8 @@
 .prev .stage.int.int-pill-tabs::-webkit-scrollbar { display: none; }
 .prev .stage.int.int-pill-tabs .item { flex: 0 0 auto; border-radius: 999px; padding: 7px 16px; height: auto; margin: 0; }
 .prev .stage.int.int-pill-tabs .item .img { display: none; }
-.prev .stage.int.int-pill-tabs .item .name { font-size: calc(var(--prev-scale, 1) * 9px); white-space: nowrap; }
+/* match home-page pill typography (shape-pill text-only cards) */
+.prev .stage.int.int-pill-tabs .item .name { font-size: calc(var(--prev-scale, 1) * 5.5px); font-weight: 700; white-space: nowrap; }
 .prev .stage.int.int-card-strip { flex-direction: row; }
 .prev .stage.int.int-image-grid { flex-direction: row; flex-wrap: wrap; align-content: flex-start; }
 .prev .stage.int.int-image-grid .item { flex: 0 0 31%; height: 46%; flex-direction: column; }
@@ -1007,6 +1030,62 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 .prev .stage.int.int-shape-hexagon .item .img { border-radius: 0; clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
 .prev .stage.int.int-shape-pill.int-pill-tabs .item,
 .prev .stage.int.int-shape-circle.int-circular .item { border-radius: 999px; }
+
+/* ===== Free column count (theme.columns → --cols) — mirrors the LCD ===== */
+.prev .stage.has-cols.layout-grid-2x3, .prev .stage.has-cols.layout-grid-2x2,
+.prev .stage.has-cols.layout-col-2, .prev .stage.has-cols.layout-col-3, .prev .stage.has-cols.layout-col-4 {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr);
+  grid-auto-rows: 46%; gap: var(--card-gap, 5px); align-content: start;
+  overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain; scrollbar-width: none;
+}
+.prev .stage.has-cols.layout-col-2, .prev .stage.has-cols.layout-col-3, .prev .stage.has-cols.layout-col-4 { grid-auto-rows: 92%; }
+.prev .stage.has-cols::-webkit-scrollbar { display: none; }
+.prev .stage.has-cols.layout-grid-2x3 .card, .prev .stage.has-cols.layout-grid-2x2 .card,
+.prev .stage.has-cols.layout-col-2 .card, .prev .stage.has-cols.layout-col-3 .card,
+.prev .stage.has-cols.layout-col-4 .card { width: auto; height: auto; min-height: 0; margin: 0; flex: none; }
+.prev .stage.shape.has-cols.layout-grid-2x3, .prev .stage.shape.has-cols.layout-grid-2x2,
+.prev .stage.shape.has-cols.layout-col-2, .prev .stage.shape.has-cols.layout-col-3, .prev .stage.shape.has-cols.layout-col-4 {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); grid-template-rows: none;
+  grid-auto-rows: 48%; align-items: center; justify-items: center;
+}
+.prev .stage.shape.has-cols.layout-grid-2x3 .card, .prev .stage.shape.has-cols.layout-grid-2x2 .card,
+.prev .stage.shape.has-cols.layout-col-2 .card, .prev .stage.shape.has-cols.layout-col-3 .card,
+.prev .stage.shape.has-cols.layout-col-4 .card { width: auto !important; height: 88% !important; aspect-ratio: 1; margin: 0; }
+
+/* ===== Overflow scrolling (theme.scrollMode override) — mirrors the LCD ===== */
+.prev .stage.scroll-vertical { overflow-y: auto !important; overflow-x: hidden !important; scrollbar-width: none; }
+.prev .stage.scroll-horizontal { overflow-x: auto !important; overflow-y: hidden !important; scrollbar-width: none; }
+.prev .stage.scroll-vertical::-webkit-scrollbar, .prev .stage.scroll-horizontal::-webkit-scrollbar { display: none; }
+.prev .stage.scroll-horizontal.layout-grid-2x3, .prev .stage.scroll-horizontal.layout-grid-2x2,
+.prev .stage.scroll-horizontal.layout-col-2, .prev .stage.scroll-horizontal.layout-col-3,
+.prev .stage.scroll-horizontal.layout-col-4, .prev .stage.scroll-horizontal.layout-hero-list,
+.prev .stage.scroll-horizontal.layout-list {
+  display: flex; flex-wrap: nowrap; align-items: center; align-content: center;
+}
+.prev .stage.scroll-horizontal.layout-grid-2x3 .card, .prev .stage.scroll-horizontal.layout-grid-2x2 .card,
+.prev .stage.scroll-horizontal.layout-col-2 .card, .prev .stage.scroll-horizontal.layout-col-3 .card,
+.prev .stage.scroll-horizontal.layout-col-4 .card, .prev .stage.scroll-horizontal.layout-hero-list .card,
+.prev .stage.scroll-horizontal.layout-list .card { flex: 0 0 22%; width: 22%; height: 88%; min-height: 0; margin: 0 2px; }
+.prev .stage.layout-h-scroll.scroll-vertical { overflow-y: auto !important; overflow-x: hidden !important; }
+.prev .stage.layout-h-scroll.scroll-vertical .h-scroll-rail {
+  flex-wrap: wrap; align-content: flex-start; height: auto; min-height: 100%; overflow: visible; row-gap: 4px;
+}
+/* intermediate + result preview scroll overrides */
+.prev .stage.int.scroll-vertical { flex-wrap: wrap; align-content: flex-start; }
+.prev .stage.int.scroll-horizontal { flex-direction: row; flex-wrap: nowrap !important; align-items: center; }
+.prev .stage.int.scroll-horizontal .item { flex: 0 0 22%; }
+.prev .stage.result.scroll-vertical .list { overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+.prev .stage.result.scroll-horizontal .list {
+  flex-direction: row !important; flex-wrap: nowrap !important; align-items: center;
+  overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+}
+.prev .stage.result.scroll-horizontal .list .prod { flex: 0 0 30%; }
+
+/* ===== Columns stepper (home step) ===== */
+.cols-stepper { align-items: stretch; }
+.cols-stepper .tile { flex: 0 0 46px; min-height: 46px; font-size: 18px; font-weight: 900; }
+.cols-stepper .cols-inp { flex: 0 0 72px; width: 72px; text-align: center; font-weight: 800; }
 
 /* ===== Inherited colors info banner ===== */
 .inherited-hint {

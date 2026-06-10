@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonModal } from '@ionic/angular/standalone';
 import { ContentService, ContentDraft } from '../services/content.service';
 import { CategoryApiService, ApiProduct } from '../services/category-api.service';
 import { WorkspaceService } from '../services/workspace.service';
@@ -22,7 +22,7 @@ interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' 
 @Component({
   selector: 'app-content-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, SelectFieldComponent, CardTreeEditorComponent, ContentPreviewStripComponent],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonModal, SelectFieldComponent, CardTreeEditorComponent, ContentPreviewStripComponent],
   templateUrl: './content-builder.component.html',
   styleUrls: ['./content-builder.component.scss'],
 })
@@ -127,6 +127,12 @@ export class ContentBuilderComponent implements OnInit {
    *  Prototype / Prototype-ESL are free-form, no cap. */
   get maxDepth(): number { return this.draft?.appMode === 'category' ? 4 : Infinity; }
 
+  /** True when a home card carries its own drill-down subtree (vs. falling back
+   *  to the shared default intermediate list). Drives the "Custom subtree" badge. */
+  hasCustomSubtree(c: { children?: unknown[] }): boolean {
+    return !!(c.children && c.children.length > 0);
+  }
+
   /** Result templates that render a map image — drives the map upload UI. */
   get resultNeedsMap(): boolean {
     const t = this.draft?.themeTokens.resultTemplate;
@@ -211,9 +217,20 @@ export class ContentBuilderComponent implements OnInit {
     if (this.draft.appMode === 'prototype-esl' && !this.draft.eslBlinkBy) this.draft.eslBlinkBy = 'article';
   }
 
+  /** Featured-theme designed capacity for home cards. Undefined = unlimited (user themes). */
+  get maxHomeItems(): number | undefined { return this.draft?.themeTokens.maxHomeItems; }
+  /** True when the theme's home-item cap has been reached — disables "+ Add". */
+  get atHomeCap(): boolean {
+    const cap = this.maxHomeItems;
+    return cap !== undefined && (this.draft?.home.length ?? 0) >= cap;
+  }
+
   /** All add methods create a NEW array reference so the preview component detects
    *  the input change immediately (not on the next unrelated CD cycle). */
-  addCard(): void { this.draft!.home = [...this.draft!.home, { id: 'c' + Date.now(), name: '' }]; }
+  addCard(): void {
+    if (this.atHomeCap) return;
+    this.draft!.home = [...this.draft!.home, { id: 'c' + Date.now(), name: '' }];
+  }
   addProduct(): void {
     this.draft!.result = { ...this.draft!.result, products: [...this.draft!.result.products, { id: 'p' + Date.now(), name: '' }] };
   }
@@ -267,7 +284,67 @@ export class ContentBuilderComponent implements OnInit {
     await this.content.save(this.draft);
   }
 
+  // ---- Pre-deploy validation (popup lists all issues) ----
+  validationOpen = false;
+  valErrors: string[] = [];
+  valWarnings: string[] = [];
+
+  /** Collect blocking errors + soft warnings for the current draft. */
+  private validateDraft(): { errors: string[]; warnings: string[] } {
+    const d = this.draft!;
+    const errors: string[] = [];
+    const warnings: string[] = [];
+
+    if (!d.home.length) errors.push('No home items — add at least one home card.');
+
+    // Empty names anywhere in the tree are hard errors.
+    let unnamed = 0;
+    let missingImages = 0;
+    let leavesNoProducts = 0;
+    const walk = (items: CardItem[], top: boolean): void => {
+      for (const c of items) {
+        if (!c.name?.trim()) unnamed++;
+        if (top && this.needsImage && !c.image) missingImages++;
+        if (c.children?.length) walk(c.children, false);
+        else if (!c.products?.length) leavesNoProducts++;
+      }
+    };
+    walk(d.home, true);
+    if (this.showIntermediateEditor) {
+      for (const it of d.intermediate) if (!it.name?.trim()) unnamed++;
+    }
+    for (const p of d.result.products) if (!p.name?.trim()) unnamed++;
+    if (unnamed) errors.push(`${unnamed} item(s) have an empty name.`);
+
+    if (missingImages) warnings.push(`${missingImages} home card(s) have no image, but this theme's cards show images.`);
+    // Leaves without own products fall back to the shared Result list — only
+    // warn when that fallback is empty too (nothing would show on Result).
+    if (leavesNoProducts && !d.result.products.length) {
+      warnings.push(`${leavesNoProducts} leaf item(s) have no products and the shared Result list is empty.`);
+    }
+    return { errors, warnings };
+  }
+
+  get valBlocked(): boolean { return this.valErrors.length > 0; }
+
   async saveAndDeploy(): Promise<void> {
+    const { errors, warnings } = this.validateDraft();
+    if (errors.length || warnings.length) {
+      this.valErrors = errors;
+      this.valWarnings = warnings;
+      this.validationOpen = true;
+      return;
+    }
+    await this.proceedDeploy();
+  }
+
+  /** Warnings only — user chose "Deploy anyway". */
+  async deployAnyway(): Promise<void> {
+    this.validationOpen = false;
+    await this.proceedDeploy();
+  }
+
+  private async proceedDeploy(): Promise<void> {
     await this.save();
     this.router.navigateByUrl('/deploy/' + this.draft!.id);
   }

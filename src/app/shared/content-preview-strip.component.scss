@@ -90,21 +90,38 @@
 .prev.surface-glow .stage .card,
 .prev.surface-glow .stage.int .item,
 .prev.surface-glow .stage.result .prod { box-shadow: 0 0 10px var(--prev-accent); border-color: var(--prev-accent) !important; }
+/* clip-path clips box-shadow AND borders on hexagons → use drop-shadow rings that
+   follow the clipped shape (mirrors the LCD + wizard preview). */
+.prev.surface-glow .stage .card.shape-hexagon,
+.prev.surface-glow .stage.int.int-hex-grid .item { box-shadow: none !important; border-color: transparent !important; filter: drop-shadow(0 0 5px var(--prev-accent)); }
+.prev.surface-raised .stage .card.shape-hexagon,
+.prev.surface-raised .stage.int.int-hex-grid .item { box-shadow: none !important; border-color: transparent !important; filter: drop-shadow(0 3px 4px rgba(0,0,0,.3)); }
+.prev.surface-outlined .stage .card.shape-hexagon,
+.prev.surface-outlined .stage.int.int-hex-grid .item { border-color: transparent !important;
+  filter: drop-shadow(0 0 1px var(--prev-accent)) drop-shadow(0 0 1px var(--prev-accent)) drop-shadow(0 0 1px var(--prev-accent)); }
+.prev.surface-glass .stage .card.shape-hexagon,
+.prev.surface-glass .stage.int.int-hex-grid .item { border-color: transparent !important;
+  filter: drop-shadow(0 0 1px rgba(255,255,255,.68)) drop-shadow(0 0 1px rgba(255,255,255,.68)); }
 .prev.fit-wrap .name, .prev.fit-shrink .name { white-space: normal; }
 .prev.fit-shrink .name { font-size: calc(var(--prev-scale, 1) * 6px); }
+/* Shape (circle/hexagon) card labels stay single-line + ellipsis regardless of text-fit
+   — wrapping breaks words ("Froz en") inside small shapes. */
+.prev.fit-wrap .stage.shape .card .name, .prev.fit-shrink .stage.shape .card .name {
+  display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
 /* ===== HOME layouts ===== */
 .prev .stage.layout-grid-2x3 { display: flex; flex-wrap: wrap; justify-content: space-between; align-content: space-between; }
 .prev .stage.layout-grid-2x3 .card { width: 32%; height: 48%; }
-.prev .stage.layout-grid-2x3 .card:nth-child(n+7) { display: none; }
+.prev .stage.layout-grid-2x3:not(.has-cols) .card:nth-child(n+7) { display: none; }
 
 .prev .stage.layout-grid-2x2 { display: flex; flex-wrap: wrap; justify-content: space-between; align-content: space-between; }
 .prev .stage.layout-grid-2x2 .card { width: 48.5%; height: 48%; }
-.prev .stage.layout-grid-2x2 .card:nth-child(n+5) { display: none; }
+.prev .stage.layout-grid-2x2:not(.has-cols) .card:nth-child(n+5) { display: none; }
 
 .prev .stage.layout-col-4 { display: flex; justify-content: space-between; }
 .prev .stage.layout-col-4 .card { width: 23.5%; height: 100%; }
-.prev .stage.layout-col-4 .card:nth-child(n+5) { display: none; }
+.prev .stage.layout-col-4:not(.has-cols) .card:nth-child(n+5) { display: none; }
 
 .prev .stage.layout-list { display: flex; flex-direction: column; justify-content: space-between; }
 .prev .stage.layout-list .card { width: 100%; height: 22%; flex-direction: row; align-items: center; }
@@ -137,6 +154,12 @@
 .prev .stage.layout-promo-categories .card { flex: 0 0 21%; height: 70%; margin-left: 5px; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .prev .stage.layout-promo-categories .card:nth-of-type(n+6) { display: none; }
 .prev .stage.layout-promo-categories .card .img { width: 68%; height: 48%; margin: 0 0 3px; border-radius: 50%; }
+/* promo tiles are chromeless on the LCD — surfaces must not re-add a card ring
+   (with shape=circle this rendered as a "circle inside a circle"). */
+.prev[class*="surface-"] .stage.layout-promo-categories .card {
+  background: transparent !important; border: 0 !important; box-shadow: none !important; filter: none !important;
+}
+.prev .stage.layout-promo-categories .card.shape-circle .img { background-size: cover; }
 
 /* ===== Card content rules (text-only, icon-text, color-block, gradient) ===== */
 .prev .stage .card.shape-rect { border-radius: 5px; }
@@ -160,7 +183,7 @@
 .prev .stage .card.content-text-only .name { font-weight: 700; }
 .prev .stage .card.content-color-block { box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
 .prev .stage .card.content-color-block .name { font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; }
-.prev .stage .card.content-gradient { background: linear-gradient(135deg, var(--prev-accent), var(--prev-card)) !important; }
+.prev .stage .card.content-gradient { background: linear-gradient(160deg, var(--prev-accent), var(--prev-card)) !important; }
 .prev .stage .card.content-image-text.pos-overlay-bottom,
 .prev .stage .card.content-image-text.pos-overlay-top,
 .prev .stage .card.content-image-text.pos-center { position: relative; }
@@ -202,8 +225,10 @@
   align-items: center; justify-items: center;
 }
 .prev .stage.shape.layout-grid-2x2 .card { width: auto !important; height: 88% !important; aspect-ratio: 1; margin: 0; }
+/* grid-auto-rows (not grid-template-rows:1fr): extra rows keep a real height instead
+   of collapsing onto the labels of the row above — mirrors the LCD. */
 .prev .stage.shape.layout-col-4 {
-  display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr; align-items: center; justify-items: center;
+  display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 92%; align-items: center; justify-items: center;
 }
 .prev .stage.shape.layout-col-4 .card { width: auto !important; height: 76% !important; aspect-ratio: 1; margin: 0; }
 .prev .stage.shape.layout-hero-list {
@@ -309,7 +334,9 @@
 .prev .stage.int.int-pill-tabs .item.open { background: var(--int-accent); color: #fff; }
 .prev .stage.int.int-accordion .item.open { border-left: 3px solid var(--int-accent); }
 .prev .stage.int.int-pill-tabs { flex-direction: row; align-items: flex-start; flex-wrap: wrap; align-content: flex-start; }
-.prev .stage.int.int-pill-tabs .item { flex: 0 0 auto; border-radius: 14px; padding: 2px 8px; height: 22%; }
+/* pill geometry/typography matches home-page pill cards */
+.prev .stage.int.int-pill-tabs .item { flex: 0 0 auto; border-radius: 999px; padding: 2px 8px; height: 22%; }
+.prev .stage.int.int-pill-tabs .item .name { font-size: calc(var(--prev-scale, 1) * 5.5px); font-weight: 700; }
 .prev .stage.int.int-pill-tabs .item .img { display: none; }
 .prev .stage.int.int-card-strip { flex-direction: row; }
 .prev .stage.int.int-image-grid { flex-direction: row; flex-wrap: wrap; align-content: flex-start; }
@@ -446,11 +473,22 @@
 .prev .stage.layout-h-scroll .h-scroll-rail { display: flex; overflow-x: auto; scrollbar-width: none; align-items: center; height: 100%; padding: 4px 6px 4px 16px; gap: 5px; }
 .prev .stage.layout-h-scroll .h-scroll-rail::-webkit-scrollbar { display: none; }
 .prev .stage.layout-h-scroll .h-scroll-rail .card { flex: 0 0 17%; height: 88%; }
+/* Circle / Hexagon = true square-cell shapes (mirrors the LCD + wizard preview) */
 .prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle,
 .prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon {
-  border-radius: 5px;
-  clip-path: none;
+  flex: 0 0 auto; width: auto; aspect-ratio: 1; height: 84%; position: relative;
 }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle { border-radius: 50%; clip-path: none; }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon { border-radius: 0; clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle .img,
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon .img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle .meta,
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon .meta {
+  position: absolute; left: 8%; right: 8%; bottom: 9%; z-index: 1; text-align: center;
+  background: var(--prev-overlay, rgba(0,0,0,.5)); border-radius: 999px; padding: 0 2px;
+}
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle .name,
+.prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon .name { color: #fff; }
 .prev .stage.layout-h-scroll .h-scroll-rail .card.shape-circle.content-image-text.pos-below,
 .prev .stage.layout-h-scroll .h-scroll-rail .card.shape-hexagon.content-image-text.pos-below {
   display: grid;
@@ -580,8 +618,8 @@
 /* ===== sync with wizard preview (shape containment, caps, pill, bento, intermediate, result) ===== */
 /* shape cards must be a positioning context so the absolute image doesn't escape (giant-shape bug) */
 .prev .stage.shape .card { position: relative; }
-.prev .stage.shape.layout-grid-2x3 .card:nth-child(n+7) { display: none !important; }
-.prev .stage.shape.layout-grid-2x2 .card:nth-child(n+5) { display: none !important; }
+.prev .stage.shape.layout-grid-2x3:not(.has-cols) .card:nth-child(n+7) { display: none !important; }
+.prev .stage.shape.layout-grid-2x2:not(.has-cols) .card:nth-child(n+5) { display: none !important; }
 .prev .stage.shape .card.shape-circle .img { border-radius: 50%; }
 .prev .stage.shape .card.shape-hexagon .img { clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
 .prev .stage.shape .card.content-image-text.pos-below { background: transparent !important; border-color: transparent !important; box-shadow: none !important; }
@@ -610,3 +648,54 @@
 .prev .stage.card-size-large  .card { transform: scale(1.08); transform-origin: center; }
 .prev .stage.layout-h-scroll.card-size-small .h-scroll-rail .card { flex-basis: 13%; height: 75%; }
 .prev .stage.layout-h-scroll.card-size-large  .h-scroll-rail .card { flex-basis: 22%; height: 100%; }
+
+/* ===== Free column count (theme.columns → --cols) — mirrors the LCD ===== */
+.prev .stage.has-cols.layout-grid-2x3, .prev .stage.has-cols.layout-grid-2x2,
+.prev .stage.has-cols.layout-col-2, .prev .stage.has-cols.layout-col-3, .prev .stage.has-cols.layout-col-4 {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr);
+  grid-auto-rows: 46%; gap: 4px; align-content: start;
+  overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain; scrollbar-width: none;
+}
+.prev .stage.has-cols.layout-col-2, .prev .stage.has-cols.layout-col-3, .prev .stage.has-cols.layout-col-4 { grid-auto-rows: 92%; }
+.prev .stage.has-cols::-webkit-scrollbar { display: none; }
+.prev .stage.has-cols.layout-grid-2x3 .card, .prev .stage.has-cols.layout-grid-2x2 .card,
+.prev .stage.has-cols.layout-col-2 .card, .prev .stage.has-cols.layout-col-3 .card,
+.prev .stage.has-cols.layout-col-4 .card { width: auto; height: auto; min-height: 0; margin: 0; flex: none; }
+.prev .stage.shape.has-cols.layout-grid-2x3, .prev .stage.shape.has-cols.layout-grid-2x2,
+.prev .stage.shape.has-cols.layout-col-2, .prev .stage.shape.has-cols.layout-col-3, .prev .stage.shape.has-cols.layout-col-4 {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); grid-template-rows: none;
+  grid-auto-rows: 48%; align-items: center; justify-items: center;
+}
+.prev .stage.shape.has-cols.layout-grid-2x3 .card, .prev .stage.shape.has-cols.layout-grid-2x2 .card,
+.prev .stage.shape.has-cols.layout-col-2 .card, .prev .stage.shape.has-cols.layout-col-3 .card,
+.prev .stage.shape.has-cols.layout-col-4 .card { width: auto !important; height: 88% !important; aspect-ratio: 1; margin: 0; }
+
+/* ===== Overflow scrolling (theme.scrollMode override) — mirrors the LCD ===== */
+.prev .stage.scroll-vertical { overflow-y: auto !important; overflow-x: hidden !important; scrollbar-width: none; }
+.prev .stage.scroll-horizontal { overflow-x: auto !important; overflow-y: hidden !important; scrollbar-width: none; }
+.prev .stage.scroll-vertical::-webkit-scrollbar, .prev .stage.scroll-horizontal::-webkit-scrollbar { display: none; }
+.prev .stage.scroll-horizontal.layout-grid-2x3, .prev .stage.scroll-horizontal.layout-grid-2x2,
+.prev .stage.scroll-horizontal.layout-col-2, .prev .stage.scroll-horizontal.layout-col-3,
+.prev .stage.scroll-horizontal.layout-col-4, .prev .stage.scroll-horizontal.layout-hero-list,
+.prev .stage.scroll-horizontal.layout-list {
+  display: flex; flex-wrap: nowrap; align-items: center; align-content: center;
+}
+.prev .stage.scroll-horizontal.layout-grid-2x3 .card, .prev .stage.scroll-horizontal.layout-grid-2x2 .card,
+.prev .stage.scroll-horizontal.layout-col-2 .card, .prev .stage.scroll-horizontal.layout-col-3 .card,
+.prev .stage.scroll-horizontal.layout-col-4 .card, .prev .stage.scroll-horizontal.layout-hero-list .card,
+.prev .stage.scroll-horizontal.layout-list .card { flex: 0 0 22%; width: 22%; height: 88%; min-height: 0; margin: 0 2px; }
+.prev .stage.layout-h-scroll.scroll-vertical { overflow-y: auto !important; overflow-x: hidden !important; }
+.prev .stage.layout-h-scroll.scroll-vertical .h-scroll-rail {
+  flex-wrap: wrap; align-content: flex-start; height: auto; min-height: 100%; overflow: visible; row-gap: 4px;
+}
+/* intermediate + result preview scroll overrides */
+.prev .stage.int.scroll-vertical { flex-wrap: wrap; align-content: flex-start; }
+.prev .stage.int.scroll-horizontal { flex-direction: row; flex-wrap: nowrap !important; align-items: center; }
+.prev .stage.int.scroll-horizontal .item { flex: 0 0 22%; }
+.prev .stage.result.scroll-vertical .list { overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+.prev .stage.result.scroll-horizontal .list {
+  flex-direction: row !important; flex-wrap: nowrap !important; align-items: center;
+  overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+}
+.prev .stage.result.scroll-horizontal .list .prod { flex: 0 0 30%; }

@@ -51,6 +51,12 @@
 .cp-current { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
 .cp-current .chip { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid #E2E8F0; overflow: hidden; flex: 0 0 auto; }
 .cp-current .val { font-family: monospace; font-size: 13px; color: var(--nt-text-2); text-transform: uppercase; }
+.cp-reset {
+  margin-left: auto; border: 1.5px solid var(--nt-border); border-radius: 8px; padding: 5px 10px;
+  background: var(--nt-card); color: var(--nt-text-2); font-size: 11px; font-weight: 800;
+  font-family: inherit; cursor: pointer;
+}
+.cp-reset:hover { border-color: #2F006D; color: #2F006D; }
 
 /* checkerboard for transparent (swatch + chip) */
 .checker {

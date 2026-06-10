@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Preferences } from '@capacitor/preferences';
 import type { ThemeTokens, HomeLayout, CardStyle, CardShape, CardContent, CardTextPos } from '@contract/layout';
-import { THEME_ENUM_VALUES, coerceEnum } from '@contract/layout';
+import { THEME_ENUM_VALUES, coerceEnum, coerceColumns } from '@contract/layout';
 import { DEFAULT_FONT, FONTS } from '../shared/fonts';
 
 /** Default saverOverlay — shown centered with white text, no bg box. */
@@ -40,6 +40,7 @@ export class ThemeService {
       nav: { backColor: '#FFFFFF', backBg: 'rgba(0,0,0,0.35)', homeColor: '#FFFFFF', homeBg: 'rgba(0,0,0,0.35)', position: 'bottom-left' },
       logoPosition: 'left',
       homeLayout: 'grid-2x3',
+      scrollMode: 'auto',
       cardSize: 'normal',
       cardAlign: 'center',
       cardGap: 'normal',
@@ -130,6 +131,8 @@ export class ThemeService {
     out.logoPosition = coerceEnum(out.logoPosition, E.logoPosition, d.logoPosition, 'logoPosition');
     out.homeLayout = coerceEnum(out.homeLayout, E.homeLayout, d.homeLayout, 'homeLayout');
     out.cardSize = coerceEnum(out.cardSize, E.cardSize, 'normal', 'cardSize');
+    out.columns = coerceColumns(t?.columns);
+    out.scrollMode = coerceEnum(t?.scrollMode, E.scrollMode, 'auto', 'scrollMode');
     out.cardAlign = coerceEnum(out.cardAlign, E.align, 'center', 'cardAlign');
     out.cardGap = coerceEnum(out.cardGap, E.gap, 'normal', 'cardGap');
     out.cardShape = coerceEnum(out.cardShape, E.cardShape, d.cardShape, 'cardShape');
@@ -158,6 +161,9 @@ export class ThemeService {
     out.typography.textScale = coerceEnum(out.typography.textScale, E.textScale, d.typography.textScale, 'typography.textScale');
     out.typography.textFit = coerceEnum(out.typography.textFit, E.textFit, d.typography.textFit, 'typography.textFit');
     saver.position = coerceEnum(saver.position, E.saverOverlayPosition, 'center', 'saverOverlay.position');
+    // maxHomeItems: positive integer or undefined (= unlimited, user themes).
+    const cap = Number(t?.maxHomeItems);
+    out.maxHomeItems = Number.isFinite(cap) && cap >= 1 ? Math.round(cap) : undefined;
     return out;
   }
 
@@ -178,7 +184,7 @@ export class ThemeService {
       // 1) Fresh Market — vibrant grocery kiosk · promo rail with big featured copy · garden greens.
       { id: 'pre_fresh_market', name: 'Fresh Market', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#15803D', background: 'linear-gradient(135deg,#F0FDF4,#DCFCE7)', cardBackground: '#FFFFFF', cardText: '#14532D', accent: '#22C55E', overlayColor: 'rgba(20,83,45,0.65)',
-        logoPosition: 'left', homeLayout: 'promo-categories', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-bottom',
+        logoPosition: 'left', homeLayout: 'promo-categories', maxHomeItems: 6, cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-bottom',
         cardSize: 'large', cardAlign: 'left', cardGap: 'normal', cardSurface: 'raised',
         showHeader: true, headerStyle: 'logo+title',
         includeIntermediate: true, intermediateStyle: 'image-grid', resultTemplate: 'promo-list',
@@ -193,7 +199,7 @@ export class ThemeService {
       // 2) Volt Mega Store — dark electronics superstore · neon-cyan bento tiles · glow surface.
       { id: 'pre_volt', name: 'Volt Mega Store', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#0B1220', background: 'linear-gradient(135deg,#050B14,#0E1B2C)', cardBackground: 'rgba(34,211,238,0.08)', cardText: '#E6FBFF', accent: '#22D3EE', overlayColor: 'rgba(2,12,27,0.72)',
-        logoPosition: 'left', homeLayout: 'bento', cardShape: 'rect', cardContent: 'gradient', cardTextPos: 'center',
+        logoPosition: 'left', homeLayout: 'bento', maxHomeItems: 6, cardShape: 'rect', cardContent: 'gradient', cardTextPos: 'center',
         cardSize: 'normal', cardAlign: 'center', cardGap: 'tight', cardSurface: 'glow',
         showHeader: true, headerStyle: 'logo+title+caption',
         includeIntermediate: true, intermediateStyle: 'side-rail', resultTemplate: 'card-grid',
@@ -208,7 +214,7 @@ export class ThemeService {
       // 3) Atelier Mode — elegant fashion boutique · horizontal pill lookbook rail, no intermediate.
       { id: 'pre_atelier', name: 'Atelier Mode', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#1C1917', background: 'linear-gradient(160deg,#FAF7F2,#EDE5DA)', cardBackground: '#FFFFFF', cardText: '#1C1917', accent: '#A16207', overlayColor: 'rgba(28,25,23,0.55)',
-        logoPosition: 'center', homeLayout: 'h-scroll', cardShape: 'pill', cardContent: 'image-text', cardTextPos: 'below',
+        logoPosition: 'center', homeLayout: 'h-scroll', maxHomeItems: 8, cardShape: 'pill', cardContent: 'image-text', cardTextPos: 'below',
         cardSize: 'large', cardAlign: 'center', cardGap: 'loose', cardSurface: 'flat',
         showHeader: true, headerStyle: 'title+caption',
         includeIntermediate: false, intermediateStyle: 'card-strip', resultTemplate: 'catalog-grid',
@@ -223,7 +229,7 @@ export class ThemeService {
       // 4) Summit Sports — bold sports & outdoor wall · full-height image strips · blaze orange.
       { id: 'pre_summit', name: 'Summit Sports', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#EA580C', background: 'linear-gradient(135deg,#1C1917,#292524)', cardBackground: 'rgba(255,255,255,0.10)', cardText: '#FFFFFF', accent: '#F97316', overlayColor: 'rgba(0,0,0,0.45)',
-        logoPosition: 'center', homeLayout: 'image-strip', cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-top',
+        logoPosition: 'center', homeLayout: 'image-strip', maxHomeItems: 5, cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-top',
         cardSize: 'normal', cardAlign: 'center', cardGap: 'tight', cardSurface: 'outlined',
         showHeader: true, headerStyle: 'title-only',
         includeIntermediate: true, intermediateStyle: 'center-tiles', resultTemplate: 'map-full',
@@ -238,7 +244,7 @@ export class ThemeService {
       // 5) Maison Lumière — premium gold-on-black · hexagon text tiles · glass surface · hero product reveal.
       { id: 'pre_maison', name: 'Maison Lumière', predefined: true, updatedAt: 0, tokens: mk({
         headerColor: '#0A0A0A', background: 'linear-gradient(135deg,#050505,#1A1408)', cardBackground: 'rgba(212,175,55,0.10)', cardText: '#F5E7C6', accent: '#D4AF37', overlayColor: 'rgba(10,10,10,0.70)',
-        logoPosition: 'center', homeLayout: 'grid-2x2', cardShape: 'hexagon', cardContent: 'text-only', cardTextPos: 'center',
+        logoPosition: 'center', homeLayout: 'grid-2x2', columns: 4, maxHomeItems: 8, scrollMode: 'auto', cardShape: 'hexagon', cardContent: 'text-only', cardTextPos: 'center',
         cardSize: 'small', cardAlign: 'center', cardGap: 'loose', cardSurface: 'glass',
         showHeader: true, headerStyle: 'logo+title',
         includeIntermediate: true, intermediateStyle: 'hex-grid', resultTemplate: 'product-focus',
@@ -290,7 +296,10 @@ export class ThemeService {
 
   /** Editing a predefined theme creates a copy in My Themes. */
   async cloneFrom(src: SavedTheme, name: string): Promise<SavedTheme> {
-    const copy: SavedTheme = { id: 'thm_' + Date.now(), name, tokens: JSON.parse(JSON.stringify(src.tokens)), updatedAt: Date.now() };
+    const tokens: ThemeTokens = JSON.parse(JSON.stringify(src.tokens));
+    // User-created themes have no designed capacity — copies are unlimited.
+    delete tokens.maxHomeItems;
+    const copy: SavedTheme = { id: 'thm_' + Date.now(), name, tokens, updatedAt: Date.now() };
     await this.save(copy);
     return copy;
   }

@@ -95,7 +95,11 @@
       </ng-container>
 
       <!-- HOME CARDS -->
-      <div class="sec"><span>Home cards ({{ d.home.length }})</span><button class="mini" (click)="addCard()">+ Add</button></div>
+      <div class="sec">
+        <span>Home cards ({{ d.home.length }}<ng-container *ngIf="maxHomeItems"> / {{ maxHomeItems }}</ng-container>)</span>
+        <button class="mini" (click)="addCard()" [disabled]="atHomeCap">+ Add</button>
+      </div>
+      <p class="note" *ngIf="atHomeCap">This featured theme is designed for up to <b>{{ maxHomeItems }}</b> home items — remove one to add another.</p>
       <div class="pcard" *ngFor="let c of d.home; let i = index">
         <div class="erow">
           <div class="thumb" *ngIf="needsImage" [style.background-image]="c.image ? 'url('+c.image+')' : null" (click)="pickImage(c)">{{ c.image ? '' : '📷' }}</div>
@@ -105,6 +109,9 @@
         <div class="prow">
           <input class="inp" [(ngModel)]="c.price" placeholder="Price (optional)" />
           <input class="inp" [(ngModel)]="c.unit" placeholder="Unit (optional)" />
+        </div>
+        <div class="subtree-flag" *ngIf="d.themeTokens.includeIntermediate !== false">
+          <span class="badge" [class.on]="hasCustomSubtree(c)">{{ hasCustomSubtree(c) ? '● Custom subtree' : '○ Uses shared default' }}</span>
         </div>
         <app-card-tree-editor *ngIf="d.themeTokens.includeIntermediate !== false"
           [card]="c" [depth]="1" [maxDepth]="maxDepth" [needsImage]="intermediateNeedsImage"></app-card-tree-editor>
@@ -250,3 +257,20 @@
     <button class="btn-y" *ngIf="isLast" (click)="saveAndDeploy()">Save &amp; Deploy →</button>
   </div>
 </ion-footer>
+
+<!-- Pre-deploy validation: errors block, warnings allow "Deploy anyway". -->
+<ion-modal [isOpen]="validationOpen" (didDismiss)="validationOpen=false" class="nt-confirm-modal">
+  <ng-template>
+    <div class="nt-confirm">
+      <h2>{{ valBlocked ? 'Fix these before deploying' : 'Check before deploying' }}</h2>
+      <ul class="val-list">
+        <li class="val-err" *ngFor="let e of valErrors">✕ {{ e }}</li>
+        <li class="val-warn" *ngFor="let w of valWarnings">⚠ {{ w }}</li>
+      </ul>
+      <div class="nt-confirm-actions">
+        <button class="btn-cancel" (click)="validationOpen=false">{{ valBlocked ? 'Go back & fix' : 'Cancel' }}</button>
+        <button class="btn-yes" *ngIf="!valBlocked" (click)="deployAnyway()">Deploy anyway</button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

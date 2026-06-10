@@ -26,6 +26,9 @@ export type NavButtonPosition = 'bottom-left' | 'bottom-center' | 'bottom-right'
 export type SaverOverlayPosition = 'center' | 'bottom' | 'top' | 'bottom-left' | 'bottom-right';
 
 export type TextScale = 'compact' | 'normal' | 'large';
+/** Overflow scrolling direction override. 'auto' (default) = layout-appropriate:
+ *  grids scroll vertically; rails/strips/pill-rows scroll horizontally. */
+export type ScrollMode = 'auto' | 'vertical' | 'horizontal';
 export type TextFit = 'shrink' | 'wrap' | 'clip';
 
 /** LEGACY single-axis card style — kept only for migration of old saved themes. */
@@ -136,6 +139,17 @@ export interface ThemeTokens {
   nav?: NavButtonStyle;
   logoPosition: LogoPosition;
   homeLayout: HomeLayout;
+  /** Free column count (1–8) for grid/column home layouts. When set it overrides
+   *  the column count implied by homeLayout (grid-template-columns:repeat(var(--cols),1fr)).
+   *  Undefined = legacy behaviour, columns derived from the layout value. */
+  columns?: number;
+  /** Overflow scrolling override. Default 'auto' = direction appropriate to the layout
+   *  (grids vertical, rails/strips horizontal). Applied on Home/Intermediate/Result. */
+  scrollMode?: ScrollMode;
+  /** Designed home-item capacity for featured/predefined themes. The content
+   *  editor blocks adding home cards beyond this. Undefined = unlimited
+   *  (user-created themes). */
+  maxHomeItems?: number;
   /** Card size: affects the physical dimensions of category cards on the home page. */
   cardSize?: CardSize;
   /** Horizontal alignment of cards within their row (for layouts that don't fill the row). */
@@ -181,7 +195,12 @@ export interface CardItem {
   price?: string;
   unit?: string;
   articleId?: string;          // for ESL blink (Category / +ESL)
-  children?: CardItem[];       // intermediate sub-items
+  children?: CardItem[];       // intermediate sub-items (recursive drill-down)
+  /** Leaf-only: products/content surfaced on the Result page when THIS leaf is
+   *  reached. Optional — when absent the LCD/preview fall back to the SHARED
+   *  default Result content (LayoutJson.result.products), preserving the flat
+   *  behaviour of existing layouts. */
+  products?: ResultProduct[];
 }
 
 export interface ResultProduct {
@@ -245,6 +264,7 @@ export const THEME_ENUM_VALUES = {
   headerItemPos: ['left', 'center', 'right', 'hidden'],
   align: ['left', 'center', 'right'],
   gap: ['tight', 'normal', 'loose'],
+  scrollMode: ['auto', 'vertical', 'horizontal'],
   intermediateStyle: ['accordion', 'pill-tabs', 'image-grid', 'hex-grid', 'circular', 'scroll-list', 'card-strip', 'fullscreen', 'side-rail', 'center-tiles', 'brand-grid', 'drill-stair', 'brand-rail'],
   resultTemplate: ['map-list', 'cards-map', 'dual-list', 'split-panel', 'list-only', 'map-full', 'card-grid', 'minimal', 'esl-focus', 'drill-stair', 'filter-list', 'map-filter-list', 'promo-list', 'catalog-grid', 'product-focus', 'hero-product', 'drill-filter'],
   itemSize: ['small', 'medium', 'large'],
@@ -267,6 +287,29 @@ export function coerceEnum<T extends string>(v: unknown, allowed: readonly strin
   return fallback;
 }
 
+export const MIN_COLUMNS = 1;
+export const MAX_COLUMNS = 8;
+
+/** Coerce theme.columns to an integer within [MIN_COLUMNS, MAX_COLUMNS], or
+ *  undefined (= legacy behaviour: derive the count from homeLayout). */
+export function coerceColumns(v: unknown): number | undefined {
+  const n = typeof v === 'number' ? v : typeof v === 'string' && v !== '' ? Number(v) : NaN;
+  if (!isFinite(n)) return undefined;
+  return Math.min(MAX_COLUMNS, Math.max(MIN_COLUMNS, Math.round(n)));
+}
+
+/** Column count implied by a legacy layout value (used when theme.columns is unset). */
+export function columnsForLayout(layout: HomeLayout): number {
+  switch (layout) {
+    case 'grid-2x2': return 2;
+    case 'grid-2x3': return 3;
+    case 'col-2': return 2;
+    case 'col-3': return 3;
+    case 'col-4': return 4;
+    default: return 3;
+  }
+}
+
 export interface LayoutJson {
   schemaVersion: 1;
   contentName: string;
@@ -287,4 +330,10 @@ export interface LayoutJson {
   /** Optional manifest of every ntimg id the LCD should expect to have on disk
    *  after this deploy. Used by the receiver to log/verify completeness. */
   imageManifest?: string[];
+  /** Decoded byte size per ntimg id — lets the receiver verify each file on disk. */
+  imageSizes?: Record<string, number>;
+  /** Size-capped inline data-URI fallbacks per ntimg id. Used by the LCD renderer
+   *  when an externalized image file is missing/unresolvable (lost transfer,
+   *  browser-relay context, wiped cache) so every deploy still shows pictures. */
+  imageFallbacks?: Record<string, string>;
 }

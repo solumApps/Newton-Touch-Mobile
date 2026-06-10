@@ -56,7 +56,9 @@
         </div>
 
         <!-- HOME -->
-        <div *ngSwitchCase="'home'" class="stage layout-{{t.homeLayout}} card-size-{{t.cardSize||'normal'}} align-{{t.cardAlign||'center'}} gap-{{t.cardGap||'normal'}}" [class.shape]="shapeCard">
+        <div *ngSwitchCase="'home'" class="stage layout-{{t.homeLayout}} card-size-{{t.cardSize||'normal'}} align-{{t.cardAlign||'center'}} gap-{{t.cardGap||'normal'}}" [class.shape]="shapeCard"
+             [class.has-cols]="t.columns !== undefined" [style.--cols]="t.columns"
+             [class.scroll-vertical]="t.scrollMode==='vertical'" [class.scroll-horizontal]="t.scrollMode==='horizontal'">
           <div class="hero-copy" *ngIf="t.homeLayout==='hero-start'">
             <span>Product Finder</span>
             <b>Start Search</b>
@@ -91,6 +93,7 @@
 
         <!-- INTERMEDIATE -->
         <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}} int-size-{{t.intermediate.itemSize||'medium'}} int-shape-{{t.intermediate.cardShape||'rect'}} int-align-{{t.intermediate.align||'center'}} int-gap-{{t.intermediate.gap||'normal'}}"
+             [class.scroll-vertical]="t.scrollMode==='vertical'" [class.scroll-horizontal]="t.scrollMode==='horizontal'"
              [style.--int-card]="t.intermediate.cardBackground" [style.--int-accent]="t.intermediate.accent" [style.--int-text]="t.intermediate.cardText">
           <div class="rail" *ngIf="t.intermediateStyle==='side-rail'">
             <b>Finder</b><span>Category</span><span>Model</span><span>Year</span>
@@ -102,7 +105,8 @@
         </div>
 
         <!-- RESULT -->
-        <div *ngSwitchCase="'result'" class="stage result res-{{t.resultTemplate}}">
+        <div *ngSwitchCase="'result'" class="stage result res-{{t.resultTemplate}}"
+             [class.scroll-vertical]="t.scrollMode==='vertical'" [class.scroll-horizontal]="t.scrollMode==='horizontal'">
           <div class="map" [style.borderColor]="t.result.pathColor">
             <div class="path path-{{t.result.pathStyle}}" [style.background]="t.result.pathColor" [style.borderColor]="t.result.pathColor"></div>
           </div>
@@ -211,6 +215,24 @@
         <p class="hint">How cards are laid out on screen.</p>
         <div class="tiles">
           <button class="tile" *ngFor="let o of homeLayouts" [class.sel]="t.homeLayout===o" (click)="pickLayout(o)">{{ layoutLabels[o] }}</button>
+        </div>
+
+        <ng-container *ngIf="columnsMatter">
+          <div class="step-title sm">Columns</div>
+          <p class="hint">Free column count ({{ minColumns }}–{{ maxColumns }}). Extra rows scroll vertically.</p>
+          <div class="seg cols-stepper">
+            <button class="tile" (click)="stepColumns(-1)" [disabled]="effectiveColumns <= minColumns" aria-label="Fewer columns">−</button>
+            <input class="inp cols-inp" type="number" [min]="minColumns" [max]="maxColumns"
+                   [value]="effectiveColumns" (change)="setColumns($any($event.target).value)" aria-label="Column count" />
+            <button class="tile" (click)="stepColumns(1)" [disabled]="effectiveColumns >= maxColumns" aria-label="More columns">+</button>
+            <button class="tile" *ngIf="t.columns !== undefined" (click)="resetColumns()">Auto</button>
+          </div>
+        </ng-container>
+
+        <div class="step-title sm">Overflow scrolling</div>
+        <p class="hint">When items don't fit: Auto picks the layout's natural direction (grids vertical, rails horizontal).</p>
+        <div class="seg">
+          <button class="tile" *ngFor="let m of scrollModes" [class.sel]="(t.scrollMode||'auto')===m.id" (click)="t.scrollMode=m.id">{{ m.label }}</button>
         </div>
 
         <div class="step-title sm">Card size</div>
@@ -403,13 +425,13 @@
         <div class="nav-btn-row">
           <div class="nav-btn-grp">
             <span class="nav-btn-lbl">&#8249; Back</span>
-            <app-color-picker label="Icon color" [value]="t.nav?.backColor || '#FFFFFF'" (valueChange)="t.nav!.backColor=$event"></app-color-picker>
-            <app-color-picker label="Background" [value]="t.nav?.backBg || 'rgba(0,0,0,0.35)'" (valueChange)="t.nav!.backBg=$event"></app-color-picker>
+            <app-color-picker label="Icon color" [value]="t.nav?.backColor || '#FFFFFF'" [allowReset]="true" (reset)="resetNavColor('backColor')" (valueChange)="t.nav!.backColor=$event"></app-color-picker>
+            <app-color-picker label="Background" [value]="t.nav?.backBg || 'rgba(0,0,0,0.35)'" [allowReset]="true" (reset)="resetNavColor('backBg')" (valueChange)="t.nav!.backBg=$event"></app-color-picker>
           </div>
           <div class="nav-btn-grp">
             <span class="nav-btn-lbl">&#8962; Home</span>
-            <app-color-picker label="Icon color" [value]="t.nav?.homeColor || '#FFFFFF'" (valueChange)="t.nav!.homeColor=$event"></app-color-picker>
-            <app-color-picker label="Background" [value]="t.nav?.homeBg || 'rgba(0,0,0,0.35)'" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
+            <app-color-picker label="Icon color" [value]="t.nav?.homeColor || '#FFFFFF'" [allowReset]="true" (reset)="resetNavColor('homeColor')" (valueChange)="t.nav!.homeColor=$event"></app-color-picker>
+            <app-color-picker label="Background" [value]="t.nav?.homeBg || 'rgba(0,0,0,0.35)'" [allowReset]="true" (reset)="resetNavColor('homeBg')" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
           </div>
         </div>
         <div class="step-title sm">Nav bar style</div>
@@ -478,13 +500,13 @@
         <div class="nav-btn-row">
           <div class="nav-btn-grp">
             <span class="nav-btn-lbl">&#8249; Back</span>
-            <app-color-picker label="Icon color" [value]="t.nav?.backColor || '#FFFFFF'" (valueChange)="t.nav!.backColor=$event"></app-color-picker>
-            <app-color-picker label="Background" [value]="t.nav?.backBg || 'rgba(0,0,0,0.35)'" (valueChange)="t.nav!.backBg=$event"></app-color-picker>
+            <app-color-picker label="Icon color" [value]="t.nav?.backColor || '#FFFFFF'" [allowReset]="true" (reset)="resetNavColor('backColor')" (valueChange)="t.nav!.backColor=$event"></app-color-picker>
+            <app-color-picker label="Background" [value]="t.nav?.backBg || 'rgba(0,0,0,0.35)'" [allowReset]="true" (reset)="resetNavColor('backBg')" (valueChange)="t.nav!.backBg=$event"></app-color-picker>
           </div>
           <div class="nav-btn-grp">
             <span class="nav-btn-lbl">&#8962; Home</span>
-            <app-color-picker label="Icon color" [value]="t.nav?.homeColor || '#FFFFFF'" (valueChange)="t.nav!.homeColor=$event"></app-color-picker>
-            <app-color-picker label="Background" [value]="t.nav?.homeBg || 'rgba(0,0,0,0.35)'" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
+            <app-color-picker label="Icon color" [value]="t.nav?.homeColor || '#FFFFFF'" [allowReset]="true" (reset)="resetNavColor('homeColor')" (valueChange)="t.nav!.homeColor=$event"></app-color-picker>
+            <app-color-picker label="Background" [value]="t.nav?.homeBg || 'rgba(0,0,0,0.35)'" [allowReset]="true" (reset)="resetNavColor('homeBg')" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
           </div>
         </div>
         <div class="step-title sm">Nav bar style</div>
@@ -571,7 +593,8 @@
         <div class="fld"><label>Theme name <span class="required">*</span></label>
           <input class="inp" [(ngModel)]="name" placeholder="e.g. Holiday Dark" /></div>
           <table class="sum">
-            <tr><td>Home layout</td><td>{{ t.homeLayout }}</td></tr>
+            <tr><td>Home layout</td><td>{{ t.homeLayout }}{{ columnsMatter ? (' · ' + effectiveColumns + ' col' + (t.columns !== undefined ? '' : ' (auto)')) : '' }}</td></tr>
+            <tr><td>Scrolling</td><td>{{ t.scrollMode || 'auto' }}</td></tr>
             <tr><td>Card</td><td>{{ t.cardShape }} · {{ t.cardContent }} · {{ t.cardSize }}</td></tr>
             <tr><td>Intermediate</td><td>{{ t.includeIntermediate ? t.intermediateStyle : 'Skipped (Home → Result)' }}</td></tr>
             <tr><td>Result</td><td>{{ t.resultTemplate }}</td></tr>

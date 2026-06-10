@@ -118,7 +118,11 @@ export class DeployComponent implements OnInit, OnDestroy {
       if (v && v.startsWith('data:')) { const id = 'img_' + (n++); images.push({ id, data: toBase64DataUri(v), ext: extFrom(v) }); return 'ntimg:' + id; }
       return v;
     };
-    const cards = (arr?: CardItem[]) => arr?.forEach((c) => { c.image = take(c.image); if (c.children) cards(c.children); });
+    const cards = (arr?: CardItem[]) => arr?.forEach((c) => {
+      c.image = take(c.image);
+      c.products?.forEach((p) => (p.image = take(p.image)));
+      if (c.children) cards(c.children);
+    });
     cards(layout.home); cards(layout.intermediate);
     layout.theme.backgroundImage = take(layout.theme.backgroundImage);
     layout.theme.intermediate.backgroundImage = take(layout.theme.intermediate.backgroundImage);
@@ -147,6 +151,59 @@ export class DeployComponent implements OnInit, OnDestroy {
     return Math.max(0, Math.floor((b64.length * 3) / 4) - pad);
   }
 
+  /** Inline-fallback caps: each fallback is downscaled/recompressed via canvas and
+   *  embedded in layout.json so the LCD can still render every image if a file
+   *  transfer is lost or the ref can't be resolved (e.g. browser relay context). */
+  private static readonly FALLBACK_MAX_EDGE = 384;
+  private static readonly FALLBACK_QUALITY = 0.6;
+  private static readonly FALLBACK_MAX_BYTES = 120 * 1024;    // per image (encoded length)
+  private static readonly FALLBACK_TOTAL_BYTES = 1024 * 1024; // whole map, keeps layout.json sane
+
+  /** Build a size-capped id → small-data-URI map for layout.imageFallbacks. Images
+   *  that can't be compressed under the cap are skipped (file transfer remains the
+   *  primary path; the fallback is best-effort delivery insurance). */
+  private async buildFallbacks(images: { id: string; data: string }[]): Promise<Record<string, string>> {
+    const out: Record<string, string> = {};
+    let total = 0;
+    for (const img of images) {
+      try {
+        const uri = img.data.length <= DeployComponent.FALLBACK_MAX_BYTES
+          ? img.data
+          : await this.compressForFallback(img.data);
+        if (!uri || uri.length > DeployComponent.FALLBACK_MAX_BYTES) continue;
+        if (total + uri.length > DeployComponent.FALLBACK_TOTAL_BYTES) break;
+        out[img.id] = uri;
+        total += uri.length;
+      } catch { /* skip — fallback is best-effort */ }
+    }
+    return out;
+  }
+
+  /** Canvas downscale + JPEG re-encode for the inline fallback copy. */
+  private compressForFallback(dataUri: string): Promise<string | null> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const max = DeployComponent.FALLBACK_MAX_EDGE;
+          let { width, height } = img;
+          if (width > max || height > max) {
+            if (width >= height) { height = Math.round((height * max) / width); width = max; }
+            else { width = Math.round((width * max) / height); height = max; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) { resolve(null); return; }
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', DeployComponent.FALLBACK_QUALITY));
+        } catch { resolve(null); }
+      };
+      img.onerror = () => resolve(null);
+      img.src = dataUri;
+    });
+  }
+
   async deploy(): Promise<void> {
     if (!this.draft || !this.payload || !this.targetHost) return;
 
@@ -159,8 +216,9 @@ export class DeployComponent implements OnInit, OnDestroy {
         // Images use fire-and-forget (sendRelayNoAck) because the LCD only
         // sends a deploy_ack after the final layout, not after each image.
         const { layout, images } = this.externalizeImages(this.payload);
-        (layout as any).imageManifest = images.map((im) => im.id);
-        (layout as any).imageSizes = Object.fromEntries(images.map((im) => [im.id, this.decodedBytes(im.data)]));
+        layout.imageManifest = images.map((im) => im.id);
+        layout.imageSizes = Object.fromEntries(images.map((im) => [im.id, this.decodedBytes(im.data)]));
+        layout.imageFallbacks = await this.buildFallbacks(images);
         const total = images.length + 1;
         this.pushStep(`Preparing ${images.length} image(s) + layout (browser/relay)`);
         for (let i = 0; i < images.length; i++) {
@@ -182,8 +240,9 @@ export class DeployComponent implements OnInit, OnDestroy {
         const { layout, images } = this.externalizeImages(this.payload);
         // Attach a manifest of expected image ids + decoded sizes so the LCD can
         // verify completeness AND integrity (size match) after the deploy.
-        (layout as any).imageManifest = images.map((im) => im.id);
-        (layout as any).imageSizes = Object.fromEntries(images.map((im) => [im.id, this.decodedBytes(im.data)]));
+        layout.imageManifest = images.map((im) => im.id);
+        layout.imageSizes = Object.fromEntries(images.map((im) => [im.id, this.decodedBytes(im.data)]));
+        layout.imageFallbacks = await this.buildFallbacks(images);
         const total = images.length + 1;
         this.pushStep(`Preparing ${images.length} image(s) + layout`);
         for (let i = 0; i < images.length; i++) {
