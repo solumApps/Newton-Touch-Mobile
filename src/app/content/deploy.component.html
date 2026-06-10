@@ -31,7 +31,7 @@
   <p class="note" *ngIf="!native">Scanning needs a device on Wi-Fi — in the browser, add the LCD by IP below.</p>
   <div class="searching" *ngIf="scanning && !found.length"><ion-spinner name="dots"></ion-spinner> Searching…</div>
   <button class="dev" *ngFor="let dev of found" [class.sel]="isTarget(dev.host, dev.port)" (click)="select(dev.deviceName || dev.name, dev.host, dev.port)">
-    <div><div class="dn">{{ dev.deviceName || dev.name }}</div>
+    <div><div class="dn">{{ dev.deviceName || dev.name }}<span class="via" *ngIf="dev.via">{{ dev.via }}</span></div>
       <div class="dm">{{ dev.host }}:{{ dev.port }}<span *ngIf="dev.storeId"> · store {{ dev.storeId }}</span></div></div>
     <span class="tick" *ngIf="isTarget(dev.host, dev.port)">✓</span>
   </button>
@@ -50,6 +50,9 @@
   <div class="prog" *ngIf="sending">
     <ion-progress-bar [value]="percent/100"></ion-progress-bar>
     <div class="pct">{{ percent }}%</div>
+  </div>
+  <div class="steps" *ngIf="steps.length">
+    <div class="step" *ngFor="let s of steps">{{ s }}</div>
   </div>
   <p class="note err" *ngIf="doneMsg && !doneOk">{{ doneMsg }}</p>
 </ion-content>

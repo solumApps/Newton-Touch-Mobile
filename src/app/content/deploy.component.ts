@@ -138,6 +138,15 @@ export class DeployComponent implements OnInit, OnDestroy {
   private readonly SEND_DELAY_MS = 350;
   private sleep(ms: number): Promise<void> { return new Promise((r) => setTimeout(r, ms)); }
 
+  /** Decoded (binary) size of a base64 data URI — sent alongside each image and in
+   *  the layout's imageSizes map so the LCD can verify every file on disk. */
+  private decodedBytes(dataUri: string): number {
+    const comma = dataUri.indexOf(',');
+    const b64 = comma >= 0 ? dataUri.slice(comma + 1) : dataUri;
+    const pad = b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0;
+    return Math.max(0, Math.floor((b64.length * 3) / 4) - pad);
+  }
+
   async deploy(): Promise<void> {
     if (!this.draft || !this.payload || !this.targetHost) return;
 
@@ -151,6 +160,7 @@ export class DeployComponent implements OnInit, OnDestroy {
         // sends a deploy_ack after the final layout, not after each image.
         const { layout, images } = this.externalizeImages(this.payload);
         (layout as any).imageManifest = images.map((im) => im.id);
+        (layout as any).imageSizes = Object.fromEntries(images.map((im) => [im.id, this.decodedBytes(im.data)]));
         const total = images.length + 1;
         this.pushStep(`Preparing ${images.length} image(s) + layout (browser/relay)`);
         for (let i = 0; i < images.length; i++) {
@@ -158,7 +168,7 @@ export class DeployComponent implements OnInit, OnDestroy {
           const sizeKb = Math.round(img.data.length / 1024);
           this.pushStep(`▸ ${img.id}.${img.ext}  (${sizeKb} KB)…`);
           await this.transfer.sendRelayNoAck(this.targetHost,
-            JSON.stringify({ kind: 'image', id: img.id, ext: img.ext, data: img.data }));
+            JSON.stringify({ kind: 'image', id: img.id, ext: img.ext, bytes: this.decodedBytes(img.data), data: img.data }));
           this.pushStep(`  ✓ ${img.id} sent`);
           this.percent = Math.round(((i + 1) / total) * 90);
           await this.sleep(this.SEND_DELAY_MS);
@@ -170,8 +180,10 @@ export class DeployComponent implements OnInit, OnDestroy {
       } else {
         // Device: send each image as its own file payload first, then the tiny layout.
         const { layout, images } = this.externalizeImages(this.payload);
-        // Attach a manifest of expected image ids so the LCD can verify completeness.
+        // Attach a manifest of expected image ids + decoded sizes so the LCD can
+        // verify completeness AND integrity (size match) after the deploy.
         (layout as any).imageManifest = images.map((im) => im.id);
+        (layout as any).imageSizes = Object.fromEntries(images.map((im) => [im.id, this.decodedBytes(im.data)]));
         const total = images.length + 1;
         this.pushStep(`Preparing ${images.length} image(s) + layout`);
         for (let i = 0; i < images.length; i++) {
@@ -179,7 +191,7 @@ export class DeployComponent implements OnInit, OnDestroy {
           const sizeKb = Math.round(img.data.length / 1024);
           this.pushStep(`▸ ${img.id}.${img.ext}  (${sizeKb} KB)…`);
           await this.transfer.send(this.targetHost, this.targetPort,
-            JSON.stringify({ kind: 'image', id: img.id, ext: img.ext, data: img.data }), () => {});
+            JSON.stringify({ kind: 'image', id: img.id, ext: img.ext, bytes: this.decodedBytes(img.data), data: img.data }), () => {});
           this.pushStep(`  ✓ ${img.id} sent`);
           this.percent = Math.round(((i + 1) / total) * 90);
           // CRITICAL: throttle so the receiver finishes flushing the previous
@@ -213,7 +225,16 @@ export class DeployComponent implements OnInit, OnDestroy {
         this.doneOk = false;
         this.doneMsg = (e?.message || 'Relay unavailable') + ' — payload downloaded instead. Start the dev relay (node tools/dev-relay.mjs) to deploy in-browser.';
       } else {
-        this.doneOk = false; this.doneMsg = 'Deploy failed: ' + (e?.message || e);
+        this.doneOk = false;
+        const base = 'Deploy failed: ' + (e?.message || e);
+        this.pushStep('✗ ' + (e?.message || e));
+        this.doneMsg = base;
+        // Probe the network to explain WHY (client isolation / wrong subnet /
+        // LCD app not running / transient) — the most actionable part of the UX.
+        try {
+          const hint = await this.transfer.diagnose(this.targetHost, this.targetPort);
+          if (hint) { this.doneMsg = base + ' — ' + hint; this.pushStep('ℹ ' + hint); }
+        } catch { /* diagnosis is best-effort */ }
       }
     } finally {
       this.sending = false;

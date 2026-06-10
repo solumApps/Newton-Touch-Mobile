@@ -29,6 +29,11 @@
 .prog { margin: 12px 0; }
 .prog .pct { text-align: center; font-size: 12px; color: var(--nt-text-2); margin-top: 4px; }
 
+.via { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 6px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; background: var(--nt-tint); color: var(--nt-purple); vertical-align: middle; }
+.steps { background: #0F172A; border-radius: 10px; padding: 10px 12px; margin: 10px 0; max-height: 160px; overflow-y: auto; }
+.steps .step { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; line-height: 1.6; color: #94A3B8; white-space: pre-wrap; word-break: break-word; }
+.steps .step:last-child { color: #E2E8F0; }
+
 .done { text-align: center; padding: 40px 20px; }
 .done .ck { width: 72px; height: 72px; border-radius: 50%; background: #10B981; color: #fff; font-size: 38px; line-height: 72px; margin: 0 auto 16px; }
 .done h2 { font-family: 'Plus Jakarta Sans'; font-weight: 900; font-size: 24px; color: var(--nt-text); margin: 0; }
