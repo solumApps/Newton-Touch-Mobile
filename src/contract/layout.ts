@@ -76,7 +76,10 @@ export type ResultTemplate =
   /** hero-product: playful sales confirmation — benefit bullets, a centered hero
    *  product (image/price/find action) and a big celebratory side headline.
    *  Inspired by pet-food kiosk "Loved your pick!" result screens. */
-  | 'hero-product';
+  | 'hero-product'
+  /** drill-filter: drill-path breadcrumb columns (like drill-stair) plus a tabbed
+   *  (popular/alphabetical) numbered product list panel — map-less kiosks. */
+  | 'drill-filter';
 
 export type TransitionType = 'fade-slide' | 'scale-up' | 'slide-left' | 'shimmer' | 'none';
 export type AnimSpeed = 'slow' | 'normal' | 'fast';
@@ -243,7 +246,7 @@ export const THEME_ENUM_VALUES = {
   align: ['left', 'center', 'right'],
   gap: ['tight', 'normal', 'loose'],
   intermediateStyle: ['accordion', 'pill-tabs', 'image-grid', 'hex-grid', 'circular', 'scroll-list', 'card-strip', 'fullscreen', 'side-rail', 'center-tiles', 'brand-grid', 'drill-stair', 'brand-rail'],
-  resultTemplate: ['map-list', 'cards-map', 'dual-list', 'split-panel', 'list-only', 'map-full', 'card-grid', 'minimal', 'esl-focus', 'drill-stair', 'filter-list', 'map-filter-list', 'promo-list', 'catalog-grid', 'product-focus', 'hero-product'],
+  resultTemplate: ['map-list', 'cards-map', 'dual-list', 'split-panel', 'list-only', 'map-full', 'card-grid', 'minimal', 'esl-focus', 'drill-stair', 'filter-list', 'map-filter-list', 'promo-list', 'catalog-grid', 'product-focus', 'hero-product', 'drill-filter'],
   itemSize: ['small', 'medium', 'large'],
   pathStyle: ['dashed', 'solid', 'dotted', 'animated'],
   transition: ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'],

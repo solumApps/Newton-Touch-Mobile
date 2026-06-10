@@ -151,6 +151,10 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <span class="filter on" [style.background]="theme?.result?.accent">All</span>
             <span class="filter">Care</span>
           </div>
+          <div class="stair-mock" *ngIf="theme?.resultTemplate==='drill-filter'">
+            <span class="sc" [style.background]="theme?.result?.accent"></span>
+            <span class="sc" [style.background]="theme?.result?.accent"></span>
+          </div>
           <div class="list">
             <ng-container *ngIf="(result?.products?.length||0) > 0; else prodPlaceholders">
               <div class="prod" *ngFor="let p of resultSlice; let i = index" [class.found]="i===0"

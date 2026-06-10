@@ -420,6 +420,27 @@
   background: var(--prev-accent, #FFCD00) !important; color: #fff !important; font-size: 9px;
 }
 
+/* drill-filter result preview: drill columns on the left + numbered list panel */
+.prev .stage.result.res-drill-filter { padding: 0; margin: 0; gap: 0; }
+.prev .stage.result.res-drill-filter .map { display: none; }
+.prev .stage.result.res-drill-filter .stair-mock { flex: 0 0 52%; display: flex; align-self: stretch; }
+.prev .stage.result.res-drill-filter .stair-mock .sc {
+  flex: 1 1 0; background: var(--prev-accent, #FFCD00); border-right: 1px solid rgba(255,255,255,.15);
+}
+.prev .stage.result.res-drill-filter .stair-mock .sc:nth-child(even) { filter: brightness(.92); }
+.prev .stage.result.res-drill-filter .list {
+  flex: 1; align-self: stretch; flex-direction: column; gap: 2px; padding: 5px 6px;
+  background: var(--prev-card, #fff);
+}
+.prev .stage.result.res-drill-filter .list .prod {
+  background: rgba(0,0,0,.05) !important; color: var(--prev-text, #111) !important;
+  border: 0; font-size: 5px;
+}
+.prev .stage.result.res-drill-filter .list .prod.found {
+  background: var(--prev-accent, #FFCD00) !important; color: #111 !important;
+}
+.prev .stage.result.res-drill-filter .list .prod .dot { display: none; }
+
 /* ===== h-scroll layout ===== */
 .prev .stage.layout-h-scroll { display: flex; flex-direction: column; justify-content: center; padding: 0; overflow: hidden; }
 .prev .stage.layout-h-scroll .h-scroll-rail { display: flex; overflow-x: auto; scrollbar-width: none; align-items: center; height: 100%; padding: 4px 6px 4px 16px; gap: 5px; }
