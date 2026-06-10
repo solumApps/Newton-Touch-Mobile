@@ -123,6 +123,21 @@
 .prev .stage.layout-col-4 .card { width: 23.5%; height: 100%; }
 .prev .stage.layout-col-4:not(.has-cols) .card:nth-child(n+5) { display: none; }
 
+/* col-3 / col-2 base rules — these were missing here (only present in the
+   theme-wizard preview), so a col-2/col-3 theme silently fell back to the
+   generic flex:1 stage and the cards lost their fixed width/height. Mirrors the
+   LCD (flex:0 0 31%/47%, near-full height single row). */
+.prev .stage.layout-col-3 { display: flex; justify-content: center; align-items: center; }
+.prev .stage.layout-col-3 .card { width: 30%; height: 92%; }
+.prev .stage.layout-col-3:not(.has-cols) .card:nth-child(n+4) { display: none; }
+.prev .stage.layout-col-2 { display: flex; justify-content: center; align-items: center; }
+.prev .stage.layout-col-2 .card { width: 46%; height: 92%; }
+.prev .stage.layout-col-2:not(.has-cols) .card:nth-child(n+3) { display: none; }
+/* align overrides (col layouts don't fill the row) — mirrors wizard preview */
+.prev .stage.align-left.layout-col-3,  .prev .stage.align-left.layout-col-2  { justify-content: flex-start; }
+.prev .stage.align-center.layout-col-3,.prev .stage.align-center.layout-col-2 { justify-content: center; }
+.prev .stage.align-right.layout-col-3, .prev .stage.align-right.layout-col-2 { justify-content: flex-end; }
+
 .prev .stage.layout-list { display: flex; flex-direction: column; justify-content: space-between; }
 .prev .stage.layout-list .card { width: 100%; height: 22%; flex-direction: row; align-items: center; }
 .prev .stage.layout-list .card .img { flex: 0 0 18%; height: 80%; }
@@ -235,6 +250,13 @@
   display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 92%; align-items: center; justify-items: center;
 }
 .prev .stage.shape.layout-col-4 .card { width: auto !important; height: 76% !important; aspect-ratio: 1; margin: 0; }
+/* shape + col-2 / col-3 base (non has-cols) — these were missing; mirrors the LCD
+   (.cards.shape.layout-col-3 grid + square cells). Without them a circle/hexagon
+   col-2/col-3 theme fell back to plain flex with no square cells. */
+.prev .stage.shape.layout-col-3 { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 92%; align-items: center; justify-items: center; }
+.prev .stage.shape.layout-col-3 .card { width: auto !important; height: 80% !important; aspect-ratio: 1; margin: 0; }
+.prev .stage.shape.layout-col-2 { display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-rows: 92%; align-items: center; justify-items: center; }
+.prev .stage.shape.layout-col-2 .card { width: auto !important; height: 86% !important; aspect-ratio: 1; margin: 0; }
 .prev .stage.shape.layout-hero-list {
   display: grid; grid-template-columns: 45% 1fr; grid-template-rows: repeat(3, 1fr);
   align-items: center; justify-items: center;
@@ -448,6 +470,24 @@
 .prev .stage.result.res-product-focus .focus { flex: 0 0 56%; height: 72%; border-radius: 5px; background: var(--prev-card); color: var(--prev-text); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1.5px solid var(--prev-accent); box-shadow: 0 5px 12px rgba(0,0,0,.22); }
 .prev .stage.result.res-product-focus .focus b { font-size: 8px; margin-bottom: 4px; }
 .prev .stage.result.res-product-focus .focus span { border-radius: 999px; background: var(--prev-accent); color: #111; font-size: 6px; font-weight: 900; padding: 2px 12px; text-transform: uppercase; }
+
+/* hero-product result: benefits • hero product • celebratory side headline.
+   Was missing here (present in wizard + LCD) — a hero-product theme previously
+   fell back to the generic map+list, which the LCD hides. */
+.prev .stage.result.res-hero-product { align-items: center; justify-content: space-between; gap: 4px; }
+.prev .stage.result.res-hero-product .map, .prev .stage.result.res-hero-product .list { display: none; }
+.prev .stage.result.res-hero-product .hero-prod { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 100%; gap: 4px; }
+.prev .stage.result.res-hero-product .hp-benefits { flex: 0 0 24%; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
+.prev .stage.result.res-hero-product .hp-benefits span { position: relative; padding-left: 9px; font-size: calc(var(--prev-scale,1) * 6px); font-weight: 700; color: var(--prev-text, #fff); line-height: 1.2; white-space: nowrap; }
+.prev .stage.result.res-hero-product .hp-benefits span::before { content: '★'; position: absolute; left: 0; top: 0; font-size: 6px; color: var(--b, var(--prev-accent, #FFCD00)); }
+.prev .stage.result.res-hero-product .hp-product { flex: 0 0 42%; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.prev .stage.result.res-hero-product .hp-img { flex: 0 0 auto; width: auto; height: 64%; aspect-ratio: 1; border-radius: 6px; opacity: .95; background-size: contain; background-repeat: no-repeat; background-position: center; }
+.prev .stage.result.res-hero-product .hp-info { display: flex; flex-direction: column; align-items: flex-start; color: var(--prev-text, #fff); min-width: 0; }
+.prev .stage.result.res-hero-product .hp-info b { font-size: 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.prev .stage.result.res-hero-product .hp-info .price { font-size: 8px; font-weight: 900; }
+.prev .stage.result.res-hero-product .hp-info .find { font-style: normal; border-radius: 999px; color: #111; font-size: 5px; font-weight: 900; padding: 1px 6px; margin-top: 2px; text-transform: uppercase; }
+.prev .stage.result.res-hero-product .hp-headline { flex: 0 0 30%; text-align: right; font-size: 12px; font-weight: 900; line-height: 1; text-transform: uppercase; color: var(--prev-text, #fff); }
+.prev .stage.result.res-hero-product .hp-headline em { display: block; font-style: normal; font-size: 8px; margin-top: 2px; }
 
 /* drill-stair result preview: breadcrumb columns + product card */
 .prev .stage.result.res-drill-stair { padding: 0; margin: 0; gap: 0; }

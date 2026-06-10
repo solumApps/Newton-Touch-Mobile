@@ -152,6 +152,20 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <b>{{ (result?.products?.[0]?.price) || 'Best Match' }}</b>
             <span>Find Me</span>
           </div>
+          <div class="hero-prod" *ngIf="theme?.resultTemplate==='hero-product'">
+            <div class="hp-benefits" [style.--b]="theme?.result?.accent">
+              <span>Great pick</span><span>In stock</span><span>Top rated</span>
+            </div>
+            <div class="hp-product">
+              <span class="hp-img" [style.background-image]="(result?.products?.[0]?.image) ? 'url('+result?.products?.[0]?.image+')' : null" [style.background]="!(result?.products?.[0]?.image) ? theme?.result?.cardBackground : null"></span>
+              <div class="hp-info">
+                <b>{{ result?.products?.[0]?.name || 'Product' }}</b>
+                <span class="price">{{ (result?.products?.[0]?.price) || '' }}</span>
+                <i class="find" [style.background]="theme?.result?.accent">Find Me</i>
+              </div>
+            </div>
+            <div class="hp-headline">Loved<em [style.color]="theme?.result?.accent">your pick!</em></div>
+          </div>
           <div class="filters side" *ngIf="theme?.resultTemplate==='map-filter-list'">
             <span class="filter on" [style.background]="theme?.result?.accent">All</span>
             <span class="filter">Care</span>
