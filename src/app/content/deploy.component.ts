@@ -60,20 +60,38 @@ export class DeployComponent implements OnInit, OnDestroy {
     this.sub = this.transfer.found$.subscribe((list) => (this.found = list));
   }
 
-  ngOnDestroy(): void { this.sub?.unsubscribe(); this.transfer.stopScan(); }
+  /** Auto-stop discovery after this window — user can tap Scan again if not found. */
+  private static readonly SCAN_WINDOW_MS = 10000;
+  private scanTimer?: ReturnType<typeof setTimeout>;
+
+  ngOnDestroy(): void { this.sub?.unsubscribe(); this.clearScanTimer(); this.transfer.stopScan(); }
+
+  private clearScanTimer(): void {
+    if (this.scanTimer) { clearTimeout(this.scanTimer); this.scanTimer = undefined; }
+  }
 
   async toggleScan(): Promise<void> {
-    if (this.scanning) { this.scanning = false; await this.transfer.stopScan(); }
+    if (this.scanning) { await this.stopScanning(); }
     else {
       this.scanning = true;
       try {
         await this.transfer.startScan();
+        // Time-boxed scan: stop automatically after the window instead of
+        // draining battery/network until manually stopped.
+        this.clearScanTimer();
+        this.scanTimer = setTimeout(() => { void this.stopScanning(); }, DeployComponent.SCAN_WINDOW_MS);
       } catch (err: any) {
         this.scanning = false;
         this.toastMsg = "WebSocket connection to 'ws://localhost:8090/' failed: Dev relay is not running.";
         this.showToast = true;
       }
     }
+  }
+
+  private async stopScanning(): Promise<void> {
+    this.clearScanTimer();
+    this.scanning = false;
+    try { await this.transfer.stopScan(); } catch { /* */ }
   }
 
   isTarget(host: string, port: number): boolean { return this.targetHost === host && this.targetPort === port; }
