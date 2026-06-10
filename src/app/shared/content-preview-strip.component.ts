@@ -40,7 +40,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-res-card]="theme?.result?.cardBackground"
            [style.--nt-res-accent]="theme?.result?.accent"
            [style.--nt-res-text]="theme?.result?.cardText"
-           [style.--nt-path]="theme?.result?.pathColor"
+           [style.--nt-path]="routeColor"
+           [style.--nt-route-x]="routeX" [style.--nt-route-y]="routeY" [style.--nt-route-w]="routeW"
            [ngSwitch]="page">
         <!-- HEADER (LCD markup: .hdr > .brand-logo + .brand-text(.title/.caption)) -->
         <div class="hdr" *ngIf="headerVisible"
@@ -89,24 +90,24 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- promo-categories: scrollable rail, copy pinned left (mirrors LCD) -->
           <div class="promo-rail" *ngIf="theme?.homeLayout==='promo-categories'">
             <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                 [class.has-img]="!!c.image" *ngFor="let c of homeCells">
-              <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
+                 [class.has-img]="!!c.image || usePh" *ngFor="let c of homeCells; let i = index">
+              <div class="img" [class.placeholder]="!c.image && !usePh" [style.background-image]="c.image ? 'url('+c.image+')' : (usePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="(!c.image && !usePh) ? theme?.accent : null"></div>
               <div class="meta"><span class="name">{{ c.name }}</span></div>
             </div>
           </div>
           <!-- h-scroll: single horizontally-scrolling rail -->
           <div class="h-scroll-rail" *ngIf="theme?.homeLayout==='h-scroll'">
             <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                 [class.has-img]="!!c.image" *ngFor="let c of homeCells">
-              <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
+                 [class.has-img]="!!c.image || usePh" *ngFor="let c of homeCells; let i = index">
+              <div class="img" [class.placeholder]="!c.image && !usePh" [style.background-image]="c.image ? 'url('+c.image+')' : (usePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="(!c.image && !usePh) ? theme?.accent : null"></div>
               <div class="meta"><span class="name">{{ c.name }}</span></div>
             </div>
           </div>
           <!-- all other layouts -->
           <ng-container *ngIf="theme?.homeLayout!=='h-scroll' && theme?.homeLayout!=='promo-categories'">
             <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                 [class.featured]="i===0" [class.has-img]="!!c.image" *ngFor="let c of homeCells; let i = index">
-              <div class="img" [class.placeholder]="!c.image" [style.background-image]="c.image ? 'url('+c.image+')' : null" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="!c.image ? theme?.accent : null"></div>
+                 [class.featured]="i===0" [class.has-img]="!!c.image || usePh" *ngFor="let c of homeCells; let i = index">
+              <div class="img" [class.placeholder]="!c.image && !usePh" [style.background-image]="c.image ? 'url('+c.image+')' : (usePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="(!c.image && !usePh) ? theme?.accent : null"></div>
               <div class="meta"><span class="name">{{ c.name }}</span></div>
             </div>
           </ng-container>
@@ -134,7 +135,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediate?.align||'center'}} int-gap-{{theme?.intermediate?.gap||'normal'}}"
                  [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0">
-                <div class="img" [style.background-image]="it.image ? 'url('+it.image+')' : null" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
+                <div class="img" [class.no-img]="!it.image" [style.background-image]="it.image ? 'url('+it.image+')' : null" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                 <span class="name">{{ it.name }}</span>
               </div>
             </div>
@@ -289,12 +290,22 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
         </ng-container>
 
-        <!-- NAV (LCD markup: .nav.nav-pos-* > .fb) -->
-        <div class="nav nav-pos-{{theme?.nav?.position || 'bottom-left'}}"
-             *ngIf="page !== 'home' && page !== 'saver' && navVisible">
-          <div class="fb" [style.color]="theme?.nav?.backColor || '#fff'" [style.background]="theme?.nav?.backBg || 'rgba(0,0,0,.35)'">&#8592;</div>
-          <div class="fb" [style.color]="theme?.nav?.homeColor || '#fff'" [style.background]="theme?.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</div>
-        </div>
+        <!-- NAV (LCD markup: .nav.nav-pos-* > .fb) — grouped OR split (independent positions) -->
+        <ng-container *ngIf="page !== 'home' && page !== 'saver' && (theme?.navStyle || 'floating') !== 'hidden'">
+          <div class="nav nav-pos-{{theme?.nav?.position || 'bottom-left'}}"
+               *ngIf="!theme?.nav?.split && (theme?.nav?.position || 'bottom-left') !== 'hidden'">
+            <div class="fb" [style.color]="theme?.nav?.backColor || '#fff'" [style.background]="theme?.nav?.backBg || 'rgba(0,0,0,.35)'">&#8592;</div>
+            <div class="fb" [style.color]="theme?.nav?.homeColor || '#fff'" [style.background]="theme?.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</div>
+          </div>
+          <ng-container *ngIf="theme?.nav?.split">
+            <div class="nav nav-single nav-pos-{{theme?.nav?.backPosition || 'bottom-left'}}" *ngIf="(theme?.nav?.backPosition || 'bottom-left') !== 'hidden'">
+              <div class="fb" [style.color]="theme?.nav?.backColor || '#fff'" [style.background]="theme?.nav?.backBg || 'rgba(0,0,0,.35)'">&#8592;</div>
+            </div>
+            <div class="nav nav-single nav-pos-{{theme?.nav?.homePosition || 'bottom-right'}}" *ngIf="(theme?.nav?.homePosition || 'bottom-right') !== 'hidden'">
+              <div class="fb" [style.color]="theme?.nav?.homeColor || '#fff'" [style.background]="theme?.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</div>
+            </div>
+          </ng-container>
+        </ng-container>
 
         <!-- SCREENSAVER (studio mock — no LCD equivalent layout) -->
         <div *ngSwitchCase="'saver'" class="stage saver saver-{{screensaver?.mode || 'slideshow'}}">
@@ -333,7 +344,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   @Input() page: PreviewPage = 'home';
   @Input() home: CardItem[] = [];
   @Input() intermediate: CardItem[] = [];
-  @Input() result?: { mapImage?: string; promoImage?: string; products: ResultProduct[] };
+  @Input() result?: { mapImage?: string; promoImage?: string; products: ResultProduct[]; route?: { kind?: 'line' | 'dot' | 'none'; x?: number; y?: number; w?: number; color?: string } };
   @Input() screensaver?: Screensaver;
   @Input() header?: { title?: string; caption?: string };
   /** Optional caption override under the strip. */
@@ -347,6 +358,19 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
 
   readonly placeholderSlots = [0, 1, 2, 3, 4, 5];
   readonly placeholderLabels = ['Bakery', 'Dairy', 'Produce', 'Meat', 'Frozen', 'Drinks'];
+
+  /** Dummy preview images: when the card content shows an image but the cell has
+   *  none (theme wizard placeholders), render a colored sample so the user sees
+   *  how Image+Text actually looks. */
+  get usePh(): boolean {
+    const cc = this.theme?.cardContent;
+    return this.page === 'home' && (cc === 'image-text' || cc === 'image-only');
+  }
+  private static readonly PH_FILLS = ['%2386EFAC', '%23FDE68A', '%23FCA5A5', '%23A5B4FC', '%2367E8F9', '%23F9A8D4'];
+  phImg(i: number): string {
+    const c = ContentPreviewStripComponent.PH_FILLS[i % ContentPreviewStripComponent.PH_FILLS.length];
+    return `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'><rect width='160' height='100' fill='${c}'/><circle cx='52' cy='58' r='26' fill='rgba(255,255,255,0.5)'/><circle cx='104' cy='40' r='15' fill='rgba(0,0,0,0.14)'/></svg>")`;
+  }
 
   /* ===== Stage units: --nt-vw/--nt-vh/--nt-vmin in px from the measured stage width.
      Stage height is locked to width * 540/1920 (LCD aspect) by the chrome CSS. ===== */
@@ -386,6 +410,8 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     if (this.page === 'inter') cls.push('nt-inter');
     else if (this.page === 'result') {
       cls.push('nt-result', 'res-' + this.resTpl);
+      const rk = this.result?.route?.kind;
+      if (rk) cls.push('route-kind-' + rk);
       if (this.theme?.scrollMode === 'vertical') cls.push('scroll-vertical');
       if (this.theme?.scrollMode === 'horizontal') cls.push('scroll-horizontal');
     } else if (this.page === 'home') cls.push('nt-home');
@@ -496,7 +522,21 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get titleText(): string { return this.header?.title || this.draftName || 'Newton Touch'; }
   get captionText(): string { return this.header?.caption || 'Welcome'; }
 
-  /* Marker dot position — mirrors LCD ResultComponent (mapY/mapX %, default 30/25). */
-  get markerTop(): string { const f = this.found; return (f && f.mapY != null ? f.mapY : 30) + '%'; }
-  get markerLeft(): string { const f = this.found; return (f && f.mapX != null ? f.mapX : 25) + '%'; }
+  /* Marker dot position — mirrors LCD ResultComponent (mapY/mapX %, default 30/25);
+     a content-level 'dot' annotation overrides the per-product marker position. */
+  get markerTop(): string {
+    const r = this.result?.route;
+    if (r?.kind === 'dot' && r.y != null) return r.y + '%';
+    const f = this.found; return (f && f.mapY != null ? f.mapY : 30) + '%';
+  }
+  get markerLeft(): string {
+    const r = this.result?.route;
+    if (r?.kind === 'dot' && r.x != null) return r.x + '%';
+    const f = this.found; return (f && f.mapX != null ? f.mapX : 25) + '%';
+  }
+  /* Route annotation (ResultContent.route) — mirrors LCD ResultComponent. */
+  get routeColor(): string | undefined { return this.result?.route?.color || this.theme?.result?.pathColor; }
+  get routeX(): string | null { const v = this.result?.route?.x; return v != null ? v + '%' : null; }
+  get routeY(): string | null { const v = this.result?.route?.y; return v != null ? v + '%' : null; }
+  get routeW(): string | null { const v = this.result?.route?.w; return v != null ? v + '%' : null; }
 }

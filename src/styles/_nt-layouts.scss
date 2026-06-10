@@ -192,21 +192,22 @@
 .nt-home .layout-promo-categories .promo-copy b { color:var(--nt-accent,#FFCD00); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1); text-transform:uppercase; margin-bottom:calc(var(--nt-vh)*1); }
 .nt-home .layout-promo-categories .promo-copy span { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 2.2); line-height:1.06; font-weight:900; text-transform:uppercase; }
 .nt-home .layout-promo-categories .promo-rail {
-  position:absolute; left:calc(var(--nt-vw)*37); right:0; top:0; bottom:0;
+  position:absolute; left:0; right:0; top:0; bottom:0;
   display:flex; align-items:center;
   overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none;
   overscroll-behavior-x:contain;
-  padding:calc(var(--nt-vh)*3) calc(var(--nt-vw)*2); scroll-snap-type:x mandatory; scroll-padding-left:calc(var(--nt-vw)*2);
+  padding:calc(var(--nt-vh)*3) calc(var(--nt-vw)*2) calc(var(--nt-vh)*3) calc(var(--nt-vw)*37);
+  scroll-snap-type:x mandatory; scroll-padding-left:calc(var(--nt-vw)*37);
 }
 .nt-home .layout-promo-categories .promo-rail::-webkit-scrollbar { display:none; }
 .nt-home .layout-promo-categories .promo-rail .card {
-  flex:0 0 46%; height:76%; margin:0; scroll-snap-align:start;
+  flex:0 0 19%; height:76%; margin:0; scroll-snap-align:start;
   align-items:center; justify-content:center; text-align:center;
 }
 .nt-home .layout-promo-categories .promo-rail .card .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1.2); font-weight:900; }
-.nt-home .layout-promo-categories.card-size-xs     .promo-rail .card { flex-basis:38%; }
-.nt-home .layout-promo-categories.card-size-small  .promo-rail .card { flex-basis:42%; }
-.nt-home .layout-promo-categories.card-size-large  .promo-rail .card { flex-basis:52%; }
+.nt-home .layout-promo-categories.card-size-xs     .promo-rail .card { flex-basis:15%; }
+.nt-home .layout-promo-categories.card-size-small  .promo-rail .card { flex-basis:17%; }
+.nt-home .layout-promo-categories.card-size-large  .promo-rail .card { flex-basis:22%; }
 /* promo tiles: icon/image on top + label below, chromeless.
    (img was height:60% + aspect-ratio:1 → explicit square in stage units) */
 .nt-home .layout-promo-categories .promo-rail .card { flex-direction:column; clip-path:none; background:transparent; border:0; }
@@ -218,6 +219,37 @@
 .nt-home .layout-promo-categories .promo-rail .card.shape-hexagon .img { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
 .nt-home .layout-promo-categories .promo-rail .card .img { background-color:transparent; }
 .nt-home .layout-promo-categories .promo-rail .card.shape-circle .img { background-size:cover; }
+/* promo tiles: the icon stays a fixed square disc for EVERY text position — the
+   overlay-* rules otherwise stretch it to fill the card and it renders as an ellipse */
+.nt-home .layout-promo-categories .promo-rail .card .img { width:calc(var(--nt-vh)*33) !important; height:calc(var(--nt-vh)*33) !important; flex:0 0 auto !important; }
+.nt-home .layout-promo-categories.card-size-xs .promo-rail .card .img { width:calc(var(--nt-vh)*25) !important; height:calc(var(--nt-vh)*25) !important; }
+.nt-home .layout-promo-categories.card-size-small .promo-rail .card .img { width:calc(var(--nt-vh)*29) !important; height:calc(var(--nt-vh)*29) !important; }
+.nt-home .layout-promo-categories.card-size-large .promo-rail .card .img { width:calc(var(--nt-vh)*38) !important; height:calc(var(--nt-vh)*38) !important; }
+/* promo tile shape: rect (the default) keeps the classic circular disc; pill,
+   circle and hexagon follow the selected card shape */
+.nt-home .layout-promo-categories .promo-rail .card.shape-rect .img { border-radius:50%; background-size:cover; }
+.nt-home .layout-promo-categories .promo-rail .card.shape-pill .img { border-radius:999px; width:calc(var(--nt-vh)*48) !important; height:calc(var(--nt-vh)*27) !important; background-size:cover; }
+/* circle/hexagon promo tiles: the CARD becomes a true square shape (a 50% radius
+   on the wide card rendered a clipped ellipse) and the image fills it */
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon {
+  flex:0 0 calc(var(--nt-vh)*58); width:calc(var(--nt-vh)*58); height:calc(var(--nt-vh)*58);
+  position:relative; overflow:hidden; border-radius:50%; align-self:center;
+}
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle .img,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon .img {
+  position:absolute !important; left:0; right:0; top:0; bottom:0;
+  width:100% !important; height:100% !important; margin:0 !important; border-radius:0; clip-path:none; background-size:cover;
+}
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle .meta,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon .meta {
+  position:absolute !important; left:12% !important; right:12% !important; top:auto !important; bottom:10% !important; width:auto;
+  display:flex; align-items:center; justify-content:center; border-radius:999px;
+  background:var(--nt-overlay, rgba(0,0,0,.52)) !important; padding:calc(var(--nt-vh)*0.4) calc(var(--nt-vw)*0.5);
+}
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle .name,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon .name { color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 .nt-home.surface-glass .layout-promo-categories .promo-rail .card,
 .nt-home.surface-raised .layout-promo-categories .promo-rail .card,
 .nt-home.surface-outlined .layout-promo-categories .promo-rail .card,
@@ -285,6 +317,20 @@
 /* ---- card = shape × content × text-position ---- */
 .nt-home .card.shape-rect { border-radius:10px; }
 .nt-home .card.shape-pill { border-radius:999px; }
+/* pill proportions: in tall column/grid cells a full-height capsule reads as an
+   egg — cap the pill's height and center it inside its cell instead */
+.nt-home .layout-col-2 .card.shape-pill, .nt-home .layout-col-3 .card.shape-pill, .nt-home .layout-col-4 .card.shape-pill { height:56%; align-self:center; }
+.nt-home .cards.has-cols.layout-col-2 .card.shape-pill, .nt-home .cards.has-cols.layout-col-3 .card.shape-pill,
+.nt-home .cards.has-cols.layout-col-4 .card.shape-pill { height:52%; width:100%; align-self:center; }
+.nt-home .cards.has-cols.layout-grid-2x3 .card.shape-pill, .nt-home .cards.has-cols.layout-grid-2x2 .card.shape-pill { height:80%; width:100%; align-self:center; }
+.nt-home .layout-hero-list .card.shape-pill.featured { align-self:center; height:72%; grid-row:1 / span 3; }
+/* pill height follows the card-size option (else size buttons appear dead) */
+.nt-home .cards[class*="layout-col-"].card-size-xs .card.shape-pill { height:34%; align-self:center; }
+.nt-home .cards[class*="layout-col-"].card-size-small .card.shape-pill { height:44%; align-self:center; }
+.nt-home .cards[class*="layout-col-"].card-size-large .card.shape-pill { height:68%; align-self:center; }
+.nt-home .cards.has-cols[class*="layout-grid-"].card-size-xs .card.shape-pill { height:56%; }
+.nt-home .cards.has-cols[class*="layout-grid-"].card-size-small .card.shape-pill { height:68%; }
+.nt-home .cards.has-cols[class*="layout-grid-"].card-size-large .card.shape-pill { height:92%; }
 .nt-home .card.shape-circle { border-radius:50%; }
 .nt-home .card.shape-hexagon { clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
 .nt-home .card.content-image-only .meta { display:none; }
@@ -307,20 +353,22 @@
 .nt-home .card.content-gradient { background:linear-gradient(160deg,var(--nt-accent,#FFCD00),var(--nt-card,rgba(255,255,255,.15))); }
 .nt-home .card.content-image-text.pos-overlay-bottom, .nt-home .card.content-image-text.pos-overlay-top, .nt-home .card.content-image-text.pos-center { position:relative; }
 .nt-home .card.content-image-text.pos-overlay-bottom .img, .nt-home .card.content-image-text.pos-overlay-top .img, .nt-home .card.content-image-text.pos-center .img { position:absolute; left:0; right:0; top:0; bottom:0; flex:none; width:100%; height:100%; }
-.nt-home .card.content-image-text.pos-overlay-bottom .meta { position:absolute; left:0; right:0; bottom:0; top:auto; width:auto; text-align:center; background:linear-gradient(transparent, var(--nt-overlay, rgba(0,0,0,.6))); color:#fff; }
-.nt-home .card.content-image-text.pos-overlay-top .meta { position:absolute; left:0; right:0; top:0; bottom:auto; width:auto; text-align:center; background:linear-gradient(var(--nt-overlay, rgba(0,0,0,.6)), transparent); color:#fff; }
+.nt-home .card.content-image-text.pos-overlay-bottom .meta { position:absolute; left:0; right:0; bottom:0; top:auto; width:auto; display:flex; align-items:center; justify-content:center; text-align:center; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); background:linear-gradient(transparent, var(--nt-overlay, rgba(0,0,0,.6))); color:#fff; }
+.nt-home .card.content-image-text.pos-overlay-top .meta { position:absolute; left:0; right:0; top:0; bottom:auto; width:auto; display:flex; align-items:center; justify-content:center; text-align:center; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); background:linear-gradient(var(--nt-overlay, rgba(0,0,0,.6)), transparent); color:#fff; }
+.nt-home .card.content-image-text.pos-overlay-bottom .name,
+.nt-home .card.content-image-text.pos-overlay-top .name { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; text-align:center; }
 .nt-home .card.content-image-text.pos-center .meta { position:absolute; left:0; right:0; top:0; bottom:0; width:auto; display:flex; align-items:center; justify-content:center; text-align:center; color:#fff; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6); }
 .nt-home .card.shape-pill.content-image-text.pos-overlay-bottom .meta,
 .nt-home .card.shape-circle.content-image-text.pos-overlay-bottom .meta,
 .nt-home .card.shape-hexagon.content-image-text.pos-overlay-bottom .meta {
-  left:10%; right:10%; bottom:11%; top:auto; text-align:center; border-radius:999px;
-  background:var(--nt-overlay, rgba(0,0,0,.52)); padding:calc(var(--nt-vh)*0.25) calc(var(--nt-vw)*0.5);
+  left:10%; right:10%; bottom:11%; top:auto; display:flex; align-items:center; justify-content:center; text-align:center; border-radius:999px;
+  background:var(--nt-overlay, rgba(0,0,0,.52)); padding:calc(var(--nt-vh)*0.45) calc(var(--nt-vw)*0.5);
 }
 .nt-home .card.shape-pill.content-image-text.pos-overlay-top .meta,
 .nt-home .card.shape-circle.content-image-text.pos-overlay-top .meta,
 .nt-home .card.shape-hexagon.content-image-text.pos-overlay-top .meta {
-  left:10%; right:10%; top:11%; bottom:auto; text-align:center; border-radius:999px;
-  background:var(--nt-overlay, rgba(0,0,0,.52)); padding:calc(var(--nt-vh)*0.25) calc(var(--nt-vw)*0.5);
+  left:10%; right:10%; top:11%; bottom:auto; display:flex; align-items:center; justify-content:center; text-align:center; border-radius:999px;
+  background:var(--nt-overlay, rgba(0,0,0,.52)); padding:calc(var(--nt-vh)*0.45) calc(var(--nt-vw)*0.5);
 }
 .nt-home .card.shape-pill.content-image-text.pos-overlay-bottom .name,
 .nt-home .card.shape-pill.content-image-text.pos-overlay-top .name,
@@ -382,8 +430,8 @@
 }
 .nt-home .cards:not(.shape) .card.shape-circle.content-image-text.pos-below .meta,
 .nt-home .cards:not(.shape) .card.shape-hexagon.content-image-text.pos-below .meta {
-  position:absolute; left:10%; right:10%; bottom:11%; top:auto; width:auto; text-align:center; border-radius:999px;
-  background:var(--nt-overlay, rgba(0,0,0,.52)); padding:calc(var(--nt-vh)*0.25) calc(var(--nt-vw)*0.5);
+  position:absolute; left:10%; right:10%; bottom:11%; top:auto; width:auto; display:flex; align-items:center; justify-content:center; text-align:center; border-radius:999px;
+  background:var(--nt-overlay, rgba(0,0,0,.52)); padding:calc(var(--nt-vh)*0.45) calc(var(--nt-vw)*0.5);
 }
 .nt-home .cards:not(.shape) .card.shape-circle.content-image-text.pos-below .name,
 .nt-home .cards:not(.shape) .card.shape-hexagon.content-image-text.pos-below .name {
@@ -415,8 +463,8 @@
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon .img { position:absolute; left:0; right:0; top:0; bottom:0; width:100%; height:100%; }
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-circle .meta,
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon .meta {
-  position:absolute; left:8%; right:8%; bottom:9%; z-index:1; text-align:center;
-  background:var(--nt-overlay, rgba(0,0,0,.5)); border-radius:999px; padding:calc(var(--nt-vh)*0.3) calc(var(--nt-vw)*0.4);
+  position:absolute; left:8%; right:8%; bottom:9%; z-index:1; display:flex; align-items:center; justify-content:center; text-align:center;
+  background:var(--nt-overlay, rgba(0,0,0,.5)); border-radius:999px; padding:calc(var(--nt-vh)*0.45) calc(var(--nt-vw)*0.4);
 }
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-circle .name,
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon .name { color:#fff; }
@@ -579,6 +627,8 @@
 .nt-inter .item { box-sizing:border-box; background:var(--nt-int-card,rgba(255,255,255,.08)); border-radius:8px;
   color:var(--nt-int-text,#fff); cursor:pointer; min-width:0; overflow:hidden; box-shadow:0 calc(var(--nt-vh)*0.6) calc(var(--nt-vh)*1.2) rgba(0,0,0,.12); }
 .nt-inter .item .img { background-size:cover; background-position:center; background-color:rgba(255,255,255,.06); }
+/* items WITHOUT an image: no ghost placeholder shape (small floating circles) */
+.nt-inter .item .img.no-img { background-color:transparent !important; background-image:none !important; }
 .nt-inter .item .name { font-weight:800; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
 .nt-inter.surface-glass .item { background:rgba(255,255,255,.14); border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.68); box-shadow:inset 0 0 calc(var(--nt-vw)*2) rgba(255,255,255,.08); }
 .nt-inter.surface-raised .item { border:calc(var(--nt-vw)*0.16) solid rgba(255,255,255,.74); box-shadow:0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0,0,0,.24) !important; }
@@ -614,6 +664,11 @@
 .nt-inter .int-shape-circle  .item .img { border-radius:50%; clip-path:none; }
 .nt-inter .int-shape-hexagon .item .img { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
 .nt-inter .int-shape-pill.int-pill-tabs .item, .nt-inter .int-shape-circle.int-circular .item { border-radius:999px; }
+/* pill shape: round the CARD (capsule) instead of leaving a lens-shaped image —
+   the image fills the rounded top and the label centers underneath */
+.nt-inter .int-image-grid.int-shape-pill .item, .nt-inter .int-card-strip.int-shape-pill .item { border-radius:999px; }
+.nt-inter .int-image-grid.int-shape-pill .item .img, .nt-inter .int-card-strip.int-shape-pill .item .img { border-radius:0; }
+.nt-inter .int-image-grid.int-shape-pill .item .name, .nt-inter .int-card-strip.int-shape-pill .item .name { text-align:center; align-self:center; }
 
 /* item size */
 .nt-inter .int-size-small .item { transform:scale(.88); transform-origin:center; }
@@ -646,6 +701,17 @@
   text-transform:uppercase; color:var(--nt-text,#fff);
   background:linear-gradient(90deg, rgba(8,4,32,0) 0%, rgba(8,4,32,.45) 26%, rgba(8,4,32,.62) 45%);
   text-shadow:0 calc(var(--nt-vh)*0.3) calc(var(--nt-vh)*1) rgba(0,0,0,.5); }
+/* brand-rail follows the selected card shape (was hard-wired to a circle) */
+.nt-inter .int-brand-rail.int-shape-rect .item { border-radius:calc(var(--nt-vw)*0.8); }
+.nt-inter .int-brand-rail.int-shape-pill .item { border-radius:999px; height:calc(var(--nt-vh)*34); flex-basis:calc(var(--nt-vh)*62); width:calc(var(--nt-vh)*62); min-width:calc(var(--nt-vh)*62); flex-direction:row; }
+.nt-inter .int-brand-rail.int-shape-pill .item .img { width:34%; height:62%; margin:0 calc(var(--nt-vw)*0.6) 0 0; }
+.nt-inter .int-brand-rail.int-shape-pill .item .name { margin-top:0; }
+.nt-inter .int-brand-rail.int-shape-hexagon .item { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); box-shadow:none; }
+/* brand-rail logos keep their contain-fit size for circle/hexagon too (the generic
+   int-shape-* image rules otherwise blow the logo up past the disc) */
+.nt-inter .int-brand-rail.int-shape-circle .item .img, .nt-inter .int-brand-rail.int-shape-hexagon .item .img {
+  width:74% !important; height:54% !important; margin:0 0 calc(var(--nt-vh)*0.6) !important; border-radius:0; clip-path:none;
+}
 
 /* accordion */
 .nt-inter .int-accordion { display:flex; flex-direction:column; }
@@ -663,7 +729,7 @@
 .nt-inter .int-pill-tabs .item:last-child { margin-right:auto; }
 .nt-inter .int-pill-tabs .item { flex:0 0 auto; border-radius:999px; padding:calc(var(--nt-vh)*4.5) calc(var(--nt-vw)*5); margin-top:0; margin-bottom:0;
   font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 2); font-weight:700; }
-.nt-inter .int-pill-tabs.int-size-small .item { transform:none; padding:calc(var(--nt-vh)*3) calc(var(--nt-vw)*3.5); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1.5); }
+.nt-inter .int-pill-tabs.int-size-small .item { transform:none; padding:calc(var(--nt-vh)*4) calc(var(--nt-vw)*4.5); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1.7); }
 .nt-inter .int-pill-tabs.int-size-large .item { transform:none; padding:calc(var(--nt-vh)*6) calc(var(--nt-vw)*7); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 2.6); }
 .nt-inter .int-pill-tabs .item .img { display:none; }
 .nt-inter .int-pill-tabs .item.open { background:var(--nt-int-accent,#FFCD00); color:#000; }
@@ -694,6 +760,12 @@
 .nt-inter .int-circular.int-size-small .item { flex-basis:calc(var(--nt-vh)*36); width:calc(var(--nt-vh)*36); min-width:calc(var(--nt-vh)*36); height:calc(var(--nt-vh)*36); transform:none; }
 .nt-inter .int-circular.int-size-large .item { flex-basis:calc(var(--nt-vh)*60); width:calc(var(--nt-vh)*60); min-width:calc(var(--nt-vh)*60); height:calc(var(--nt-vh)*60); transform:none; }
 .nt-inter .int-circular .item .img { position:absolute; left:0; right:0; top:0; bottom:0; }
+/* circular discs: the image always fills the disc — a carried-over int-shape-*
+   class must not shrink it into a small floating circle */
+.nt-inter .int-circular[class*="int-shape-"] .item .img {
+  position:absolute; left:0; right:0; top:0; bottom:0;
+  width:100% !important; height:100% !important; margin:0 !important; border-radius:50%; clip-path:none;
+}
 .nt-inter .int-circular .item .name { position:relative; padding:0 calc(var(--nt-vw)*0.8) calc(var(--nt-vh)*1); font-size:calc(var(--nt-vw)*0.85); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:90%; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.5) rgba(0,0,0,.55); }
 
 /* scroll list */
@@ -746,6 +818,11 @@
 .nt-inter .int-brand-grid .item { flex:0 0 calc(var(--nt-vw)*13); height:calc(var(--nt-vh)*31); margin:0 calc(var(--nt-vw)*0.9); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
 .nt-inter .int-brand-grid .item .img { width:78%; height:55%; margin:0 0 calc(var(--nt-vh)*1.4); background-color:#fff; background-size:contain; background-repeat:no-repeat; background-position:center; }
 .nt-inter .int-brand-grid .item .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 0.9); font-weight:900; text-transform:uppercase; white-space:nowrap; }
+
+/* brand-grid: drop the alphabet footer strip when nav buttons are shown — it
+   collides with the floating Back/Home buttons at the bottom of the page */
+.nt-inter:not(.nav-hidden) .int-brand-grid { padding-bottom:calc(var(--nt-vh)*3); }
+.nt-inter:not(.nav-hidden) .int-brand-grid::after { content:none; }
 
 /* fullscreen */
 .nt-inter .int-fullscreen { display:flex; }
@@ -814,7 +891,10 @@
 
 .nt-result .map { flex:1; min-width:0; background:rgba(255,255,255,.05); border:1px solid var(--nt-path,rgba(255,255,255,.1)); border-radius:8px;
   margin-right:calc(var(--nt-vw)*1); position:relative; background-size:cover; background-position:center; overflow:hidden; box-shadow:0 calc(var(--nt-vh)*0.8) calc(var(--nt-vh)*1.8) rgba(0,0,0,.12); }
-.nt-result .route { position:absolute; left:12%; top:54%; width:64%; height:calc(var(--nt-vh)*0.5); background:var(--nt-path,#FFCD00); border-radius:999px; }
+.nt-result .route { position:absolute; left:var(--nt-route-x,12%); top:var(--nt-route-y,54%); width:var(--nt-route-w,64%); height:calc(var(--nt-vh)*0.5); background:var(--nt-path,#FFCD00); border-radius:999px; }
+/* content-configurable map annotation: line only, dot only, or none */
+.nt-result.route-kind-dot .route, .nt-result.route-kind-none .route { display:none; }
+.nt-result.route-kind-none .marker, .nt-result.route-kind-line .marker { display:none; }
 .nt-result .route-dashed { height:0; background:transparent; border-top:calc(var(--nt-vh)*0.45) dashed var(--nt-path,#FFCD00); }
 .nt-result .route-dotted { height:0; background:transparent; border-top:calc(var(--nt-vh)*0.55) dotted var(--nt-path,#FFCD00); }
 .nt-result .route-animated { animation:nt-route 1s linear infinite; box-shadow:0 0 calc(var(--nt-vw)*1) rgba(255,255,255,.25); }

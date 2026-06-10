@@ -255,15 +255,44 @@ export class ContentBuilderComponent implements OnInit {
   markerIdx = 0;
   /** Set the selected product's mapX/mapY (0–100 %) from a tap on the map preview. */
   placeMarker(ev: MouseEvent, box: HTMLElement): void {
+    const r = box.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    const x = Math.round(Math.max(0, Math.min(100, ((ev.clientX - r.left) / r.width) * 100)));
+    const y = Math.round(Math.max(0, Math.min(100, ((ev.clientY - r.top) / r.height) * 100)));
+    // Annotation mode (markerIdx -2): the tap places the route line / dot instead.
+    const route = this.draft?.result.route;
+    if (this.markerIdx === -2 && route && (route.kind === 'line' || route.kind === 'dot')) {
+      this.draft!.result = { ...this.draft!.result, route: { ...route, x, y } };
+      return;
+    }
     const products = this.draft?.result.products || [];
     if (this.markerIdx >= products.length) this.markerIdx = 0;
     const p = products[this.markerIdx];
-    const r = box.getBoundingClientRect();
-    if (!p || !r.width || !r.height) return;
-    p.mapX = Math.round(Math.max(0, Math.min(100, ((ev.clientX - r.left) / r.width) * 100)));
-    p.mapY = Math.round(Math.max(0, Math.min(100, ((ev.clientY - r.top) / r.height) * 100)));
+    if (!p) return;
+    p.mapX = x; p.mapY = y;
     // New products array reference so the preview strip re-renders the dot immediately.
     this.draft!.result = { ...this.draft!.result, products: [...products] };
+  }
+
+  /** Map annotation (ResultContent.route): line / dot / none + position + color. */
+  get mapRoute(): { kind?: 'line' | 'dot' | 'none'; x?: number; y?: number; w?: number; color?: string } | undefined {
+    return this.draft?.result.route;
+  }
+  setRouteKind(k?: 'line' | 'dot' | 'none'): void {
+    if (!this.draft) return;
+    const route = k ? { ...(this.draft.result.route || {}), kind: k } : undefined;
+    this.draft.result = { ...this.draft.result, route };
+    if (k === 'line' || k === 'dot') this.markerIdx = -2; // next map tap places the annotation
+    else if (this.markerIdx === -2) this.markerIdx = 0;
+  }
+  setRouteNum(key: 'x' | 'y' | 'w', v: unknown): void {
+    if (!this.draft?.result.route) return;
+    const n = v === '' || v == null ? NaN : Math.max(0, Math.min(100, Number(v)));
+    this.draft.result = { ...this.draft.result, route: { ...this.draft.result.route, [key]: Number.isFinite(n) ? n : undefined } };
+  }
+  setRouteColor(c: string): void {
+    if (!this.draft?.result.route) return;
+    this.draft.result = { ...this.draft.result, route: { ...this.draft.result.route, color: c } };
   }
 
   /** Pick the result map background image. */

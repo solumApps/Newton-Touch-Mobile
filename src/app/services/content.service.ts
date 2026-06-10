@@ -207,6 +207,7 @@ export class ContentService {
         mapImage: d.result.mapImage ? '«ref»' : undefined,
         promoImage: d.result.promoImage ? '«ref»' : undefined,
         products: d.result.products.map((p) => ({ ...p, image: p.image ? '«ref»' : undefined })),
+        route: d.result.route,
       },
       eslLinks: d.eslLinks, eslBlinkBy: d.eslBlinkBy,
       note: 'Media excluded by design — re-attach images/video on import (Category mode re-fetches from API).',

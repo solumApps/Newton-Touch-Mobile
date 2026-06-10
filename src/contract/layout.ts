@@ -250,6 +250,10 @@ export interface ResultContent {
   mapImage?: string;
   promoImage?: string;
   products: ResultProduct[];
+  /** Optional map annotation: draw the route LINE or a single DOT anywhere on
+   *  the map (percent coords, 0–100), with an optional color override.
+   *  kind 'none' hides both; absent = legacy default (line + product marker). */
+  route?: { kind?: 'line' | 'dot' | 'none'; x?: number; y?: number; w?: number; color?: string };
 }
 
 /** Runtime enum value sets — kept in lockstep with the type unions above.
