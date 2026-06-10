@@ -41,13 +41,22 @@ server.on('upgrade', (req, socket) => {
   clients.add(client);
 
   let buf = Buffer.alloc(0);
+  let frags = [];                  // continuation-frame reassembly (browsers fragment large sends)
   socket.on('data', (chunk) => {
     buf = Buffer.concat([buf, chunk]);
     let frame;
     while ((frame = decodeFrame(buf))) {
       buf = frame.rest;
       if (frame.opcode === 0x8) { socket.end(); return; }      // close
-      if (frame.opcode === 0x1 || frame.opcode === 0x2) handle(client, frame.text);
+      if (frame.opcode === 0x9) { sendPong(socket, frame.payload); continue; } // ping → pong
+      if (frame.opcode === 0xa) continue;                      // pong — ignore
+      if (frame.opcode === 0x1 || frame.opcode === 0x2) {
+        if (frame.fin) { handle(client, frame.payload.toString('utf8')); }
+        else { frags = [frame.payload]; }                      // start of fragmented message
+      } else if (frame.opcode === 0x0) {                       // continuation
+        frags.push(frame.payload);
+        if (frame.fin) { handle(client, Buffer.concat(frags).toString('utf8')); frags = []; }
+      }
     }
   });
   socket.on('close', () => { clients.delete(client); if (client.role === 'receiver') broadcastDevices(); });
@@ -109,7 +118,17 @@ function decodeFrame(b) {
   if (b.length < off + len) return null;
   const payload = b.slice(off, off + len);
   if (masked) for (let i = 0; i < payload.length; i++) payload[i] ^= mask[i % 4];
-  return { opcode, text: payload.toString('utf8'), rest: b.slice(off + len) };
+  const fin = (b[0] & 0x80) !== 0;
+  return { opcode, fin, payload, rest: b.slice(off + len) };
+}
+function sendPong(socket, payload) {
+  try {
+    const n = payload.length;
+    let header;
+    if (n < 126) header = Buffer.from([0x8a, n]);
+    else { header = Buffer.alloc(4); header[0] = 0x8a; header[1] = 126; header.writeUInt16BE(n, 2); }
+    socket.write(Buffer.concat([header, payload]));
+  } catch { /* */ }
 }
 function encodeFrame(str) {
   const payload = Buffer.from(str, 'utf8');
