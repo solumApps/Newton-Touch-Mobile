@@ -221,7 +221,15 @@ ion-searchbar {
   --background: var(--nt-surface); --border-radius: 10px; --box-shadow: none;
   --placeholder-color: var(--nt-muted); padding: 0 0 8px;
 }
-.btn-y:disabled, .btn-g:disabled, .btn-o:disabled { opacity: .45; }
+.btn-y:disabled, .btn-g:disabled, .btn-o:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.btn-o:disabled {
+  border-color: var(--nt-border);
+  color: var(--nt-muted);
+}
 
 /* ===== Skeleton loading ===== */
 .skel { position: relative; overflow: hidden; background: var(--nt-skel); border-radius: 8px; }

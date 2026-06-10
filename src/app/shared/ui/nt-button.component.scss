@@ -16,7 +16,15 @@
   letter-spacing: .1px;
 }
 .nt-btn:active:not(:disabled) { transform: translateY(1px); }
-.nt-btn:disabled { opacity: .45; cursor: not-allowed; }
+.nt-btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.nt-btn.v-outline:disabled {
+  border-color: var(--nt-border);
+  color: var(--nt-muted);
+}
 .nt-btn:focus-visible { outline: 2px solid var(--nt-purple); outline-offset: 2px; }
 .nt-btn.block { width: 100%; }
 

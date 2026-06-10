@@ -17,56 +17,57 @@
 </ion-content>
 
 <ng-template #form>
-<ion-content class="ion-padding" *ngIf="draft as d">
-  <div class="sumc">
-    <div class="sw" [style.background]="d.themeTokens.background"></div>
-    <div class="meta"><div class="nm">{{ d.name }}</div><div class="sub">{{ d.themeName }} · {{ d.appMode }}</div></div>
-    <div class="kb"><b>{{ sizeKb }}</b>KB · atomic</div>
-  </div>
+  <ion-content class="ion-padding" *ngIf="draft as d">
+    <div class="sumc">
+      <div class="sw" [style.background]="d.themeTokens.background"></div>
+      <div class="meta">
+        <div class="nm">{{ d.name }}</div>
+        <div class="sub">{{ d.themeName }} · {{ d.appMode }}</div>
+      </div>
+      <div class="kb"><b>{{ sizeKb }}</b>KB · atomic</div>
+    </div>
 
-  <div class="sec">
-    <span>Nearby devices</span>
-    <button class="mini" (click)="toggleScan()">{{ scanning ? '◼ Stop' : '🔍 Scan' }}</button>
-  </div>
-  <p class="note" *ngIf="!native">Scanning needs a device on Wi-Fi — in the browser, add the LCD by IP below.</p>
-  <div class="searching" *ngIf="scanning && !found.length"><ion-spinner name="dots"></ion-spinner> Searching…</div>
-  <button class="dev" *ngFor="let dev of found" [class.sel]="isTarget(dev.host, dev.port)" (click)="select(dev.deviceName || dev.name, dev.host, dev.port)">
-    <div><div class="dn">{{ dev.deviceName || dev.name }}<span class="via" *ngIf="dev.via">{{ dev.via }}</span></div>
-      <div class="dm">{{ dev.host }}:{{ dev.port }}<span *ngIf="dev.storeId"> · store {{ dev.storeId }}</span></div></div>
-    <span class="tick" *ngIf="isTarget(dev.host, dev.port)">✓</span>
-  </button>
-  <p class="note" *ngIf="!scanning && !found.length">No devices found — add by IP below.</p>
+    <div class="sec">
+      <span>Nearby devices</span>
+      <button class="mini" (click)="toggleScan()">{{ scanning ? '◼ Stop' : '🔍 Scan' }}</button>
+    </div>
+    <p class="note" *ngIf="!native">Scanning needs a device on Wi-Fi — in the browser, add the LCD by IP below.</p>
+    <div class="searching" *ngIf="scanning && !found.length"><ion-spinner name="dots"></ion-spinner> Searching…</div>
+    <button class="dev" *ngFor="let dev of found" [class.sel]="isTarget(dev.host, dev.port)"
+      (click)="select(dev.deviceName || dev.name, dev.host, dev.port)">
+      <div>
+        <div class="dn">{{ dev.deviceName || dev.name }}<span class="via" *ngIf="dev.via">{{ dev.via }}</span></div>
+        <div class="dm">{{ dev.host }}:{{ dev.port }}<span *ngIf="dev.storeId"> · store {{ dev.storeId }}</span></div>
+      </div>
+      <span class="tick" *ngIf="isTarget(dev.host, dev.port)">✓</span>
+    </button>
+    <p class="note" *ngIf="!scanning && !found.length">No devices found — add by IP below.</p>
 
-  <div class="sec"><span>Add by IP (manual)</span></div>
-  <input class="inp" [(ngModel)]="manualName" placeholder="Device name" />
-  <div class="iprow">
-    <input class="inp" [(ngModel)]="manualIp" placeholder="192.168.x.x" />
-    <button class="mini" (click)="select(manualName || manualIp, manualIp, 8082)">Select</button>
-  </div>
+    <div class="sec"><span>Add by IP (manual)</span></div>
+    <input class="inp" [(ngModel)]="manualName" placeholder="Device name" />
+    <div class="iprow">
+      <input class="inp" [(ngModel)]="manualIp" placeholder="192.168.x.x" />
+      <button class="mini" (click)="select(manualName || manualIp, manualIp, 8082)">Select</button>
+    </div>
 
-  <div class="target" *ngIf="targetHost">
-    <span class="dot on"></span>Target: <b>&nbsp;{{ targetName }}</b>&nbsp;({{ targetHost }}:{{ targetPort }})
-  </div>
-  <div class="prog" *ngIf="sending">
-    <ion-progress-bar [value]="percent/100"></ion-progress-bar>
-    <div class="pct">{{ percent }}%</div>
-  </div>
-  <div class="steps" *ngIf="steps.length">
-    <div class="step" *ngFor="let s of steps">{{ s }}</div>
-  </div>
-  <p class="note err" *ngIf="doneMsg && !doneOk">{{ doneMsg }}</p>
-</ion-content>
+    <div class="target" *ngIf="targetHost">
+      <span class="dot on"></span>Target: <b>&nbsp;{{ targetName }}</b>&nbsp;({{ targetHost }}:{{ targetPort }})
+    </div>
+    <div class="prog" *ngIf="sending">
+      <ion-progress-bar [value]="percent/100"></ion-progress-bar>
+      <div class="pct">{{ percent }}%</div>
+    </div>
+    <div class="steps" *ngIf="steps.length">
+      <div class="step" *ngFor="let s of steps">{{ s }}</div>
+    </div>
+    <p class="note err" *ngIf="doneMsg && !doneOk">{{ doneMsg }}</p>
+  </ion-content>
 </ng-template>
 
 <ion-footer class="foot" *ngIf="!doneOk && draft">
   <button class="btn-y" [disabled]="!targetHost || sending" (click)="deploy()">🚀 Deploy to selected</button>
-  <button class="btn-o" (click)="download()">⬇ Download layout.json</button>
+  <button class="btn-o" [disabled]="true" (click)="download()">⬇ Download layout.json</button>
 </ion-footer>
 
-<ion-toast
-  [isOpen]="showToast"
-  [message]="toastMsg"
-  [duration]="4000"
-  color="danger"
-  (didDismiss)="showToast = false">
+<ion-toast [isOpen]="showToast" [message]="toastMsg" [duration]="4000" color="danger" (didDismiss)="showToast = false">
 </ion-toast>
