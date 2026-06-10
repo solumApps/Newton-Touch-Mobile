@@ -19,8 +19,10 @@ const OUT = process.env.OUT || path.resolve('./content-shots');
 const DRAFT_ID = 'shots_draft';
 
 // labelled dummy images (SVG data URIs → distinguishable in shots)
+// Dummy image: a plain coloured tile with a small dot — NO text, so it never
+// looks like the card label is duplicated (the label is rendered separately).
 const IMG = (label, color) => 'data:image/svg+xml;base64,' + Buffer.from(
-  `<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><rect width='240' height='240' fill='${color}'/><text x='120' y='132' font-size='30' fill='#fff' text-anchor='middle' font-family='sans-serif'>${label}</text></svg>`
+  `<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><rect width='240' height='240' fill='${color}'/></svg>`
 ).toString('base64');
 
 const COLORS = ['#7c3aed', '#0ea5e9', '#16a34a', '#d97706', '#db2777', '#0f766e'];
@@ -106,16 +108,18 @@ async function run() {
   await page.evaluate((d) => localStorage.setItem('CapacitorStorage.nt.content', JSON.stringify([d])), baseDraft());
 
   // 2) open the content builder for that draft
-  await page.goto(`${BASE}/content-builder/${DRAFT_ID}`, { waitUntil: 'networkidle' });
+  await page.goto(`${BASE}/#/content-builder/${DRAFT_ID}`, { waitUntil: 'networkidle' });   // hash routing
   await page.waitForSelector('app-content-builder', { timeout: 15000 });
   const hasNg = await page.evaluate(() => !!(window.ng && window.ng.getComponent));
   if (!hasNg) { console.error('window.ng missing — use a DEV build (ionic serve).'); await browser.close(); process.exit(1); }
   await page.waitForSelector('app-content-preview-strip .prev', { timeout: 8000 });
 
+  const FILTER = (process.env.FILTER || '').split(',').map(s => s.trim()).filter(Boolean);
   const manifest = [];
   let i = 0;
   for (const combo of combos) {
     i++;
+    if (FILTER.length && !FILTER.some(f => combo.id.includes(f))) continue;
     for (const pg of combo.pages) {
       try {
         const ok = await applyCombo(page, combo.t, pg);

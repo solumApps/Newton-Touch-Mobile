@@ -27,7 +27,7 @@ import path from 'node:path';
 
 const BASE = process.env.BASE || 'http://localhost:8100';
 const OUT = process.env.OUT || path.resolve('./combo-shots');
-const WIZARD_URL = `${BASE}/theme-wizard`;
+const WIZARD_URL = `${BASE}/#/theme-wizard`;   // app uses hash routing
 
 // ---- combo option lists (edit to widen/narrow the sweep) ----
 const homeLayouts = ['grid-2x3', 'grid-2x2', 'col-2', 'col-3', 'col-4', 'hero-list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'h-scroll', 'bento'];
@@ -118,19 +118,41 @@ async function applyCombo(page, t) {
 
 async function run() {
   fs.mkdirSync(OUT, { recursive: true });
-  const browser = await chromium.launch();
+  // Set HEADED=1 to watch the browser; default headless.
+  const browser = await chromium.launch({ headless: !process.env.HEADED, slowMo: process.env.HEADED ? 200 : 0 });
   const page = await browser.newPage({ viewport: { width: 760, height: 1400 }, deviceScaleFactor: 2 });
 
-  await page.goto(WIZARD_URL, { waitUntil: 'networkidle' });
-  await page.waitForSelector('app-theme-wizard', { timeout: 15000 });
+  console.log('Opening', WIZARD_URL);
+  await page.goto(WIZARD_URL, { waitUntil: 'domcontentloaded' });
+  try {
+    await page.waitForSelector('app-theme-wizard', { timeout: 30000, state: 'attached' });
+  } catch (e) {
+    // dump what the page actually shows so we can diagnose
+    fs.mkdirSync(OUT, { recursive: true });
+    await page.screenshot({ path: path.join(OUT, '_debug.png'), fullPage: true }).catch(() => {});
+    const url = page.url();
+    const body = await page.evaluate(() => document.body ? document.body.innerText.slice(0, 300) : '(no body)').catch(() => '');
+    const tags = await page.evaluate(() => Array.from(document.querySelectorAll('app-root *')).slice(0, 8).map(e => e.tagName.toLowerCase())).catch(() => []);
+    console.error('\nCould not find <app-theme-wizard>.');
+    console.error('  final URL :', url);
+    console.error('  top tags  :', tags.join(', '));
+    console.error('  body text :', JSON.stringify(body));
+    console.error('  saved screenshot →', path.join(OUT, '_debug.png'));
+    console.error('Send me those 4 lines + _debug.png.');
+    await browser.close();
+    process.exit(1);
+  }
   // sanity: dev-mode ng must be present
   const hasNg = await page.evaluate(() => !!(window.ng && window.ng.getComponent));
   if (!hasNg) { console.error('window.ng not found — run a DEV build (ng serve / ionic serve), not production.'); await browser.close(); process.exit(1); }
 
   const manifest = [];
+  // FILTER=substr1,substr2 → only shoot combos whose id contains one of them.
+  const FILTER = (process.env.FILTER || '').split(',').map(s => s.trim()).filter(Boolean);
   let i = 0;
   for (const combo of combos) {
     i++;
+    if (FILTER.length && !FILTER.some(f => combo.id.includes(f))) continue;
     try {
       await applyCombo(page, combo.t);
       await page.waitForTimeout(180); // let render settle
