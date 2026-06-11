@@ -989,8 +989,22 @@
 /* cards-map */
 .nt-result.res-cards-map .map { flex:0 0 25%; }
 .nt-result.res-cards-map .list { display:flex; flex-wrap:wrap; align-content:flex-start; }
-.nt-result.res-cards-map .prod { width:31%; margin:1%; flex-direction:column; align-items:flex-start; overflow:hidden; }
+.nt-result.res-cards-map .prod { width:31%; height:54%; margin:1%; flex-direction:column; align-items:flex-start; overflow:hidden; }
 .nt-result.res-cards-map .prod .img { width:100%; height:calc(var(--nt-vh)*8); margin:0 0 calc(var(--nt-vh)*0.6) 0; }
+.nt-result.res-shape-rect.res-cards-map .prod .img,
+.nt-result.res-shape-pill.res-cards-map .prod .img { height:calc(var(--nt-vh)*12); }
+.nt-result.res-textpos-below.res-shape-rect.res-cards-map:not(.res-content-text-only) .prod .img,
+.nt-result.res-textpos-below.res-shape-pill.res-cards-map:not(.res-content-text-only) .prod .img {
+  width:100% !important; min-width:100% !important; height:70% !important; min-height:70% !important;
+}
+.nt-result.res-textpos-below.res-shape-rect.res-card-grid:not(.res-content-text-only) .prod .img,
+.nt-result.res-textpos-below.res-shape-pill.res-card-grid:not(.res-content-text-only) .prod .img {
+  width:100% !important; min-width:100% !important; height:70% !important; min-height:70% !important; flex:none !important;
+}
+.nt-result.res-textpos-below.res-shape-rect.res-catalog-grid:not(.res-content-text-only) .prod .img,
+.nt-result.res-textpos-below.res-shape-pill.res-catalog-grid:not(.res-content-text-only) .prod .img {
+  width:100% !important; min-width:100% !important; height:70% !important; min-height:70% !important; flex:none !important;
+}
 /* dual-list */
 .nt-result.res-dual-list .map { display:none; }
 .nt-result.res-dual-list .list { display:flex; flex-wrap:wrap; align-content:flex-start; }
@@ -1642,6 +1656,11 @@
 /* row templates: pill rounds the row, circle/hexagon shape the thumbnail */
 .nt-result.res-shape-pill .prod { border-radius:999px; padding-left:calc(var(--nt-vw)*1.4); }
 .nt-result.res-shape-pill .fitem { border-radius:999px; }
+.nt-result.res-shape-pill.res-card-grid .prod,
+.nt-result.res-shape-pill.res-cards-map .prod,
+.nt-result.res-shape-pill.res-catalog-grid .prod {
+  border-radius:6px; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*1);
+}
 .nt-result.res-shape-rect .prod, .nt-result.res-shape-rect .fitem { border-radius:6px; }
 .nt-result.res-shape-circle .prod .img { border-radius:50%; }
 .nt-result.res-shape-hexagon .prod .img { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
