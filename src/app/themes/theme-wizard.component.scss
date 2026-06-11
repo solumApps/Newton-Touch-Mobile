@@ -257,6 +257,7 @@
 
 .prev .stage.layout-fullscreen { display: flex; }
 .prev .stage.layout-fullscreen .card.featured { flex: 1; border-radius: 4px !important; clip-path: none !important; }
+.prev .stage.layout-fullscreen .card.featured.shape-pill { border-radius: 999px !important; }
 .prev .stage.layout-fullscreen .card:not(.featured) { display: none; }
 
 .prev .stage.layout-image-strip { display: flex; padding: 0; }

@@ -173,7 +173,9 @@
 /* fullscreen: one card fills, others hidden */
 .nt-home .layout-fullscreen { display:flex; }
 .nt-home .layout-fullscreen .card { flex:1; height:100%; margin:0; border-radius:10px !important; clip-path:none !important; }
+.nt-home .layout-fullscreen .card.shape-pill { border-radius:999px !important; }
 .nt-home .layout-fullscreen .card:not(.featured) { display:none; }
+
 
 .nt-home .layout-image-strip { display:flex; padding:0; }
 .nt-home .layout-image-strip .card { flex:1 1 0; height:100%; margin:0; border-radius:0 !important; clip-path:none !important; border-width:0 calc(var(--nt-vw)*0.08) 0 0; position:relative; }
