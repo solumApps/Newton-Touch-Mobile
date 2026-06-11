@@ -11,7 +11,12 @@
 .prev {
   border-radius: 10px; overflow: hidden; aspect-ratio: 1920/540; width: 100%; position: relative;
   border: 1px solid var(--nt-border);
+  /* overflowing content must NEVER grow the stage past its 1920:540 frame
+     (lots of items previously stretched/zoomed the preview) */
+  max-width: 100%; contain: layout paint; display: flex; flex-direction: column;
 }
+.prev > * { min-height: 0; min-width: 0; }
+.prev .cards, .prev .body, .prev .list { min-height: 0; min-width: 0; }
 
 /* placeholder tiles (no image yet) */
 .prev .card .img.placeholder { opacity: .15; }

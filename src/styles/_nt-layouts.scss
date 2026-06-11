@@ -1333,6 +1333,39 @@
 /* hex-grid: alignment option works */
 .nt-inter .int-hex-grid.int-align-left  { justify-content:flex-start; }
 .nt-inter .int-hex-grid.int-align-right { justify-content:flex-end; }
+
+/* ====== FINAL: result card templates × shape × text-position (must win) ===== */
+/* CENTER text position (was undefined — looked identical to 'below') */
+.nt-result.res-textpos-center.res-card-grid .prod, .nt-result.res-textpos-center.res-cards-map .prod, .nt-result.res-textpos-center.res-catalog-grid .prod { position:relative; }
+.nt-result.res-textpos-center:not(.res-shape-circle):not(.res-shape-hexagon).res-card-grid .prod .img,
+.nt-result.res-textpos-center:not(.res-shape-circle):not(.res-shape-hexagon).res-cards-map .prod .img,
+.nt-result.res-textpos-center:not(.res-shape-circle):not(.res-shape-hexagon).res-catalog-grid .prod .img {
+  position:absolute !important; left:0; right:0; top:0; bottom:0; width:100% !important; height:100% !important; margin:0 !important; background-size:cover;
+}
+.nt-result.res-textpos-center.res-card-grid .prod .info, .nt-result.res-textpos-center.res-cards-map .prod .info, .nt-result.res-textpos-center.res-catalog-grid .prod .info {
+  position:absolute !important; left:6% !important; right:6% !important; top:50% !important; bottom:auto !important; transform:translateY(-50%); z-index:1; text-align:center;
+  background:var(--nt-overlay, rgba(0,0,0,.55)); border-radius:8px; padding:calc(var(--nt-vh)*0.6) calc(var(--nt-vw)*0.6); color:#fff;
+}
+/* overlay top/bottom reinforced — work under scroll-vertical/horizontal and every shape */
+.nt-result[class*="res-textpos-overlay"].res-card-grid .prod, .nt-result[class*="res-textpos-overlay"].res-cards-map .prod, .nt-result[class*="res-textpos-overlay"].res-catalog-grid .prod { position:relative; }
+.nt-result[class*="res-textpos-overlay"].res-card-grid .prod .info, .nt-result[class*="res-textpos-overlay"].res-cards-map .prod .info, .nt-result[class*="res-textpos-overlay"].res-catalog-grid .prod .info {
+  position:absolute !important; left:6% !important; right:6% !important; z-index:1;
+  background:var(--nt-overlay, rgba(0,0,0,.55)); border-radius:8px; padding:calc(var(--nt-vh)*0.6) calc(var(--nt-vw)*0.6); color:#fff;
+}
+.nt-result.res-textpos-overlay-top.res-card-grid .prod .info, .nt-result.res-textpos-overlay-top.res-cards-map .prod .info, .nt-result.res-textpos-overlay-top.res-catalog-grid .prod .info { top:6% !important; bottom:auto !important; }
+.nt-result.res-textpos-overlay-bottom.res-card-grid .prod .info, .nt-result.res-textpos-overlay-bottom.res-cards-map .prod .info, .nt-result.res-textpos-overlay-bottom.res-catalog-grid .prod .info { bottom:6% !important; top:auto !important; }
+/* pill: overlays sit on a full-bleed pill-shaped photo */
+.nt-result.res-shape-pill[class*="res-textpos"].res-card-grid .prod .img,
+.nt-result.res-shape-pill[class*="res-textpos"].res-cards-map .prod .img,
+.nt-result.res-shape-pill[class*="res-textpos"].res-catalog-grid .prod .img { border-radius:999px; }
+/* circle/hexagon: the shaped image stays a centred static disc under ANY text
+   position (overlay bubbles float over the card, never stretch the image) */
+.nt-result.res-shape-circle.res-card-grid .prod .img, .nt-result.res-shape-circle.res-cards-map .prod .img, .nt-result.res-shape-circle.res-catalog-grid .prod .img,
+.nt-result.res-shape-hexagon.res-card-grid .prod .img, .nt-result.res-shape-hexagon.res-cards-map .prod .img, .nt-result.res-shape-hexagon.res-catalog-grid .prod .img {
+  position:static !important; left:auto; right:auto; top:auto; bottom:auto;
+  width:46% !important; height:0 !important; padding-top:46% !important; flex:none !important;
+  margin:calc(var(--nt-vh)*0.8) 0 !important; align-self:center; background-size:cover;
+}
 /* result card-grid / cards-map: circle & hexagon images sized to fit WITHOUT clipping */
 .nt-result.res-shape-circle.res-card-grid .prod .img, .nt-result.res-shape-circle.res-cards-map .prod .img, .nt-result.res-shape-circle.res-catalog-grid .prod .img,
 .nt-result.res-shape-hexagon.res-card-grid .prod .img, .nt-result.res-shape-hexagon.res-cards-map .prod .img, .nt-result.res-shape-hexagon.res-catalog-grid .prod .img {

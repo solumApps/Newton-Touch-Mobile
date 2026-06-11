@@ -233,9 +233,7 @@
           <app-color-picker *ngIf="mapRoute?.kind==='line' || mapRoute?.kind==='dot'" label="Annotation color"
             [value]="mapRoute?.color || d.themeTokens.result.pathColor"
             (valueChange)="setRouteColor($event)"></app-color-picker>
-          <app-color-picker label="Marker &amp; route color" hint="map dot + route line"
-            [value]="d.themeTokens.result.pathColor"
-            (valueChange)="d.themeTokens.result.pathColor=$event"></app-color-picker>
+          <p class="note">Marker &amp; route color comes from the THEME (Result colors step) — override it per content with the Annotation color below.</p>
         </ng-container>
       </ng-container>
 

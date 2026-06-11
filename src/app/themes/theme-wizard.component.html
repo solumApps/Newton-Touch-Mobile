@@ -494,7 +494,7 @@
           <p class="hint">Shape of the product cards / images. Default keeps the template's own look.</p>
           <div class="tiles">
             <button class="tile" [class.sel]="!t.result.cardShape" (click)="t.result.cardShape=undefined">Default</button>
-            <button class="tile" *ngFor="let s of cardShapes" [class.sel]="t.result.cardShape===s.id" (click)="t.result.cardShape=s.id">{{ s.label }}</button>
+            <button class="tile" *ngFor="let s of resShapesFor" [class.sel]="t.result.cardShape===s.id" (click)="t.result.cardShape=s.id">{{ s.label }}</button>
           </div>
         </ng-container>
 

@@ -150,6 +150,11 @@ export class ThemeWizardComponent implements OnInit {
   get resShapeMatters(): boolean {
     return ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'catalog-grid', 'filter-list', 'map-filter-list', 'shelf'].includes(this.t.resultTemplate);
   }
+  /** Row templates only change the small thumbnail — rect/pill are no-ops there. */
+  get resShapesFor(): { id: CardShape; label: string }[] {
+    const thumbOnly = ['map-list', 'list-only', 'filter-list', 'map-filter-list'].includes(this.t.resultTemplate);
+    return thumbOnly ? this.cardShapes.filter((s) => s.id === 'circle' || s.id === 'hexagon') : this.cardShapes;
+  }
   /** Effective count shown in the stepper: override, else derived from the layout. */
   get effectiveColumns(): number { return this.t.columns ?? columnsForLayout(this.t.homeLayout); }
   stepColumns(delta: number): void {
