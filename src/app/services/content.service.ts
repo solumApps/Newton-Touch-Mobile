@@ -17,6 +17,13 @@ export interface ContentDraft {
   home: CardItem[];
   intermediate: CardItem[];
   result: ResultContent;
+  /** Drill-down authoring mode: 'common' = one shared intermediate page for every
+   *  home card; 'individual' = each home card gets its own sub-tree. UI hint only —
+   *  the deployed layout encodes this via CardItem.children. */
+  drillMode?: 'common' | 'individual';
+  /** Result authoring mode: 'common' = one shared product list; 'individual' =
+   *  per-leaf products on the drill tree (requires drillMode 'individual'). */
+  resultMode?: 'common' | 'individual';
   eslLinks?: EslLink[];
   eslBlinkBy?: EslBlinkBy;
   screensaver: Screensaver;
@@ -84,7 +91,13 @@ export class ContentService {
   private async mapMedia(d: ContentDraft, fn: (v: string) => Promise<string>): Promise<ContentDraft> {
     const val = async (v?: string): Promise<string | undefined> => (v ? await fn(v) : v);
     const cards = async (items?: CardItem[]): Promise<CardItem[] | undefined> =>
-      items ? Promise.all(items.map(async (c) => ({ ...c, image: await val(c.image), children: await cards(c.children) }))) : items;
+      items ? Promise.all(items.map(async (c) => ({
+        ...c,
+        image: await val(c.image),
+        children: await cards(c.children),
+        // Leaf-level result products (Individual result mode) carry images too.
+        products: c.products ? await Promise.all(c.products.map(async (p) => ({ ...p, image: await val(p.image) }))) : c.products,
+      }))) : items;
     const t = d.themeTokens;
     return {
       ...d,

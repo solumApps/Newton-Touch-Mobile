@@ -1245,6 +1245,94 @@
 /* brand-grid: image fills its tile (cover) instead of floating inside a white box */
 .nt-inter .int-brand-grid .item .img { background-size:cover; background-color:transparent; border-radius:calc(var(--nt-vw)*0.5); overflow:hidden; }
 .nt-inter .int-brand-grid .item .img.no-img { background-color:rgba(255,255,255,.85) !important; }
+
+/* ============== INTERMEDIATE OPTION FIXES (pills/image-grid/hex-grid) ===== */
+/* pills: larger tabs (width + height) at every size */
+.nt-inter .int-pill-tabs .item { padding:calc(var(--nt-vh)*7) calc(var(--nt-vw)*9); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 2.4); }
+.nt-inter .int-pill-tabs.int-size-small .item { padding:calc(var(--nt-vh)*5.5) calc(var(--nt-vw)*6.5); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 2); }
+.nt-inter .int-pill-tabs.int-size-large .item { padding:calc(var(--nt-vh)*9.5) calc(var(--nt-vw)*11); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 3.2); }
+/* image-grid: explicit non-overlapping sizes per item size */
+.nt-inter .int-image-grid.int-size-small .item { transform:none; width:19%; height:38%; }
+.nt-inter .int-image-grid.int-size-large .item { transform:none; width:31%; height:56%; }
+/* image-grid circle/hexagon: the CARD takes the shape, the image fills it,
+   the label becomes a bottom bubble inside the shape */
+.nt-inter .int-image-grid.int-shape-circle .item, .nt-inter .int-image-grid.int-shape-hexagon .item {
+  width:calc(var(--nt-vh)*34) !important; height:calc(var(--nt-vh)*34) !important; flex:0 0 auto;
+  position:relative; overflow:hidden; border-radius:50%; margin:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.6);
+}
+.nt-inter .int-image-grid.int-shape-hexagon .item { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+.nt-inter .int-image-grid.int-size-small.int-shape-circle .item, .nt-inter .int-image-grid.int-size-small.int-shape-hexagon .item { width:calc(var(--nt-vh)*27) !important; height:calc(var(--nt-vh)*27) !important; }
+.nt-inter .int-image-grid.int-size-large.int-shape-circle .item, .nt-inter .int-image-grid.int-size-large.int-shape-hexagon .item { width:calc(var(--nt-vh)*42) !important; height:calc(var(--nt-vh)*42) !important; }
+.nt-inter .int-image-grid.int-shape-circle .item .img, .nt-inter .int-image-grid.int-shape-hexagon .item .img {
+  position:absolute !important; left:0; right:0; top:0; bottom:0; width:100% !important; height:100% !important;
+  margin:0 !important; border-radius:0; clip-path:none; background-size:cover;
+}
+.nt-inter .int-image-grid.int-shape-circle .item .name, .nt-inter .int-image-grid.int-shape-hexagon .item .name {
+  position:absolute; left:12%; right:12%; bottom:9%; z-index:1; display:flex; align-items:center; justify-content:center;
+  text-align:center; background:var(--nt-overlay, rgba(0,0,0,.5)); border-radius:999px; color:#fff;
+  padding:calc(var(--nt-vh)*0.4) calc(var(--nt-vw)*0.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+/* card-strip circle/hexagon: same card-level shape treatment */
+.nt-inter .int-card-strip.int-shape-circle .item, .nt-inter .int-card-strip.int-shape-hexagon .item {
+  flex:0 0 calc(var(--nt-vh)*52); width:calc(var(--nt-vh)*52); height:calc(var(--nt-vh)*52); align-self:center;
+  position:relative; overflow:hidden; border-radius:50%;
+}
+.nt-inter .int-card-strip.int-shape-hexagon .item { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+.nt-inter .int-card-strip.int-shape-circle .item .img, .nt-inter .int-card-strip.int-shape-hexagon .item .img {
+  position:absolute !important; left:0; right:0; top:0; bottom:0; width:100% !important; height:100% !important;
+  margin:0 !important; border-radius:0; clip-path:none; background-size:cover;
+}
+.nt-inter .int-card-strip.int-shape-circle .item .name, .nt-inter .int-card-strip.int-shape-hexagon .item .name {
+  position:absolute; left:12%; right:12%; bottom:9%; z-index:1; display:flex; align-items:center; justify-content:center;
+  text-align:center; background:var(--nt-overlay, rgba(0,0,0,.5)); border-radius:999px; color:#fff;
+  padding:calc(var(--nt-vh)*0.4) calc(var(--nt-vw)*0.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+/* text position BELOW = label OUTSIDE the card (chromeless card, label underneath) */
+.nt-inter .int-image-grid.int-textpos-below .item, .nt-inter .int-card-strip.int-textpos-below .item {
+  background:transparent !important; border:0 !important; box-shadow:none !important; overflow:visible;
+}
+.nt-inter .int-image-grid.int-textpos-below .item .img, .nt-inter .int-card-strip.int-textpos-below .item .img { border-radius:8px; }
+.nt-inter .int-image-grid.int-textpos-below .item .name, .nt-inter .int-card-strip.int-textpos-below .item .name {
+  position:static !important; transform:none; flex:0 0 auto; align-self:center; text-align:center; width:auto;
+  background:transparent !important; padding:calc(var(--nt-vh)*0.8) 0 0; color:var(--nt-int-text,#fff);
+}
+/* below + circle/hexagon: the shaped IMAGE sits on top, label underneath outside */
+.nt-inter .int-image-grid.int-shape-circle.int-textpos-below .item, .nt-inter .int-image-grid.int-shape-hexagon.int-textpos-below .item,
+.nt-inter .int-card-strip.int-shape-circle.int-textpos-below .item, .nt-inter .int-card-strip.int-shape-hexagon.int-textpos-below .item {
+  border-radius:0; clip-path:none; overflow:visible; height:auto !important;
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+}
+.nt-inter .int-image-grid.int-shape-circle.int-textpos-below .item .img, .nt-inter .int-image-grid.int-shape-hexagon.int-textpos-below .item .img,
+.nt-inter .int-card-strip.int-shape-circle.int-textpos-below .item .img, .nt-inter .int-card-strip.int-shape-hexagon.int-textpos-below .item .img {
+  position:static !important; width:calc(var(--nt-vh)*28) !important; height:calc(var(--nt-vh)*28) !important; margin:0 auto !important;
+}
+.nt-inter .int-image-grid.int-shape-circle.int-textpos-below .item .img, .nt-inter .int-card-strip.int-shape-circle.int-textpos-below .item .img { border-radius:50%; }
+.nt-inter .int-image-grid.int-shape-hexagon.int-textpos-below .item .img, .nt-inter .int-card-strip.int-shape-hexagon.int-textpos-below .item .img { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+/* text-only content: the CARD takes the selected shape */
+.nt-inter .body.int-content-text-only.int-shape-pill .item { border-radius:999px; }
+.nt-inter .int-image-grid.int-content-text-only.int-shape-circle .item, .nt-inter .int-card-strip.int-content-text-only.int-shape-circle .item {
+  width:calc(var(--nt-vh)*32) !important; height:calc(var(--nt-vh)*32) !important; flex:0 0 auto; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+}
+.nt-inter .int-image-grid.int-content-text-only.int-shape-hexagon .item, .nt-inter .int-card-strip.int-content-text-only.int-shape-hexagon .item {
+  width:calc(var(--nt-vh)*32) !important; height:calc(var(--nt-vh)*36) !important; flex:0 0 auto; border-radius:0;
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  display:flex; align-items:center; justify-content:center; text-align:center;
+}
+.nt-inter .body.int-content-text-only .item .name { position:static !important; background:transparent !important; text-align:center; }
+/* hex-grid: BELOW = hexagon drawn via ::before, label underneath outside */
+.nt-inter .int-hex-grid.int-textpos-below .item {
+  clip-path:none; background:transparent !important; border:0 !important; box-shadow:none !important;
+  height:auto; flex-direction:column; align-items:center; justify-content:flex-start; overflow:visible;
+}
+.nt-inter .int-hex-grid.int-textpos-below .item::before {
+  content:''; width:calc(var(--nt-vw)*9); height:calc(var(--nt-vw)*10.4); flex:0 0 auto;
+  background:var(--nt-int-card, rgba(255,255,255,.08)); clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+}
+.nt-inter .int-hex-grid.int-textpos-below .item .name { margin-top:calc(var(--nt-vh)*0.7); }
+/* hex-grid: alignment option works */
+.nt-inter .int-hex-grid.int-align-left  { justify-content:flex-start; }
+.nt-inter .int-hex-grid.int-align-right { justify-content:flex-end; }
 /* result card-grid / cards-map: circle & hexagon images sized to fit WITHOUT clipping */
 .nt-result.res-shape-circle.res-card-grid .prod .img, .nt-result.res-shape-circle.res-cards-map .prod .img, .nt-result.res-shape-circle.res-catalog-grid .prod .img,
 .nt-result.res-shape-hexagon.res-card-grid .prod .img, .nt-result.res-shape-hexagon.res-cards-map .prod .img, .nt-result.res-shape-hexagon.res-catalog-grid .prod .img {

@@ -121,8 +121,25 @@ export class ContentBuilderComponent implements OnInit {
    *  AND the user hasn't built per-card children (free-form drill-down takes precedence). */
   get showIntermediateEditor(): boolean {
     if (!this.draft || this.draft.themeTokens.includeIntermediate === false) return false;
-    return !this.draft.home.some(c => c.children && c.children.length > 0);
+    return this.drillMode !== 'individual';
   }
+
+  /** Common = one shared intermediate page; Individual = per-card sub-tree.
+   *  Legacy drafts without the flag infer 'individual' from existing children. */
+  get drillMode(): 'common' | 'individual' {
+    if (this.draft?.drillMode) return this.draft.drillMode;
+    return this.draft?.home.some(c => c.children && c.children.length > 0) ? 'individual' : 'common';
+  }
+  setDrillMode(m: 'common' | 'individual'): void {
+    if (!this.draft) return;
+    this.draft.drillMode = m;
+    if (m === 'common' && this.draft.resultMode === 'individual') this.draft.resultMode = 'common';
+  }
+  /** Common = one shared result product list; Individual = per-leaf products. */
+  get resultMode(): 'common' | 'individual' {
+    return this.drillMode === 'individual' ? (this.draft?.resultMode || 'common') : 'common';
+  }
+  setResultMode(m: 'common' | 'individual'): void { if (this.draft) this.draft.resultMode = m; }
 
   /** Max drill-down depth: Category mode is API-bound (4 levels: category1–4 or etc0–3);
    *  Prototype / Prototype-ESL are free-form, no cap. */

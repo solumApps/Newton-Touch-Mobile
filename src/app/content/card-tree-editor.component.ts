@@ -25,8 +25,19 @@ import type { CardItem, ImageFit } from '@contract/layout';
         <span class="fit-lbl">Fit</span>
         <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(child)===f" (click)="setFit(child, f)">{{ f | titlecase }}</button>
       </div>
+      <!-- Per-leaf result products (Individual result mode): only on nodes WITHOUT children -->
+      <div class="prods" *ngIf="allowProducts && !(child.children && child.children.length)">
+        <div class="erow" *ngFor="let p of child.products || []; let pi = index">
+          <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
+          <input class="inp" [(ngModel)]="p.name" placeholder="Product name" />
+          <input class="inp psm" [(ngModel)]="p.price" placeholder="Price" />
+          <input class="inp psm" [(ngModel)]="p.aisle" placeholder="Aisle" />
+          <button class="del" (click)="removeProduct(child, pi)">✕</button>
+        </div>
+        <button class="mini prod-add" (click)="addProduct(child)">+ Result product (this item's own result page)</button>
+      </div>
       <div class="nest">
-        <app-card-tree-editor [card]="child" [depth]="depth + 1" [maxDepth]="maxDepth" [needsImage]="needsImage"></app-card-tree-editor>
+        <app-card-tree-editor [card]="child" [depth]="depth + 1" [maxDepth]="maxDepth" [needsImage]="needsImage" [allowProducts]="allowProducts"></app-card-tree-editor>
       </div>
     </div>
     <button class="mini sub-add" [disabled]="atMax" (click)="add()">+ Add sub-item<span *ngIf="atMax"> (max {{ maxDepth }})</span></button>
@@ -47,6 +58,9 @@ import type { CardItem, ImageFit } from '@contract/layout';
     .fit-seg .fit-lbl { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; color: var(--nt-muted); }
     .fit-seg .mini { padding: 3px 10px; font-size: 11px; border-radius: 999px; }
     .fit-seg .mini.sel { background: var(--nt-brand-ink); color: #fff; }
+    .prods { margin: 2px 0 8px 6px; padding-left: 8px; border-left: 2px dashed var(--nt-border); }
+    .prods .psm { flex: 0 0 72px; }
+    .prod-add { font-size: 11px; }
   `],
 })
 export class CardTreeEditorComponent {
@@ -54,6 +68,8 @@ export class CardTreeEditorComponent {
   @Input() depth = 0;
   @Input() maxDepth = Infinity;
   @Input() needsImage = false;
+  /** Individual result mode: leaves (nodes without children) get their own product list. */
+  @Input() allowProducts = false;
 
   constructor(private picker: ImagePickerService) {}
 
@@ -71,6 +87,14 @@ export class CardTreeEditorComponent {
   async pickImage(c: CardItem): Promise<void> {
     const d = await this.picker.pick();
     if (d) c.image = d;
+  }
+  addProduct(c: CardItem): void {
+    c.products = [...(c.products || []), { id: 'p' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), name: '' } as any];
+  }
+  removeProduct(c: CardItem, i: number): void {
+    const arr = c.products || [];
+    arr.splice(i, 1);
+    c.products = [...arr];
   }
 
   /** Per-image fit segment (shown when an image is set). 'cover' = default → field omitted. */
