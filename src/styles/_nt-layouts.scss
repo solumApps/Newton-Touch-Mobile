@@ -18,9 +18,9 @@
 /* ---- stage base (positioning [fixed/inset] stays app-specific) ---- */
 .nt-stage { display:flex; flex-direction:column; overflow:hidden; position:relative;
   background-size:cover; background-position:center; }
-.nt-home   { background:var(--nt-bg,#001973);      color:var(--nt-text,#fff);     font-family:var(--nt-font,'Inter',sans-serif); }
-.nt-inter  { background:var(--nt-int-bg,#1A0036);  color:var(--nt-int-text,#fff); font-family:var(--nt-font,'Inter',sans-serif); }
-.nt-result { background:var(--nt-res-bg,#0A0A1A);  color:var(--nt-res-text,#fff); font-family:var(--nt-font,'Inter',sans-serif); }
+.nt-home   { background:var(--nt-bg,#001973);      color:var(--nt-base-text, var(--nt-text,#fff));     font-family:var(--nt-font,'Inter',sans-serif); }
+.nt-inter  { background:var(--nt-int-bg,#1A0036);  color:var(--nt-base-text, var(--nt-int-text,#fff)); font-family:var(--nt-font,'Inter',sans-serif); }
+.nt-result { background:var(--nt-res-bg,#0A0A1A);  color:var(--nt-base-text, var(--nt-res-text,#fff)); font-family:var(--nt-font,'Inter',sans-serif); }
 
 /* ================= HEADER (shared chrome, page background overrides) ====== */
 .nt-stage .hdr { flex:0 0 15%; display:flex; align-items:center; color:#fff; padding:0 calc(var(--nt-vw)*3); }
@@ -1501,6 +1501,40 @@
 .nt-inter .int-side-rail.int-content-text-only.int-shape-circle .item .name, .nt-inter .int-side-rail.int-content-text-only.int-shape-hexagon .item .name {
   position:static; background:transparent; color:var(--nt-int-text,#fff); white-space:normal; padding:0 12%;
 }
+
+/* ====== FINAL: home-page option corrections ================================ */
+/* hero-list: card gap works */
+.nt-home .layout-hero-list.gap-tight .card { margin:calc(var(--nt-vh)*0.3) calc(var(--nt-vw)*0.25); }
+.nt-home .layout-hero-list.gap-loose .card { margin:calc(var(--nt-vh)*1.3) calc(var(--nt-vw)*1.1); }
+/* color-block stays visually distinct from text-only under EVERY surface */
+.nt-home .card.content-color-block { background:var(--nt-accent,#FFCD00) !important; }
+.nt-home .card.content-color-block .name { color:#111 !important; }
+/* h-scroll hexagons: proper hexagon proportions (square clip looked squat/broken) */
+.nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon { flex:0 0 calc(var(--nt-vh)*55); width:calc(var(--nt-vh)*55); height:calc(var(--nt-vh)*63); }
+/* hexagons honour the free column count (explicit count beats tight packing) */
+.nt-home .cards.shape.shape-hex.has-cols { display:grid; grid-template-columns:repeat(var(--cols,3),1fr); grid-auto-rows:48%; align-items:center; justify-items:center; }
+.nt-home .cards.shape.shape-hex.has-cols .card.shape-hexagon { margin:0; }
+/* promo: label centred under/over the disc */
+.nt-home .layout-promo-categories .promo-rail .card .meta { margin-left:auto !important; margin-right:auto !important; text-align:center; }
+/* promo: card size works for every shape (pill keeps its pill ratio) */
+.nt-home .layout-promo-categories.card-size-xs    .promo-rail .card.shape-pill .img { width:calc(var(--nt-vh)*38) !important; height:calc(var(--nt-vh)*21) !important; border-radius:999px; }
+.nt-home .layout-promo-categories.card-size-small .promo-rail .card.shape-pill .img { width:calc(var(--nt-vh)*43) !important; height:calc(var(--nt-vh)*24) !important; border-radius:999px; }
+.nt-home .layout-promo-categories.card-size-large .promo-rail .card.shape-pill .img { width:calc(var(--nt-vh)*54) !important; height:calc(var(--nt-vh)*30) !important; border-radius:999px; }
+.nt-home .layout-promo-categories.card-size-xs    .promo-rail .card.shape-circle, .nt-home .layout-promo-categories.card-size-xs    .promo-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*46); width:calc(var(--nt-vh)*46); height:calc(var(--nt-vh)*46); }
+.nt-home .layout-promo-categories.card-size-small .promo-rail .card.shape-circle, .nt-home .layout-promo-categories.card-size-small .promo-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*52); width:calc(var(--nt-vh)*52); height:calc(var(--nt-vh)*52); }
+.nt-home .layout-promo-categories.card-size-large .promo-rail .card.shape-circle, .nt-home .layout-promo-categories.card-size-large .promo-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*66); width:calc(var(--nt-vh)*66); height:calc(var(--nt-vh)*66); }
+/* h-scroll: card size works for pill / circle / hexagon */
+.nt-home .layout-h-scroll.card-size-xs    .h-scroll-rail .card.shape-pill { flex-basis:calc(var(--nt-vw)*16) !important; height:50%; }
+.nt-home .layout-h-scroll.card-size-small .h-scroll-rail .card.shape-pill { flex-basis:calc(var(--nt-vw)*18) !important; height:56%; }
+.nt-home .layout-h-scroll.card-size-large .h-scroll-rail .card.shape-pill { flex-basis:calc(var(--nt-vw)*24) !important; height:72%; }
+.nt-home .layout-h-scroll.card-size-xs    .h-scroll-rail .card.shape-circle { flex-basis:calc(var(--nt-vh)*48) !important; width:calc(var(--nt-vh)*48) !important; height:calc(var(--nt-vh)*48); }
+.nt-home .layout-h-scroll.card-size-small .h-scroll-rail .card.shape-circle { flex-basis:calc(var(--nt-vh)*55) !important; width:calc(var(--nt-vh)*55) !important; height:calc(var(--nt-vh)*55); }
+.nt-home .layout-h-scroll.card-size-large .h-scroll-rail .card.shape-circle { flex-basis:calc(var(--nt-vh)*70) !important; width:calc(var(--nt-vh)*70) !important; height:calc(var(--nt-vh)*70); }
+.nt-home .layout-h-scroll.card-size-xs    .h-scroll-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*42) !important; width:calc(var(--nt-vh)*42) !important; height:calc(var(--nt-vh)*48); }
+.nt-home .layout-h-scroll.card-size-small .h-scroll-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*48) !important; width:calc(var(--nt-vh)*48) !important; height:calc(var(--nt-vh)*55); }
+.nt-home .layout-h-scroll.card-size-large .h-scroll-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*62) !important; width:calc(var(--nt-vh)*62) !important; height:calc(var(--nt-vh)*70); }
+/* bento with a free count: cards stretch their cells equally */
+.nt-home .cards.has-cols.layout-bento { align-items:stretch; justify-items:stretch; }
 /* result card-grid / cards-map: circle & hexagon images sized to fit WITHOUT clipping */
 .nt-result.res-shape-circle.res-card-grid .prod .img, .nt-result.res-shape-circle.res-cards-map .prod .img, .nt-result.res-shape-circle.res-catalog-grid .prod .img,
 .nt-result.res-shape-hexagon.res-card-grid .prod .img, .nt-result.res-shape-hexagon.res-cards-map .prod .img, .nt-result.res-shape-hexagon.res-catalog-grid .prod .img {

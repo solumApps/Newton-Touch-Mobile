@@ -30,6 +30,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.fontFamily]="theme?.typography?.fontFamily"
            [style.--nt-text-scale]="scaleNum"
            [style.--nt-font]="theme?.typography?.fontFamily"
+           [style.--nt-base-text]="theme?.typography?.baseTextColor"
            [style.--nt-accent]="theme?.accent"
            [style.--nt-card]="theme?.cardBackground"
            [style.--nt-text]="theme?.cardText"

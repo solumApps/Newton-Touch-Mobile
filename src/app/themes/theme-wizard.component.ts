@@ -119,8 +119,10 @@ export class ThemeWizardComponent implements OnInit {
   get isHeroStart(): boolean { return this.t.homeLayout === 'hero-start'; }
   /** Layouts with a free ITEM count (same stepper, different meaning). */
   get itemCountMatters(): boolean { return ['image-strip', 'bento', 'hero-list'].includes(this.t.homeLayout); }
-  /** Overflow-scrolling control: hidden where it breaks the layout. */
-  get scrollMatters(): boolean { return !['image-strip', 'hero-start', 'h-scroll', 'bento'].includes(this.t.homeLayout); }
+  /** Overflow-scrolling control: hidden where it breaks the layout or is moot. */
+  get scrollMatters(): boolean { return !['image-strip', 'hero-start', 'h-scroll', 'bento', 'fullscreen', 'promo-categories'].includes(this.t.homeLayout); }
+  /** Card gap: hidden where cards always fill the screen. */
+  get gapMatters(): boolean { return !['image-strip', 'fullscreen'].includes(this.t.homeLayout); }
   get scrollModesFor(): { id: ScrollMode; label: string }[] {
     return this.t.homeLayout === 'hero-list' ? this.scrollModes.filter(m => m.id !== 'horizontal') : this.scrollModes;
   }

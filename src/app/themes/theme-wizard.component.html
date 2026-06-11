@@ -248,7 +248,7 @@
           </div>
         </ng-container>
 
-        <ng-container *ngIf="!isImageStrip">
+        <ng-container *ngIf="gapMatters">
           <div class="step-title sm">Card gap</div>
           <p class="hint">Spacing between cards. Overflow scrolls automatically.</p>
           <div class="seg">
@@ -342,18 +342,21 @@
 
       <div *ngSwitchCase="'colors'">
         <div class="step-title">Colors &amp; branding</div>
-        <app-color-picker label="Header" hint="top bar" [value]="t.headerColor" (valueChange)="t.headerColor=$event"></app-color-picker>
+        <app-color-picker *ngIf="t.showHeader" label="Header" hint="top bar" [value]="t.headerColor" (valueChange)="t.headerColor=$event"></app-color-picker>
         <app-color-picker label="Card area background" [value]="t.background" (valueChange)="t.background=$event" [presets]="bgPresets"></app-color-picker>
         <div class="media-row">
           <button class="btn-o media-btn" (click)="pickBackground('home')">{{ t.backgroundImage ? 'Replace home background image' : 'Upload home background image' }}</button>
           <button class="btn-o media-clear" *ngIf="t.backgroundImage" (click)="clearBackground('home')">Clear</button>
         </div>
+        <p class="hint" *ngIf="t.backgroundImage">The background image covers the card-area color — clear the image to see the color again.</p>
         <app-color-picker label="Card background" [value]="t.cardBackground" (valueChange)="t.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker label="Card text" [value]="t.cardText" (valueChange)="t.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker label="Text overlay" hint="background behind text on cards" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
         <app-color-picker label="Accent / highlight" [value]="t.accent" (valueChange)="t.accent=$event"></app-color-picker>
-        <div class="step-title sm">Logo position</div>
-        <div class="seg"><button class="tile" *ngFor="let o of logoPositions" [class.sel]="t.logoPosition===o" (click)="t.logoPosition=o">{{ o }}</button></div>
+        <ng-container *ngIf="t.showHeader && !isCustomHeader">
+          <div class="step-title sm">Logo position</div>
+          <div class="seg"><button class="tile" *ngFor="let o of logoPositions" [class.sel]="t.logoPosition===o" (click)="t.logoPosition=o">{{ o }}</button></div>
+        </ng-container>
       </div>
 
       <div *ngSwitchCase="'type'">
