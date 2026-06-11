@@ -199,16 +199,13 @@
       </div>
     </ng-container>
 
-    <!-- review: swipeable slider of all pages -->
+    <!-- review: ALL page previews stacked (always visible — no swiping needed) -->
     <ng-template #reviewSlider>
-      <div class="slider" #sl (scroll)="onSlideScroll(sl)">
-        <div class="slide" *ngFor="let p of reviewPages">
+      <div class="review-pages">
+        <div class="review-page" *ngFor="let p of reviewPages" style="margin-bottom:14px;">
           <ng-container *ngTemplateOutlet="pageView; context: { page: p }"></ng-container>
           <div class="slide-cap">{{ pageCaption(p) }}</div>
         </div>
-      </div>
-      <div class="dots">
-        <span class="dot" *ngFor="let p of reviewPages; let i = index" [class.on]="activeSlide===i" (click)="goSlide(sl, i)"></span>
       </div>
     </ng-template>
 
@@ -668,12 +665,16 @@
         <div class="fld"><label>Theme name <span class="required">*</span></label>
           <input class="inp" [(ngModel)]="name" placeholder="e.g. Holiday Dark" /></div>
           <table class="sum">
-            <tr><td>Home layout</td><td>{{ t.homeLayout }}{{ columnsMatter ? (' · ' + effectiveColumns + ' col' + (t.columns !== undefined ? '' : ' (auto)')) : '' }}</td></tr>
+            <tr><td>Home layout</td><td>{{ t.homeLayout }}{{ columnsMatter ? (' · ' + effectiveColumns + (itemCountMatters ? ' items' : ' col') + (t.columns !== undefined ? '' : ' (auto)')) : '' }}</td></tr>
             <tr><td>Scrolling</td><td>{{ t.scrollMode || 'auto' }}</td></tr>
-            <tr><td>Card</td><td>{{ t.cardShape }} · {{ t.cardContent }} · {{ t.cardSize }}</td></tr>
-            <tr><td>Intermediate</td><td>{{ t.includeIntermediate ? t.intermediateStyle : 'Skipped (Home → Result)' }}</td></tr>
-            <tr><td>Result</td><td>{{ t.resultTemplate }}</td></tr>
-            <tr><td>Nav buttons</td><td>{{ t.nav?.position || 'bottom-left' }} · back {{ t.nav?.backBg || 'default' }}</td></tr>
+            <tr><td>Card</td><td>{{ t.cardShape }} · {{ t.cardContent }} · {{ t.cardSize }} · {{ t.cardTextPos }}</td></tr>
+            <tr><td>Card style</td><td>{{ t.cardSurface || 'flat' }} · gap {{ t.cardGap || 'normal' }} · align {{ t.cardAlign || 'center' }}</td></tr>
+            <tr><td>Header</td><td>{{ t.showHeader ? ((t.headerLayout==='custom' ? 'custom' : (t.headerStyle || 'logo-only')) + (t.transparentHeader ? ' · transparent' : '')) : 'Hidden' }}</td></tr>
+            <tr><td>Intermediate</td><td>{{ t.includeIntermediate ? (t.intermediateStyle + ' · ' + (t.intermediate.itemSize || 'medium') + ' · ' + (t.intermediate.cardShape || 'rect') + ' · ' + (t.intermediate.content || 'image-text')) : 'Skipped (Home → Result)' }}</td></tr>
+            <tr><td>Result</td><td>{{ t.resultTemplate }} · {{ t.result.content || 'image-text' }}{{ t.result.cardShape ? ' · ' + t.result.cardShape : '' }}{{ t.result.textPos ? ' · ' + t.result.textPos : '' }}</td></tr>
+            <tr><td>Map path</td><td>{{ t.result.pathStyle }} · {{ t.result.pathColor }}</td></tr>
+            <tr><td>Nav buttons</td><td>{{ t.navStyle || 'floating' }} · {{ t.nav?.split ? ('back ' + (t.nav?.backPosition || 'bottom-left') + ' / home ' + (t.nav?.homePosition || 'bottom-right')) : (t.nav?.position || 'bottom-left') }}</td></tr>
+            <tr><td>Typography</td><td>{{ t.typography.fontFamily.split(',')[0] }} · {{ t.typography.textScale }} · {{ t.typography.textFit }}</td></tr>
             <tr><td>Animation</td><td>{{ t.animation.transition }} · {{ t.animation.speed }}</td></tr>
             <tr><td>Loader</td><td>{{ t.loader.style }}</td></tr>
             <tr><td>Screensaver overlay</td><td>{{ t.saverOverlay?.showContent !== false ? (t.saverOverlay?.position || 'center') : 'Hidden' }}</td></tr>

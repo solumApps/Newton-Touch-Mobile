@@ -135,7 +135,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediate?.align||'center'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}}"
                  [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0">
-                <div class="img" [class.no-img]="!it.image" [style.background-image]="it.image ? 'url('+it.image+')' : null" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
+                <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                 <span class="name">{{ it.name }}</span>
               </div>
             </div>
@@ -284,7 +284,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               </div>
               <div class="shelf-prods">
                 <div class="sprod" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
-                  <div class="s-img" [class.no-img]="!p.image" [style.background-image]="p.image ? 'url('+p.image+')' : null" [style.background-size]="fitSize(p.imageFit)"></div>
+                  <div class="s-img" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)"></div>
                   <div class="s-nm">{{ p.name }}</div>
                   <div class="s-price" *ngIf="p.price">{{ p.price }}</div>
                   <div class="s-meta" *ngIf="p.aisle">Zone {{ p.aisle }}</div>
@@ -300,7 +300,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             </div>
             <div class="list">
               <div class="prod" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
-                <div class="img" [style.background-image]="p.image ? 'url('+p.image+')' : null" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
+                <div class="img" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="info">
                   <div class="nm">{{ p.name }}<span class="price" *ngIf="p.price"> · {{ p.price }}</span></div>
                   <div class="loc" *ngIf="p.aisle">AISLE {{ p.aisle }}</div>
@@ -385,6 +385,15 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get usePh(): boolean {
     const cc = this.theme?.cardContent;
     return this.page === 'home' && (cc === 'image-text' || cc === 'image-only');
+  }
+  /** Intermediate: dummy images for image-showing styles (unless text-only). */
+  get interUsePh(): boolean {
+    if (this.page !== 'inter' || this.theme?.intermediate?.content === 'text-only') return false;
+    return ['image-grid', 'card-strip', 'side-rail', 'brand-grid', 'brand-rail', 'circular', 'fullscreen'].includes(this.theme?.intermediateStyle || '');
+  }
+  /** Result: dummy product images (unless content is text-only). */
+  get resUsePh(): boolean {
+    return this.page === 'result' && this.theme?.result?.content !== 'text-only';
   }
   private static readonly PH_FILLS = ['%2386EFAC', '%23FDE68A', '%23FCA5A5', '%23A5B4FC', '%2367E8F9', '%23F9A8D4'];
   phImg(i: number): string {

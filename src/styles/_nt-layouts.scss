@@ -1224,6 +1224,43 @@
 .nt-inter .int-hex-grid.int-size-large .item { transform:none; width:calc(var(--nt-vw)*13.5); height:calc(var(--nt-vw)*15.6); }
 .nt-inter .int-center-tiles.int-size-small .item { transform:none; flex-basis:18%; height:44%; }
 .nt-inter .int-center-tiles.int-size-large .item { transform:none; flex-basis:26%; height:66%; }
+/* image-grid: explicit circle/hexagon image (the generic shape rule loses to the
+   grid's own flex:1 image in some orders — make it unambiguous) */
+.nt-inter .int-image-grid.int-shape-circle .item .img, .nt-inter .int-image-grid.int-shape-hexagon .item .img {
+  flex:0 0 auto !important; width:calc(var(--nt-vh)*26) !important; height:calc(var(--nt-vh)*26) !important;
+  margin:calc(var(--nt-vh)*1.2) auto calc(var(--nt-vh)*0.6) !important; align-self:center;
+}
+.nt-inter .int-image-grid.int-shape-circle .item .img { border-radius:50%; clip-path:none; }
+.nt-inter .int-image-grid.int-shape-hexagon .item .img { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+.nt-inter .int-image-grid.int-shape-circle .item .name, .nt-inter .int-image-grid.int-shape-hexagon .item .name { text-align:center; align-self:center; }
+/* pills: bigger base size, centred text, working gap + align options */
+.nt-inter .int-pill-tabs .item { padding:calc(var(--nt-vh)*5.5) calc(var(--nt-vw)*6); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 2.2);
+  display:flex; align-items:center; justify-content:center; text-align:center; }
+.nt-inter .int-pill-tabs.int-size-small .item { padding:calc(var(--nt-vh)*4.2) calc(var(--nt-vw)*4.8); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1.8); }
+.nt-inter .int-pill-tabs.int-size-large .item { transform:none; padding:calc(var(--nt-vh)*7.5) calc(var(--nt-vw)*8.5); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 3); }
+.nt-inter .int-pill-tabs.int-gap-tight .item + .item { margin-left:calc(var(--nt-vw)*0.8); }
+.nt-inter .int-pill-tabs.int-gap-loose .item + .item { margin-left:calc(var(--nt-vw)*3); }
+.nt-inter .int-pill-tabs.int-align-left  .item:first-child { margin-left:0; }
+.nt-inter .int-pill-tabs.int-align-right .item:last-child  { margin-right:0; }
+/* brand-grid: image fills its tile (cover) instead of floating inside a white box */
+.nt-inter .int-brand-grid .item .img { background-size:cover; background-color:transparent; border-radius:calc(var(--nt-vw)*0.5); overflow:hidden; }
+.nt-inter .int-brand-grid .item .img.no-img { background-color:rgba(255,255,255,.85) !important; }
+/* result card-grid / cards-map: circle & hexagon images sized to fit WITHOUT clipping */
+.nt-result.res-shape-circle.res-card-grid .prod .img, .nt-result.res-shape-circle.res-cards-map .prod .img, .nt-result.res-shape-circle.res-catalog-grid .prod .img,
+.nt-result.res-shape-hexagon.res-card-grid .prod .img, .nt-result.res-shape-hexagon.res-cards-map .prod .img, .nt-result.res-shape-hexagon.res-catalog-grid .prod .img {
+  width:46%; padding-top:46%; margin:calc(var(--nt-vh)*0.6) 0;
+}
+.nt-result.res-shape-circle.res-card-grid .prod, .nt-result.res-shape-hexagon.res-card-grid .prod,
+.nt-result.res-shape-circle.res-cards-map .prod, .nt-result.res-shape-hexagon.res-cards-map .prod { align-items:center; text-align:center; }
+/* map-full: redesigned bottom strip — thumbnail chips (image + info inline), so
+   card shapes actually apply instead of a hidden image */
+.nt-result.res-map-full .prod { flex:0 0 calc(var(--nt-vw)*20); flex-direction:row; align-items:center; border-radius:999px; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*1.2); }
+.nt-result.res-map-full .prod .img { display:block; flex:0 0 calc(var(--nt-vw)*2.6); width:calc(var(--nt-vw)*2.6); height:calc(var(--nt-vw)*2.6); border-radius:50%; margin-right:calc(var(--nt-vw)*0.9); }
+.nt-result.res-map-full .prod .info { min-width:0; flex:1; }
+.nt-result.res-shape-rect.res-map-full .prod { border-radius:8px; }
+.nt-result.res-shape-rect.res-map-full .prod .img { border-radius:6px; }
+.nt-result.res-shape-hexagon.res-map-full .prod { border-radius:10px; }
+.nt-result.res-content-text-only.res-map-full .prod { border-radius:999px; }
 /* promo rail: tiles fade out before reaching the title block instead of
    sliding visibly underneath the copy */
 .nt-home .layout-promo-categories .promo-rail {
