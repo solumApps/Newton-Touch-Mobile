@@ -77,8 +77,20 @@
 /* Wide upload tile (e.g. Result map image) — full-width drop area, generous tap target. */
 .thumb.wide { width: 100%; height: auto; min-height: 130px; border-radius: 10px; border: 2px dashed var(--nt-border); background: var(--nt-tint, #F8F5FF); font-size: 13px; font-weight: 600; color: var(--nt-muted); flex-shrink: 1; }
 .thumb.wide[style*="url("] { background-color: transparent; border-style: solid; border-color: var(--nt-border); color: transparent; }
-.inp { flex: 1; min-width: 0; border: 1.5px solid var(--nt-border); border-radius: var(--nt-r); padding: 12px 13px; font-size: 14px; font-family: inherit; outline: none; box-shadow: var(--nt-shadow-1); }
-.inp:focus { border-color: var(--nt-purple); box-shadow: 0 0 0 3px rgba(47,0,109,.1); }
+.inp {
+  flex: 1; min-width: 0;
+  border: 1.5px solid var(--nt-border);
+  border-radius: var(--nt-r);
+  padding: 12px 13px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  background: var(--nt-card);
+  color: var(--nt-text);
+  box-shadow: var(--nt-shadow-1);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.inp:focus { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
 .del { border: none; background: none; color: var(--nt-muted); font-size: 15px; cursor: pointer; padding: 6px; }
 
 /* Per-image fit segment (Cover / Contain / Fill) — shown only when an image is set. */
