@@ -613,11 +613,11 @@
 }
 .nt-home .cards.shape.has-cols.layout-grid-2x3, .nt-home .cards.shape.has-cols.layout-grid-2x2 {
   display:grid; grid-template-columns:repeat(var(--cols,3), 1fr); grid-template-rows:none;
-  grid-auto-rows:48%; align-items:center; justify-items:center;
+  grid-auto-rows:48%; align-items:center;
 }
 .nt-home .cards.shape.has-cols.layout-col-2, .nt-home .cards.shape.has-cols.layout-col-3, .nt-home .cards.shape.has-cols.layout-col-4 {
   display:grid; grid-template-columns:repeat(var(--cols,3), 1fr); grid-template-rows:none;
-  grid-auto-rows:94%; align-items:center; justify-items:center;
+  grid-auto-rows:94%; align-items:center;
   align-content:start;
 }
 .nt-home .cards.shape.has-cols.layout-grid-2x3 .card, .nt-home .cards.shape.has-cols.layout-grid-2x2 .card {
@@ -626,6 +626,13 @@
 .nt-home .cards.shape.has-cols.layout-col-2 .card { width:calc(var(--nt-vh)*63); height:calc(var(--nt-vh)*63); margin:0; }
 .nt-home .cards.shape.has-cols.layout-col-3 .card { width:calc(var(--nt-vh)*59); height:calc(var(--nt-vh)*59); margin:0; }
 .nt-home .cards.shape.has-cols.layout-col-4 .card { width:calc(var(--nt-vh)*56); height:calc(var(--nt-vh)*56); margin:0; }
+/* ---- shape has-cols alignment overrides (specificity 5 beats layout rules) ---- */
+.nt-home .cards.shape.has-cols.align-left   { justify-items:start !important; }
+.nt-home .cards.shape.has-cols.align-center { justify-items:center !important; }
+.nt-home .cards.shape.has-cols.align-right  { justify-items:end !important; }
+.nt-home .cards.shape.shape-hex.has-cols.align-left   { justify-items:start !important; }
+.nt-home .cards.shape.shape-hex.has-cols.align-center { justify-items:center !important; }
+.nt-home .cards.shape.shape-hex.has-cols.align-right  { justify-items:end !important; }
 
 /* ---- scrollMode override ---- */
 .nt-home .cards.scroll-vertical { overflow-y:auto !important; overflow-x:hidden !important; }
@@ -1589,7 +1596,7 @@
 /* h-scroll hexagons: proper hexagon proportions (square clip looked squat/broken) */
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon { flex:0 0 calc(var(--nt-vh)*55); width:calc(var(--nt-vh)*55); height:calc(var(--nt-vh)*63); }
 /* hexagons honour the free column count (explicit count beats tight packing) */
-.nt-home .cards.shape.shape-hex.has-cols { display:grid; grid-template-columns:repeat(var(--cols,3),1fr); grid-auto-rows:48%; align-items:center; justify-items:center; }
+.nt-home .cards.shape.shape-hex.has-cols { display:grid; grid-template-columns:repeat(var(--cols,3),1fr); grid-auto-rows:48%; align-items:center; }
 .nt-home .cards.shape.shape-hex.has-cols.layout-col-2,
 .nt-home .cards.shape.shape-hex.has-cols.layout-col-3,
 .nt-home .cards.shape.shape-hex.has-cols.layout-col-4 {
