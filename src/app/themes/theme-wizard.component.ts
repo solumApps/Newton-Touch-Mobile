@@ -128,6 +128,10 @@ export class ThemeWizardComponent implements OnInit {
   interContents: { id: 'image-text' | 'text-only'; label: string }[] = [
     { id: 'image-text', label: 'Image + Text' }, { id: 'text-only', label: 'Text only' },
   ];
+  /** Alignment is a no-op for styles whose items always fill the row. */
+  get intAlignMatters(): boolean {
+    return !['fullscreen', 'accordion', 'scroll-list', 'drill-stair'].includes(this.t.intermediateStyle);
+  }
   /** Intermediate text-position applies to these styles. */
   get intTextPosMatters(): boolean {
     return ['image-grid', 'card-strip', 'circular', 'hex-grid', 'fullscreen', 'center-tiles'].includes(this.t.intermediateStyle);

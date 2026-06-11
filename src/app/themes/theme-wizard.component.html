@@ -398,8 +398,10 @@
         <div class="step-title sm">Card gap</div>
         <div class="seg"><button class="tile" *ngFor="let g of gaps" [class.sel]="(t.intermediate.gap||'normal')===g.id" (click)="t.intermediate.gap=g.id">{{ g.label }}</button></div>
 
-        <div class="step-title sm">Card alignment</div>
-        <div class="seg"><button class="tile" *ngFor="let a of aligns" [class.sel]="(t.intermediate.align||'center')===a.id" (click)="t.intermediate.align=a.id">{{ a.label }}</button></div>
+        <ng-container *ngIf="intAlignMatters">
+          <div class="step-title sm">Card alignment</div>
+          <div class="seg"><button class="tile" *ngFor="let a of aligns" [class.sel]="(t.intermediate.align||'center')===a.id" (click)="t.intermediate.align=a.id">{{ a.label }}</button></div>
+        </ng-container>
 
         <div class="step-title sm">Card surface</div>
         <div class="seg"><button class="tile" *ngFor="let s of cardSurfaces" [class.sel]="(t.cardSurface||'flat')===s.id" (click)="t.cardSurface=s.id">{{ s.label }}</button></div>
