@@ -1061,6 +1061,13 @@
 .nt-result.res-textpos-below.res-shape-pill.res-catalog-grid:not(.res-content-text-only) .prod .img {
   width:100% !important; min-width:100% !important; height:70% !important; min-height:70% !important; flex:none !important;
 }
+.nt-result.res-cards-map:not(.res-content-text-only):not(.res-shape-rect):not(.res-shape-pill):not(.res-shape-circle):not(.res-shape-hexagon) .prod .img,
+.nt-result.res-card-grid:not(.res-content-text-only):not(.res-shape-rect):not(.res-shape-pill):not(.res-shape-circle):not(.res-shape-hexagon) .prod .img {
+  width:100% !important; min-width:100% !important; height:70% !important; min-height:70% !important; flex:none !important;
+}
+.nt-result.res-textpos-below.res-catalog-grid:not(.res-content-text-only):not(.res-shape-rect):not(.res-shape-pill):not(.res-shape-circle):not(.res-shape-hexagon) .prod .img {
+  width:100% !important; min-width:100% !important; height:70% !important; min-height:70% !important; flex:none !important;
+}
 /* dual-list */
 .nt-result.res-dual-list .map { display:none; }
 .nt-result.res-dual-list .list { display:flex; flex-wrap:wrap; align-content:flex-start; }
