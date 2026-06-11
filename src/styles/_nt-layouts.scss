@@ -611,16 +611,21 @@
   width:auto; height:auto; min-height:0; flex:none;
   margin:calc(var(--card-gap,calc(var(--nt-vw)*1.5)) * 0.5) calc(var(--card-gap,calc(var(--nt-vw)*1.5)) * 0.35);
 }
-.nt-home .cards.shape.has-cols.layout-grid-2x3, .nt-home .cards.shape.has-cols.layout-grid-2x2,
-.nt-home .cards.shape.has-cols.layout-col-2, .nt-home .cards.shape.has-cols.layout-col-3, .nt-home .cards.shape.has-cols.layout-col-4 {
+.nt-home .cards.shape.has-cols.layout-grid-2x3, .nt-home .cards.shape.has-cols.layout-grid-2x2 {
   display:grid; grid-template-columns:repeat(var(--cols,3), 1fr); grid-template-rows:none;
   grid-auto-rows:48%; align-items:center; justify-items:center;
 }
-.nt-home .cards.shape.has-cols.layout-col-2 .card, .nt-home .cards.shape.has-cols.layout-col-3 .card,
-.nt-home .cards.shape.has-cols.layout-col-4 .card,
+.nt-home .cards.shape.has-cols.layout-col-2, .nt-home .cards.shape.has-cols.layout-col-3, .nt-home .cards.shape.has-cols.layout-col-4 {
+  display:grid; grid-template-columns:repeat(var(--cols,3), 1fr); grid-template-rows:none;
+  grid-auto-rows:94%; align-items:center; justify-items:center;
+  align-content:start;
+}
 .nt-home .cards.shape.has-cols.layout-grid-2x3 .card, .nt-home .cards.shape.has-cols.layout-grid-2x2 .card {
   width:calc(var(--nt-vh)*33); height:calc(var(--nt-vh)*33); margin:0;
 }
+.nt-home .cards.shape.has-cols.layout-col-2 .card { width:calc(var(--nt-vh)*63); height:calc(var(--nt-vh)*63); margin:0; }
+.nt-home .cards.shape.has-cols.layout-col-3 .card { width:calc(var(--nt-vh)*59); height:calc(var(--nt-vh)*59); margin:0; }
+.nt-home .cards.shape.has-cols.layout-col-4 .card { width:calc(var(--nt-vh)*56); height:calc(var(--nt-vh)*56); margin:0; }
 
 /* ---- scrollMode override ---- */
 .nt-home .cards.scroll-vertical { overflow-y:auto !important; overflow-x:hidden !important; }
@@ -636,6 +641,57 @@
 .nt-home .cards.scroll-horizontal.layout-col-4 .card, .nt-home .cards.scroll-horizontal.layout-hero-list .card,
 .nt-home .cards.scroll-horizontal.layout-list .card {
   flex:0 0 calc(var(--nt-vw)*22); width:calc(var(--nt-vw)*22); height:88%; min-height:0; margin:0 calc(var(--nt-vw)*0.6);
+}
+.nt-home .cards.shape.scroll-horizontal,
+.nt-home .cards.shape.scroll-horizontal.has-cols,
+.nt-home .cards.shape.scroll-horizontal.shape-hex.has-cols {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  align-content: center !important;
+}
+.nt-home .cards.shape.scroll-horizontal .card {
+  flex: 0 0 calc(var(--nt-vh)*63) !important;
+  width: calc(var(--nt-vh)*63) !important;
+  height: calc(var(--nt-vh)*63) !important;
+  margin: 0 calc(var(--nt-vw)*0.6) !important;
+  min-height: 0 !important;
+  align-self: center !important;
+}
+.nt-home .cards.shape.scroll-horizontal .card.shape-hexagon {
+  flex: 0 0 calc(var(--nt-vh)*55) !important;
+  width: calc(var(--nt-vh)*55) !important;
+  height: calc(var(--nt-vh)*63) !important;
+}
+.nt-home .cards.shape.scroll-horizontal.card-size-xs .card {
+  flex-basis: calc(var(--nt-vh)*48) !important;
+  width: calc(var(--nt-vh)*48) !important;
+  height: calc(var(--nt-vh)*48) !important;
+}
+.nt-home .cards.shape.scroll-horizontal.card-size-xs .card.shape-hexagon {
+  flex-basis: calc(var(--nt-vh)*42) !important;
+  width: calc(var(--nt-vh)*42) !important;
+  height: calc(var(--nt-vh)*48) !important;
+}
+.nt-home .cards.shape.scroll-horizontal.card-size-small .card {
+  flex-basis: calc(var(--nt-vh)*55) !important;
+  width: calc(var(--nt-vh)*55) !important;
+  height: calc(var(--nt-vh)*55) !important;
+}
+.nt-home .cards.shape.scroll-horizontal.card-size-small .card.shape-hexagon {
+  flex-basis: calc(var(--nt-vh)*48) !important;
+  width: calc(var(--nt-vh)*48) !important;
+  height: calc(var(--nt-vh)*55) !important;
+}
+.nt-home .cards.shape.scroll-horizontal.card-size-large .card {
+  flex-basis: calc(var(--nt-vh)*70) !important;
+  width: calc(var(--nt-vh)*70) !important;
+  height: calc(var(--nt-vh)*70) !important;
+}
+.nt-home .cards.shape.scroll-horizontal.card-size-large .card.shape-hexagon {
+  flex-basis: calc(var(--nt-vh)*62) !important;
+  width: calc(var(--nt-vh)*62) !important;
+  height: calc(var(--nt-vh)*70) !important;
 }
 .nt-home .layout-h-scroll.scroll-vertical { overflow-y:auto !important; overflow-x:hidden !important; }
 .nt-home .layout-h-scroll.scroll-vertical .h-scroll-rail {
@@ -1527,6 +1583,12 @@
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon { flex:0 0 calc(var(--nt-vh)*55); width:calc(var(--nt-vh)*55); height:calc(var(--nt-vh)*63); }
 /* hexagons honour the free column count (explicit count beats tight packing) */
 .nt-home .cards.shape.shape-hex.has-cols { display:grid; grid-template-columns:repeat(var(--cols,3),1fr); grid-auto-rows:48%; align-items:center; justify-items:center; }
+.nt-home .cards.shape.shape-hex.has-cols.layout-col-2,
+.nt-home .cards.shape.shape-hex.has-cols.layout-col-3,
+.nt-home .cards.shape.shape-hex.has-cols.layout-col-4 {
+  grid-auto-rows: 94%;
+  align-content: start;
+}
 .nt-home .cards.shape.shape-hex.has-cols .card.shape-hexagon { margin:0; }
 /* promo: label centred under/over the disc */
 .nt-home .layout-promo-categories .promo-rail .card .meta { margin-left:auto !important; margin-right:auto !important; text-align:center; }
