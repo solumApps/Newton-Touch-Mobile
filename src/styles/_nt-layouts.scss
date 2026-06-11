@@ -1010,7 +1010,7 @@
 /* card-grid */
 .nt-result.res-card-grid .map { display:none; }
 .nt-result.res-card-grid .list { display:flex; flex-wrap:wrap; align-content:flex-start; }
-.nt-result.res-card-grid .prod { width:23%; height:46%; margin:1%; flex-direction:column; align-items:flex-start; overflow:hidden; }
+.nt-result.res-card-grid .prod { width:23%; height:54%; margin:1%; flex-direction:column; align-items:flex-start; overflow:hidden; }
 .nt-result.res-card-grid .prod .img { width:100%; flex:1; height:auto; margin:0 0 calc(var(--nt-vh)*0.6) 0; }
 /* catalog-grid */
 .nt-result.res-catalog-grid .map { display:none; }
@@ -1021,7 +1021,7 @@
   background:linear-gradient(rgba(0,0,0,.46),rgba(0,0,0,.46)), var(--nt-res-bg,#111);
   border-right:1px solid rgba(255,255,255,.1);
 }
-.nt-result.res-catalog-grid .prod { width:22%; height:42%; margin:1%; flex-direction:column; align-items:flex-start; background:transparent; overflow:hidden; box-shadow:none; }
+.nt-result.res-catalog-grid .prod { width:22%; height:50%; margin:1%; flex-direction:column; align-items:flex-start; background:transparent; overflow:hidden; box-shadow:none; }
 .nt-result.res-catalog-grid .prod .img { width:100%; height:calc(var(--nt-vh)*16); margin:0 0 calc(var(--nt-vh)*0.8); background-size:contain; background-repeat:no-repeat; }
 .nt-result.res-catalog-grid .nm { font-size:calc(var(--nt-vw)*0.9); }
 /* minimal */
@@ -1164,10 +1164,10 @@
 .nt-result.scroll-horizontal .list, .nt-result.scroll-horizontal .filter-list {
   display:flex; flex-direction:row !important; flex-wrap:nowrap !important;
   overflow-x:auto !important; overflow-y:hidden !important;
-  -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; align-items:center;
+  -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; align-items:center !important; align-content:center !important;
 }
 .nt-result.scroll-horizontal .list .prod, .nt-result.scroll-horizontal .filter-list .fitem {
-  flex:0 0 calc(var(--nt-vw)*18); margin:0 calc(var(--nt-vw)*0.5); min-height:60%;
+  flex:0 0 calc(var(--nt-vw)*18); margin:auto calc(var(--nt-vw)*0.5); min-height:60%;
 }
 
 /* ============== ADDENDUM: per-layout customisation options ================ */
@@ -1648,7 +1648,7 @@
 /* card templates: circle/hexagon turn the card image into a centred square shape */
 .nt-result.res-shape-circle.res-card-grid .prod .img, .nt-result.res-shape-circle.res-cards-map .prod .img, .nt-result.res-shape-circle.res-catalog-grid .prod .img,
 .nt-result.res-shape-hexagon.res-card-grid .prod .img, .nt-result.res-shape-hexagon.res-cards-map .prod .img, .nt-result.res-shape-hexagon.res-catalog-grid .prod .img {
-  width:62%; height:0; flex:none; padding-top:62%; align-self:center; margin:calc(var(--nt-vh)*1) 0; background-size:cover;
+  width:46%; height:0; flex:none; padding-top:46%; align-self:center; margin:calc(var(--nt-vh)*0.6) 0; background-size:cover;
 }
 .nt-result.res-shape-pill.res-card-grid .prod .img, .nt-result.res-shape-pill.res-cards-map .prod .img, .nt-result.res-shape-pill.res-catalog-grid .prod .img { border-radius:999px; background-size:cover; }
 /* shelf: shape applies to the product image (cover-fit inside the shape) */
