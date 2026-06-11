@@ -59,7 +59,7 @@
   color: var(--nt-text);
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
-.srch input:focus { border-color: var(--nt-purple); box-shadow: 0 0 0 3px rgba(47,0,109,0.1); }
+.srch input:focus { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
 
 .note { font-size: 12px; color: var(--nt-muted); line-height: 1.5; margin: 2px 0 10px; }
 .note.info { color: var(--nt-info); }
@@ -79,7 +79,7 @@
   box-shadow: var(--nt-shadow-1);
   transition: box-shadow 150ms ease, border-color 150ms ease;
 }
-.slides ion-item:hover { box-shadow: var(--nt-shadow-2); border-color: rgba(47,0,109,0.18); }
+.slides ion-item:hover { box-shadow: var(--nt-shadow-2); border-color: var(--nt-brand-tint-border); }
 .slides ion-item-option { font-weight: 700; }
 
 .dev { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 0; }
@@ -175,10 +175,12 @@
   font-size: 14px;
   font-family: inherit;
   outline: none;
+  background: var(--nt-card);
+  color: var(--nt-text);
   box-sizing: border-box;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
-.fld-i:focus { border-color: var(--nt-purple); box-shadow: 0 0 0 3px rgba(47,0,109,0.1); }
+.fld-i:focus { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
 /* Live validation field states */
 .fld-i.ok { border-color: var(--nt-success); }
 .fld-i.ok:focus { border-color: var(--nt-success); box-shadow: 0 0 0 3px rgba(22,163,74,0.12); }

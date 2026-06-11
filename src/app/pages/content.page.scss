@@ -37,7 +37,7 @@
   color: var(--nt-text);
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
-.srch input:focus { border-color: var(--nt-purple); box-shadow: 0 0 0 3px rgba(47,0,109,0.1); }
+.srch input:focus { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
 
 /* List rows */
 .slides { background: transparent; }
@@ -53,7 +53,7 @@
   box-shadow: var(--nt-shadow-1);
   transition: box-shadow 150ms ease, border-color 150ms ease;
 }
-.slides ion-item:hover { box-shadow: var(--nt-shadow-2); border-color: rgba(47,0,109,0.18); }
+.slides ion-item:hover { box-shadow: var(--nt-shadow-2); border-color: var(--nt-brand-tint-border); }
 .slides ion-item-option { font-weight: 700; }
 
 /* Deployed section — left accent border marks live cards apart from drafts. */

@@ -6,12 +6,12 @@
 .cp-grid { display: flex; flex-wrap: wrap; gap: 10px; }
 .sw {
   width: 40px; height: 40px; border-radius: 10px;
-  border: 1.5px solid #E2E8F0; padding: 0; cursor: pointer; position: relative;
+  border: 1.5px solid var(--nt-border); padding: 0; cursor: pointer; position: relative;
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 1px 2px rgba(15,23,42,.06); transition: transform .12s ease;
 }
 .sw:hover { transform: scale(1.06); }
-.sw.sel { border-color: #2F006D; box-shadow: 0 0 0 3px rgba(47,0,109,.2); }
+.sw.sel { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
 .sw .tick { color: #fff; font-size: 15px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,.55); }
 
 /* Custom = rainbow tile with a +/× toggle */
@@ -24,7 +24,7 @@
   background: var(--nt-card); box-shadow: 0 6px 18px rgba(15,23,42,.08);
 }
 .cc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.cc-preview { width: 44px; height: 32px; border-radius: 8px; border: 1.5px solid #E2E8F0; flex: 0 0 auto; }
+.cc-preview { width: 44px; height: 32px; border-radius: 8px; border: 1.5px solid var(--nt-border); flex: 0 0 auto; }
 .cc-hex { display: inline-flex; align-items: center; gap: 2px; font-family: monospace; font-size: 14px; color: var(--nt-text-2); border: 1.5px solid var(--nt-border); border-radius: 8px; padding: 5px 10px; }
 .cc-hex input { border: 0; outline: 0; width: 78px; font-family: monospace; font-size: 14px; text-transform: uppercase; background: transparent; color: var(--nt-text); }
 
@@ -36,10 +36,10 @@
 .cc-slider.hue { background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); }
 .cc-slider::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%;
-  background: #fff; border: 2px solid #2F006D; box-shadow: 0 1px 4px rgba(0,0,0,.3); cursor: pointer;
+  background: #fff; border: 2px solid var(--nt-brand-ink); box-shadow: 0 1px 4px rgba(0,0,0,.3); cursor: pointer;
 }
 .cc-slider::-moz-range-thumb {
-  width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 2px solid #2F006D;
+  width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 2px solid var(--nt-brand-ink);
   box-shadow: 0 1px 4px rgba(0,0,0,.3); cursor: pointer;
 }
 .cc-done {
@@ -49,14 +49,14 @@
 
 /* Current selection readout */
 .cp-current { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
-.cp-current .chip { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid #E2E8F0; overflow: hidden; flex: 0 0 auto; }
+.cp-current .chip { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--nt-border); overflow: hidden; flex: 0 0 auto; }
 .cp-current .val { font-family: monospace; font-size: 13px; color: var(--nt-text-2); text-transform: uppercase; }
 .cp-reset {
   margin-left: auto; border: 1.5px solid var(--nt-border); border-radius: 8px; padding: 5px 10px;
   background: var(--nt-card); color: var(--nt-text-2); font-size: 11px; font-weight: 800;
   font-family: inherit; cursor: pointer;
 }
-.cp-reset:hover { border-color: #2F006D; color: #2F006D; }
+.cp-reset:hover { border-color: var(--nt-brand-ink); color: var(--nt-brand-ink); }
 
 /* checkerboard for transparent (swatch + chip) */
 .checker {

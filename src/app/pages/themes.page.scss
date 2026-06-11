@@ -44,7 +44,7 @@
   color: var(--nt-text);
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
-.srch input:focus { border-color: var(--nt-purple); box-shadow: 0 0 0 3px rgba(47,0,109,0.1); }
+.srch input:focus { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
 .sort {
   display: inline-flex; align-items: center; gap: 5px;
   min-height: 34px;
@@ -115,7 +115,7 @@
 .pre-card:hover {
   box-shadow: var(--nt-shadow-3);
   transform: translateY(-2px);
-  border-color: rgba(47,0,109,0.18);
+  border-color: var(--nt-brand-tint-border);
 }
 .pre-card:active { transform: translateY(0); }
 /* The mini-LCD itself is rendered by <app-content-preview-strip> — the SAME
@@ -158,7 +158,7 @@
   box-shadow: var(--nt-shadow-1);
   transition: box-shadow 150ms ease, border-color 150ms ease;
 }
-.slides ion-item:hover { box-shadow: var(--nt-shadow-2); border-color: rgba(47,0,109,0.18); }
+.slides ion-item:hover { box-shadow: var(--nt-shadow-2); border-color: var(--nt-brand-tint-border); }
 .slides ion-item-option { font-weight: 700; }
 .row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 0; }
 .row .sw { width: 44px; height: 44px; border-radius: var(--nt-r); flex-shrink: 0; border: 1px solid var(--nt-border); }

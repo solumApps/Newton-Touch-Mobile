@@ -743,10 +743,10 @@
   box-shadow: var(--nt-shadow-1);
   transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
 }
-.tile:hover { border-color: rgba(47,0,109,.32); box-shadow: var(--nt-shadow-2); }
+.tile:hover { border-color: var(--nt-brand-ink); box-shadow: var(--nt-shadow-2); }
 .tile.sel {
   border-color: var(--nt-brand-ink); background: var(--nt-tint); color: var(--nt-brand-ink);
-  font-weight: 900; box-shadow: inset 0 0 0 1px var(--nt-purple), var(--nt-shadow-1);
+  font-weight: 900; box-shadow: inset 0 0 0 1px var(--nt-brand-ink), var(--nt-shadow-1);
 }
 .tile .rec { color: var(--nt-yellow); margin-left: 4px; font-size: 11px; vertical-align: middle; }
 .hint { font-size: 12px; line-height: 1.5; color: var(--nt-muted); margin-top: 8px; }
@@ -756,8 +756,20 @@
 
 .fld label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--nt-text-2); letter-spacing: .5px; margin-bottom: 6px; }
 .required { color: var(--nt-danger); margin-left: 2px; }
-.inp { width: 100%; border: 1.5px solid var(--nt-border); border-radius: var(--nt-r); padding: 13px 14px; font-size: 15px; font-family: inherit; outline: none; box-shadow: var(--nt-shadow-1); }
-.inp:focus { border-color: var(--nt-purple); box-shadow: 0 0 0 3px rgba(47,0,109,.1); }
+.inp {
+  width: 100%;
+  border: 1.5px solid var(--nt-border);
+  border-radius: var(--nt-r);
+  padding: 13px 14px;
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  background: var(--nt-card);
+  color: var(--nt-text);
+  box-shadow: var(--nt-shadow-1);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.inp:focus { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
 table.sum { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 14px; background: var(--nt-card); border: 1px solid var(--nt-border); border-radius: var(--nt-r); overflow: hidden; display: table; }
 table.sum td { padding: 10px 12px; border-top: 1px solid var(--nt-border); }
 table.sum td:first-child { color: var(--nt-muted); width: 46%; }
@@ -1104,14 +1116,14 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 /* ===== Inherited colors info banner ===== */
 .inherited-hint {
   display: flex; align-items: flex-start; gap: 8px;
-  background: linear-gradient(135deg, rgba(47,0,109,.07), rgba(0,25,115,.07));
-  border: 1.5px solid rgba(47,0,109,.18);
+  background: var(--nt-tint);
+  border: 1.5px solid var(--nt-brand-tint-border);
   border-radius: var(--nt-r);
   padding: 10px 14px;
   font-size: 12px; line-height: 1.5; color: var(--nt-text-2);
   margin-bottom: 14px;
 }
-.inherited-hint span { font-size: 15px; flex-shrink: 0; color: var(--nt-purple); }
+.inherited-hint span { font-size: 15px; flex-shrink: 0; color: var(--nt-brand-ink); }
 
 /* ===== Nav button design section ===== */
 .nav-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
