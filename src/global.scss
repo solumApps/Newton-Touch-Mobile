@@ -36,6 +36,8 @@
      mode; lightened in dark mode so it stays readable on dark surfaces, while
      --nt-purple itself remains a fill colour (always paired with white text). */
   --nt-brand-ink: #2F006D;
+  --nt-brand-tint-border: rgba(47, 0, 109, 0.16);
+  --nt-brand-focus-glow: rgba(47, 0, 109, 0.12);
 
   /* Semantic status colors (additive — never used as text on white < 14pt) */
   --nt-success: #16A34A;
@@ -95,6 +97,8 @@
   --nt-card: #1B2436;        /* elevated surfaces */
   --nt-tint: #2B2150;        /* purple-tinted surface */
   --nt-brand-ink: #BBA4F6;   /* readable brand accent on dark surfaces */
+  --nt-brand-tint-border: rgba(187, 164, 246, 0.25);
+  --nt-brand-focus-glow: rgba(187, 164, 246, 0.15);
 
   --nt-success: #4ADE80;
   --nt-success-tint: rgba(74, 222, 128, 0.14);

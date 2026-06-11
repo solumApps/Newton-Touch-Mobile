@@ -12,6 +12,6 @@
 .nt-card.interactive:hover {
   box-shadow: var(--nt-shadow-3);
   transform: translateY(-1px);
-  border-color: rgba(47,0,109,0.18);
+  border-color: var(--nt-brand-tint-border);
 }
 .nt-card.interactive:active { transform: translateY(0); }

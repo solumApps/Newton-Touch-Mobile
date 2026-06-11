@@ -18,7 +18,7 @@
 }
 
 .nt-badge.v-neutral     { background: var(--nt-surface);        color: var(--nt-text-2);  border-color: var(--nt-border); }
-.nt-badge.v-predefined  { background: var(--nt-tint);           color: var(--nt-brand-ink); border-color: rgba(47,0,109,0.15); }
+.nt-badge.v-predefined  { background: var(--nt-tint);           color: var(--nt-brand-ink); border-color: var(--nt-brand-tint-border); }
 .nt-badge.v-draft       { background: var(--nt-surface);        color: var(--nt-text-2);  border-color: var(--nt-border); }
 .nt-badge.v-complete    { background: var(--nt-info-tint);      color: var(--nt-info);    border-color: rgba(14,165,233,0.2); }
 .nt-badge.v-deployed,
