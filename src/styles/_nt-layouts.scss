@@ -1542,6 +1542,24 @@
   transform:none; width:auto; max-width:100%; align-self:center; text-align:center; display:block;
   background:transparent !important; color:var(--nt-int-text,#fff); padding:calc(var(--nt-vh)*0.7) 0 0;
 }
+/* side-rail: re-assert card-level shapes with max priority (image fills the CARD) */
+.nt-inter .body.int-side-rail.int-shape-circle .item { position:relative; overflow:hidden; border-radius:50% !important; clip-path:none !important; }
+.nt-inter .body.int-side-rail.int-shape-hexagon .item { position:relative; overflow:hidden; border-radius:0 !important; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%) !important; }
+.nt-inter .body.int-side-rail.int-shape-circle .item .img, .nt-inter .body.int-side-rail.int-shape-hexagon .item .img {
+  position:absolute !important; left:0 !important; right:0 !important; top:0 !important; bottom:0 !important;
+  width:100% !important; height:100% !important; margin:0 !important; border-radius:0 !important; clip-path:none !important;
+  background-size:cover !important; background-repeat:no-repeat;
+}
+.nt-inter .body.int-side-rail.int-content-text-only.int-shape-circle .item,
+.nt-inter .body.int-side-rail.int-content-text-only.int-shape-hexagon .item { background:var(--nt-int-card, rgba(255,255,255,.10)) !important; }
+/* circular BELOW: the disc stays visible even with no image yet */
+.nt-inter .int-circular.int-textpos-below .item .img.no-img { background-color:var(--nt-int-card, rgba(255,255,255,.08)) !important; }
+/* BELOW labels centred for circular / hex-grid / center-tiles */
+.nt-inter .int-circular.int-textpos-below .item .name, .nt-inter .int-hex-grid.int-textpos-below .item .name, .nt-inter .int-center-tiles.int-textpos-below .item .name {
+  position:static !important; left:auto !important; right:auto !important; top:auto !important; bottom:auto !important;
+  transform:none; width:100%; max-width:100%; align-self:center; text-align:center !important; display:block;
+  background:transparent !important; padding:calc(var(--nt-vh)*0.7) 0 0; box-sizing:border-box;
+}
 /* result card-grid / cards-map: circle & hexagon images sized to fit WITHOUT clipping */
 .nt-result.res-shape-circle.res-card-grid .prod .img, .nt-result.res-shape-circle.res-cards-map .prod .img, .nt-result.res-shape-circle.res-catalog-grid .prod .img,
 .nt-result.res-shape-hexagon.res-card-grid .prod .img, .nt-result.res-shape-hexagon.res-cards-map .prod .img, .nt-result.res-shape-hexagon.res-catalog-grid .prod .img {
