@@ -85,6 +85,13 @@ export class ThemeWizardComponent implements OnInit {
   /** Text-position applies to every content with a label (all except image-only),
    *  and to hero-start (it positions the hero copy). */
   get showTextPos(): boolean { return this.t.homeLayout === 'hero-start' || this.t.cardContent !== 'image-only'; }
+  /** 'Below' only makes sense when there is an image to sit below. */
+  get textPositionsFor(): { id: CardTextPos; label: string }[] {
+    return this.t.cardContent === 'text-only' ? this.cardTextPositions.filter((p) => p.id !== 'below') : this.cardTextPositions;
+  }
+  get interTextPositions(): { id: CardTextPos; label: string }[] {
+    return (this.t.intermediate.content || 'image-text') === 'text-only' ? this.cardTextPositions.filter((p) => p.id !== 'below') : this.cardTextPositions;
+  }
 
   /** Layouts where circle/hexagon shapes don't render well and are hidden.
    *  h-scroll DOES support all shapes (handled inside the rail), hero-list does NOT. */

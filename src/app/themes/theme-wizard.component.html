@@ -285,7 +285,7 @@
         <ng-container *ngIf="showTextPos">
           <div class="step-title sm">Text position</div>
           <div class="seg">
-            <button class="tile" *ngFor="let p of cardTextPositions" [class.sel]="t.cardTextPos===p.id" (click)="t.cardTextPos=p.id">{{ p.label }}</button>
+            <button class="tile" *ngFor="let p of textPositionsFor" [class.sel]="t.cardTextPos===p.id" (click)="t.cardTextPos=p.id">{{ p.label }}</button>
           </div>
         </ng-container>
 
@@ -395,7 +395,7 @@
 
         <ng-container *ngIf="intTextPosMatters">
           <div class="step-title sm">Text position</div>
-          <div class="seg"><button class="tile" *ngFor="let p of cardTextPositions" [class.sel]="(t.intermediate.textPos||'below')===p.id" (click)="t.intermediate.textPos=p.id">{{ p.label }}</button></div>
+          <div class="seg"><button class="tile" *ngFor="let p of interTextPositions" [class.sel]="(t.intermediate.textPos||'below')===p.id" (click)="t.intermediate.textPos=p.id">{{ p.label }}</button></div>
         </ng-container>
 
         <div class="step-title sm">Card gap</div>

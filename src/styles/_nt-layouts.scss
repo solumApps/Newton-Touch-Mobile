@@ -1535,6 +1535,13 @@
 .nt-home .layout-h-scroll.card-size-large .h-scroll-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*62) !important; width:calc(var(--nt-vh)*62) !important; height:calc(var(--nt-vh)*70); }
 /* bento with a free count: cards stretch their cells equally */
 .nt-home .cards.has-cols.layout-bento { align-items:stretch; justify-items:stretch; }
+/* BELOW: the label is static + centred under the shape — beats the absolute
+   bubble rules above (hexagon label was drifting right) */
+.nt-inter .int-image-grid.int-textpos-below .item .name, .nt-inter .int-card-strip.int-textpos-below .item .name {
+  position:static !important; left:auto !important; right:auto !important; top:auto !important; bottom:auto !important;
+  transform:none; width:auto; max-width:100%; align-self:center; text-align:center; display:block;
+  background:transparent !important; color:var(--nt-int-text,#fff); padding:calc(var(--nt-vh)*0.7) 0 0;
+}
 /* result card-grid / cards-map: circle & hexagon images sized to fit WITHOUT clipping */
 .nt-result.res-shape-circle.res-card-grid .prod .img, .nt-result.res-shape-circle.res-cards-map .prod .img, .nt-result.res-shape-circle.res-catalog-grid .prod .img,
 .nt-result.res-shape-hexagon.res-card-grid .prod .img, .nt-result.res-shape-hexagon.res-cards-map .prod .img, .nt-result.res-shape-hexagon.res-catalog-grid .prod .img {
