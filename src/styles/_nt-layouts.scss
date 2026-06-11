@@ -1473,6 +1473,34 @@
   border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); background:var(--nt-int-card, rgba(255,255,255,.08));
 }
 .nt-inter .int-brand-grid.int-content-text-only .item .name { position:static; background:transparent; color:var(--nt-int-text,#fff); }
+/* side-rail: the CARD takes the selected shape (image fills it, label bubble) */
+.nt-inter .int-side-rail.int-shape-rect .item { border-radius:10px; overflow:hidden; }
+.nt-inter .int-side-rail.int-shape-pill .item { border-radius:999px; overflow:hidden; }
+.nt-inter .int-side-rail.int-shape-circle .item, .nt-inter .int-side-rail.int-shape-hexagon .item {
+  flex:0 0 calc(var(--nt-vh)*30) !important; width:calc(var(--nt-vh)*30); height:calc(var(--nt-vh)*30) !important; max-width:none !important;
+  position:relative; overflow:hidden; border-radius:50%; background:var(--nt-int-card, rgba(255,255,255,.08));
+}
+.nt-inter .int-side-rail.int-shape-hexagon .item { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); height:calc(var(--nt-vh)*34) !important; }
+.nt-inter .int-side-rail.int-size-small.int-shape-circle .item { flex-basis:calc(var(--nt-vh)*24) !important; width:calc(var(--nt-vh)*24); height:calc(var(--nt-vh)*24) !important; }
+.nt-inter .int-side-rail.int-size-large.int-shape-circle .item { flex-basis:calc(var(--nt-vh)*38) !important; width:calc(var(--nt-vh)*38); height:calc(var(--nt-vh)*38) !important; }
+.nt-inter .int-side-rail.int-size-small.int-shape-hexagon .item { flex-basis:calc(var(--nt-vh)*24) !important; width:calc(var(--nt-vh)*24); height:calc(var(--nt-vh)*28) !important; }
+.nt-inter .int-side-rail.int-size-large.int-shape-hexagon .item { flex-basis:calc(var(--nt-vh)*38) !important; width:calc(var(--nt-vh)*38); height:calc(var(--nt-vh)*43) !important; }
+.nt-inter .int-side-rail.int-shape-circle .item .img, .nt-inter .int-side-rail.int-shape-hexagon .item .img {
+  position:absolute !important; left:0; right:0; top:0; bottom:0; width:100% !important; height:100% !important;
+  margin:0 !important; border-radius:0; clip-path:none; background-size:cover; background-repeat:no-repeat;
+}
+.nt-inter .int-side-rail.int-shape-circle .item .name, .nt-inter .int-side-rail.int-shape-hexagon .item .name {
+  position:absolute; left:12%; right:12%; bottom:10%; z-index:1; display:flex; align-items:center; justify-content:center;
+  text-align:center; background:var(--nt-overlay, rgba(0,0,0,.5)); border-radius:999px; color:#fff;
+  padding:calc(var(--nt-vh)*0.35) calc(var(--nt-vw)*0.4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+/* side-rail text-only: shaped cards with centred text */
+.nt-inter .int-side-rail.int-content-text-only.int-shape-circle .item, .nt-inter .int-side-rail.int-content-text-only.int-shape-hexagon .item {
+  background:var(--nt-int-card, rgba(255,255,255,.08));
+}
+.nt-inter .int-side-rail.int-content-text-only.int-shape-circle .item .name, .nt-inter .int-side-rail.int-content-text-only.int-shape-hexagon .item .name {
+  position:static; background:transparent; color:var(--nt-int-text,#fff); white-space:normal; padding:0 12%;
+}
 /* result card-grid / cards-map: circle & hexagon images sized to fit WITHOUT clipping */
 .nt-result.res-shape-circle.res-card-grid .prod .img, .nt-result.res-shape-circle.res-cards-map .prod .img, .nt-result.res-shape-circle.res-catalog-grid .prod .img,
 .nt-result.res-shape-hexagon.res-card-grid .prod .img, .nt-result.res-shape-hexagon.res-cards-map .prod .img, .nt-result.res-shape-hexagon.res-catalog-grid .prod .img {
