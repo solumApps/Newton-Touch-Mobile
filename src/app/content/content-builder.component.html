@@ -36,7 +36,7 @@
       [page]="step.page"
       [home]="d.home"
       [intermediate]="d.intermediate"
-      [result]="d.result"
+      [result]="curResult"
       [screensaver]="d.screensaver"
       [header]="d.header"
       [draftName]="d.name"
@@ -182,27 +182,49 @@
     <div *ngSwitchCase="'result'">
       <h2 class="step-title">Result page</h2>
 
+      <!-- Skip-intermediate themes: choose ONE common result page or one PER home card -->
+      <ng-container *ngIf="skipsIntermediate">
+        <div class="sec"><span>Result pages</span></div>
+        <div class="seg fit-seg">
+          <button class="mini" [class.sel]="itemResultMode==='common'" (click)="setItemResultMode('common')">Common — one result page</button>
+          <button class="mini" [class.sel]="itemResultMode==='per-item'" (click)="setItemResultMode('per-item')">Per item — one per home card</button>
+        </div>
+        <p class="note">{{ itemResultMode==='common'
+          ? 'Every home card opens the SAME result page (current behavior).'
+          : 'Each home card opens its OWN result page — pick a card below, then edit its map, panel and products. Switching modes keeps both versions.' }}</p>
+        <ng-container *ngIf="itemResultMode==='per-item'">
+          <p class="note" *ngIf="!d.home.length">Add home cards first — each one gets its own result page.</p>
+          <ng-container *ngIf="d.home.length">
+            <div class="seg fit-seg marker-seg">
+              <button class="mini" *ngFor="let c of d.home; let ci = index"
+                      [class.sel]="activeCardId===c.id" (click)="selectItemCard(c.id)">{{ c.name || ('Card ' + (ci+1)) }}</button>
+            </div>
+            <p class="note">Editing the result page for <b>{{ activeCardLabel }}</b>. Cards with no own products fall back to the common result page.</p>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+
       <ng-container *ngIf="resultNeedsMap">
         <div class="sec"><span>Result map image</span></div>
         <div class="erow">
-          <div class="thumb wide" [style.background-image]="d.result.mapImage ? 'url('+d.result.mapImage+')' : null" (click)="pickMap()">{{ d.result.mapImage ? '' : '📷 Upload map' }}</div>
-          <button class="del" *ngIf="d.result.mapImage" (click)="d.result.mapImage=undefined">✕</button>
+          <div class="thumb wide" [style.background-image]="curResult.mapImage ? 'url('+curResult.mapImage+')' : null" (click)="pickMap()">{{ curResult.mapImage ? '' : '📷 Upload map' }}</div>
+          <button class="del" *ngIf="curResult.mapImage" (click)="clearMap()">✕</button>
         </div>
         <p class="note">Template <b>{{ d.themeTokens.resultTemplate }}</b> shows a store map.</p>
 
         <!-- Tap-to-place marker: pick a product, then tap the map to set its mapX/mapY -->
-        <ng-container *ngIf="d.result.mapImage && d.result.products.length">
+        <ng-container *ngIf="curResult.mapImage && curResult.products.length">
           <div class="sec"><span>Marker placement</span></div>
           <p class="note">Select a product, then tap the map where it lives — the LCD shows the dot there.</p>
           <div class="seg fit-seg marker-seg">
-            <button class="mini" *ngFor="let p of d.result.products; let i = index"
+            <button class="mini" *ngFor="let p of curResult.products; let i = index"
                     [class.sel]="markerIdx===i" (click)="markerIdx=i">{{ p.name || ('Product ' + (i+1)) }}</button>
             <button class="mini" *ngIf="mapRoute?.kind==='line' || mapRoute?.kind==='dot'"
                     [class.sel]="markerIdx===-2" (click)="markerIdx=-2">📍 Annotation</button>
           </div>
           <div class="map-place" #mapBox (click)="placeMarker($event, mapBox)"
-               [style.background-image]="'url('+d.result.mapImage+')'">
-            <ng-container *ngFor="let p of d.result.products; let i = index">
+               [style.background-image]="'url('+curResult.mapImage+')'">
+            <ng-container *ngFor="let p of curResult.products; let i = index">
               <span class="map-dot" *ngIf="p.mapX != null && p.mapY != null"
                     [class.sel]="markerIdx===i"
                     [style.left.%]="p.mapX" [style.top.%]="p.mapY"
@@ -238,16 +260,18 @@
       </ng-container>
 
       <ng-container *ngIf="resultNeedsPromo">
-        <div class="sec"><span>Promo / selection panel image</span></div>
+        <div class="sec"><span>{{ d.themeTokens.resultTemplate === 'shelf' ? 'Side category image (left panel)' : 'Promo / selection panel image' }}</span></div>
         <div class="erow">
-          <div class="thumb wide" [style.background-image]="d.result.promoImage ? 'url('+d.result.promoImage+')' : null" (click)="pickPromo()">{{ d.result.promoImage ? '' : '📷 Upload promo or QR panel' }}</div>
-          <button class="del" *ngIf="d.result.promoImage" (click)="d.result.promoImage=undefined">✕</button>
+          <div class="thumb wide" [style.background-image]="curResult.promoImage ? 'url('+curResult.promoImage+')' : null" (click)="pickPromo()">{{ curResult.promoImage ? '' : (d.themeTokens.resultTemplate === 'shelf' ? '📷 Upload side category image' : '📷 Upload promo or QR panel') }}</div>
+          <button class="del" *ngIf="curResult.promoImage" (click)="clearPromo()">✕</button>
         </div>
-        <p class="note">Use this for wine/pet promotion panels, QR-code panels, or branded result artwork.</p>
+        <p class="note" *ngIf="d.themeTokens.resultTemplate === 'shelf'">Shown as the dark side panel on the left of the product shelf.</p>
+        <p class="note" *ngIf="d.themeTokens.resultTemplate !== 'shelf'">Use this for wine/pet promotion panels, QR-code panels, or branded result artwork.</p>
       </ng-container>
 
-      <!-- Individual result pages: per end-item product lists -->
-      <ng-container *ngIf="resultMode==='individual'">
+      <!-- Individual result pages: per end-item product lists (drill-tree themes;
+           skip-intermediate themes use the Per-item result pages control above) -->
+      <ng-container *ngIf="resultMode==='individual' && !skipsIntermediate">
         <div class="sec"><span>Individual result pages ({{ resultLeaves.length }})</span></div>
         <p class="note">Each end item gets its own products. Items left empty fall back to the shared list at the bottom.</p>
         <div class="pcard" *ngFor="let leaf of resultLeaves">
@@ -268,8 +292,8 @@
         </div>
       </ng-container>
 
-      <div class="sec"><span>{{ resultMode==='individual' ? 'Shared / fallback products' : 'Result products' }} ({{ d.result.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>
-      <div class="pcard" *ngFor="let p of d.result.products; let i = index">
+      <div class="sec"><span>{{ perItemActive ? ('Products — ' + activeCardLabel) : (resultMode==='individual' && !skipsIntermediate) ? 'Shared / fallback products' : 'Result products' }} ({{ curResult.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>
+      <div class="pcard" *ngFor="let p of curResult.products; let i = index">
         <div class="erow">
           <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>
           <input class="inp" [(ngModel)]="p.name" placeholder="Product name" />
