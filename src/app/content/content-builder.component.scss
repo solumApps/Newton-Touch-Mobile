@@ -51,6 +51,29 @@
   border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .4); opacity: .55; pointer-events: none;
 }
 .map-dot.sel { opacity: 1; width: 16px; height: 16px; }
+/* per-step validation issues (shown above the footer nav) */
+.step-issues { padding: 8px 14px 0; max-height: 30vh; overflow-y: auto; }
+.step-issues .iss { font-size: 12.5px; font-weight: 600; line-height: 1.35; padding: 3px 0; }
+.step-issues .iss.err { color: #C0262C; }
+.step-issues .iss.warn { color: #946200; }
+.step-issues .iss-hint { font-weight: 400; opacity: .8; }
+
+/* blocking save overlay (large drafts persist slowly — show progress) */
+.save-overlay {
+  position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
+  background: rgba(15, 10, 40, .45);
+}
+.save-box {
+  display: flex; align-items: center; gap: 10px; background: var(--nt-card, #fff); color: var(--nt-ink, #111);
+  border-radius: 14px; padding: 16px 22px; font-weight: 800; font-size: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+}
+.save-spin {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 3px solid var(--nt-border, #ddd); border-top-color: var(--nt-purple, #2F006D);
+  animation: nt-save-spin .7s linear infinite;
+}
+@keyframes nt-save-spin { to { transform: rotate(360deg); } }
+
 /* route-line annotation preview on the placement map */
 .map-line {
   position: absolute; height: 4px; border-radius: 2px; transform: translateY(-50%);

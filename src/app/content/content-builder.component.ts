@@ -53,9 +53,66 @@ export class ContentBuilderComponent implements OnInit {
   get isFirst(): boolean { return this.stepIndex <= 0; }
   get isLast(): boolean { return this.stepIndex >= this.visibleSteps.length - 1; }
   get progressPct(): number { return ((this.stepIndex + 1) / this.visibleSteps.length) * 100; }
-  next(): void { if (!this.isLast) { this.stepIndex++; this.afterStepChange(); this.save(); } }
-  prev(): void { if (!this.isFirst) { this.stepIndex--; this.afterStepChange(); } }
-  goto(i: number): void { if (i >= 0 && i < this.visibleSteps.length) { this.stepIndex = i; this.afterStepChange(); } }
+  /** Per-step gating: Next blocks on missing REQUIRED data (errors listed above
+   *  the footer); warnings inform but never block. */
+  stepErrors: string[] = [];
+  stepWarnings: string[] = [];
+  private validateStep(key: string): { errors: string[]; warnings: string[] } {
+    const e: string[] = [], w: string[] = [];
+    const d = this.draft;
+    if (!d) return { errors: e, warnings: w };
+    if (key === 'home') {
+      if (!d.home.length) e.push('Add at least one home card.');
+      d.home.forEach((c, i) => { if (!c.name?.trim()) e.push(`Home card ${i + 1} needs a name.`); });
+      if (this.needsImage) {
+        const n = d.home.filter((c) => !c.image).length;
+        if (n) w.push(`${n} home card(s) have no image — this theme's cards show images.`);
+      }
+    }
+    if (key === 'inter') {
+      if (this.showIntermediateEditor) {
+        if (!d.intermediate.length) e.push('Add at least one intermediate item.');
+        d.intermediate.forEach((it, i) => { if (!it.name?.trim()) e.push(`Intermediate item ${i + 1} needs a name.`); });
+      } else {
+        const empty = d.home.filter((c) => !(c.children && c.children.length)).length;
+        if (empty === d.home.length && d.home.length) e.push('Individual mode: add sub-items under at least one home card.');
+        else if (empty) w.push(`${empty} home card(s) have no sub-items yet.`);
+        let unnamed = 0;
+        const walk = (c: CardItem): void => (c.children || []).forEach((ch) => { if (!ch.name?.trim()) unnamed++; walk(ch); });
+        d.home.forEach(walk);
+        if (unnamed) e.push(`${unnamed} sub-item(s) need a name.`);
+      }
+    }
+    if (key === 'result') {
+      if (this.resultMode === 'individual') {
+        const missing = this.resultLeaves.filter((l) => !(l.node.products && l.node.products.length)).length;
+        if (missing && !d.result.products.length) e.push(`${missing} item(s) have no products and there are no shared fallback products.`);
+        else if (missing) w.push(`${missing} item(s) will use the shared fallback products.`);
+        let unnamed = 0;
+        this.resultLeaves.forEach((l) => (l.node.products || []).forEach((p) => { if (!p.name?.trim()) unnamed++; }));
+        if (unnamed) e.push(`${unnamed} per-item product(s) need a name.`);
+      } else if (!d.result.products.length) {
+        e.push('Add at least one result product.');
+      }
+      d.result.products.forEach((p, i) => { if (!p.name?.trim()) e.push(`Shared product ${i + 1} needs a name.`); });
+      if (this.resultNeedsMap && !d.result.mapImage) w.push('This template shows a store map — no map image uploaded yet.');
+      if (this.resultNeedsPromo && !d.result.promoImage) w.push('This template shows a side/promo panel — no panel image uploaded yet.');
+    }
+    if (key === 'saver' && (d.screensaver.media?.length || 0) === 0) w.push('No screensaver media added — the screensaver will show plain colors.');
+    return { errors: e, warnings: w };
+  }
+  private warnedStep = -1;
+  next(): void {
+    if (this.isLast) return;
+    const { errors, warnings } = this.validateStep(this.step.key);
+    this.stepErrors = errors;
+    this.stepWarnings = warnings;
+    if (errors.length) return; // stay on this step until required data is filled
+    if (warnings.length && this.warnedStep !== this.stepIndex) { this.warnedStep = this.stepIndex; return; } // show once; next tap proceeds
+    this.stepIndex++; this.afterStepChange(); this.stepErrors = []; this.stepWarnings = []; this.save();
+  }
+  prev(): void { if (!this.isFirst) { this.stepIndex--; this.afterStepChange(); this.stepErrors = []; this.stepWarnings = []; } }
+  goto(i: number): void { if (i >= 0 && i < this.visibleSteps.length) { this.stepIndex = i; this.afterStepChange(); this.stepErrors = []; this.stepWarnings = []; } }
 
   /** Review slider — shows all pages (with real data) as a horizontal scroll
    *  so the user can swipe through Home / Intermediate / Result / Screensaver
@@ -130,16 +187,51 @@ export class ContentBuilderComponent implements OnInit {
     if (this.draft?.drillMode) return this.draft.drillMode;
     return this.draft?.home.some(c => c.children && c.children.length > 0) ? 'individual' : 'common';
   }
-  setDrillMode(m: 'common' | 'individual'): void {
-    if (!this.draft) return;
-    this.draft.drillMode = m;
-    if (m === 'common' && this.draft.resultMode === 'individual') this.draft.resultMode = 'common';
-  }
-  /** Common = one shared result product list; Individual = per-leaf products. */
-  get resultMode(): 'common' | 'individual' {
-    return this.drillMode === 'individual' ? (this.draft?.resultMode || 'common') : 'common';
-  }
+  setDrillMode(m: 'common' | 'individual'): void { if (this.draft) this.draft.drillMode = m; }
+  /** Common = one shared result product list; Individual = per end-item products
+   *  (tree leaves in individual drill mode, intermediate items in common mode). */
+  get resultMode(): 'common' | 'individual' { return this.draft?.resultMode || 'common'; }
   setResultMode(m: 'common' | 'individual'): void { if (this.draft) this.draft.resultMode = m; }
+
+  /** End items that own an individual result page: tree leaves (individual drill),
+   *  shared intermediate items (common drill), or home cards (no intermediate). */
+  /** Cached: this getter runs on EVERY change-detection pass — returning a fresh
+   *  array each time made Angular re-create the per-leaf editors continuously
+   *  (frozen page after "+ Add"). The cache is keyed on STRUCTURE (ids), so the
+   *  same array instance is returned until items are added/removed. */
+  private leafCache: { sig: string; out: { label: string; node: CardItem }[] } | null = null;
+  get resultLeaves(): { label: string; node: CardItem }[] {
+    const d = this.draft;
+    if (!d) return [];
+    let sig = this.drillMode + '|' + (d.themeTokens.includeIntermediate !== false) + '|';
+    const sigWalk = (c: CardItem): void => { sig += c.id + ','; (c.children || []).forEach(sigWalk); };
+    d.home.forEach(sigWalk);
+    d.intermediate.forEach((i) => { sig += i.id + ','; });
+    if (this.leafCache && this.leafCache.sig === sig) return this.leafCache.out;
+    const out: { label: string; node: CardItem }[] = [];
+    if (d.themeTokens.includeIntermediate !== false && this.drillMode === 'individual') {
+      const walk = (c: CardItem, path: string) => {
+        const label = path ? path + ' › ' + (c.name || '—') : (c.name || '—');
+        if (c.children && c.children.length) c.children.forEach((ch) => walk(ch, label));
+        else out.push({ label, node: c });
+      };
+      d.home.forEach((c) => walk(c, ''));
+    } else if (d.themeTokens.includeIntermediate !== false) {
+      d.intermediate.forEach((it) => out.push({ label: it.name || '—', node: it }));
+    } else {
+      d.home.forEach((c) => out.push({ label: c.name || '—', node: c }));
+    }
+    this.leafCache = { sig, out };
+    return out;
+  }
+  addLeafProduct(n: CardItem): void {
+    n.products = [...(n.products || []), { id: 'p' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), name: '' } as any];
+  }
+  removeLeafProduct(n: CardItem, i: number): void {
+    const arr = n.products || [];
+    arr.splice(i, 1);
+    n.products = [...arr];
+  }
 
   /** Max drill-down depth: Category mode is API-bound (4 levels: category1–4 or etc0–3);
    *  Prototype / Prototype-ESL are free-form, no cap. */
@@ -349,10 +441,15 @@ export class ContentBuilderComponent implements OnInit {
   }
   setEslBy(v: 'article' | 'label'): void { this.draft!.eslBlinkBy = v; this.save(); }
 
+  /** True while a save is in flight — drives the blocking saving overlay. */
+  saving = false;
   async save(): Promise<void> {
-    if (!this.draft) return;
-    this.draft.status = this.draft.home.length && this.draft.result.products.length ? 'complete' : 'draft';
-    await this.content.save(this.draft);
+    if (!this.draft || this.saving) return;
+    this.saving = true;
+    try {
+      this.draft.status = this.draft.home.length && this.draft.result.products.length ? 'complete' : 'draft';
+      await this.content.save(this.draft);
+    } finally { this.saving = false; }
   }
 
   // ---- Pre-deploy validation (popup lists all issues) ----

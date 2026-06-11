@@ -103,7 +103,7 @@
         </div>
         <p class="note">{{ drillMode==='common'
           ? 'Every home card opens the SAME intermediate page — fill it once on the Intermediate step.'
-          : 'Each home card opens its OWN intermediate page — add sub-items under each card below.' }}</p>
+          : 'Each home card opens its OWN intermediate page — fill each one on the Intermediate step.' }}</p>
       </ng-container>
 
       <!-- HOME CARDS -->
@@ -127,11 +127,8 @@
           <input class="inp" [(ngModel)]="c.unit" placeholder="Unit (optional)" />
         </div>
         <div class="subtree-flag" *ngIf="d.themeTokens.includeIntermediate !== false && drillMode==='individual'">
-          <span class="badge" [class.on]="hasCustomSubtree(c)">{{ hasCustomSubtree(c) ? '● Custom subtree' : '○ Empty — add sub-items' }}</span>
+          <span class="badge" [class.on]="hasCustomSubtree(c)">{{ hasCustomSubtree(c) ? '● Has its own page' : '○ Fill on Intermediate step' }}</span>
         </div>
-        <app-card-tree-editor *ngIf="d.themeTokens.includeIntermediate !== false && drillMode==='individual'"
-          [card]="c" [depth]="1" [maxDepth]="maxDepth" [needsImage]="intermediateNeedsImage"
-          [allowProducts]="resultMode==='individual'"></app-card-tree-editor>
       </div>
       <p class="note" *ngIf="needsImage && !uploadIsIcon">This theme's cards show an image — tap 📷 to upload one per card.</p>
       <p class="note" *ngIf="uploadIsIcon">This theme's cards show an icon + text — tap 📷 to upload an icon per card.</p>
@@ -144,19 +141,18 @@
     <div *ngSwitchCase="'inter'">
       <h2 class="step-title">Intermediate page</h2>
       <p class="note">Style: <b>{{ d.themeTokens.intermediateStyle }}</b><span *ngIf="intermediateNeedsImage"> — this style shows an image per item.</span></p>
-      <p class="note" *ngIf="!showIntermediateEditor">
-        Individual mode (Home step) is in use — each home card has its own intermediate page. Edit the sub-items of each card on the Home step.
-      </p>
+      <!-- Individual drill mode: fill each home card's OWN intermediate page here -->
+      <ng-container *ngIf="!showIntermediateEditor && d.themeTokens.includeIntermediate !== false">
+        <p class="note"><b>Individual mode</b> — each home card opens its own intermediate page. Fill each one below.</p>
+        <div class="pcard" *ngFor="let c of d.home">
+          <div class="sec"><span>{{ c.name || 'Home card' }} — sub-items</span></div>
+          <app-card-tree-editor [card]="c" [depth]="1" [maxDepth]="maxDepth"
+            [needsImage]="intermediateNeedsImage" [allowProducts]="false"></app-card-tree-editor>
+        </div>
+      </ng-container>
 
-      <!-- Result mode: shared product list vs per-leaf products -->
-      <div class="sec"><span>Result pages</span></div>
-      <div class="seg fit-seg">
-        <button class="mini" [class.sel]="resultMode==='common'" (click)="setResultMode('common')">Common — one result page</button>
-        <button class="mini" [class.sel]="resultMode==='individual'" [disabled]="drillMode!=='individual'" (click)="setResultMode('individual')">Individual — per item</button>
-      </div>
-      <p class="note" *ngIf="drillMode!=='individual'">Individual result pages need <b>Individual</b> intermediate pages (Home step) — with a shared intermediate page every path ends on the same result.</p>
-      <p class="note" *ngIf="resultMode==='individual'">Add <b>Result products</b> under the deepest sub-items in each card's tree (Home step). The Result step's list is the fallback for leaves without their own products.</p>
       <ng-container *ngIf="showIntermediateEditor">
+        <p class="note"><b>Common mode</b> — every home card opens this one shared page.</p>
         <div class="sec"><span>Intermediate items ({{ d.intermediate.length }})</span><button class="mini" (click)="addIntermediate()">+ Add</button></div>
         <ng-container *ngFor="let it of d.intermediate; let i = index">
           <div class="erow">
@@ -170,6 +166,16 @@
           </div>
         </ng-container>
       </ng-container>
+
+      <!-- Result-page mode (applies to the NEXT step) -->
+      <div class="sec"><span>Result pages (next step)</span></div>
+      <div class="seg fit-seg">
+        <button class="mini" [class.sel]="resultMode==='common'" (click)="setResultMode('common')">Common — one result page</button>
+        <button class="mini" [class.sel]="resultMode==='individual'" (click)="setResultMode('individual')">Individual — per item</button>
+      </div>
+      <p class="note">{{ resultMode==='common'
+        ? 'Every item ends on the SAME result products — fill them on the Result step.'
+        : 'Each end item gets its OWN products — fill them per item on the Result step.' }}</p>
     </div>
 
     <!-- ============ RESULT ============ -->
@@ -242,7 +248,29 @@
         <p class="note">Use this for wine/pet promotion panels, QR-code panels, or branded result artwork.</p>
       </ng-container>
 
-      <div class="sec"><span>Result products ({{ d.result.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>
+      <!-- Individual result pages: per end-item product lists -->
+      <ng-container *ngIf="resultMode==='individual'">
+        <div class="sec"><span>Individual result pages ({{ resultLeaves.length }})</span></div>
+        <p class="note">Each end item gets its own products. Items left empty fall back to the shared list at the bottom.</p>
+        <div class="pcard" *ngFor="let leaf of resultLeaves">
+          <div class="sec"><span>{{ leaf.label }}</span><button class="mini" (click)="addLeafProduct(leaf.node)">+ Add</button></div>
+          <ng-container *ngFor="let p of leaf.node.products || []; let pi = index">
+            <div class="erow">
+              <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
+              <input class="inp" [(ngModel)]="p.name" placeholder="Product name" />
+              <button class="del" (click)="removeLeafProduct(leaf.node, pi)">✕</button>
+            </div>
+            <div class="prow">
+              <input class="inp" [(ngModel)]="p.price" placeholder="Price" />
+              <input class="inp" [(ngModel)]="p.aisle" placeholder="Aisle / Zone" />
+              <input class="inp" [(ngModel)]="p.shelf" placeholder="Shelf" />
+            </div>
+          </ng-container>
+          <p class="note" *ngIf="!(leaf.node.products && leaf.node.products.length)">No own products — uses the shared list below.</p>
+        </div>
+      </ng-container>
+
+      <div class="sec"><span>{{ resultMode==='individual' ? 'Shared / fallback products' : 'Result products' }} ({{ d.result.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>
       <div class="pcard" *ngFor="let p of d.result.products; let i = index">
         <div class="erow">
           <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>
@@ -334,7 +362,16 @@
   </ng-container>
 </ion-content>
 
+<!-- Blocking save overlay: large drafts (many images) take a moment to persist -->
+<div class="save-overlay" *ngIf="saving">
+  <div class="save-box"><span class="save-spin"></span>Saving…</div>
+</div>
+
 <ion-footer class="foot" *ngIf="draft">
+  <div class="step-issues" *ngIf="stepErrors.length || stepWarnings.length">
+    <div class="iss err" *ngFor="let e of stepErrors">⛔ {{ e }}</div>
+    <div class="iss warn" *ngFor="let w of stepWarnings">⚠️ {{ w }}<span class="iss-hint" *ngIf="!stepErrors.length"> — tap Next again to continue</span></div>
+  </div>
   <div class="nav">
     <button class="btn-o" (click)="prev()" [disabled]="isFirst">‹ Back</button>
     <button class="btn-y" *ngIf="!isLast" (click)="next()">Next ›</button>
