@@ -76,7 +76,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         </div>
 
         <!-- HOME (LCD markup: .cards.layout-*) -->
-        <div *ngSwitchCase="'home'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} gap-{{theme?.cardGap||'normal'}}" [class.shape]="shapeCard"
+        <div *ngSwitchCase="'home'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
              [class.has-cols]="theme?.columns !== undefined" [style.--cols]="theme?.columns"
              [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'">
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
@@ -132,7 +132,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             </div>
           </div>
           <ng-template #flatInter>
-            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediate?.align||'center'}} int-gap-{{theme?.intermediate?.gap||'normal'}}"
+            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediate?.align||'center'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}}"
                  [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0">
                 <div class="img" [class.no-img]="!it.image" [style.background-image]="it.image ? 'url('+it.image+')' : null" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
@@ -272,6 +272,26 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             </div>
             <div class="hp-headline">Awesome!<span>Loved your pick!</span></div>
           </div>
+          <!-- shelf: side category panel + product shelf -->
+          <div class="body shelf-body" *ngIf="resTpl==='shelf'">
+            <div class="shelf-side" [style.background-image]="result?.promoImage ? 'url('+result?.promoImage+')' : null">
+              <div class="shelf-title">{{ captionText || titleText }}</div>
+            </div>
+            <div class="shelf-main">
+              <div class="filter-tabs">
+                <div class="ftab active">Popular</div>
+                <div class="ftab">Alphabetical</div>
+              </div>
+              <div class="shelf-prods">
+                <div class="sprod" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+                  <div class="s-img" [class.no-img]="!p.image" [style.background-image]="p.image ? 'url('+p.image+')' : null" [style.background-size]="fitSize(p.imageFit)"></div>
+                  <div class="s-nm">{{ p.name }}</div>
+                  <div class="s-price" *ngIf="p.price">{{ p.price }}</div>
+                  <div class="s-meta" *ngIf="p.aisle">Zone {{ p.aisle }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
           <!-- default: map + list -->
           <div class="body" *ngIf="!specialResult">
             <div class="map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
@@ -369,7 +389,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   private static readonly PH_FILLS = ['%2386EFAC', '%23FDE68A', '%23FCA5A5', '%23A5B4FC', '%2367E8F9', '%23F9A8D4'];
   phImg(i: number): string {
     const c = ContentPreviewStripComponent.PH_FILLS[i % ContentPreviewStripComponent.PH_FILLS.length];
-    return `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'><rect width='160' height='100' fill='${c}'/><circle cx='52' cy='58' r='26' fill='rgba(255,255,255,0.5)'/><circle cx='104' cy='40' r='15' fill='rgba(0,0,0,0.14)'/></svg>")`;
+    return `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'><rect width='160' height='100' fill='${c}'/><polygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/></svg>")`;
   }
 
   /* ===== Stage units: --nt-vw/--nt-vh/--nt-vmin in px from the measured stage width.
@@ -412,6 +432,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       cls.push('nt-result', 'res-' + this.resTpl);
       const rk = this.result?.route?.kind;
       if (rk) cls.push('route-kind-' + rk);
+      if (this.theme?.result?.content === 'text-only') cls.push('res-content-text-only');
+      if (this.theme?.result?.textPos) cls.push('res-textpos-' + this.theme.result.textPos);
+      if (this.theme?.result?.cardShape) cls.push('res-shape-' + this.theme.result.cardShape);
       if (this.theme?.scrollMode === 'vertical') cls.push('scroll-vertical');
       if (this.theme?.scrollMode === 'horizontal') cls.push('scroll-horizontal');
     } else if (this.page === 'home') cls.push('nt-home');
@@ -419,7 +442,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   get resTpl(): string { return this.theme?.resultTemplate || 'map-list'; }
   get specialResult(): boolean {
-    return ['drill-stair', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'product-focus', 'hero-product'].includes(this.resTpl);
+    return ['drill-stair', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'product-focus', 'hero-product', 'shelf'].includes(this.resTpl);
   }
   get found(): ResultProduct | undefined { return this.resultCells[0]; }
 
@@ -463,10 +486,16 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       : 'Home';
   }
   /* Cells with placeholder fallback (real data when present, labels otherwise). */
+  /** Free item count: image-strip / bento / hero-list use theme.columns as "how many". */
+  get cellCount(): number {
+    const l = this.theme?.homeLayout, c = this.theme?.columns;
+    return c && (l === 'image-strip' || l === 'bento' || l === 'hero-list') ? c : 6;
+  }
   get homeCells(): CardItem[] {
-    const real = (this.home || []).slice(0, 6);
+    const n = this.cellCount;
+    const real = (this.home || []).slice(0, n);
     if (real.length) return real.map(c => ({ ...c, name: c.name || 'Item' }));
-    return this.placeholderSlots.map(i => ({ id: 'ph' + i, name: this.placeholderLabels[i] } as CardItem));
+    return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: this.placeholderLabels[i % this.placeholderLabels.length] } as CardItem));
   }
   get intermediateSource(): CardItem[] {
     // Mirror the LCD runtime (IntermediateComponent.load): the intermediate page

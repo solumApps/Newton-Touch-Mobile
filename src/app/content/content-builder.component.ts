@@ -140,8 +140,10 @@ export class ContentBuilderComponent implements OnInit {
     return t === 'map-list' || t === 'cards-map' || t === 'split-panel' || t === 'map-full' || t === 'map-filter-list';
   }
 
+  /** shelf uses the promo image as its side category panel. */
   get resultNeedsPromo(): boolean {
-    return this.draft?.themeTokens.resultTemplate === 'promo-list';
+    const t = this.draft?.themeTokens.resultTemplate;
+    return t === 'promo-list' || t === 'shelf';
   }
 
   /** Header style derived from the theme — determines which header text inputs to show. */

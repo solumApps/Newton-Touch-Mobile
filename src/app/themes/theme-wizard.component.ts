@@ -62,9 +62,11 @@ export class ThemeWizardComponent implements OnInit {
   slots = [0, 1, 2, 3, 4, 5];
   labels = ['Bakery', 'Dairy', 'Produce', 'Meat', 'Frozen', 'Drinks'];
 
-  homeLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-2', 'col-3', 'col-4', 'hero-list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'h-scroll', 'bento'];
+  /** Grid/column variants collapse into ONE 'Columns' tile — the free column
+   *  stepper picks the count (legacy layouts still map onto it when editing). */
+  homeLayouts: HomeLayout[] = ['col-3', 'hero-list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'h-scroll', 'bento'];
   layoutLabels: Record<HomeLayout, string> = {
-    'grid-2x3': 'Grid (3×2)', 'grid-2x2': 'Grid (2×2)', 'col-2': '2 columns', 'col-3': '3 columns', 'col-4': '4 columns',
+    'grid-2x3': 'Columns', 'grid-2x2': 'Columns', 'col-2': 'Columns', 'col-3': 'Columns', 'col-4': 'Columns',
     'hero-list': 'Hero + list', 'list': 'List rows', 'fullscreen': 'Fullscreen',
     'image-strip': 'Image strips', 'hero-start': 'Hero start', 'promo-categories': 'Promo categories',
     'h-scroll': 'Horizontal scroll', 'bento': 'Bento grid',
@@ -80,8 +82,9 @@ export class ThemeWizardComponent implements OnInit {
   cardTextPositions: { id: CardTextPos; label: string }[] = [
     { id: 'overlay-top', label: 'Overlay top' }, { id: 'overlay-bottom', label: 'Overlay bottom' }, { id: 'below', label: 'Below' }, { id: 'center', label: 'Centered' },
   ];
-  /** Text-position control only matters when the card shows both an image/icon AND text. */
-  get showTextPos(): boolean { return this.t.cardContent === 'image-text' || this.t.cardContent === 'icon-text'; }
+  /** Text-position applies to every content with a label (all except image-only),
+   *  and to hero-start (it positions the hero copy). */
+  get showTextPos(): boolean { return this.t.homeLayout === 'hero-start' || this.t.cardContent !== 'image-only'; }
 
   /** Layouts where circle/hexagon shapes don't render well and are hidden.
    *  h-scroll DOES support all shapes (handled inside the rail), hero-list does NOT. */
@@ -110,7 +113,43 @@ export class ThemeWizardComponent implements OnInit {
   readonly maxColumns = MAX_COLUMNS;
   /** Layouts whose column count can be freely overridden. */
   private readonly columnLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-2', 'col-3', 'col-4'];
-  get columnsMatter(): boolean { return this.columnLayouts.includes(this.t.homeLayout); }
+  get columnsMatter(): boolean { return this.columnLayouts.includes(this.t.homeLayout) || this.itemCountMatters; }
+  /** The single 'Columns' tile is selected for every legacy grid/col id. */
+  get isGridLike(): boolean { return this.columnLayouts.includes(this.t.homeLayout); }
+  get isHeroStart(): boolean { return this.t.homeLayout === 'hero-start'; }
+  /** Layouts with a free ITEM count (same stepper, different meaning). */
+  get itemCountMatters(): boolean { return ['image-strip', 'bento', 'hero-list'].includes(this.t.homeLayout); }
+  /** Overflow-scrolling control: hidden where it breaks the layout. */
+  get scrollMatters(): boolean { return !['image-strip', 'hero-start', 'h-scroll', 'bento'].includes(this.t.homeLayout); }
+  get scrollModesFor(): { id: ScrollMode; label: string }[] {
+    return this.t.homeLayout === 'hero-list' ? this.scrollModes.filter(m => m.id !== 'horizontal') : this.scrollModes;
+  }
+  /** Intermediate content options (image layouts only). */
+  interContents: { id: 'image-text' | 'text-only'; label: string }[] = [
+    { id: 'image-text', label: 'Image + Text' }, { id: 'text-only', label: 'Text only' },
+  ];
+  /** Intermediate text-position applies to these styles. */
+  get intTextPosMatters(): boolean {
+    return ['image-grid', 'card-strip', 'circular', 'hex-grid', 'fullscreen', 'center-tiles'].includes(this.t.intermediateStyle);
+  }
+  get isImageStrip(): boolean { return this.t.homeLayout === 'image-strip'; }
+  /** Card size: hidden where cards always fill the screen (fullscreen, strips). */
+  get sizeMatters(): boolean { return !['fullscreen', 'image-strip'].includes(this.t.homeLayout); }
+  get isHeroList(): boolean { return this.t.homeLayout === 'hero-list'; }
+  /** hero-list: the alignment control means VERTICAL alignment of the list. */
+  get alignsFor(): { id: 'left' | 'center' | 'right'; label: string }[] {
+    return this.isHeroList
+      ? [{ id: 'left', label: 'Top' }, { id: 'center', label: 'Center' }, { id: 'right', label: 'Bottom' }]
+      : this.aligns;
+  }
+  /** Result: overlay text positions make sense on card-style templates. */
+  get resTextPosMatters(): boolean {
+    return ['card-grid', 'cards-map', 'catalog-grid'].includes(this.t.resultTemplate);
+  }
+  /** Result: card shape applies to templates with product cards/thumbnails. */
+  get resShapeMatters(): boolean {
+    return ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'catalog-grid', 'filter-list', 'map-filter-list', 'shelf'].includes(this.t.resultTemplate);
+  }
   /** Effective count shown in the stepper: override, else derived from the layout. */
   get effectiveColumns(): number { return this.t.columns ?? columnsForLayout(this.t.homeLayout); }
   stepColumns(delta: number): void {
@@ -140,7 +179,10 @@ export class ThemeWizardComponent implements OnInit {
   get intShapeMatters(): boolean {
     return ['image-grid', 'card-strip', 'side-rail', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle);
   }
-  resultTemplates: ResultTemplate[] = ['map-list', 'cards-map', 'dual-list', 'split-panel', 'list-only', 'map-full', 'card-grid', 'minimal', 'esl-focus', 'drill-stair', 'filter-list', 'map-filter-list', 'promo-list', 'catalog-grid', 'product-focus', 'hero-product', 'drill-filter'];
+  /** Selectable templates — split-panel / esl-focus (map-width variants of
+   *  map-list) and dual-list (2-col list-only) are hidden as near-duplicates;
+   *  old themes using them still render (enum + CSS retained). */
+  resultTemplates: ResultTemplate[] = ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'drill-stair', 'filter-list', 'map-filter-list', 'promo-list', 'catalog-grid', 'product-focus', 'hero-product', 'drill-filter', 'shelf'];
   transitions: TransitionType[] = ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'];
   speeds: AnimSpeed[] = ['slow', 'normal', 'fast'];
   loaders: LoaderStyle[] = ['spinner', 'dot-pulse', 'progress', 'logo', 'skeleton'];
@@ -175,7 +217,7 @@ export class ThemeWizardComponent implements OnInit {
   ];
   /** Alignment only changes layouts that don't already fill the row. */
   get alignMatters(): boolean {
-    return ['h-scroll', 'promo-categories', 'col-2', 'col-3', 'col-4'].includes(this.t.homeLayout) || this.shapeCard;
+    return ['h-scroll', 'promo-categories', 'col-2', 'col-3', 'col-4', 'hero-list'].includes(this.t.homeLayout) || this.shapeCard;
   }
   navButtonPositions: { id: NavButtonPosition; label: string }[] = [
     { id: 'bottom-left',   label: 'Bottom left' },

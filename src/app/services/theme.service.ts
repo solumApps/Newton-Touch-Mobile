@@ -220,7 +220,7 @@ export class ThemeService {
         logoPosition: 'center', homeLayout: 'h-scroll', maxHomeItems: 8, cardShape: 'pill', cardContent: 'image-text', cardTextPos: 'below',
         cardSize: 'large', cardAlign: 'center', cardGap: 'loose', cardSurface: 'flat',
         showHeader: true, headerStyle: 'title+caption',
-        includeIntermediate: false, intermediateStyle: 'card-strip', resultTemplate: 'catalog-grid',
+        includeIntermediate: false, intermediateStyle: 'card-strip', resultTemplate: 'shelf',
         intermediate: { headerColor: '#1C1917', background: '#FAF7F2', cardBackground: '#FFFFFF', cardText: '#1C1917', accent: '#A16207', itemSize: 'medium', showHeader: true, cardShape: 'pill', align: 'center', gap: 'loose' },
         result: { headerColor: '#1C1917', background: '#FAF7F2', cardBackground: '#FFFFFF', cardText: '#1C1917', accent: '#A16207', pathColor: '#A16207', pathStyle: 'dotted', showHeader: true },
         animation: { transition: 'shimmer', speed: 'normal', applyToAll: true },

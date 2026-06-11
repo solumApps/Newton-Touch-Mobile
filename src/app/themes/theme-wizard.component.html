@@ -219,12 +219,12 @@
         <div class="step-title sm">Arrangement</div>
         <p class="hint">How cards are laid out on screen.</p>
         <div class="tiles">
-          <button class="tile" *ngFor="let o of homeLayouts" [class.sel]="t.homeLayout===o" (click)="pickLayout(o)">{{ layoutLabels[o] }}</button>
+          <button class="tile" *ngFor="let o of homeLayouts" [class.sel]="t.homeLayout===o || (o==='col-3' && isGridLike)" (click)="pickLayout(o)">{{ layoutLabels[o] }}</button>
         </div>
 
         <ng-container *ngIf="columnsMatter">
-          <div class="step-title sm">Columns</div>
-          <p class="hint">Free column count ({{ minColumns }}–{{ maxColumns }}). Extra rows scroll vertically.</p>
+          <div class="step-title sm">{{ itemCountMatters ? 'Items' : 'Columns' }}</div>
+          <p class="hint">{{ itemCountMatters ? 'How many items to show — the layout fills the screen and extra items scroll.' : 'Free column count (' + minColumns + '–' + maxColumns + '). Extra rows scroll vertically.' }}</p>
           <div class="seg cols-stepper">
             <button class="tile" (click)="stepColumns(-1)" [disabled]="effectiveColumns <= minColumns" aria-label="Fewer columns">−</button>
             <input class="inp cols-inp" type="number" [min]="minColumns" [max]="maxColumns"
@@ -234,36 +234,45 @@
           </div>
         </ng-container>
 
-        <div class="step-title sm">Overflow scrolling</div>
-        <p class="hint">When items don't fit: Auto picks the layout's natural direction (grids vertical, rails horizontal).</p>
-        <div class="seg">
-          <button class="tile" *ngFor="let m of scrollModes" [class.sel]="(t.scrollMode||'auto')===m.id" (click)="t.scrollMode=m.id">{{ m.label }}</button>
-        </div>
-
-        <div class="step-title sm">Card size</div>
-        <p class="hint">Controls the physical size of each category card.</p>
-        <div class="seg">
-          <button class="tile" *ngFor="let s of cardSizes" [class.sel]="(t.cardSize||'normal')===s" (click)="t.cardSize=s">{{ cardSizeLabels[s] }}</button>
-        </div>
-
-        <div class="step-title sm">Card gap</div>
-        <p class="hint">Spacing between cards. Overflow scrolls automatically.</p>
-        <div class="seg">
-          <button class="tile" *ngFor="let g of gaps" [class.sel]="(t.cardGap||'normal')===g.id" (click)="t.cardGap=g.id">{{ g.label }}</button>
-        </div>
-
-        <ng-container *ngIf="alignMatters">
-          <div class="step-title sm">Card alignment</div>
-          <p class="hint">Aligns cards within the row — handy when there are only a few.</p>
+        <ng-container *ngIf="scrollMatters && !isHeroStart">
+          <div class="step-title sm">Overflow scrolling</div>
+          <p class="hint">When items don't fit: Auto picks the layout's natural direction (grids vertical, rails horizontal).</p>
           <div class="seg">
-            <button class="tile" *ngFor="let a of aligns" [class.sel]="(t.cardAlign||'center')===a.id" (click)="t.cardAlign=a.id">{{ a.label }}</button>
+            <button class="tile" *ngFor="let m of scrollModesFor" [class.sel]="(t.scrollMode||'auto')===m.id" (click)="t.scrollMode=m.id">{{ m.label }}</button>
           </div>
         </ng-container>
 
-        <div class="step-title sm">Card shape</div>
-        <div class="tiles">
-          <button class="tile" *ngFor="let s of availableCardShapes" [class.sel]="t.cardShape===s.id" (click)="t.cardShape=s.id">{{ s.label }}</button>
-        </div>
+        <ng-container *ngIf="!isHeroStart">
+        <ng-container *ngIf="sizeMatters">
+          <div class="step-title sm">Card size</div>
+          <p class="hint">Controls the physical size of each category card.</p>
+          <div class="seg">
+            <button class="tile" *ngFor="let s of cardSizes" [class.sel]="(t.cardSize||'normal')===s" (click)="t.cardSize=s">{{ cardSizeLabels[s] }}</button>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="!isImageStrip">
+          <div class="step-title sm">Card gap</div>
+          <p class="hint">Spacing between cards. Overflow scrolls automatically.</p>
+          <div class="seg">
+            <button class="tile" *ngFor="let g of gaps" [class.sel]="(t.cardGap||'normal')===g.id" (click)="t.cardGap=g.id">{{ g.label }}</button>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="alignMatters">
+          <div class="step-title sm">{{ isHeroList ? 'Vertical alignment' : 'Card alignment' }}</div>
+          <p class="hint">{{ isHeroList ? 'Where the hero + list sits when there are only a few items.' : 'Aligns cards within the row — handy when there are only a few.' }}</p>
+          <div class="seg">
+            <button class="tile" *ngFor="let a of alignsFor" [class.sel]="(t.cardAlign||'center')===a.id" (click)="t.cardAlign=a.id">{{ a.label }}</button>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="!isImageStrip">
+          <div class="step-title sm">Card shape</div>
+          <div class="tiles">
+            <button class="tile" *ngFor="let s of availableCardShapes" [class.sel]="t.cardShape===s.id" (click)="t.cardShape=s.id">{{ s.label }}</button>
+          </div>
+        </ng-container>
 
         <div class="step-title sm">Card content</div>
         <div class="tiles">
@@ -274,6 +283,7 @@
         <div class="seg">
           <button class="tile" *ngFor="let s of cardSurfaces" [class.sel]="(t.cardSurface||'flat')===s.id" (click)="t.cardSurface=s.id">{{ s.label }}</button>
         </div>
+        </ng-container>
 
         <ng-container *ngIf="showTextPos">
           <div class="step-title sm">Text position</div>
@@ -378,6 +388,14 @@
           <div class="step-title sm">Card shape</div>
           <p class="hint">Shape of each sub-category image (this layout shows images).</p>
           <div class="tiles"><button class="tile" *ngFor="let s of cardShapes" [class.sel]="(t.intermediate.cardShape||'rect')===s.id" (click)="t.intermediate.cardShape=s.id">{{ s.label }}</button></div>
+
+          <div class="step-title sm">Card content</div>
+          <div class="seg"><button class="tile" *ngFor="let c of interContents" [class.sel]="(t.intermediate.content||'image-text')===c.id" (click)="t.intermediate.content=c.id">{{ c.label }}</button></div>
+        </ng-container>
+
+        <ng-container *ngIf="intTextPosMatters">
+          <div class="step-title sm">Text position</div>
+          <div class="seg"><button class="tile" *ngFor="let p of cardTextPositions" [class.sel]="(t.intermediate.textPos||'below')===p.id" (click)="t.intermediate.textPos=p.id">{{ p.label }}</button></div>
         </ng-container>
 
         <div class="step-title sm">Card gap</div>
@@ -469,6 +487,58 @@
       <div *ngSwitchCase="'resTemplate'">
         <div class="step-title">Result template</div>
         <div class="tiles"><button class="tile" *ngFor="let o of resultTemplates" [class.sel]="t.resultTemplate===o" (click)="t.resultTemplate=o">{{ o }}</button></div>
+
+        <div class="step-title sm">Card content</div>
+        <p class="hint">Whether product cards show their image.</p>
+        <div class="seg"><button class="tile" *ngFor="let c of interContents" [class.sel]="(t.result.content||'image-text')===c.id" (click)="t.result.content=c.id">{{ c.label }}</button></div>
+
+        <ng-container *ngIf="resShapeMatters && (t.result.content||'image-text')==='image-text'">
+          <div class="step-title sm">Card shape</div>
+          <p class="hint">Shape of the product cards / images. Default keeps the template's own look.</p>
+          <div class="tiles">
+            <button class="tile" [class.sel]="!t.result.cardShape" (click)="t.result.cardShape=undefined">Default</button>
+            <button class="tile" *ngFor="let s of cardShapes" [class.sel]="t.result.cardShape===s.id" (click)="t.result.cardShape=s.id">{{ s.label }}</button>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="resTextPosMatters && (t.result.content||'image-text')==='image-text'">
+          <div class="step-title sm">Text position</div>
+          <p class="hint">Overlay places product info on top of the image.</p>
+          <div class="seg"><button class="tile" *ngFor="let p of cardTextPositions" [class.sel]="(t.result.textPos||'below')===p.id" (click)="t.result.textPos=p.id">{{ p.label }}</button></div>
+        </ng-container>
+
+        <div class="step-title sm">Overflow scrolling</div>
+        <p class="hint">How the product list scrolls when items don't fit. Auto uses the template's natural direction.</p>
+        <div class="seg">
+          <button class="tile" *ngFor="let m of scrollModes" [class.sel]="(t.scrollMode||'auto')===m.id" (click)="t.scrollMode=m.id">{{ m.label }}</button>
+        </div>
+
+        <div class="step-title sm">Nav bar style</div>
+        <div class="seg">
+          <button class="tile" *ngFor="let s of navStyles" [class.sel]="(t.navStyle||'floating')===s.id" (click)="t.navStyle=s.id">{{ s.label }}</button>
+        </div>
+        <div class="step-title sm">Button layout</div>
+        <div class="seg">
+          <button class="tile" [class.sel]="!t.nav?.split" (click)="t.nav!.split=false">Grouped together</button>
+          <button class="tile" [class.sel]="t.nav?.split" (click)="t.nav!.split=true">Separate (independent)</button>
+        </div>
+        <ng-container *ngIf="!t.nav?.split">
+          <div class="step-title sm">Button position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="t.nav?.split">
+          <div class="step-title sm">&#8249; Back position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.backPosition||'bottom-left')===p.id" (click)="t.nav!.backPosition=p.id">{{ p.label }}</button>
+          </div>
+          <div class="step-title sm">&#8962; Home position</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.homePosition||'bottom-right')===p.id" (click)="t.nav!.homePosition=p.id">{{ p.label }}</button>
+          </div>
+        </ng-container>
+        <p class="hint">Button colors are on the Result colors step.</p>
       </div>
 
       <div *ngSwitchCase="'resColors'">

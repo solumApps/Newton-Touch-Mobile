@@ -85,7 +85,11 @@ export type ResultTemplate =
   | 'hero-product'
   /** drill-filter: drill-path breadcrumb columns (like drill-stair) plus a tabbed
    *  (popular/alphabetical) numbered product list panel — map-less kiosks. */
-  | 'drill-filter';
+  | 'drill-filter'
+  /** shelf: retail product shelf — side category image panel + horizontally
+   *  scrolling product cards (image, name, price, zone) with filter tabs.
+   *  Inspired by cosmetics/hair-care kiosk result screens. */
+  | 'shelf';
 
 export type TransitionType = 'fade-slide' | 'scale-up' | 'slide-left' | 'shimmer' | 'none';
 export type AnimSpeed = 'slow' | 'normal' | 'fast';
@@ -181,8 +185,8 @@ export interface ThemeTokens {
   includeIntermediate: boolean;
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
-  intermediate: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; gap?: 'tight' | 'normal' | 'loose'; };
-  result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; transparentHeader?: boolean; };
+  intermediate: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; gap?: 'tight' | 'normal' | 'loose'; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; };
+  result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; transparentHeader?: boolean; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; cardShape?: CardShape; };
   animation: { transition: TransitionType; speed: AnimSpeed; applyToAll: boolean; };
   loader: { style: LoaderStyle; color: string; };
   /** Shared typography/appearance — applied consistently across ALL rendered pages. */
@@ -277,7 +281,7 @@ export const THEME_ENUM_VALUES = {
   gap: ['tight', 'normal', 'loose'],
   scrollMode: ['auto', 'vertical', 'horizontal'],
   intermediateStyle: ['accordion', 'pill-tabs', 'image-grid', 'hex-grid', 'circular', 'scroll-list', 'card-strip', 'fullscreen', 'side-rail', 'center-tiles', 'brand-grid', 'drill-stair', 'brand-rail'],
-  resultTemplate: ['map-list', 'cards-map', 'dual-list', 'split-panel', 'list-only', 'map-full', 'card-grid', 'minimal', 'esl-focus', 'drill-stair', 'filter-list', 'map-filter-list', 'promo-list', 'catalog-grid', 'product-focus', 'hero-product', 'drill-filter'],
+  resultTemplate: ['map-list', 'cards-map', 'dual-list', 'split-panel', 'list-only', 'map-full', 'card-grid', 'minimal', 'esl-focus', 'drill-stair', 'filter-list', 'map-filter-list', 'promo-list', 'catalog-grid', 'product-focus', 'hero-product', 'drill-filter', 'shelf'],
   itemSize: ['small', 'medium', 'large'],
   pathStyle: ['dashed', 'solid', 'dotted', 'animated'],
   transition: ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'],
