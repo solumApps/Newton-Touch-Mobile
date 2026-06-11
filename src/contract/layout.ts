@@ -353,6 +353,16 @@ export interface LayoutJson {
   home: CardItem[];
   intermediate: CardItem[];
   result: ResultContent;
+  /** How the Result page picks its content. 'common' (default when absent) =
+   *  every path ends on the ONE shared `result` above — legacy behaviour.
+   *  'per-item' = each HOME card owns its own full Result page in `itemResults`.
+   *  Only meaningful for skip-intermediate themes (includeIntermediate=false,
+   *  Home navigates straight to Result carrying the tapped card's id). */
+  resultMode?: 'common' | 'per-item';
+  /** Per-home-card Result pages, keyed by CardItem.id (resultMode 'per-item').
+   *  A card with no entry here (or an entry with no products) falls back to the
+   *  shared `result` content above, so a partial map never blanks the kiosk. */
+  itemResults?: { [cardId: string]: ResultContent };
   eslLinks?: EslLink[];        // present only for prototype-esl
   eslBlinkBy?: EslBlinkBy;
   screensaver: Screensaver;

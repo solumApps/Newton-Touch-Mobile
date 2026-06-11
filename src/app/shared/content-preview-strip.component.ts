@@ -275,7 +275,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           <!-- shelf: side category panel + product shelf -->
           <div class="body shelf-body" *ngIf="resTpl==='shelf'">
-            <div class="shelf-side" [style.background-image]="result?.promoImage ? 'url('+result?.promoImage+')' : null">
+            <div class="shelf-side" [class.no-img]="!result?.promoImage" [style.background-image]="result?.promoImage ? 'url('+result?.promoImage+')' : null">
               <div class="shelf-title">{{ captionText || titleText }}</div>
             </div>
             <div class="shelf-main">

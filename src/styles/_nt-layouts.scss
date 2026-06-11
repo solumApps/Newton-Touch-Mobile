@@ -1615,6 +1615,21 @@
 .nt-result.res-shelf .body.shelf-body { padding:0; }
 .nt-result.res-shelf .shelf-side { flex:0 0 22%; position:relative; background-size:cover; background-position:center;
   background-color:rgba(255,255,255,.06); display:flex; align-items:flex-end; border-right:1px solid rgba(255,255,255,.1); }
+/* No image uploaded yet → dummy category artwork (accent-tinted, theme-aware)
+   so previews (themes page / theme preview / builder before upload) don't show
+   a plain black panel. Replaced entirely once a real image is set. */
+.nt-result.res-shelf .shelf-side.no-img {
+  background-image:
+    radial-gradient(circle at 38% 30%, rgba(255,255,255,.30), rgba(255,255,255,0) 52%),
+    linear-gradient(160deg, var(--nt-res-accent,#FFCD00), rgba(0,0,0,.55));
+  background-blend-mode:overlay, normal;
+}
+.nt-result.res-shelf .shelf-side.no-img::before {
+  content:''; position:absolute; left:18%; right:18%; top:22%; height:38%;
+  border-radius:12% / 18%;
+  background:linear-gradient(180deg, rgba(255,255,255,.40), rgba(255,255,255,.12));
+  box-shadow:0 calc(var(--nt-vh)*1.2) calc(var(--nt-vh)*2.4) rgba(0,0,0,.25);
+}
 .nt-result.res-shelf .shelf-side .shelf-title { padding:calc(var(--nt-vh)*3) calc(var(--nt-vw)*1.5);
   font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1.8); font-weight:900; color:#fff;
   text-shadow:0 calc(var(--nt-vh)*0.3) calc(var(--nt-vh)*0.8) rgba(0,0,0,.6); overflow-wrap:break-word; min-width:0; }
