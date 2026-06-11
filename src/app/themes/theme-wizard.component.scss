@@ -260,6 +260,7 @@
 .prev .stage.layout-fullscreen .card.featured.shape-pill { border-radius: 999px !important; }
 .prev .stage.layout-fullscreen .card:not(.featured) { display: none; }
 
+
 .prev .stage.layout-image-strip { display: flex; padding: 0; }
 .prev .stage.layout-image-strip .card { flex: 1 1 0; height: 100%; border-radius: 0 !important; clip-path: none !important; border-width: 0 1px 0 0; }
 .prev .stage.layout-image-strip .card .img { position: absolute; inset: 0; opacity: .5; }

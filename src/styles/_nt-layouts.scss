@@ -175,6 +175,8 @@
 .nt-home .layout-fullscreen .card { flex:1; height:100%; margin:0; border-radius:10px !important; clip-path:none !important; }
 .nt-home .layout-fullscreen .card.shape-pill { border-radius:999px !important; }
 .nt-home .layout-fullscreen .card:not(.featured) { display:none; }
+/* transparent header is absolute → fullscreen card must not expand behind it */
+.nt-home .hdr.hdr-transparent ~ .layout-fullscreen { padding-top:calc(var(--nt-vh) * 15); }
 
 
 .nt-home .layout-image-strip { display:flex; padding:0; }
