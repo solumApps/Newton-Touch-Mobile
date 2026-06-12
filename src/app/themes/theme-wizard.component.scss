@@ -302,11 +302,16 @@
   height: 56%; width: auto; aspect-ratio: 1; margin: 0 auto 3px; border-radius: 50%; opacity: .92;
 }
 .prev .stage.layout-promo-categories .promo-rail .card.shape-hexagon .img { border-radius: 0; clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
-.prev .stage.layout-promo-categories .promo-rail .card .meta {
+.prev .stage.layout-promo-categories .promo-rail .card:not(.shape-circle):not(.shape-hexagon) .meta {
   position: static !important; inset: auto !important; left: auto !important; right: auto !important;
-  bottom: auto !important; top: auto !important; width: 100%; background: transparent !important; padding: 0;
+  bottom: auto !important; top: auto !important; width: 100% !important; background: transparent !important; padding: 2px 0 0 !important;
+  text-align: center; display: block !important; flex: 0 0 auto !important;
 }
-.prev .stage.layout-promo-categories .promo-rail .card .name { color: var(--prev-text, #fff); text-shadow: none; }
+.prev .stage.layout-promo-categories .promo-rail .card .name {
+  color: var(--prev-text, #fff); text-shadow: none;
+  text-align: center; display: block !important; width: 100%;
+  font-size: calc(var(--prev-scale, 1) * 7px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 /* promo tiles are chromeless on the LCD — surfaces must not re-add a card ring
    (with shape=circle this rendered as a "circle inside a circle"). */
 .prev[class*="surface-"] .stage.layout-promo-categories .card {
