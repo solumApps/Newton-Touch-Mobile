@@ -97,7 +97,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           <!-- promo-categories: scrollable rail, copy pinned left (mirrors LCD) -->
           <div class="promo-rail" *ngIf="theme?.homeLayout==='promo-categories'">
-            <div class="card shape-{{theme?.cardShape}}"
+            <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
                  [class.has-img]="!!c.image || usePh" *ngFor="let c of homeCells; let i = index">
               <div class="img" [class.placeholder]="!c.image && !usePh" [style.background-image]="c.image ? 'url('+c.image+')' : (usePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="(!c.image && !usePh) ? theme?.accent : null"></div>
               <div class="meta"><span class="name">{{ c.name }}</span></div>
