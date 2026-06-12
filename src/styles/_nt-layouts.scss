@@ -716,6 +716,162 @@
 }
 .nt-home .layout-h-scroll.scroll-vertical .h-scroll-rail .card { margin-bottom:calc(var(--nt-vh)*1.5); }
 
+/* ================= QA overrides (scoped — keep existing layouts intact) ===== */
+/* B3/B4: columns — image+text 'below' renders the name OUTSIDE the card.
+   The card keeps its footprint; the visible "card" (chrome) moves to the image
+   and the label sits underneath, centered. */
+.nt-home .cards[class*="layout-col-"]:not(.shape) .card.content-image-text.pos-below {
+  background:transparent !important; border:0 !important; box-shadow:none !important;
+  border-radius:0; overflow:visible; display:flex; flex-direction:column;
+}
+.nt-home .cards[class*="layout-col-"]:not(.shape) .card.content-image-text.pos-below .img {
+  position:static; flex:1 1 auto; min-height:0; width:100%; height:auto; box-sizing:border-box;
+  background-color:var(--nt-card,rgba(255,255,255,.15)); border-radius:10px;
+}
+.nt-home .cards[class*="layout-col-"]:not(.shape) .card.shape-pill.content-image-text.pos-below .img { border-radius:999px; }
+.nt-home .cards[class*="layout-col-"]:not(.shape) .card.content-image-text.pos-below .meta {
+  position:static; flex:0 0 auto; width:100%; padding:calc(var(--nt-vh)*0.8) calc(var(--nt-vw)*0.3) 0;
+  background:transparent; text-align:center;
+}
+.nt-home .cards[class*="layout-col-"]:not(.shape) .card.content-image-text.pos-below .name {
+  display:block; text-align:center; color:var(--nt-text,#fff);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+/* card surface follows the visible (image) part of the 'below' card */
+.nt-home.surface-glass .cards[class*="layout-col-"]:not(.shape) .card.content-image-text.pos-below .img { border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.68); box-shadow:inset 0 0 calc(var(--nt-vw)*2) rgba(255,255,255,.08); }
+.nt-home.surface-raised .cards[class*="layout-col-"]:not(.shape) .card.content-image-text.pos-below .img { border:calc(var(--nt-vw)*0.16) solid rgba(255,255,255,.74); box-shadow:0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0,0,0,.24); }
+.nt-home.surface-outlined .cards[class*="layout-col-"]:not(.shape) .card.content-image-text.pos-below .img { background-color:transparent; border:calc(var(--nt-vw)*0.14) solid var(--nt-accent,#FFCD00); }
+.nt-home.surface-glow .cards[class*="layout-col-"]:not(.shape) .card.content-image-text.pos-below .img { border:calc(var(--nt-vw)*0.14) solid var(--nt-accent,#FFCD00); box-shadow:0 0 calc(var(--nt-vw)*1.8) var(--nt-accent,#FFCD00); }
+
+/* B5: columns + horizontal scroll — cardGap applies */
+.nt-home .cards.scroll-horizontal[class*="layout-col-"] .card,
+.nt-home .cards.scroll-horizontal[class*="layout-grid-"] .card {
+  margin:0 calc(var(--card-gap,calc(var(--nt-vw)*1.5)) * 0.5);
+}
+/* B1: columns + horizontal scroll — cardSize applies */
+.nt-home .cards.scroll-horizontal[class*="layout-col-"].card-size-xs .card,
+.nt-home .cards.scroll-horizontal[class*="layout-grid-"].card-size-xs .card { flex-basis:calc(var(--nt-vw)*12); width:calc(var(--nt-vw)*12); height:58%; }
+.nt-home .cards.scroll-horizontal[class*="layout-col-"].card-size-small .card,
+.nt-home .cards.scroll-horizontal[class*="layout-grid-"].card-size-small .card { flex-basis:calc(var(--nt-vw)*16); width:calc(var(--nt-vw)*16); height:72%; }
+.nt-home .cards.scroll-horizontal[class*="layout-col-"].card-size-large .card,
+.nt-home .cards.scroll-horizontal[class*="layout-grid-"].card-size-large .card { flex-basis:calc(var(--nt-vw)*28); width:calc(var(--nt-vw)*28); height:96%; }
+/* B2: circle/hexagon (shape grids) + horizontal scroll — force ONE scrolling row */
+.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"],
+.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"] {
+  display:flex; flex-wrap:nowrap; align-items:center; align-content:center; justify-content:flex-start;
+}
+.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"] .card,
+.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"] .card {
+  flex:0 0 calc(var(--nt-vh)*56); width:calc(var(--nt-vh)*56); height:calc(var(--nt-vh)*56);
+  margin:0 calc(var(--card-gap,calc(var(--nt-vw)*1.5)) * 0.5);
+}
+.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"].card-size-xs .card,
+.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"].card-size-xs .card { flex-basis:calc(var(--nt-vh)*36); width:calc(var(--nt-vh)*36); height:calc(var(--nt-vh)*36); }
+.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"].card-size-small .card,
+.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"].card-size-small .card { flex-basis:calc(var(--nt-vh)*46); width:calc(var(--nt-vh)*46); height:calc(var(--nt-vh)*46); }
+.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"].card-size-large .card,
+.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"].card-size-large .card { flex-basis:calc(var(--nt-vh)*66); width:calc(var(--nt-vh)*66); height:calc(var(--nt-vh)*66); }
+/* B7: columns + vertical scroll — cardGap applies */
+.nt-home .cards.scroll-vertical[class*="layout-col-"] .card {
+  margin:calc(var(--card-gap,calc(var(--nt-vw)*1.5)) * 0.5) calc(var(--card-gap,calc(var(--nt-vw)*1.5)) * 0.35);
+}
+
+/* C1: fullscreen honours rect AND pill card shapes */
+.nt-home .layout-fullscreen .card.shape-pill { border-radius:999px !important; }
+
+/* D1: promo rail always starts beside the promo copy (centered/right alignment
+   used to slide the first card behind the copy block) */
+.nt-home .layout-promo-categories.align-center .promo-rail,
+.nt-home .layout-promo-categories.align-right .promo-rail { justify-content:flex-start; }
+.nt-home .layout-promo-categories.align-center .promo-rail .card:first-child,
+.nt-home .layout-promo-categories.align-right .promo-rail .card:first-child { margin-left:auto; }
+.nt-home .layout-promo-categories.align-center .promo-rail .card:last-child { margin-right:auto; }
+
+/* D2+D4: promo text-style cards get a visible, theme-consistent container
+   that follows the card shape; text stays centered in the card */
+.nt-home .layout-promo-categories .promo-rail .card.content-text-only,
+.nt-home .layout-promo-categories .promo-rail .card.content-icon-text,
+.nt-home .layout-promo-categories .promo-rail .card.content-color-block,
+.nt-home .layout-promo-categories .promo-rail .card.content-gradient {
+  background:var(--nt-card,rgba(255,255,255,.15)); border-radius:10px;
+  align-items:center; justify-content:center; text-align:center;
+}
+.nt-home .layout-promo-categories .promo-rail .card.content-color-block { background:var(--nt-accent,#FFCD00); }
+.nt-home .layout-promo-categories .promo-rail .card.content-gradient { background:linear-gradient(160deg,var(--nt-accent,#FFCD00),var(--nt-card,rgba(255,255,255,.15))); }
+.nt-home .layout-promo-categories .promo-rail .card.shape-pill.content-text-only,
+.nt-home .layout-promo-categories .promo-rail .card.shape-pill.content-icon-text,
+.nt-home .layout-promo-categories .promo-rail .card.shape-pill.content-color-block,
+.nt-home .layout-promo-categories .promo-rail .card.shape-pill.content-gradient { border-radius:999px; }
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-text-only,
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-icon-text,
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-color-block,
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-gradient { border-radius:50%; }
+/* circle/hexagon promo cards: text centered IN the shape (not the bottom bubble) */
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-text-only .meta,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon.content-text-only .meta,
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-color-block .meta,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon.content-color-block .meta,
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-gradient .meta,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon.content-gradient .meta {
+  position:absolute !important; left:10% !important; right:10% !important; top:0 !important; bottom:0 !important;
+  width:auto; display:flex; align-items:center; justify-content:center; background:transparent !important; padding:0;
+}
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-icon-text .meta,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon.content-icon-text .meta {
+  position:absolute !important; left:0 !important; right:0 !important; top:0 !important; bottom:0 !important;
+  background:transparent !important; padding:0;
+}
+/* surface treatment matches other layouts on these contents */
+.nt-home.surface-glass .layout-promo-categories .promo-rail .card.content-text-only,
+.nt-home.surface-glass .layout-promo-categories .promo-rail .card.content-icon-text,
+.nt-home.surface-glass .layout-promo-categories .promo-rail .card.content-color-block,
+.nt-home.surface-glass .layout-promo-categories .promo-rail .card.content-gradient { border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.68); }
+.nt-home.surface-raised .layout-promo-categories .promo-rail .card.content-text-only,
+.nt-home.surface-raised .layout-promo-categories .promo-rail .card.content-icon-text,
+.nt-home.surface-raised .layout-promo-categories .promo-rail .card.content-color-block,
+.nt-home.surface-raised .layout-promo-categories .promo-rail .card.content-gradient { border:calc(var(--nt-vw)*0.16) solid rgba(255,255,255,.74); box-shadow:0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0,0,0,.24); }
+.nt-home.surface-outlined .layout-promo-categories .promo-rail .card.content-text-only,
+.nt-home.surface-outlined .layout-promo-categories .promo-rail .card.content-icon-text,
+.nt-home.surface-outlined .layout-promo-categories .promo-rail .card.content-color-block,
+.nt-home.surface-outlined .layout-promo-categories .promo-rail .card.content-gradient { border:calc(var(--nt-vw)*0.14) solid var(--nt-accent,#FFCD00); }
+.nt-home.surface-glow .layout-promo-categories .promo-rail .card.content-text-only,
+.nt-home.surface-glow .layout-promo-categories .promo-rail .card.content-icon-text,
+.nt-home.surface-glow .layout-promo-categories .promo-rail .card.content-color-block,
+.nt-home.surface-glow .layout-promo-categories .promo-rail .card.content-gradient { border:calc(var(--nt-vw)*0.14) solid var(--nt-accent,#FFCD00); box-shadow:0 0 calc(var(--nt-vw)*1.8) var(--nt-accent,#FFCD00); }
+
+/* E1+E2: h-scroll — height proportionate to cardSize; names stay on ONE line.
+   Tradeoff: CSS cannot equalize widths to the longest name, so cards keep a
+   uniform size-driven min-width and grow per-content up to a cap; names that
+   still exceed the cap ellipsize. */
+.nt-home .layout-h-scroll .h-scroll-rail .card:not(.shape-circle):not(.shape-hexagon) {
+  flex:0 0 auto; width:auto; min-width:calc(var(--nt-vw)*14); max-width:calc(var(--nt-vw)*26); height:68%;
+}
+.nt-home .layout-h-scroll .h-scroll-rail .card .meta { padding-left:calc(var(--nt-vw)*1); padding-right:calc(var(--nt-vw)*1); }
+.nt-home .layout-h-scroll .h-scroll-rail .card .name {
+  display:block; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
+}
+.nt-home .layout-h-scroll.card-size-xs    .h-scroll-rail .card:not(.shape-circle):not(.shape-hexagon) { min-width:calc(var(--nt-vw)*11); height:44%; }
+.nt-home .layout-h-scroll.card-size-small .h-scroll-rail .card:not(.shape-circle):not(.shape-hexagon) { min-width:calc(var(--nt-vw)*12.5); height:56%; }
+.nt-home .layout-h-scroll.card-size-large .h-scroll-rail .card:not(.shape-circle):not(.shape-hexagon) { min-width:calc(var(--nt-vw)*18); height:84%; }
+.nt-home .layout-h-scroll .h-scroll-rail .card.shape-pill { min-width:calc(var(--nt-vw)*21); height:52%; }
+.nt-home .layout-h-scroll.card-size-xs    .h-scroll-rail .card.shape-pill { min-width:calc(var(--nt-vw)*13); height:34%; }
+.nt-home .layout-h-scroll.card-size-small .h-scroll-rail .card.shape-pill { min-width:calc(var(--nt-vw)*17); height:44%; }
+.nt-home .layout-h-scroll.card-size-large .h-scroll-rail .card.shape-pill { min-width:calc(var(--nt-vw)*26); height:64%; }
+/* circle/hexagon h-scroll discs follow cardSize too */
+.nt-home .layout-h-scroll .h-scroll-rail .card.shape-circle,
+.nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*54); width:calc(var(--nt-vh)*54); height:calc(var(--nt-vh)*54); }
+.nt-home .layout-h-scroll.card-size-xs .h-scroll-rail .card.shape-circle,
+.nt-home .layout-h-scroll.card-size-xs .h-scroll-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*38); width:calc(var(--nt-vh)*38); height:calc(var(--nt-vh)*38); }
+.nt-home .layout-h-scroll.card-size-small .h-scroll-rail .card.shape-circle,
+.nt-home .layout-h-scroll.card-size-small .h-scroll-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*46); width:calc(var(--nt-vh)*46); height:calc(var(--nt-vh)*46); }
+.nt-home .layout-h-scroll.card-size-large .h-scroll-rail .card.shape-circle,
+.nt-home .layout-h-scroll.card-size-large .h-scroll-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*63); width:calc(var(--nt-vh)*63); height:calc(var(--nt-vh)*63); }
+/* keep the image+text 'below' shape variant width:auto-safe (min-width applies) */
+.nt-home .layout-h-scroll .h-scroll-rail .card.shape-circle.content-image-text.pos-below,
+.nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon.content-image-text.pos-below {
+  flex:0 0 calc(var(--nt-vw)*14); width:calc(var(--nt-vw)*14); height:92%;
+}
+
 /* ================= INTERMEDIATE =========================================== */
 .nt-inter .body { flex:1; min-height:0; box-sizing:border-box; padding:calc(var(--nt-vh)*2) calc(var(--nt-vw)*3); overflow-y:auto; overflow-x:hidden;
   -webkit-overflow-scrolling:touch; overscroll-behavior:contain; scrollbar-width:none; }
@@ -759,6 +915,17 @@
 .nt-inter.surface-glass .int-hex-grid .item { border-color:transparent;
   filter:drop-shadow(0 0 calc(var(--nt-vw)*0.08) rgba(255,255,255,.68)) drop-shadow(0 0 calc(var(--nt-vw)*0.08) rgba(255,255,255,.68)); }
 .nt-inter.surface-glow .int-hex-grid .item, .nt-inter.surface-raised .int-hex-grid .item { border-color:transparent; }
+/* A1: hex-grid 'outlined' — clip-path clips borders AND the outlined surface
+   makes the item transparent (so the drop-shadow ring has no silhouette).
+   Draw the outline as an accent-filled hex with an inset ::after hexagon
+   restoring the inner (page) fill. */
+.nt-inter.surface-outlined .int-hex-grid .item { background:var(--nt-int-accent,#FFCD00); border:0; filter:none; position:relative; }
+.nt-inter.surface-outlined .int-hex-grid .item::after {
+  content:''; position:absolute; left:4%; right:4%; top:4%; bottom:4%; z-index:0;
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  background:var(--nt-int-bg,#1A0036);
+}
+.nt-inter.surface-outlined .int-hex-grid .item .name { position:relative; z-index:1; }
 
 /* gap classes (container gap → half-gap item margins; layout rules below override) */
 .nt-inter .body.int-gap-tight  > .item { margin:calc(var(--nt-vh)*0.3) calc(var(--nt-vw)*0.3); }

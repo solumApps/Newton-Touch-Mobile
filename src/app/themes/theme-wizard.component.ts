@@ -86,13 +86,29 @@ export class ThemeWizardComponent implements OnInit {
   /** Text-position applies to every content with a label (all except image-only),
    *  and to hero-start (it positions the hero copy). */
   get showTextPos(): boolean { return this.t.homeLayout === 'hero-start' || this.t.cardContent !== 'image-only'; }
-  /** 'Below' only makes sense when there is an image to sit below. */
+  /** 'Below' only makes sense when there is an image to sit below — hidden for
+   *  every text-style content, and for arrangements with no under-card area
+   *  (image-strip, hero-start). Centralized so every QA scenario goes through
+   *  one rule (B6, C2, C3, D3, E3). */
+  private readonly noBelowContents: CardContent[] = ['text-only', 'icon-text', 'color-block', 'gradient'];
+  private readonly noBelowLayouts: HomeLayout[] = ['image-strip', 'hero-start'];
+  private get homeBelowHidden(): boolean {
+    return this.noBelowContents.includes(this.t.cardContent) || this.noBelowLayouts.includes(this.t.homeLayout);
+  }
   get textPositionsFor(): { id: CardTextPos; label: string }[] {
-    return this.t.cardContent === 'text-only' ? this.cardTextPositions.filter((p) => p.id !== 'below') : this.cardTextPositions;
+    return this.homeBelowHidden ? this.cardTextPositions.filter((p) => p.id !== 'below') : this.cardTextPositions;
   }
   get interTextPositions(): { id: CardTextPos; label: string }[] {
     return (this.t.intermediate.content || 'image-text') === 'text-only' ? this.cardTextPositions.filter((p) => p.id !== 'below') : this.cardTextPositions;
   }
+  /** When the current selection is a now-hidden 'below', coerce it to 'center'
+   *  (edit-time only — deployed themes keep rendering via CSS fallbacks). */
+  private coerceTextPos(): void {
+    if (this.t.cardTextPos === 'below' && this.homeBelowHidden) this.t.cardTextPos = 'center';
+    if ((this.t.intermediate.content || 'image-text') === 'text-only' && this.t.intermediate.textPos === 'below') this.t.intermediate.textPos = 'center';
+  }
+  pickContent(c: CardContent): void { this.t.cardContent = c; this.coerceTextPos(); }
+  pickInterContent(c: 'image-text' | 'text-only'): void { this.t.intermediate.content = c; this.coerceTextPos(); }
 
   /** Layouts where circle/hexagon shapes don't render well and are hidden.
    *  h-scroll DOES support all shapes (handled inside the rail), hero-list does NOT. */
@@ -107,6 +123,7 @@ export class ThemeWizardComponent implements OnInit {
         (this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon')) {
       this.t.cardShape = 'rect';
     }
+    this.coerceTextPos();
   }
 
   /** Only show circle/hexagon shapes for layouts where they make visual sense. */
@@ -297,6 +314,9 @@ export class ThemeWizardComponent implements OnInit {
       if (existing) {
         this.name = existing.name;
         this.t = ThemeService.normalize(JSON.parse(JSON.stringify(existing.tokens)));
+        // Edit-time only: a loaded theme may carry a textPos that is hidden for
+        // its content/layout combo — coerce so the wizard never saves it back.
+        this.coerceTextPos();
       }
     }
   }
