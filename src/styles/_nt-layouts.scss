@@ -249,6 +249,11 @@
 .nt-home.surface-raised   .layout-promo-categories .promo-rail .card .img { box-shadow:0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0,0,0,.24); }
 .nt-home.surface-outlined .layout-promo-categories .promo-rail .card .img { border:calc(var(--nt-vw)*0.14) solid var(--nt-accent,#FFCD00); }
 .nt-home.surface-glow     .layout-promo-categories .promo-rail .card .img { border:calc(var(--nt-vw)*0.14) solid var(--nt-accent,#FFCD00); box-shadow:0 0 calc(var(--nt-vw)*1.8) var(--nt-accent,#FFCD00); }
+/* pill promo tiles: card flex width matches the pill image's width to prevent clipping */
+.nt-home .layout-promo-categories .promo-rail .card.shape-pill {
+  flex:0 0 calc(var(--nt-vh)*48);
+}
+
 /* circle/hexagon promo tiles: the CARD becomes a true square shape (a 50% radius
    on the wide card rendered a clipped ellipse) and the image fills it */
 .nt-home .layout-promo-categories .promo-rail .card.shape-circle,
