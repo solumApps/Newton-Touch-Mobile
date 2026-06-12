@@ -1948,8 +1948,13 @@
   border-radius:6px; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*1);
 }
 .nt-result.res-shape-rect .prod, .nt-result.res-shape-rect .fitem { border-radius:6px; }
-.nt-result.res-shape-circle .prod .img { border-radius:50%; }
-.nt-result.res-shape-hexagon .prod .img { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+/* QA fix: circle/hexagon shape the PRODUCT CARD itself (like home cards) —
+   previously they only reshaped the inner thumbnail. Grid/shelf templates keep
+   their own dedicated shape rules below. */
+.nt-result.res-shape-circle:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid) .prod { border-radius:999px; justify-content:center; text-align:center; overflow:hidden; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*2.2); }
+.nt-result.res-shape-hexagon:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid) .prod { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  justify-content:center; text-align:center; box-shadow:none; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*2.6); }
+/* thumbnails keep their default small rounded look inside shaped cards */
 /* card templates: circle/hexagon turn the card image into a centred square shape */
 .nt-result.res-shape-circle.res-card-grid .prod .img, .nt-result.res-shape-circle.res-cards-map .prod .img, .nt-result.res-shape-circle.res-catalog-grid .prod .img,
 .nt-result.res-shape-hexagon.res-card-grid .prod .img, .nt-result.res-shape-hexagon.res-cards-map .prod .img, .nt-result.res-shape-hexagon.res-catalog-grid .prod .img {
