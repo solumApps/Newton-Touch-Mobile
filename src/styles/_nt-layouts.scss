@@ -239,7 +239,7 @@
 .nt-home .layout-promo-categories .promo-rail .card.shape-rect .img { border-radius:calc(var(--nt-vw)*0.7); background-size:cover; }
 .nt-home .layout-promo-categories .promo-rail .card.shape-pill .img { border-radius:999px; width:calc(var(--nt-vh)*48) !important; height:calc(var(--nt-vh)*27) !important; background-size:cover; }
 /* promo labels: readable bubble even while tiles scroll under the copy */
-.nt-home .layout-promo-categories .promo-rail .card .meta {
+.nt-home .layout-promo-categories .promo-rail .card:not(.shape-circle):not(.shape-hexagon) .meta {
   width:auto !important; align-self:center; border-radius:999px;
   background:var(--nt-overlay, rgba(0,0,0,.45)) !important; padding:calc(var(--nt-vh)*0.4) calc(var(--nt-vw)*0.9) !important;
 }
@@ -274,9 +274,10 @@
 .nt-home.surface-raised .layout-promo-categories .promo-rail .card,
 .nt-home.surface-outlined .layout-promo-categories .promo-rail .card,
 .nt-home.surface-glow .layout-promo-categories .promo-rail .card { background:transparent; border:0; box-shadow:none; filter:none; }
-.nt-home .layout-promo-categories .promo-rail .card .meta {
+.nt-home .layout-promo-categories .promo-rail .card:not(.shape-circle):not(.shape-hexagon) .meta {
   position:static !important; left:auto !important; right:auto !important;
-  bottom:auto !important; top:auto !important; width:100%; background:transparent !important; padding:0;
+  bottom:auto !important; top:auto !important; width:100% !important; background:transparent !important; padding:0 !important;
+  text-align:center; display:block !important;
 }
 .nt-home .layout-promo-categories .promo-rail .card .name { color:var(--nt-text,#fff); text-shadow:none; }
 
