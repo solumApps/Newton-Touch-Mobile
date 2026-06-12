@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -28,7 +28,7 @@ interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' 
   templateUrl: './content-builder.component.html',
   styleUrls: ['./content-builder.component.scss'],
 })
-export class ContentBuilderComponent implements OnInit {
+export class ContentBuilderComponent implements OnInit, OnDestroy {
   @ViewChild('builderSteps') builderSteps?: ElementRef<HTMLElement>;
   @ViewChild(IonContent) contentViewport?: IonContent;
   draft?: ContentDraft;
@@ -121,8 +121,10 @@ export class ContentBuilderComponent implements OnInit {
     if (warnings.length && this.warnedStep !== this.stepIndex) { this.warnedStep = this.stepIndex; return; } // show once; next tap proceeds
     this.stepIndex++; this.afterStepChange(); this.stepErrors = []; this.stepWarnings = []; this.save();
   }
-  prev(): void { if (!this.isFirst) { this.stepIndex--; this.afterStepChange(); this.stepErrors = []; this.stepWarnings = []; } }
-  goto(i: number): void { if (i >= 0 && i < this.visibleSteps.length) { this.stepIndex = i; this.afterStepChange(); this.stepErrors = []; this.stepWarnings = []; } }
+  prev(): void { if (!this.isFirst) { this.stepIndex--; this.afterStepChange(); this.stepErrors = []; this.stepWarnings = []; this.rememberStep(); } }
+  goto(i: number): void { if (i >= 0 && i < this.visibleSteps.length) { this.stepIndex = i; this.afterStepChange(); this.stepErrors = []; this.stepWarnings = []; this.rememberStep(); } }
+  /** Track the current step on the draft so reopening resumes here (persisted on next save). */
+  private rememberStep(): void { if (this.draft) this.draft.lastStep = this.stepIndex; }
 
   /** Review slider — shows all pages (with real data) as a horizontal scroll
    *  so the user can swipe through Home / Intermediate / Result / Screensaver
@@ -402,6 +404,16 @@ export class ContentBuilderComponent implements OnInit {
       const t = await this.themes.getById(this.draft.themeId);
       if (t) { this.draft.themeTokens = t.tokens; this.draft.themeName = t.name; }
     } catch { /* keep snapshot */ }
+    // Resume where the user left off (lastStep persisted with the draft).
+    if (typeof this.draft.lastStep === 'number') {
+      this.stepIndex = Math.min(Math.max(0, Math.round(this.draft.lastStep)), this.visibleSteps.length - 1);
+    }
+  }
+
+  /** Safety net: leaving the builder by ANY route (tab switch, hardware back,
+   *  navigation) persists in-progress edits so partial work is never lost. */
+  ngOnDestroy(): void {
+    if (this.draft && !this.saving) void this.save();
   }
 
   /** Featured-theme designed capacity for home cards. Undefined = unlimited (user themes). */
@@ -520,15 +532,22 @@ export class ContentBuilderComponent implements OnInit {
 
   /** True while a save is in flight — drives the blocking saving overlay. */
   saving = false;
+  /** Brief "Saved ✓" confirmation on the header Save button. */
+  savedFlash = false;
+  private savedFlashTimer: any = null;
   async save(): Promise<void> {
     if (!this.draft || this.saving) return;
     this.saving = true;
     try {
+      this.rememberStep();
       // Per-item mode counts as "has products" when any card's own page has products.
       const hasProducts = this.draft.result.products.length > 0
         || (this.perItemActive && Object.values(this.draft.itemResults || {}).some((r) => (r.products || []).length > 0));
       this.draft.status = this.draft.home.length && hasProducts ? 'complete' : 'draft';
       await this.content.save(this.draft);
+      this.savedFlash = true;
+      if (this.savedFlashTimer) clearTimeout(this.savedFlashTimer);
+      this.savedFlashTimer = setTimeout(() => (this.savedFlash = false), 1600);
     } finally { this.saving = false; }
   }
 
@@ -598,5 +617,9 @@ export class ContentBuilderComponent implements OnInit {
     this.router.navigateByUrl('/deploy/' + this.draft!.id);
   }
 
-  back(): void { this.router.navigateByUrl('/tabs/content'); }
+  /** Back to the content list — persists in-progress edits first (no data loss). */
+  async back(): Promise<void> {
+    await this.save();
+    this.router.navigateByUrl('/tabs/content');
+  }
 }

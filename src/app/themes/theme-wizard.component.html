@@ -371,6 +371,19 @@
         <div class="seg"><button class="tile" *ngFor="let s of textScales" [class.sel]="t.typography.textScale===s" (click)="t.typography.textScale=s">{{ s }}</button></div>
         <div class="step-title sm">Text fit</div>
         <div class="seg"><button class="tile" *ngFor="let f of textFits" [class.sel]="t.typography.textFit===f.id" (click)="t.typography.textFit=f.id">{{ f.label }}</button></div>
+
+        <div class="step-title sm">Card text size</div>
+        <p class="hint">Size of category/card names. “Inherit” follows the global text size above.</p>
+        <div class="seg"><button class="tile" *ngFor="let s of elementScales" [class.sel]="t.typography.cardTextScale===s.id" (click)="t.typography.cardTextScale=s.id">{{ s.label }}</button></div>
+        <div class="step-title sm">Card text case</div>
+        <div class="seg"><button class="tile" *ngFor="let c of textCases" [class.sel]="(t.typography.cardTextCase||'default')===c.id" (click)="t.typography.cardTextCase=c.id">{{ c.label }}</button></div>
+
+        <div class="step-title sm">Header text size</div>
+        <p class="hint">Size of the header title and caption.</p>
+        <div class="seg"><button class="tile" *ngFor="let s of elementScales" [class.sel]="t.typography.headerTextScale===s.id" (click)="t.typography.headerTextScale=s.id">{{ s.label }}</button></div>
+        <div class="step-title sm">Header text case</div>
+        <div class="seg"><button class="tile" *ngFor="let c of textCases" [class.sel]="(t.typography.headerTextCase||'default')===c.id" (click)="t.typography.headerTextCase=c.id">{{ c.label }}</button></div>
+
         <app-color-picker label="Base text color" [value]="t.typography.baseTextColor" (valueChange)="t.typography.baseTextColor=$event" [presets]="textPresets"></app-color-picker>
       </div>
 
@@ -459,6 +472,42 @@
             <app-color-picker label="Background" [value]="t.nav?.homeBg || 'rgba(0,0,0,0.35)'" [allowReset]="true" (reset)="resetNavColor('homeBg')" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
           </div>
         </div>
+        <div class="step-title sm">Button style</div>
+        <div class="seg">
+          <button class="tile" *ngFor="let m of navModes" [class.sel]="(t.nav?.mode||'icon')===m.id" (click)="t.nav!.mode=m.id">{{ m.label }}</button>
+        </div>
+        <ng-container *ngIf="(t.nav?.mode||'icon') !== 'icon'">
+          <div class="fld"><label>Back label</label>
+            <input class="inp" [value]="t.nav?.backLabel || 'Back'" (input)="t.nav!.backLabel=$any($event.target).value" placeholder="Back" /></div>
+          <div class="fld"><label>Home label</label>
+            <input class="inp" [value]="t.nav?.homeLabel || 'Home'" (input)="t.nav!.homeLabel=$any($event.target).value" placeholder="Home" /></div>
+        </ng-container>
+        <div class="step-title sm">Button size</div>
+        <div class="seg">
+          <button class="tile" *ngFor="let s of navSizes" [class.sel]="(t.nav?.size||'normal')===s.id" (click)="t.nav!.size=s.id">{{ s.label }}</button>
+        </div>
+        <ng-container *ngIf="(t.nav?.mode||'icon') !== 'text'">
+          <div class="step-title sm">&#8249; Back icon</div>
+          <div class="seg icon-seg">
+            <button class="tile" [class.sel]="!t.nav?.backIcon" (click)="t.nav!.backIcon=undefined">Default</button>
+            <button class="tile icon-tile" *ngFor="let ic of navIconIds" [class.sel]="t.nav?.backIcon===ic" (click)="t.nav!.backIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
+            <button class="tile" [class.sel]="isCustomNavIcon(t.nav?.backIcon)" (click)="pickNavIcon('back')">Upload…</button>
+          </div>
+          <div class="media-row" *ngIf="isCustomNavIcon(t.nav?.backIcon)">
+            <img class="icon-custom-preview" [src]="t.nav?.backIcon" alt="Custom back icon" />
+            <button class="btn-o media-clear" (click)="t.nav!.backIcon=undefined">Clear</button>
+          </div>
+          <div class="step-title sm">&#8962; Home icon</div>
+          <div class="seg icon-seg">
+            <button class="tile" [class.sel]="!t.nav?.homeIcon" (click)="t.nav!.homeIcon=undefined">Default</button>
+            <button class="tile icon-tile" *ngFor="let ic of navIconIds" [class.sel]="t.nav?.homeIcon===ic" (click)="t.nav!.homeIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
+            <button class="tile" [class.sel]="isCustomNavIcon(t.nav?.homeIcon)" (click)="pickNavIcon('home')">Upload…</button>
+          </div>
+          <div class="media-row" *ngIf="isCustomNavIcon(t.nav?.homeIcon)">
+            <img class="icon-custom-preview" [src]="t.nav?.homeIcon" alt="Custom home icon" />
+            <button class="btn-o media-clear" (click)="t.nav!.homeIcon=undefined">Clear</button>
+          </div>
+        </ng-container>
         <div class="step-title sm">Nav bar style</div>
         <div class="seg">
           <button class="tile" *ngFor="let s of navStyles" [class.sel]="(t.navStyle||'floating')===s.id" (click)="t.navStyle=s.id">{{ s.label }}</button>
@@ -586,6 +635,42 @@
             <app-color-picker label="Background" [value]="t.nav?.homeBg || 'rgba(0,0,0,0.35)'" [allowReset]="true" (reset)="resetNavColor('homeBg')" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
           </div>
         </div>
+        <div class="step-title sm">Button style</div>
+        <div class="seg">
+          <button class="tile" *ngFor="let m of navModes" [class.sel]="(t.nav?.mode||'icon')===m.id" (click)="t.nav!.mode=m.id">{{ m.label }}</button>
+        </div>
+        <ng-container *ngIf="(t.nav?.mode||'icon') !== 'icon'">
+          <div class="fld"><label>Back label</label>
+            <input class="inp" [value]="t.nav?.backLabel || 'Back'" (input)="t.nav!.backLabel=$any($event.target).value" placeholder="Back" /></div>
+          <div class="fld"><label>Home label</label>
+            <input class="inp" [value]="t.nav?.homeLabel || 'Home'" (input)="t.nav!.homeLabel=$any($event.target).value" placeholder="Home" /></div>
+        </ng-container>
+        <div class="step-title sm">Button size</div>
+        <div class="seg">
+          <button class="tile" *ngFor="let s of navSizes" [class.sel]="(t.nav?.size||'normal')===s.id" (click)="t.nav!.size=s.id">{{ s.label }}</button>
+        </div>
+        <ng-container *ngIf="(t.nav?.mode||'icon') !== 'text'">
+          <div class="step-title sm">&#8249; Back icon</div>
+          <div class="seg icon-seg">
+            <button class="tile" [class.sel]="!t.nav?.backIcon" (click)="t.nav!.backIcon=undefined">Default</button>
+            <button class="tile icon-tile" *ngFor="let ic of navIconIds" [class.sel]="t.nav?.backIcon===ic" (click)="t.nav!.backIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
+            <button class="tile" [class.sel]="isCustomNavIcon(t.nav?.backIcon)" (click)="pickNavIcon('back')">Upload…</button>
+          </div>
+          <div class="media-row" *ngIf="isCustomNavIcon(t.nav?.backIcon)">
+            <img class="icon-custom-preview" [src]="t.nav?.backIcon" alt="Custom back icon" />
+            <button class="btn-o media-clear" (click)="t.nav!.backIcon=undefined">Clear</button>
+          </div>
+          <div class="step-title sm">&#8962; Home icon</div>
+          <div class="seg icon-seg">
+            <button class="tile" [class.sel]="!t.nav?.homeIcon" (click)="t.nav!.homeIcon=undefined">Default</button>
+            <button class="tile icon-tile" *ngFor="let ic of navIconIds" [class.sel]="t.nav?.homeIcon===ic" (click)="t.nav!.homeIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
+            <button class="tile" [class.sel]="isCustomNavIcon(t.nav?.homeIcon)" (click)="pickNavIcon('home')">Upload…</button>
+          </div>
+          <div class="media-row" *ngIf="isCustomNavIcon(t.nav?.homeIcon)">
+            <img class="icon-custom-preview" [src]="t.nav?.homeIcon" alt="Custom home icon" />
+            <button class="btn-o media-clear" (click)="t.nav!.homeIcon=undefined">Clear</button>
+          </div>
+        </ng-container>
         <div class="step-title sm">Nav bar style</div>
         <div class="seg">
           <button class="tile" *ngFor="let s of navStyles" [class.sel]="(t.navStyle||'floating')===s.id" (click)="t.navStyle=s.id">{{ s.label }}</button>

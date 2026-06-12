@@ -1690,3 +1690,60 @@
 .nt-result.res-textpos-overlay-bottom.res-catalog-grid .prod .info { bottom:6%; }
 .nt-result.res-textpos-overlay-top.res-card-grid .prod .info, .nt-result.res-textpos-overlay-top.res-cards-map .prod .info,
 .nt-result.res-textpos-overlay-top.res-catalog-grid .prod .info { top:6%; }
+
+/* ============================================================================
+   PER-ELEMENT TYPOGRAPHY + NAV BUTTON OPTIONS (additive — all vars default to
+   values that keep the pre-existing look when the theme lacks the new tokens).
+   Vars: --nt-gscale (mirror of the global --nt-text-scale, set wherever
+   --nt-text-scale is set), --nt-card-text-scale / --nt-header-text-scale
+   (multipliers, default 1), --nt-card-text-case / --nt-header-text-case
+   (text-transform, default none), --nt-nav-btn-size (multiplier, default 1).
+   ========================================================================== */
+/* card/item text scale: names re-derive their scale as global × card multiplier */
+.nt-home .card, .nt-home .hero-copy, .nt-home .promo-copy,
+.nt-inter .body .item { --nt-text-scale: calc(var(--nt-gscale,1) * var(--nt-card-text-scale,1)); }
+/* card/item text case (color-block keeps its decorative uppercase by default) */
+.nt-home .card .name, .nt-inter .body .item .name { text-transform:var(--nt-card-text-case, none); }
+.nt-home .card.content-color-block .name { text-transform:var(--nt-card-text-case, uppercase); }
+/* header title/caption scale + case (header text never followed the global scale) */
+.nt-stage .hdr .title { font-size:calc(var(--nt-header-text-scale,1) * var(--nt-vw) * 1.4); }
+.nt-stage .hdr .caption { font-size:calc(var(--nt-header-text-scale,1) * var(--nt-vw) * 0.95); }
+.nt-stage .hdr.hdr-custom .title { font-size:calc(var(--nt-header-text-scale,1) * var(--nt-vw) * 1.4); }
+.nt-stage .hdr.hdr-custom .caption { font-size:calc(var(--nt-header-text-scale,1) * var(--nt-vw) * 0.95); }
+.nt-stage .hdr .title, .nt-stage .hdr .caption { text-transform:var(--nt-header-text-case, none); }
+
+/* ---- nav button size (multiplies the legacy fixed sizes) ---- */
+.nt-inter .fb, .nt-result .fb { width:calc(var(--nt-nav-btn-size,1) * var(--nt-vw) * 2.6); height:calc(var(--nt-nav-btn-size,1) * var(--nt-vw) * 2.6); }
+.nt-inter .fb { font-size:calc(var(--nt-nav-btn-size,1) * var(--nt-vw) * 1.1); }
+.nt-result .fb { font-size:calc(var(--nt-nav-btn-size,1) * var(--nt-vw) * 1); }
+
+/* ---- nav button icons: built-in inline SVG (.fb-ic) / custom image (.fb-img) ---- */
+.nt-inter .fb .fb-ic, .nt-result .fb .fb-ic { display:flex; align-items:center; justify-content:center; width:58%; height:58%; }
+.nt-inter .fb .fb-ic svg, .nt-result .fb .fb-ic svg { width:100%; height:100%; display:block; fill:currentColor; }
+.nt-inter .fb img.fb-img, .nt-result .fb img.fb-img { width:62%; height:62%; object-fit:contain; display:block; }
+
+/* ---- text / icon+text modes: pill-shaped label buttons ---- */
+.nt-inter .fb.fb-text, .nt-result .fb.fb-text,
+.nt-inter .fb.fb-icon-text, .nt-result .fb.fb-icon-text {
+  width:auto; min-width:calc(var(--nt-nav-btn-size,1) * var(--nt-vw) * 4.6);
+  border-radius:999px; padding:0 calc(var(--nt-nav-btn-size,1) * var(--nt-vw) * 1.1); box-sizing:border-box;
+}
+.nt-inter .fb .fb-lbl, .nt-result .fb .fb-lbl { font-weight:800; white-space:nowrap; font-size:calc(var(--nt-nav-btn-size,1) * var(--nt-vw) * 0.85); }
+.nt-inter .fb.fb-icon-text .fb-ic, .nt-result .fb.fb-icon-text .fb-ic { width:auto; height:58%; margin-right:calc(var(--nt-vw)*0.4); }
+.nt-inter .fb.fb-icon-text .fb-ic svg, .nt-result .fb.fb-icon-text .fb-ic svg { width:calc(var(--nt-nav-btn-size,1) * var(--nt-vw) * 1.2); }
+.nt-inter .fb.fb-icon-text img.fb-img, .nt-result .fb.fb-icon-text img.fb-img { margin-right:calc(var(--nt-vw)*0.4); }
+
+/* ---- header-anchored nav positions: buttons render inside the top header
+   strip (flex 15% — also matches the absolute hdr-transparent overlay) ---- */
+.nt-inter .nav.nav-pos-header-left, .nt-result .nav.nav-pos-header-left,
+.nt-inter .nav.nav-single.nav-pos-header-left, .nt-result .nav.nav-single.nav-pos-header-left {
+  top:0; bottom:auto; left:calc(var(--nt-vw)*2); right:auto; height:15%;
+  display:flex; flex-direction:row; align-items:center; transform:none; width:auto; z-index:12;
+}
+.nt-inter .nav.nav-pos-header-right, .nt-result .nav.nav-pos-header-right,
+.nt-inter .nav.nav-single.nav-pos-header-right, .nt-result .nav.nav-single.nav-pos-header-right {
+  top:0; bottom:auto; right:calc(var(--nt-vw)*2); left:auto; height:15%;
+  display:flex; flex-direction:row; align-items:center; transform:none; width:auto; z-index:12;
+}
+.nt-inter .nav.nav-pos-header-left .fb + .fb, .nt-result .nav.nav-pos-header-left .fb + .fb,
+.nt-inter .nav.nav-pos-header-right .fb + .fb, .nt-result .nav.nav-pos-header-right .fb + .fb { margin-left:calc(var(--nt-vw)*1); margin-top:0; }

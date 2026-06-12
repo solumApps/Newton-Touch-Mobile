@@ -7,7 +7,7 @@
         <span class="tt-sub" *ngIf="draft">{{ modeLabel }} · {{ draft.themeName }}</span>
       </div>
     </ion-title>
-    <ion-buttons slot="end"><ion-button (click)="save()" class="save-btn">Save</ion-button></ion-buttons>
+    <ion-buttons slot="end"><ion-button (click)="save()" class="save-btn">{{ savedFlash ? 'Saved ✓' : 'Save' }}</ion-button></ion-buttons>
   </ion-toolbar>
   <!-- Step indicator: dots + labels -->
   <div class="stepper" *ngIf="draft">

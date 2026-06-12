@@ -22,7 +22,7 @@ export type HomeLayout =
   | 'bento';
 
 export type CardSize = 'xs' | 'small' | 'normal' | 'large';
-export type NavButtonPosition = 'bottom-left' | 'bottom-center' | 'bottom-right' | 'side-left' | 'side-right' | 'hidden';
+export type NavButtonPosition = 'bottom-left' | 'bottom-center' | 'bottom-right' | 'side-left' | 'side-right' | 'header-left' | 'header-right' | 'hidden';
 export type SaverOverlayPosition = 'center' | 'bottom' | 'top' | 'bottom-left' | 'bottom-right';
 
 export type TextScale = 'compact' | 'normal' | 'large';
@@ -30,6 +30,14 @@ export type TextScale = 'compact' | 'normal' | 'large';
  *  grids scroll vertically; rails/strips/pill-rows scroll horizontally. */
 export type ScrollMode = 'auto' | 'vertical' | 'horizontal';
 export type TextFit = 'shrink' | 'wrap' | 'clip';
+/** Per-element text casing. 'default' (or absent) = no transform — current behaviour
+ *  (individual layout variants may still apply their own decorative casing). */
+export type TextCase = 'default' | 'uppercase' | 'lowercase' | 'capitalize';
+/** Nav (Back/Home) button rendering mode. 'icon' (default) = round icon button —
+ *  current behaviour; 'text' = pill-shaped label button; 'icon-text' = both. */
+export type NavButtonMode = 'icon' | 'text' | 'icon-text';
+/** Nav button size multiplier: small 0.8 / normal 1 (default) / large 1.25. */
+export type NavButtonSize = 'small' | 'normal' | 'large';
 /** Per-image fit inside its card/shape container. Undefined = 'cover'
  *  (legacy behaviour — layout CSS decides cover/contain per variant). */
 export type ImageFit = 'cover' | 'contain' | 'fill';
@@ -117,6 +125,18 @@ export interface NavButtonStyle {
   split?: boolean;
   backPosition?: NavButtonPosition;    // used only when split === true
   homePosition?: NavButtonPosition;    // used only when split === true
+  /** Back-button icon: a NAV_ICONS key ('arrow'|'home'|'house'|'grid') OR a
+   *  data-URI / ntimg:/idb: ref for a custom uploaded icon.
+   *  Undefined = legacy glyph (←) — current behaviour. */
+  backIcon?: string;
+  /** Home-button icon — same semantics as backIcon. Undefined = legacy glyph (⌂). */
+  homeIcon?: string;
+  /** Size of BOTH buttons (CSS multiplier 0.8/1/1.25). Default 'normal'. */
+  size?: NavButtonSize;
+  /** Rendering mode. Default 'icon' = current round icon buttons. */
+  mode?: NavButtonMode;
+  backLabel?: string;          // text shown when mode != 'icon' — default 'Back'
+  homeLabel?: string;          // text shown when mode != 'icon' — default 'Home'
 }
 
 /** Screensaver overlay content styling — controls the title/CTA block shown over media. */
@@ -189,8 +209,13 @@ export interface ThemeTokens {
   result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; transparentHeader?: boolean; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; cardShape?: CardShape; };
   animation: { transition: TransitionType; speed: AnimSpeed; applyToAll: boolean; };
   loader: { style: LoaderStyle; color: string; };
-  /** Shared typography/appearance — applied consistently across ALL rendered pages. */
-  typography: { fontFamily: string; textScale: TextScale; textFit: TextFit; baseTextColor: string; };
+  /** Shared typography/appearance — applied consistently across ALL rendered pages.
+   *  cardTextScale/headerTextScale are OPTIONAL per-element multipliers layered on
+   *  top of the global textScale (absent = inherit global behaviour, multiplier 1).
+   *  cardTextCase/headerTextCase apply CSS text-transform ('default' = none). */
+  typography: { fontFamily: string; textScale: TextScale; textFit: TextFit; baseTextColor: string;
+    cardTextScale?: TextScale; headerTextScale?: TextScale;
+    cardTextCase?: TextCase; headerTextCase?: TextCase; };
   /** Screensaver overlay content styling (title, subtitle, position, colors). */
   saverOverlay?: SaverOverlay;
 }
@@ -273,7 +298,10 @@ export const THEME_ENUM_VALUES = {
   cardTextPos: ['overlay-top', 'overlay-bottom', 'below', 'center'],
   cardSurface: ['flat', 'glass', 'raised', 'outlined', 'glow'],
   navStyle: ['floating', 'edge', 'bottom-center', 'hidden'],
-  navButtonPosition: ['bottom-left', 'bottom-center', 'bottom-right', 'side-left', 'side-right', 'hidden'],
+  navButtonPosition: ['bottom-left', 'bottom-center', 'bottom-right', 'side-left', 'side-right', 'header-left', 'header-right', 'hidden'],
+  navButtonSize: ['small', 'normal', 'large'],
+  navButtonMode: ['icon', 'text', 'icon-text'],
+  textCase: ['default', 'uppercase', 'lowercase', 'capitalize'],
   headerStyle: ['logo+title+caption', 'logo+title', 'logo-only', 'title+caption', 'title-only'],
   headerLayout: ['preset', 'custom'],
   headerItemPos: ['left', 'center', 'right', 'hidden'],
@@ -301,6 +329,47 @@ export function coerceEnum<T extends string>(v: unknown, allowed: readonly strin
     try { console.warn(`[nt-layout] Unknown ${field} value "${v}" — coerced to "${fallback}"`); } catch { /* no console */ }
   }
   return fallback;
+}
+
+/** Built-in nav-button icons — inline SVG markup (fill:currentColor so the
+ *  themed icon color applies). Shared by the LCD pages AND the mobile preview
+ *  strip / wizard so both render pixel-identically. Keys are the NavButtonStyle
+ *  backIcon/homeIcon ids. */
+export const NAV_ICONS: Record<string, string> = {
+  arrow: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="currentColor"/></svg>',
+  home: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="currentColor"/></svg>',
+  house: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 5.69l5 4.5V18h-2v-6H9v6H7v-7.81l5-4.5M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" fill="currentColor"/></svg>',
+  grid: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zm-9 9h7v7H4v-7zm9 0h7v7h-7v-7z" fill="currentColor"/></svg>',
+};
+
+/** Classify a nav icon value: built-in NAV_ICONS key, custom image ref
+ *  (data:/ntimg:/idb:/resolved file URL — anything with ':' or '/'), or none. */
+export function navIconKind(v?: string): 'none' | 'builtin' | 'custom' {
+  if (!v) return 'none';
+  if (NAV_ICONS[v]) return 'builtin';
+  if (v.indexOf(':') >= 0 || v.indexOf('/') >= 0) return 'custom';
+  return 'none';
+}
+
+/** Coerce a nav icon token: keep built-in ids and custom refs, drop unknowns
+ *  (undefined = legacy glyph rendering — never pass junk into the DOM). */
+export function coerceNavIcon(v: unknown): string | undefined {
+  return typeof v === 'string' && navIconKind(v) !== 'none' ? v : undefined;
+}
+
+/** Numeric multiplier for a TextScale (the --nt-text-scale convention). */
+export function textScaleNum(s?: TextScale | string): number {
+  return s === 'compact' ? 0.8 : s === 'large' ? 1.25 : 1;
+}
+
+/** CSS text-transform value for a TextCase ('default'/unknown → 'none'). */
+export function textCaseCss(c?: TextCase | string): string {
+  return c === 'uppercase' || c === 'lowercase' || c === 'capitalize' ? c : 'none';
+}
+
+/** Numeric multiplier for a NavButtonSize (the --nt-nav-btn-size convention). */
+export function navBtnSizeNum(s?: NavButtonSize | string): number {
+  return s === 'small' ? 0.8 : s === 'large' ? 1.25 : 1;
 }
 
 /** CSS background-size for a per-item ImageFit. Returns null when unset/unknown
