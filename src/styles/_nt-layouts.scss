@@ -1286,7 +1286,7 @@
   border-right:1px solid rgba(255,255,255,.1);
 }
 .nt-result.res-catalog-grid .prod { width:22%; height:50%; margin:1%; flex-direction:column; align-items:flex-start; background:transparent; overflow:hidden; box-shadow:none; }
-.nt-result.res-catalog-grid .prod .img { width:100%; height:calc(var(--nt-vh)*16); margin:0 0 calc(var(--nt-vh)*0.8); background-size:contain; background-repeat:no-repeat; }
+.nt-result.res-catalog-grid .prod .img { width:100%; height:calc(var(--nt-vh)*16); margin:0 0 calc(var(--nt-vh)*0.8); background-size:contain; background-repeat:no-repeat; min-height:70%; }
 .nt-result.res-catalog-grid .nm { font-size:calc(var(--nt-vw)*0.9); }
 /* minimal */
 .nt-result.res-minimal .map { display:none; }
