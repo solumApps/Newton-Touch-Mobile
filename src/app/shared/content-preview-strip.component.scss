@@ -3,7 +3,20 @@
    var-based stage units set from TS on .prev.nt-stage.
    Encapsulation: None — `.prev`-prefixed names are unique enough not to collide. */
 
-.cps-wrap { width: 100%; }
+app-content-preview-strip {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.cps-wrap {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
 .cps-cap { text-align: center; font-size: 10px; font-weight: 700; color: var(--nt-text-2); margin: 6px 0 10px; text-transform: uppercase; letter-spacing: .5px; }
 
 /* ===== Live preview frame (locks the LCD 1920:540 aspect; mobile-only CSS,
@@ -13,10 +26,32 @@
   border: 1px solid var(--nt-border);
   /* overflowing content must NEVER grow the stage past its 1920:540 frame
      (lots of items previously stretched/zoomed the preview) */
-  max-width: 100%; contain: layout paint; display: flex; flex-direction: column;
+  box-sizing: border-box; min-width: 0; max-width: 100%; contain: size layout paint; display: flex; flex-direction: column;
 }
 .prev > * { min-height: 0; min-width: 0; }
 .prev .cards, .prev .body, .prev .list { min-height: 0; min-width: 0; }
+.prev .cards, .prev .body, .prev .list, .prev .filter-list, .prev .shelf-prods {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.prev .body[class*="int-"], .prev .h-scroll-rail, .prev .promo-rail, .prev .filter-list, .prev .shelf-prods {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+.prev .body.int-pill-tabs, .prev .body.int-circular, .prev .body.int-card-strip,
+.prev .body.int-center-tiles, .prev .body.int-side-rail, .prev .body.int-brand-grid,
+.prev .body.int-brand-rail {
+  flex-basis: 0;
+  flex-shrink: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.prev .card, .prev .item, .prev .prod, .prev .sprod {
+  min-width: 0;
+  box-sizing: border-box;
+}
 
 /* placeholder tiles (no image yet) */
 .prev .card .img.placeholder { opacity: .15; }
