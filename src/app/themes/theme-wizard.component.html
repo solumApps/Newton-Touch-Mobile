@@ -273,7 +273,7 @@
 
         <div class="step-title sm">Card content</div>
         <div class="tiles">
-          <button class="tile" *ngFor="let c of cardContents" [class.sel]="t.cardContent===c.id" (click)="t.cardContent=c.id">{{ c.label }}</button>
+          <button class="tile" *ngFor="let c of cardContents" [class.sel]="t.cardContent===c.id" (click)="pickContent(c.id)">{{ c.label }}</button>
         </div>
 
         <div class="step-title sm">Card surface</div>
@@ -403,7 +403,7 @@
           <div class="tiles"><button class="tile" *ngFor="let s of cardShapes" [class.sel]="(t.intermediate.cardShape||'rect')===s.id" (click)="t.intermediate.cardShape=s.id">{{ s.label }}</button></div>
 
           <div class="step-title sm">Card content</div>
-          <div class="seg"><button class="tile" *ngFor="let c of interContents" [class.sel]="(t.intermediate.content||'image-text')===c.id" (click)="t.intermediate.content=c.id">{{ c.label }}</button></div>
+          <div class="seg"><button class="tile" *ngFor="let c of interContents" [class.sel]="(t.intermediate.content||'image-text')===c.id" (click)="pickInterContent(c.id)">{{ c.label }}</button></div>
         </ng-container>
 
         <ng-container *ngIf="intTextPosMatters">
