@@ -145,12 +145,18 @@
 .nt-home .layout-col-2.align-left, .nt-home .layout-col-3.align-left, .nt-home .layout-col-4.align-left { justify-content:flex-start; }
 .nt-home .layout-col-2.align-center, .nt-home .layout-col-3.align-center, .nt-home .layout-col-4.align-center { justify-content:center; }
 .nt-home .layout-col-2.align-right, .nt-home .layout-col-3.align-right, .nt-home .layout-col-4.align-right { justify-content:flex-end; }
-.nt-home .layout-h-scroll.align-left   .h-scroll-rail { justify-content:flex-start; }
+/* h-scroll rail: ALWAYS flex-start, no alignment auto-margins. The first/last-child
+   margin:auto centering trick is broken on the kiosk WebView (~Chromium 60): with
+   overflow the auto margin doesn't collapse to 0, so the FIRST card sits before the
+   scroll origin and is unreachable. The intermediate page's rail (.int-brand-rail)
+   uses plain flex-start and scrolls correctly — home matches that pattern; align-*
+   is intentionally a no-op for the h-scroll layout. */
+.nt-home .layout-h-scroll.align-left   .h-scroll-rail,
 .nt-home .layout-h-scroll.align-center .h-scroll-rail,
 .nt-home .layout-h-scroll.align-right  .h-scroll-rail { justify-content:flex-start; }
 .nt-home .layout-h-scroll.align-center .h-scroll-rail .card:first-child,
-.nt-home .layout-h-scroll.align-right  .h-scroll-rail .card:first-child { margin-left:auto; }
-.nt-home .layout-h-scroll.align-center .h-scroll-rail .card:last-child { margin-right:auto; }
+.nt-home .layout-h-scroll.align-right  .h-scroll-rail .card:first-child { margin-left:calc(var(--nt-vw)*0.6); }
+.nt-home .layout-h-scroll.align-center .h-scroll-rail .card:last-child { margin-right:0; }
 .nt-home .layout-promo-categories.align-left   .promo-rail { justify-content:flex-start; }
 .nt-home .layout-promo-categories.align-center .promo-rail { justify-content:center; }
 .nt-home .layout-promo-categories.align-right  .promo-rail { justify-content:flex-end; }
@@ -1179,7 +1185,13 @@
 .nt-result .route { position:absolute; left:var(--nt-route-x,12%); top:var(--nt-route-y,54%); width:var(--nt-route-w,64%); height:calc(var(--nt-vh)*0.5); background:var(--nt-path,#FFCD00); border-radius:999px; }
 /* content-configurable map annotation: line only, dot only, or none */
 .nt-result.route-kind-dot .route, .nt-result.route-kind-none .route { display:none; }
-.nt-result.route-kind-none .marker, .nt-result.route-kind-line .marker { display:none; }
+/* The .marker is the per-product "it's here" dot (ResultProduct.mapX/mapY) and is
+   INDEPENDENT of the map annotation (ResultContent.route). Builder copy: "tap the map
+   where it lives — the LCD shows the dot there", and the builder editor always renders
+   product dots regardless of annotation kind. Annotation kind only toggles the .route
+   line; for kind 'dot' the templates reposition .marker to the annotation x/y. So the
+   marker is never hidden by route-kind-* (previously hidden for 'line'/'none', which
+   made deployed/previewed markers invisible). */
 .nt-result .route-dashed { height:0; background:transparent; border-top:calc(var(--nt-vh)*0.45) dashed var(--nt-path,#FFCD00); }
 .nt-result .route-dotted { height:0; background:transparent; border-top:calc(var(--nt-vh)*0.55) dotted var(--nt-path,#FFCD00); }
 .nt-result .route-animated { animation:nt-route 1s linear infinite; box-shadow:0 0 calc(var(--nt-vw)*1) rgba(255,255,255,.25); }
