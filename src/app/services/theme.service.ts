@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Preferences } from '@capacitor/preferences';
 import type { ThemeTokens, HomeLayout, CardStyle, CardShape, CardContent, CardTextPos } from '@contract/layout';
-import { THEME_ENUM_VALUES, coerceEnum, coerceColumns } from '@contract/layout';
+import { THEME_ENUM_VALUES, coerceEnum, coerceColumns, coerceNavIcon } from '@contract/layout';
 import { DEFAULT_FONT, FONTS } from '../shared/fonts';
 import { ImageStoreService } from './image-store.service';
 
@@ -153,6 +153,11 @@ export class ThemeService {
     nav.position = coerceEnum(nav.position, E.navButtonPosition, 'bottom-left', 'nav.position');
     if (nav.backPosition !== undefined) nav.backPosition = coerceEnum(nav.backPosition, E.navButtonPosition, 'bottom-left', 'nav.backPosition');
     if (nav.homePosition !== undefined) nav.homePosition = coerceEnum(nav.homePosition, E.navButtonPosition, 'bottom-right', 'nav.homePosition');
+    // Nav icon/size/mode tokens (defaults preserve the legacy glyph buttons).
+    if (nav.size !== undefined) nav.size = coerceEnum(nav.size, E.navButtonSize, 'normal', 'nav.size');
+    if (nav.mode !== undefined) nav.mode = coerceEnum(nav.mode, E.navButtonMode, 'icon', 'nav.mode');
+    nav.backIcon = coerceNavIcon(nav.backIcon);
+    nav.homeIcon = coerceNavIcon(nav.homeIcon);
     out.intermediate.itemSize = coerceEnum(out.intermediate.itemSize, E.itemSize, d.intermediate.itemSize, 'intermediate.itemSize');
     out.intermediate.cardShape = coerceEnum(out.intermediate.cardShape, E.cardShape, 'rect', 'intermediate.cardShape');
     out.intermediate.align = coerceEnum(out.intermediate.align, E.align, 'center', 'intermediate.align');
@@ -163,6 +168,11 @@ export class ThemeService {
     out.loader.style = coerceEnum(out.loader.style, E.loaderStyle, d.loader.style, 'loader.style');
     out.typography.textScale = coerceEnum(out.typography.textScale, E.textScale, d.typography.textScale, 'typography.textScale');
     out.typography.textFit = coerceEnum(out.typography.textFit, E.textFit, d.typography.textFit, 'typography.textFit');
+    // Per-element typography tokens stay undefined when absent (= inherit global).
+    if (out.typography.cardTextScale !== undefined) out.typography.cardTextScale = coerceEnum(out.typography.cardTextScale, E.textScale, 'normal', 'typography.cardTextScale');
+    if (out.typography.headerTextScale !== undefined) out.typography.headerTextScale = coerceEnum(out.typography.headerTextScale, E.textScale, 'normal', 'typography.headerTextScale');
+    if (out.typography.cardTextCase !== undefined) out.typography.cardTextCase = coerceEnum(out.typography.cardTextCase, E.textCase, 'default', 'typography.cardTextCase');
+    if (out.typography.headerTextCase !== undefined) out.typography.headerTextCase = coerceEnum(out.typography.headerTextCase, E.textCase, 'default', 'typography.headerTextCase');
     saver.position = coerceEnum(saver.position, E.saverOverlayPosition, 'center', 'saverOverlay.position');
     // maxHomeItems: positive integer or undefined (= unlimited, user themes).
     const cap = Number(t?.maxHomeItems);
@@ -296,6 +306,8 @@ export class ThemeService {
       backgroundImage: await val(t.backgroundImage),
       intermediate: { ...t.intermediate, backgroundImage: await val(t.intermediate?.backgroundImage) },
       result: { ...t.result, backgroundImage: await val(t.result?.backgroundImage) },
+      // Custom nav-button icons may be data URIs — externalize/resolve like other media.
+      nav: t.nav ? { ...t.nav, backIcon: await val(t.nav.backIcon), homeIcon: await val(t.nav.homeIcon) } : t.nav,
     };
   }
 

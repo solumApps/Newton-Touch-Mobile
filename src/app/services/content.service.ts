@@ -40,6 +40,9 @@ export interface ContentDraft {
   /** Per-deploy header content — fields shown depend on theme.headerStyle. */
   header?: { title?: string; caption?: string; logo?: string };
   status: 'draft' | 'complete';
+  /** Last builder step the user was on — restored when the draft is reopened
+   *  so editing resumes where it stopped. Optional (older drafts start at 0). */
+  lastStep?: number;
   deployedTo?: string;
   deployedAt?: number;
   updatedAt: number;
@@ -128,6 +131,8 @@ export class ContentService {
         backgroundImage: await val(t.backgroundImage),
         intermediate: { ...t.intermediate, backgroundImage: await val(t.intermediate?.backgroundImage) },
         result: { ...t.result, backgroundImage: await val(t.result?.backgroundImage) },
+        // Custom nav-button icons may be data URIs — externalize/resolve like other media.
+        nav: t.nav ? { ...t.nav, backIcon: await val(t.nav.backIcon), homeIcon: await val(t.nav.homeIcon) } : t.nav,
       },
       home: (await cards(d.home)) ?? [],
       intermediate: (await cards(d.intermediate)) ?? [],
