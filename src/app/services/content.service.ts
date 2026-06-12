@@ -24,12 +24,25 @@ export interface ContentDraft {
   /** Result authoring mode: 'common' = one shared product list; 'individual' =
    *  per-leaf products on the drill tree (requires drillMode 'individual'). */
   resultMode?: 'common' | 'individual';
+  /** Skip-intermediate result authoring (themes with includeIntermediate=false,
+   *  Home → Result directly): 'common' (default) = the ONE shared `result` page;
+   *  'per-item' = each home card owns its own FULL Result page (map/promo/products)
+   *  in `itemResults`. Distinct from `resultMode` above, which only swaps the
+   *  PRODUCT list per drill-tree leaf. Compiled to LayoutJson.resultMode by build(). */
+  itemResultMode?: 'common' | 'per-item';
+  /** Per-home-card Result pages, keyed by CardItem.id — edited (and kept) even
+   *  while itemResultMode is 'common' so switching modes never destroys data;
+   *  only deployed when itemResultMode is 'per-item'. */
+  itemResults?: { [cardId: string]: ResultContent };
   eslLinks?: EslLink[];
   eslBlinkBy?: EslBlinkBy;
   screensaver: Screensaver;
   /** Per-deploy header content — fields shown depend on theme.headerStyle. */
   header?: { title?: string; caption?: string; logo?: string };
   status: 'draft' | 'complete';
+  /** Last builder step the user was on — restored when the draft is reopened
+   *  so editing resumes where it stopped. Optional (older drafts start at 0). */
+  lastStep?: number;
   deployedTo?: string;
   deployedAt?: number;
   updatedAt: number;
@@ -86,8 +99,9 @@ export class ContentService {
 
   /** Deep-walk every media-bearing field of a draft, mapping each ref through `fn`.
    *  Walked: home/intermediate card trees (incl. nested children), result
-   *  map/promo/product images, screensaver media, header logo, and the draft's
-   *  themeTokens backgroundImages (root + intermediate + result sub-themes). */
+   *  map/promo/product images, per-item result pages (itemResults), screensaver
+   *  media, header logo, and the draft's themeTokens backgroundImages
+   *  (root + intermediate + result sub-themes). */
   private async mapMedia(d: ContentDraft, fn: (v: string) => Promise<string>): Promise<ContentDraft> {
     const val = async (v?: string): Promise<string | undefined> => (v ? await fn(v) : v);
     const cards = async (items?: CardItem[]): Promise<CardItem[] | undefined> =>
@@ -98,6 +112,17 @@ export class ContentService {
         // Leaf-level result products (Individual result mode) carry images too.
         products: c.products ? await Promise.all(c.products.map(async (p) => ({ ...p, image: await val(p.image) }))) : c.products,
       }))) : items;
+    // ResultContent media walk — shared by the common result AND each per-item
+    // result page (itemResults values carry mapImage/promoImage/product images too).
+    const resultMedia = async (r?: ResultContent): Promise<ResultContent> => ({
+      ...(r || { products: [] }),
+      mapImage: await val(r?.mapImage),
+      promoImage: await val(r?.promoImage),
+      products: await Promise.all((r?.products || []).map(async (p) => ({ ...p, image: await val(p.image) }))),
+    });
+    const itemResults = d.itemResults
+      ? Object.fromEntries(await Promise.all(Object.entries(d.itemResults).map(async ([id, r]) => [id, await resultMedia(r)] as const)))
+      : d.itemResults;
     const t = d.themeTokens;
     return {
       ...d,
@@ -106,15 +131,13 @@ export class ContentService {
         backgroundImage: await val(t.backgroundImage),
         intermediate: { ...t.intermediate, backgroundImage: await val(t.intermediate?.backgroundImage) },
         result: { ...t.result, backgroundImage: await val(t.result?.backgroundImage) },
+        // Custom nav-button icons may be data URIs — externalize/resolve like other media.
+        nav: t.nav ? { ...t.nav, backIcon: await val(t.nav.backIcon), homeIcon: await val(t.nav.homeIcon) } : t.nav,
       },
       home: (await cards(d.home)) ?? [],
       intermediate: (await cards(d.intermediate)) ?? [],
-      result: {
-        ...d.result,
-        mapImage: await val(d.result?.mapImage),
-        promoImage: await val(d.result?.promoImage),
-        products: await Promise.all((d.result?.products || []).map(async (p) => ({ ...p, image: await val(p.image) }))),
-      },
+      result: await resultMedia(d.result),
+      itemResults,
       screensaver: { ...d.screensaver, media: await Promise.all((d.screensaver?.media || []).map((m) => fn(m))) },
       header: d.header ? { ...d.header, logo: await val(d.header.logo) } : d.header,
     };
@@ -184,10 +207,11 @@ export class ContentService {
     // off the map on the 1920-wide kiosk.
     const clampPct = (v?: number): number | undefined =>
       v == null || isNaN(Number(v)) ? undefined : Math.min(100, Math.max(0, Number(v)));
-    const result: ResultContent = {
-      ...d.result,
-      products: (d.result?.products || []).map((p) => ({ ...p, mapX: clampPct(p.mapX), mapY: clampPct(p.mapY) })),
-    };
+    const clampResult = (r?: ResultContent): ResultContent => ({
+      ...(r || { products: [] }),
+      products: (r?.products || []).map((p) => ({ ...p, mapX: clampPct(p.mapX), mapY: clampPct(p.mapY) })),
+    });
+    const result: ResultContent = clampResult(d.result);
     const payload: LayoutJson = {
       schemaVersion: 1,
       contentName: d.name,
@@ -198,6 +222,17 @@ export class ContentService {
       result,
       screensaver: d.screensaver,
     };
+    // Per-item result pages (skip-intermediate themes only): deploy itemResults
+    // with the same mapX/mapY clamping as the common result, restricted to ids
+    // that still exist as home cards. The draft keeps BOTH structures; only the
+    // active mode reaches the kiosk ('common' stays the absent/default encoding).
+    if (d.themeTokens.includeIntermediate === false && d.itemResultMode === 'per-item' && d.itemResults) {
+      const entries = Object.entries(d.itemResults).filter(([id]) => d.home.some((c) => c.id === id));
+      if (entries.length) {
+        payload.resultMode = 'per-item';
+        payload.itemResults = Object.fromEntries(entries.map(([id, r]) => [id, clampResult(r)]));
+      }
+    }
     // Include the header whenever ANY field is set — a logo-only header was
     // previously dropped here, so the deployed LCD never showed the custom logo.
     if (d.header && (d.header.title || d.header.caption || d.header.logo)) payload.header = { ...d.header };
@@ -222,6 +257,16 @@ export class ContentService {
         products: d.result.products.map((p) => ({ ...p, image: p.image ? '«ref»' : undefined })),
         route: d.result.route,
       },
+      // Per-item result pages (skip-intermediate themes) — media refs stripped like the shared result.
+      itemResultMode: d.itemResultMode,
+      itemResults: d.itemResults
+        ? Object.fromEntries(Object.entries(d.itemResults).map(([id, r]) => [id, {
+            mapImage: r.mapImage ? '«ref»' : undefined,
+            promoImage: r.promoImage ? '«ref»' : undefined,
+            products: (r.products || []).map((p) => ({ ...p, image: p.image ? '«ref»' : undefined })),
+            route: r.route,
+          }]))
+        : undefined,
       eslLinks: d.eslLinks, eslBlinkBy: d.eslBlinkBy,
       note: 'Media excluded by design — re-attach images/video on import (Category mode re-fetches from API).',
     };

@@ -1,7 +1,8 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import type { ThemeTokens, CardItem, ResultProduct, Screensaver } from '@contract/layout';
-import { imageFitSize } from '@contract/layout';
+import { imageFitSize, NAV_ICONS, navIconKind, textScaleNum, textCaseCss, navBtnSizeNum } from '@contract/layout';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
@@ -29,6 +30,12 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.background]="backgroundForPage"
            [style.fontFamily]="theme?.typography?.fontFamily"
            [style.--nt-text-scale]="scaleNum"
+           [style.--nt-gscale]="scaleNum"
+           [style.--nt-card-text-scale]="cardScaleNum"
+           [style.--nt-header-text-scale]="headerScaleNum"
+           [style.--nt-card-text-case]="cardCase"
+           [style.--nt-header-text-case]="headerCase"
+           [style.--nt-nav-btn-size]="navBtnSize"
            [style.--nt-font]="theme?.typography?.fontFamily"
            [style.--nt-base-text]="theme?.typography?.baseTextColor"
            [style.--nt-accent]="theme?.accent"
@@ -275,7 +282,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           <!-- shelf: side category panel + product shelf -->
           <div class="body shelf-body" *ngIf="resTpl==='shelf'">
-            <div class="shelf-side" [style.background-image]="result?.promoImage ? 'url('+result?.promoImage+')' : null">
+            <div class="shelf-side" [class.no-img]="!result?.promoImage" [style.background-image]="result?.promoImage ? 'url('+result?.promoImage+')' : null">
               <div class="shelf-title">{{ captionText || titleText }}</div>
             </div>
             <div class="shelf-main">
@@ -313,17 +320,39 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
         <!-- NAV (LCD markup: .nav.nav-pos-* > .fb) — grouped OR split (independent positions) -->
         <ng-container *ngIf="page !== 'home' && page !== 'saver' && (theme?.navStyle || 'floating') !== 'hidden'">
+          <ng-template #backBtn>
+            <div class="fb" [class.fb-text]="navMode === 'text'" [class.fb-icon-text]="navMode === 'icon-text'"
+                 [style.color]="theme?.nav?.backColor || '#fff'" [style.background]="theme?.nav?.backBg || 'rgba(0,0,0,.35)'">
+              <ng-container *ngIf="navMode !== 'text'">
+                <span class="fb-ic" *ngIf="backIconHtml" [innerHTML]="backIconHtml"></span>
+                <img class="fb-img" *ngIf="backIconCustom" [src]="backIconCustom" alt="" />
+                <ng-container *ngIf="!backIconHtml && !backIconCustom">&#8592;</ng-container>
+              </ng-container>
+              <span class="fb-lbl" *ngIf="navMode !== 'icon'">{{ navBackLabel }}</span>
+            </div>
+          </ng-template>
+          <ng-template #homeBtn>
+            <div class="fb" [class.fb-text]="navMode === 'text'" [class.fb-icon-text]="navMode === 'icon-text'"
+                 [style.color]="theme?.nav?.homeColor || '#fff'" [style.background]="theme?.nav?.homeBg || 'rgba(0,0,0,.35)'">
+              <ng-container *ngIf="navMode !== 'text'">
+                <span class="fb-ic" *ngIf="homeIconHtml" [innerHTML]="homeIconHtml"></span>
+                <img class="fb-img" *ngIf="homeIconCustom" [src]="homeIconCustom" alt="" />
+                <ng-container *ngIf="!homeIconHtml && !homeIconCustom">&#8962;</ng-container>
+              </ng-container>
+              <span class="fb-lbl" *ngIf="navMode !== 'icon'">{{ navHomeLabel }}</span>
+            </div>
+          </ng-template>
           <div class="nav nav-pos-{{theme?.nav?.position || 'bottom-left'}}"
                *ngIf="!theme?.nav?.split && (theme?.nav?.position || 'bottom-left') !== 'hidden'">
-            <div class="fb" [style.color]="theme?.nav?.backColor || '#fff'" [style.background]="theme?.nav?.backBg || 'rgba(0,0,0,.35)'">&#8592;</div>
-            <div class="fb" [style.color]="theme?.nav?.homeColor || '#fff'" [style.background]="theme?.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</div>
+            <ng-container *ngTemplateOutlet="backBtn"></ng-container>
+            <ng-container *ngTemplateOutlet="homeBtn"></ng-container>
           </div>
           <ng-container *ngIf="theme?.nav?.split">
             <div class="nav nav-single nav-pos-{{theme?.nav?.backPosition || 'bottom-left'}}" *ngIf="(theme?.nav?.backPosition || 'bottom-left') !== 'hidden'">
-              <div class="fb" [style.color]="theme?.nav?.backColor || '#fff'" [style.background]="theme?.nav?.backBg || 'rgba(0,0,0,.35)'">&#8592;</div>
+              <ng-container *ngTemplateOutlet="backBtn"></ng-container>
             </div>
             <div class="nav nav-single nav-pos-{{theme?.nav?.homePosition || 'bottom-right'}}" *ngIf="(theme?.nav?.homePosition || 'bottom-right') !== 'hidden'">
-              <div class="fb" [style.color]="theme?.nav?.homeColor || '#fff'" [style.background]="theme?.nav?.homeBg || 'rgba(0,0,0,.35)'">&#8962;</div>
+              <ng-container *ngTemplateOutlet="homeBtn"></ng-container>
             </div>
           </ng-container>
         </ng-container>
@@ -361,6 +390,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   /** Per-item image fit → CSS background-size (null = preview default) — matches the LCD. */
   fitSize = imageFitSize;
+  constructor(private sanitizer: DomSanitizer) {}
   @Input() theme?: ThemeTokens;
   @Input() page: PreviewPage = 'home';
   @Input() home: CardItem[] = [];
@@ -460,6 +490,27 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     const s = this.theme?.typography?.textScale;
     return s === 'compact' ? 0.8 : s === 'large' ? 1.25 : 1;
   }
+  /* Per-element typography + nav-button vars — same derivation as the LCD
+     layout.service injectTheme(), so preview and kiosk render identically. */
+  get cardScaleNum(): number { const s = this.theme?.typography?.cardTextScale; return s ? textScaleNum(s) : 1; }
+  get headerScaleNum(): number { const s = this.theme?.typography?.headerTextScale; return s ? textScaleNum(s) : 1; }
+  get cardCase(): string { return textCaseCss(this.theme?.typography?.cardTextCase); }
+  get headerCase(): string { return textCaseCss(this.theme?.typography?.headerTextCase); }
+  get navBtnSize(): number { return navBtnSizeNum(this.theme?.nav?.size); }
+  /* Nav button mode / icons / labels — mirrors LCD intermediate/result pages. */
+  get navMode(): string { return this.theme?.nav?.mode || 'icon'; }
+  get navBackLabel(): string { return this.theme?.nav?.backLabel || 'Back'; }
+  get navHomeLabel(): string { return this.theme?.nav?.homeLabel || 'Home'; }
+  get backIconHtml(): SafeHtml | undefined {
+    const ic = this.theme?.nav?.backIcon;
+    return navIconKind(ic) === 'builtin' ? this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[ic!]) : undefined;
+  }
+  get homeIconHtml(): SafeHtml | undefined {
+    const ic = this.theme?.nav?.homeIcon;
+    return navIconKind(ic) === 'builtin' ? this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[ic!]) : undefined;
+  }
+  get backIconCustom(): string { const ic = this.theme?.nav?.backIcon; return navIconKind(ic) === 'custom' ? ic! : ''; }
+  get homeIconCustom(): string { const ic = this.theme?.nav?.homeIcon; return navIconKind(ic) === 'custom' ? ic! : ''; }
   get shapeCard(): boolean {
     const sh = this.theme?.cardShape;
     const layout = this.theme?.homeLayout;

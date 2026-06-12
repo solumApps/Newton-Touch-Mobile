@@ -145,9 +145,23 @@ export class DeployComponent implements OnInit, OnDestroy {
     layout.theme.backgroundImage = take(layout.theme.backgroundImage);
     layout.theme.intermediate.backgroundImage = take(layout.theme.intermediate.backgroundImage);
     layout.theme.result.backgroundImage = take(layout.theme.result.backgroundImage);
+    // Custom nav-button icons (data URIs) ship as ntimg files like other token images.
+    if (layout.theme.nav) {
+      layout.theme.nav.backIcon = take(layout.theme.nav.backIcon);
+      layout.theme.nav.homeIcon = take(layout.theme.nav.homeIcon);
+    }
     layout.result.mapImage = take(layout.result.mapImage);
     layout.result.promoImage = take(layout.result.promoImage);
     layout.result.products?.forEach((p) => (p.image = take(p.image)));
+    // Per-item result pages (resultMode 'per-item') carry the same media fields —
+    // walk each card's ResultContent exactly like the common result above.
+    if (layout.itemResults) {
+      for (const rc of Object.values(layout.itemResults)) {
+        rc.mapImage = take(rc.mapImage);
+        rc.promoImage = take(rc.promoImage);
+        rc.products?.forEach((p) => (p.image = take(p.image)));
+      }
+    }
     if (layout.screensaver?.media) layout.screensaver.media = layout.screensaver.media.map((m) => take(m) || m);
     // Externalize the header logo if it's a data URI.
     if (layout.header?.logo) layout.header.logo = take(layout.header.logo);

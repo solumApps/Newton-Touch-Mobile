@@ -8,8 +8,9 @@ import { ContentPreviewStripComponent } from '../shared/content-preview-strip.co
 import { ThemeService, SavedTheme } from '../services/theme.service';
 import { ImagePickerService } from '../services/image-picker.service';
 import { FONTS } from '../shared/fonts';
-import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, SaverOverlayPosition, ScrollMode } from '@contract/layout';
-import { MIN_COLUMNS, MAX_COLUMNS, columnsForLayout, coerceColumns } from '@contract/layout';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, TextCase, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, NavButtonMode, NavButtonSize, SaverOverlayPosition, ScrollMode } from '@contract/layout';
+import { MIN_COLUMNS, MAX_COLUMNS, columnsForLayout, coerceColumns, NAV_ICONS, navIconKind } from '@contract/layout';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 interface Step { key: string; page: PreviewPage; }
@@ -183,6 +184,28 @@ export class ThemeWizardComponent implements OnInit {
   ];
   fonts = FONTS;
   textScales: TextScale[] = ['compact', 'normal', 'large'];
+  /** Per-element text sizes: undefined = inherit the global text size (current behaviour). */
+  elementScales: { id: TextScale | undefined; label: string }[] = [
+    { id: undefined, label: 'Inherit' }, { id: 'compact', label: 'Compact' }, { id: 'normal', label: 'Normal' }, { id: 'large', label: 'Large' },
+  ];
+  textCases: { id: TextCase; label: string }[] = [
+    { id: 'default', label: 'Default' }, { id: 'uppercase', label: 'UPPER' }, { id: 'lowercase', label: 'lower' }, { id: 'capitalize', label: 'Capitalize' },
+  ];
+  /** Nav button rendering mode / size / built-in icon options. */
+  navModes: { id: NavButtonMode; label: string }[] = [
+    { id: 'icon', label: 'Icon' }, { id: 'text', label: 'Text' }, { id: 'icon-text', label: 'Icon + Text' },
+  ];
+  navSizes: { id: NavButtonSize; label: string }[] = [
+    { id: 'small', label: 'Small' }, { id: 'normal', label: 'Normal' }, { id: 'large', label: 'Large' },
+  ];
+  navIconIds = Object.keys(NAV_ICONS);
+  iconSvg(id: string): SafeHtml { return this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[id] || ''); }
+  isCustomNavIcon(v?: string): boolean { return navIconKind(v) === 'custom'; }
+  async pickNavIcon(which: 'back' | 'home'): Promise<void> {
+    const dataUrl = await this.picker.pick();
+    if (!dataUrl || !this.t.nav) return;
+    if (which === 'back') this.t.nav.backIcon = dataUrl; else this.t.nav.homeIcon = dataUrl;
+  }
   textFits: { id: TextFit; label: string }[] = [
     { id: 'shrink', label: 'Auto-shrink' }, { id: 'wrap', label: 'Wrap 2 lines' }, { id: 'clip', label: 'Clip …' },
   ];
@@ -243,6 +266,8 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'bottom-right',  label: 'Bottom right' },
     { id: 'side-left',     label: 'Side left' },
     { id: 'side-right',    label: 'Side right' },
+    { id: 'header-left',   label: 'In header (left)' },
+    { id: 'header-right',  label: 'In header (right)' },
     { id: 'hidden',        label: 'Hidden' },
   ];
   saverPositions: { id: SaverOverlayPosition; label: string }[] = [
@@ -261,7 +286,7 @@ export class ThemeWizardComponent implements OnInit {
   textPresets = ['#FFFFFF', '#0F172A', '#FFCD00'];
   overlayPresets = ['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)', 'rgba(255,255,255,0.6)', 'rgba(47,0,109,0.7)'];
 
-  constructor(private themes: ThemeService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router) {}
+  constructor(private themes: ThemeService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private sanitizer: DomSanitizer) {}
 
   async ngOnInit(): Promise<void> {
     this.id = this.route.snapshot.paramMap.get('id');

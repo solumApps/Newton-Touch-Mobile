@@ -1,9 +1,10 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonModal } from '@ionic/angular/standalone';
 import { ContentService, ContentDraft } from '../services/content.service';
+import { ThemeService } from '../services/theme.service';
 import { CategoryApiService, ApiProduct } from '../services/category-api.service';
 import { WorkspaceService } from '../services/workspace.service';
 import { ImagePickerService } from '../services/image-picker.service';
@@ -11,7 +12,7 @@ import { SelectFieldComponent, SelectOption } from '../shared/select-field.compo
 import { ColorPickerComponent } from '../shared/color-picker.component';
 import { CardTreeEditorComponent } from './card-tree-editor.component';
 import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
-import type { ResultProduct, CardItem, ImageFit } from '@contract/layout';
+import type { ResultProduct, CardItem, ImageFit, ResultContent } from '@contract/layout';
 
 type StepKey = 'home' | 'inter' | 'result' | 'saver' | 'review';
 interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' | 'saver'; }
@@ -27,7 +28,7 @@ interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' 
   templateUrl: './content-builder.component.html',
   styleUrls: ['./content-builder.component.scss'],
 })
-export class ContentBuilderComponent implements OnInit {
+export class ContentBuilderComponent implements OnInit, OnDestroy {
   @ViewChild('builderSteps') builderSteps?: ElementRef<HTMLElement>;
   @ViewChild(IonContent) contentViewport?: IonContent;
   draft?: ContentDraft;
@@ -84,7 +85,15 @@ export class ContentBuilderComponent implements OnInit {
       }
     }
     if (key === 'result') {
-      if (this.resultMode === 'individual') {
+      if (this.perItemActive) {
+        // Per-item result pages (skip-intermediate themes): each home card owns a page.
+        const missing = d.home.filter((c) => !(d.itemResults?.[c.id]?.products?.length)).length;
+        if (missing && !d.result.products.length) e.push(`${missing} home card(s) have no result products and there are no shared fallback products.`);
+        else if (missing) w.push(`${missing} home card(s) will fall back to the common result page.`);
+        let unnamedPer = 0;
+        d.home.forEach((c) => (d.itemResults?.[c.id]?.products || []).forEach((p) => { if (!p.name?.trim()) unnamedPer++; }));
+        if (unnamedPer) e.push(`${unnamedPer} per-item product(s) need a name.`);
+      } else if (this.resultMode === 'individual' && !this.skipsIntermediate) {
         const missing = this.resultLeaves.filter((l) => !(l.node.products && l.node.products.length)).length;
         if (missing && !d.result.products.length) e.push(`${missing} item(s) have no products and there are no shared fallback products.`);
         else if (missing) w.push(`${missing} item(s) will use the shared fallback products.`);
@@ -95,8 +104,9 @@ export class ContentBuilderComponent implements OnInit {
         e.push('Add at least one result product.');
       }
       d.result.products.forEach((p, i) => { if (!p.name?.trim()) e.push(`Shared product ${i + 1} needs a name.`); });
-      if (this.resultNeedsMap && !d.result.mapImage) w.push('This template shows a store map — no map image uploaded yet.');
-      if (this.resultNeedsPromo && !d.result.promoImage) w.push('This template shows a side/promo panel — no panel image uploaded yet.');
+      // Map/promo checks run against the ACTIVE result page (per-item: the selected card's).
+      if (this.resultNeedsMap && !this.curResult.mapImage) w.push('This template shows a store map — no map image uploaded yet.');
+      if (this.resultNeedsPromo && !this.curResult.promoImage) w.push('This template shows a side/promo panel — no panel image uploaded yet.');
     }
     if (key === 'saver' && (d.screensaver.media?.length || 0) === 0) w.push('No screensaver media added — the screensaver will show plain colors.');
     return { errors: e, warnings: w };
@@ -111,8 +121,10 @@ export class ContentBuilderComponent implements OnInit {
     if (warnings.length && this.warnedStep !== this.stepIndex) { this.warnedStep = this.stepIndex; return; } // show once; next tap proceeds
     this.stepIndex++; this.afterStepChange(); this.stepErrors = []; this.stepWarnings = []; this.save();
   }
-  prev(): void { if (!this.isFirst) { this.stepIndex--; this.afterStepChange(); this.stepErrors = []; this.stepWarnings = []; } }
-  goto(i: number): void { if (i >= 0 && i < this.visibleSteps.length) { this.stepIndex = i; this.afterStepChange(); this.stepErrors = []; this.stepWarnings = []; } }
+  prev(): void { if (!this.isFirst) { this.stepIndex--; this.afterStepChange(); this.stepErrors = []; this.stepWarnings = []; this.rememberStep(); } }
+  goto(i: number): void { if (i >= 0 && i < this.visibleSteps.length) { this.stepIndex = i; this.afterStepChange(); this.stepErrors = []; this.stepWarnings = []; this.rememberStep(); } }
+  /** Track the current step on the draft so reopening resumes here (persisted on next save). */
+  private rememberStep(): void { if (this.draft) this.draft.lastStep = this.stepIndex; }
 
   /** Review slider — shows all pages (with real data) as a horizontal scroll
    *  so the user can swipe through Home / Intermediate / Result / Screensaver
@@ -192,6 +204,56 @@ export class ContentBuilderComponent implements OnInit {
    *  (tree leaves in individual drill mode, intermediate items in common mode). */
   get resultMode(): 'common' | 'individual' { return this.draft?.resultMode || 'common'; }
   setResultMode(m: 'common' | 'individual'): void { if (this.draft) this.draft.resultMode = m; }
+
+  // ---- Per-item result pages (skip-intermediate themes: Home → Result directly) ----
+  /** True when the theme goes Home → Result with no intermediate page. */
+  get skipsIntermediate(): boolean { return this.draft?.themeTokens.includeIntermediate === false; }
+  /** Common = ONE shared result page (legacy default); Per item = each home card
+   *  owns a FULL result page (own map/promo/products) in draft.itemResults. */
+  get itemResultMode(): 'common' | 'per-item' { return this.draft?.itemResultMode || 'common'; }
+  setItemResultMode(m: 'common' | 'per-item'): void {
+    if (!this.draft) return;
+    // Both structures stay on the draft — switching modes never destroys data;
+    // build() deploys only the active one.
+    this.draft.itemResultMode = m;
+    this.markerIdx = 0;
+  }
+  /** True when the Result step is editing per-card pages instead of the shared one. */
+  get perItemActive(): boolean {
+    return this.skipsIntermediate && this.itemResultMode === 'per-item' && (this.draft?.home.length ?? 0) > 0;
+  }
+  /** Card selector state (per-item mode) — which home card's result page is open. */
+  private activeItemId = '';
+  get activeCardId(): string {
+    const d = this.draft;
+    if (!d || !d.home.length) return '';
+    if (this.activeItemId && d.home.some((c) => c.id === this.activeItemId)) return this.activeItemId;
+    return d.home[0].id;
+  }
+  get activeCardLabel(): string {
+    const c = this.draft?.home.find((h) => h.id === this.activeCardId);
+    return c?.name?.trim() || 'this card';
+  }
+  selectItemCard(id: string): void { this.activeItemId = id; this.markerIdx = 0; }
+  /** The ResultContent the Result step edits right now: itemResults[activeCard]
+   *  in per-item mode (created lazily, empty), else the shared draft.result. */
+  get curResult(): ResultContent {
+    const d = this.draft!;
+    if (!this.perItemActive) return d.result;
+    const id = this.activeCardId;
+    if (!d.itemResults) d.itemResults = {};
+    if (!d.itemResults[id]) d.itemResults[id] = { products: [] };
+    return d.itemResults[id];
+  }
+  /** Replace the ACTIVE ResultContent with a new reference (change detection +
+   *  preview-strip input change), routing to draft.result or itemResults[card]. */
+  private setCurResult(r: ResultContent): void {
+    const d = this.draft!;
+    if (this.perItemActive) d.itemResults = { ...(d.itemResults || {}), [this.activeCardId]: r };
+    else d.result = r;
+  }
+  clearMap(): void { this.setCurResult({ ...this.curResult, mapImage: undefined }); }
+  clearPromo(): void { this.setCurResult({ ...this.curResult, promoImage: undefined }); }
 
   /** End items that own an individual result page: tree leaves (individual drill),
    *  shared intermediate items (common drill), or home cards (no intermediate). */
@@ -283,7 +345,7 @@ export class ContentBuilderComponent implements OnInit {
     if (dataUrl) this.setHeader('logo', dataUrl);
   }
 
-  constructor(private content: ContentService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router) {}
+  constructor(private content: ContentService, private themes: ThemeService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router) {}
 
   async pickImage(item: CardItem | ResultProduct): Promise<void> {
     const dataUrl = await this.picker.pick();
@@ -334,6 +396,24 @@ export class ContentBuilderComponent implements OnInit {
     this.draft = (await this.content.list()).find((d) => d.id === id);
     if (!this.draft) { this.router.navigateByUrl('/tabs/content'); return; }
     if (this.draft.appMode === 'prototype-esl' && !this.draft.eslBlinkBy) this.draft.eslBlinkBy = 'article';
+    // Re-sync the draft's theme snapshot with the saved theme: theme edits made
+    // AFTER the draft was created (e.g. switching the result template to 'shelf')
+    // must reflect here, otherwise template-driven sections (map/promo uploads,
+    // intermediate step) work against stale tokens. Deleted themes keep the snapshot.
+    try {
+      const t = await this.themes.getById(this.draft.themeId);
+      if (t) { this.draft.themeTokens = t.tokens; this.draft.themeName = t.name; }
+    } catch { /* keep snapshot */ }
+    // Resume where the user left off (lastStep persisted with the draft).
+    if (typeof this.draft.lastStep === 'number') {
+      this.stepIndex = Math.min(Math.max(0, Math.round(this.draft.lastStep)), this.visibleSteps.length - 1);
+    }
+  }
+
+  /** Safety net: leaving the builder by ANY route (tab switch, hardware back,
+   *  navigation) persists in-progress edits so partial work is never lost. */
+  ngOnDestroy(): void {
+    if (this.draft && !this.saving) void this.save();
   }
 
   /** Featured-theme designed capacity for home cards. Undefined = unlimited (user themes). */
@@ -351,14 +431,16 @@ export class ContentBuilderComponent implements OnInit {
     this.draft!.home = [...this.draft!.home, { id: 'c' + Date.now(), name: '' }];
   }
   addProduct(): void {
-    this.draft!.result = { ...this.draft!.result, products: [...this.draft!.result.products, { id: 'p' + Date.now(), name: '' }] };
+    const r = this.curResult;
+    this.setCurResult({ ...r, products: [...r.products, { id: 'p' + Date.now(), name: '' }] });
   }
   addIntermediate(): void { this.draft!.intermediate = [...this.draft!.intermediate, { id: 'i' + Date.now(), name: '' }]; }
 
   /** Remove by index — creates new array reference for change detection. */
   removeCard(i: number): void { this.draft!.home = this.draft!.home.filter((_, idx) => idx !== i); }
   removeProduct(i: number): void {
-    this.draft!.result = { ...this.draft!.result, products: this.draft!.result.products.filter((_, idx) => idx !== i) };
+    const r = this.curResult;
+    this.setCurResult({ ...r, products: r.products.filter((_, idx) => idx !== i) });
   }
   removeIntermediate(i: number): void { this.draft!.intermediate = this.draft!.intermediate.filter((_, idx) => idx !== i); }
 
@@ -371,50 +453,57 @@ export class ContentBuilderComponent implements OnInit {
     const x = Math.round(Math.max(0, Math.min(100, ((ev.clientX - r.left) / r.width) * 100)));
     const y = Math.round(Math.max(0, Math.min(100, ((ev.clientY - r.top) / r.height) * 100)));
     // Annotation mode (markerIdx -2): the tap places the route line / dot instead.
-    const route = this.draft?.result.route;
+    // All reads/writes go through curResult so per-item mode edits the ACTIVE card's page.
+    const cur = this.curResult;
+    const route = cur.route;
     if (this.markerIdx === -2 && route && (route.kind === 'line' || route.kind === 'dot')) {
-      this.draft!.result = { ...this.draft!.result, route: { ...route, x, y } };
+      this.setCurResult({ ...cur, route: { ...route, x, y } });
       return;
     }
-    const products = this.draft?.result.products || [];
+    const products = cur.products || [];
     if (this.markerIdx >= products.length) this.markerIdx = 0;
     const p = products[this.markerIdx];
     if (!p) return;
     p.mapX = x; p.mapY = y;
     // New products array reference so the preview strip re-renders the dot immediately.
-    this.draft!.result = { ...this.draft!.result, products: [...products] };
+    this.setCurResult({ ...cur, products: [...products] });
   }
 
-  /** Map annotation (ResultContent.route): line / dot / none + position + color. */
+  /** Map annotation (ResultContent.route) of the ACTIVE result page: line / dot / none + position + color. */
   get mapRoute(): { kind?: 'line' | 'dot' | 'none'; x?: number; y?: number; w?: number; color?: string } | undefined {
-    return this.draft?.result.route;
+    return this.draft ? this.curResult.route : undefined;
   }
   setRouteKind(k?: 'line' | 'dot' | 'none'): void {
     if (!this.draft) return;
-    const route = k ? { ...(this.draft.result.route || {}), kind: k } : undefined;
-    this.draft.result = { ...this.draft.result, route };
+    const cur = this.curResult;
+    const route = k ? { ...(cur.route || {}), kind: k } : undefined;
+    this.setCurResult({ ...cur, route });
     if (k === 'line' || k === 'dot') this.markerIdx = -2; // next map tap places the annotation
     else if (this.markerIdx === -2) this.markerIdx = 0;
   }
   setRouteNum(key: 'x' | 'y' | 'w', v: unknown): void {
-    if (!this.draft?.result.route) return;
+    if (!this.draft) return;
+    const cur = this.curResult;
+    if (!cur.route) return;
     const n = v === '' || v == null ? NaN : Math.max(0, Math.min(100, Number(v)));
-    this.draft.result = { ...this.draft.result, route: { ...this.draft.result.route, [key]: Number.isFinite(n) ? n : undefined } };
+    this.setCurResult({ ...cur, route: { ...cur.route, [key]: Number.isFinite(n) ? n : undefined } });
   }
   setRouteColor(c: string): void {
-    if (!this.draft?.result.route) return;
-    this.draft.result = { ...this.draft.result, route: { ...this.draft.result.route, color: c } };
+    if (!this.draft) return;
+    const cur = this.curResult;
+    if (!cur.route) return;
+    this.setCurResult({ ...cur, route: { ...cur.route, color: c } });
   }
 
-  /** Pick the result map background image. */
+  /** Pick the result map background image (active result page). */
   async pickMap(): Promise<void> {
     const dataUrl = await this.picker.pick();
-    if (dataUrl) this.draft!.result.mapImage = dataUrl;
+    if (dataUrl) this.setCurResult({ ...this.curResult, mapImage: dataUrl });
   }
 
   async pickPromo(): Promise<void> {
     const dataUrl = await this.picker.pick();
-    if (dataUrl) this.draft!.result.promoImage = dataUrl;
+    if (dataUrl) this.setCurResult({ ...this.curResult, promoImage: dataUrl });
   }
 
   /** Append a screensaver media item (image or video frame). */
@@ -443,12 +532,22 @@ export class ContentBuilderComponent implements OnInit {
 
   /** True while a save is in flight — drives the blocking saving overlay. */
   saving = false;
+  /** Brief "Saved ✓" confirmation on the header Save button. */
+  savedFlash = false;
+  private savedFlashTimer: any = null;
   async save(): Promise<void> {
     if (!this.draft || this.saving) return;
     this.saving = true;
     try {
-      this.draft.status = this.draft.home.length && this.draft.result.products.length ? 'complete' : 'draft';
+      this.rememberStep();
+      // Per-item mode counts as "has products" when any card's own page has products.
+      const hasProducts = this.draft.result.products.length > 0
+        || (this.perItemActive && Object.values(this.draft.itemResults || {}).some((r) => (r.products || []).length > 0));
+      this.draft.status = this.draft.home.length && hasProducts ? 'complete' : 'draft';
       await this.content.save(this.draft);
+      this.savedFlash = true;
+      if (this.savedFlashTimer) clearTimeout(this.savedFlashTimer);
+      this.savedFlashTimer = setTimeout(() => (this.savedFlash = false), 1600);
     } finally { this.saving = false; }
   }
 
@@ -474,7 +573,8 @@ export class ContentBuilderComponent implements OnInit {
         if (!c.name?.trim()) unnamed++;
         if (top && this.needsImage && !c.image) missingImages++;
         if (c.children?.length) walk(c.children, false);
-        else if (!c.products?.length) leavesNoProducts++;
+        // Per-item mode: a home card with its OWN result page counts as covered.
+        else if (!c.products?.length && !(top && this.perItemActive && d.itemResults?.[c.id]?.products?.length)) leavesNoProducts++;
       }
     };
     walk(d.home, true);
@@ -517,5 +617,9 @@ export class ContentBuilderComponent implements OnInit {
     this.router.navigateByUrl('/deploy/' + this.draft!.id);
   }
 
-  back(): void { this.router.navigateByUrl('/tabs/content'); }
+  /** Back to the content list — persists in-progress edits first (no data loss). */
+  async back(): Promise<void> {
+    await this.save();
+    this.router.navigateByUrl('/tabs/content');
+  }
 }

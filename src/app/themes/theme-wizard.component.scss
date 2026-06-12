@@ -1,3 +1,9 @@
+/* nav icon picker (built-in SVG tiles + custom upload preview) */
+.icon-seg .icon-tile { min-width: 44px; }
+.icon-seg .icon-tile span { display: inline-flex; }
+.icon-seg .icon-tile svg { width: 18px; height: 18px; display: block; fill: currentColor; }
+.icon-custom-preview { width: 34px; height: 34px; object-fit: contain; border-radius: 8px; background: rgba(0,0,0,.15); padding: 3px; }
+
 /* keep the wizard title compact so it never overflows / truncates */
 :host ::ng-deep ion-title { font-size: 16px; font-weight: 700; }
 .studio-header ion-toolbar {
