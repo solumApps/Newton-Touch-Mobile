@@ -1206,7 +1206,7 @@
 .nt-result .list::-webkit-scrollbar, .nt-result .filter-list::-webkit-scrollbar { display:none; width:0; height:0; }
 .nt-result .filter-list { overscroll-behavior:contain; scrollbar-width:none; }
 .nt-result .prod { box-sizing:border-box; background:var(--nt-res-card,rgba(255,255,255,.06)); border-radius:6px;
-  padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*1); margin-bottom:calc(var(--nt-vh)*1); display:flex; align-items:center; color:var(--nt-res-text,#fff); min-width:0; box-shadow:0 calc(var(--nt-vh)*0.6) calc(var(--nt-vh)*1.2) rgba(0,0,0,.10); }
+  padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*1); margin-bottom:calc(var(--nt-vh)*2); display:flex; align-items:center; color:var(--nt-res-text,#fff); min-width:0; box-shadow:0 calc(var(--nt-vh)*0.6) calc(var(--nt-vh)*1.2) rgba(0,0,0,.10); }
 .nt-result .prod .img { flex:0 0 calc(var(--nt-vw)*3); height:calc(var(--nt-vw)*3); border-radius:5px; margin-right:calc(var(--nt-vw)*1); background-size:cover;
   background-position:center; background-color:rgba(255,255,255,.08); }
 .nt-result .prod .info { flex:1; min-width:0; }
@@ -1298,7 +1298,7 @@
   border-right:1px solid rgba(255,255,255,.1);
 }
 .nt-result.res-catalog-grid .prod { width:22%; height:50%; margin:1%; flex-direction:column; align-items:flex-start; background:transparent; overflow:hidden; box-shadow:none; }
-.nt-result.res-catalog-grid .prod .img { width:100%; height:calc(var(--nt-vh)*16); margin:0 0 calc(var(--nt-vh)*0.8); background-size:contain; background-repeat:no-repeat; }
+.nt-result.res-catalog-grid .prod .img { width:100%; height:calc(var(--nt-vh)*16); margin:0 0 calc(var(--nt-vh)*0.8); background-size:contain; background-repeat:no-repeat; min-height:70%; }
 .nt-result.res-catalog-grid .nm { font-size:calc(var(--nt-vw)*0.9); }
 /* minimal */
 .nt-result.res-minimal .map { display:none; }
@@ -1690,7 +1690,18 @@
 .nt-inter.surface-glow .int-image-grid.int-textpos-below .item .img, .nt-inter.surface-glow .int-card-strip.int-textpos-below .item .img { border:calc(var(--nt-vw)*0.14) solid var(--nt-int-accent,#FFCD00); box-sizing:border-box; }
 .nt-inter.surface-glow .int-image-grid.int-textpos-below .item .img, .nt-inter.surface-glow .int-card-strip.int-textpos-below .item .img { box-shadow:0 0 calc(var(--nt-vw)*1.4) var(--nt-int-accent,#FFCD00); }
 .nt-inter.surface-glass .int-image-grid.int-textpos-below .item .img, .nt-inter.surface-glass .int-card-strip.int-textpos-below .item .img { border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.68); box-sizing:border-box; }
-.nt-inter.surface-raised .int-image-grid.int-textpos-below .item .img, .nt-inter.surface-raised .int-card-strip.int-textpos-below .item .img { box-shadow:0 calc(var(--nt-vh)*1) calc(var(--nt-vh)*1.6) rgba(0,0,0,.26); }
+.nt-inter.surface-raised .int-image-grid.int-textpos-below .item .img, .nt-inter.surface-raised .int-card-strip.int-textpos-below .item .img {
+  border:calc(var(--nt-vw)*0.16) solid rgba(255,255,255,.74); box-sizing:border-box;
+  box-shadow:0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0,0,0,.24) !important;
+}
+.nt-inter.surface-outlined .int-circular.int-textpos-below .item .img,
+.nt-inter.surface-glow .int-circular.int-textpos-below .item .img { border:calc(var(--nt-vw)*0.14) solid var(--nt-int-accent,#FFCD00); box-sizing:border-box; }
+.nt-inter.surface-glow .int-circular.int-textpos-below .item .img { box-shadow:0 0 calc(var(--nt-vw)*1.4) var(--nt-int-accent,#FFCD00); }
+.nt-inter.surface-glass .int-circular.int-textpos-below .item .img { border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.68); box-sizing:border-box; }
+.nt-inter.surface-raised .int-circular.int-textpos-below .item .img {
+  border:calc(var(--nt-vw)*0.16) solid rgba(255,255,255,.74); box-sizing:border-box;
+  box-shadow:0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0,0,0,.24) !important;
+}
 /* hex-grid BELOW: hexagon keeps its FULL size (was drawn at the small variant) */
 .nt-inter .int-hex-grid.int-textpos-below .item::before { width:calc(var(--nt-vw)*11); height:calc(var(--nt-vw)*12.7); }
 .nt-inter .int-hex-grid.int-size-small.int-textpos-below .item::before { width:calc(var(--nt-vw)*9); height:calc(var(--nt-vw)*10.4); }
@@ -1703,11 +1714,11 @@
   height:auto; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
 }
 .nt-inter .int-circular.int-textpos-below .item .img {
-  position:static !important; flex:0 0 auto; width:calc(var(--nt-vh)*48); height:calc(var(--nt-vh)*48);
-  border-radius:50%; background-color:var(--nt-int-card, rgba(255,255,255,.08));
+  position:static !important; flex:0 0 calc(var(--nt-vh)*48) !important; width:calc(var(--nt-vh)*48) !important; height:calc(var(--nt-vh)*48) !important;
+  border-radius:50%; background-color:var(--nt-int-card, rgba(255,255,255,.08)); background-size:cover !important; background-position:center !important; background-repeat:no-repeat !important;
 }
-.nt-inter .int-circular.int-size-small.int-textpos-below .item .img { width:calc(var(--nt-vh)*36); height:calc(var(--nt-vh)*36); }
-.nt-inter .int-circular.int-size-large.int-textpos-below .item .img { width:calc(var(--nt-vh)*60); height:calc(var(--nt-vh)*60); }
+.nt-inter .int-circular.int-size-small.int-textpos-below .item .img { flex-basis:calc(var(--nt-vh)*36) !important; width:calc(var(--nt-vh)*36) !important; height:calc(var(--nt-vh)*36) !important; }
+.nt-inter .int-circular.int-size-large.int-textpos-below .item .img { flex-basis:calc(var(--nt-vh)*60) !important; width:calc(var(--nt-vh)*60) !important; height:calc(var(--nt-vh)*60) !important; }
 .nt-inter .int-circular.int-textpos-below .item .name { position:static; padding:0; margin-top:calc(var(--nt-vh)*0.9); text-shadow:none; max-width:100%; }
 /* fullscreen: the image fills the WHOLE card; name = bottom bar (text positions adjust it) */
 .nt-inter .int-fullscreen .item { position:relative; }
