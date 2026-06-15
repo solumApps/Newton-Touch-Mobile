@@ -43,7 +43,14 @@ export class TransferService {
       ws.onmessage = (m) => {
         let msg: any; try { msg = JSON.parse(m.data); } catch { return; }
         if (msg.type === 'devices') {
-          this.found$.next((msg.devices || []).map((d: any) => ({ name: d.id, host: d.id, port: 8090, deviceName: d.deviceName, storeId: d.code })));
+          // Dedupe by id — the relay may report the same display more than once
+          // (multiple announce frames / reconnects), which would otherwise render
+          // duplicate rows in the Deploy device list.
+          const seen = new Set<string>();
+          const devices = (msg.devices || [])
+            .filter((d: any) => { const k = String(d.id); if (seen.has(k)) return false; seen.add(k); return true; })
+            .map((d: any) => ({ name: d.id, host: d.id, port: 8090, deviceName: d.deviceName, storeId: d.code }));
+          this.found$.next(devices);
         } else if (msg.type === 'deploy_ack') {
           this.ackResolve?.(); this.ackResolve = undefined;
         }

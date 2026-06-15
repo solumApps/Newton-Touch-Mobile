@@ -10,7 +10,8 @@
   <div class="wrap">
     <div class="field">
       <label>Content name</label>
-      <input class="inp" [(ngModel)]="name" placeholder="e.g. Holiday Campaign" />
+      <input class="inp" [class.err]="nameError" [(ngModel)]="name" (ngModelChange)="nameError=''" placeholder="e.g. Holiday Campaign" />
+      <p class="field-error" *ngIf="nameError">{{ nameError }}</p>
     </div>
 
     <app-select-field [label]="themeSelectLabel" placeholder="Choose a theme"

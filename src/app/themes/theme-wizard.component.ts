@@ -34,6 +34,8 @@ export class ThemeWizardComponent implements OnInit {
   t: ThemeTokens = ThemeService.defaultTokens();
   saverMode = 'slideshow';
   stepIndex = 0;
+  /** Shown on the Review step when the chosen name collides with an existing theme. */
+  nameError = '';
 
   private allSteps: Step[] = [
     { key: 'home', page: 'home' },
@@ -305,7 +307,22 @@ export class ThemeWizardComponent implements OnInit {
 
   constructor(private themes: ThemeService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private sanitizer: DomSanitizer) {}
 
-  async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> { await this.init(); }
+
+  /** Ionic re-enters cached page views without re-running ngOnInit. Re-initialise
+   *  on every entry so "New Theme" always starts on the Home step with a clean
+   *  slate instead of resuming the previous theme's Review/last step. */
+  async ionViewWillEnter(): Promise<void> { await this.init(); }
+
+  private async init(): Promise<void> {
+    // Full reset so a reused (cached) wizard instance never carries stale state.
+    this.stepIndex = 0;
+    this.activeSlide = 0;
+    this.interSynced = false;
+    this.resultSynced = false;
+    this.nameError = '';
+    this.name = '';
+    this.t = ThemeService.defaultTokens();
     this.id = this.route.snapshot.paramMap.get('id');
     this.openedFromPreview = this.route.snapshot.queryParamMap.get('from') === 'theme-preview';
     this.previewReturnId = this.route.snapshot.queryParamMap.get('returnTheme');
@@ -509,10 +526,20 @@ export class ThemeWizardComponent implements OnInit {
 
   async save(): Promise<void> {
     if (!this.canSave()) { this.stepIndex = this.visibleSteps.length - 1; return; }
-    const theme: SavedTheme = { id: this.id ?? 'thm_' + Date.now(), name: this.name.trim(), tokens: this.t, updatedAt: Date.now() };
+    const name = this.name.trim();
+    // Reject a name already used by another theme (incl. predefined) — case-insensitive.
+    if (await this.themes.nameExists(name, this.id ?? undefined)) {
+      this.nameError = `A theme named “${name}” already exists. Please choose a different name.`;
+      this.stepIndex = this.visibleSteps.length - 1;
+      return;
+    }
+    this.nameError = '';
+    const theme: SavedTheme = { id: this.id ?? 'thm_' + Date.now(), name, tokens: this.t, updatedAt: Date.now() };
     await this.themes.save(theme);
     this.router.navigateByUrl('/tabs/themes');
   }
+  /** Clear the duplicate-name warning as soon as the user edits the name. */
+  onNameInput(): void { if (this.nameError) this.nameError = ''; }
 
   cancel(): void {
     if (this.openedFromPreview && this.id) {

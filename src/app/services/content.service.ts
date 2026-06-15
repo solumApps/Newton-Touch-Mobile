@@ -177,6 +177,15 @@ export class ContentService {
     await Preferences.set({ key: SEED_FLAG, value: '1' });
   }
 
+  /** True if another content draft already uses this name (case-insensitive,
+   *  trimmed). Pass the current draft id to exclude it when renaming/re-saving. */
+  async nameExists(name: string, exceptId?: string): Promise<boolean> {
+    const norm = (s: string) => (s || '').trim().toLowerCase();
+    const target = norm(name);
+    if (!target) return false;
+    return (await this.list()).some((c) => c.id !== exceptId && norm(c.name) === target);
+  }
+
   async save(d: ContentDraft): Promise<void> {
     await this.list();
     d.updatedAt = Date.now();

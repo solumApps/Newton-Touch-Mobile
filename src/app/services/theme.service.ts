@@ -330,6 +330,16 @@ export class ThemeService {
     await this.images.gc(live, 't');
   }
 
+  /** True if another saved/predefined theme already uses this name (case-insensitive,
+   *  trimmed). Pass the current theme id to exclude it when renaming/re-saving. */
+  async nameExists(name: string, exceptId?: string): Promise<boolean> {
+    const norm = (s: string) => (s || '').trim().toLowerCase();
+    const target = norm(name);
+    if (!target) return false;
+    const all = [...ThemeService.predefined(), ...(await this.list())];
+    return all.some((t) => t.id !== exceptId && norm(t.name) === target);
+  }
+
   async save(theme: SavedTheme): Promise<void> {
     await this.list();
     theme.updatedAt = Date.now();

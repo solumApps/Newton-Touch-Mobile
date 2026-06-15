@@ -1440,6 +1440,16 @@
 }
 .nt-result.scroll-vertical.res-map-full .list { flex-wrap:wrap; align-content:flex-start; }
 .nt-result.scroll-vertical.res-map-full .prod { margin-bottom:calc(var(--nt-vh)*1); }
+/* Vertical row-list templates (map-list, list-only): the stage is landscape so
+   --nt-vh ≈ 0.28·--nt-vw, making the default 1·vh bottom margin almost invisible
+   ("no gaps"). Use a real flex column with a vw-based gap so vertical spacing is
+   as clear as the horizontal mode's. */
+.nt-result.scroll-vertical.res-map-list .list,
+.nt-result.scroll-vertical.res-list-only .list {
+  display:flex; flex-direction:column; flex-wrap:nowrap; gap:calc(var(--nt-vw)*0.9);
+}
+.nt-result.scroll-vertical.res-map-list .list .prod,
+.nt-result.scroll-vertical.res-list-only .list .prod { flex:0 0 auto; margin-bottom:0; }
 .nt-result.scroll-horizontal .list, .nt-result.scroll-horizontal .filter-list {
   display:flex; flex-direction:row !important; flex-wrap:nowrap !important;
   overflow-x:auto !important; overflow-y:hidden !important;
@@ -1951,9 +1961,18 @@
 /* QA fix: circle/hexagon shape the PRODUCT CARD itself (like home cards) —
    previously they only reshaped the inner thumbnail. Grid/shelf templates keep
    their own dedicated shape rules below. */
-.nt-result.res-shape-circle:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid) .prod { border-radius:999px; justify-content:center; text-align:center; overflow:hidden; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*2.2); }
-.nt-result.res-shape-hexagon:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid) .prod { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+.nt-result.res-shape-circle:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only) .prod { border-radius:999px; justify-content:center; text-align:center; overflow:hidden; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*2.2); }
+.nt-result.res-shape-hexagon:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only) .prod { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
   justify-content:center; text-align:center; box-shadow:none; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*2.6); }
+/* row-list templates (map-list, list-only) only offer circle/hexagon in the
+   shape picker, and these must shape the PRODUCT-CARD THUMBNAIL image — not clip
+   the whole row (which previously read as the card/background changing shape). */
+.nt-result.res-shape-circle.res-map-list .prod .img, .nt-result.res-shape-circle.res-list-only .prod .img {
+  border-radius:50%; background-size:cover;
+}
+.nt-result.res-shape-hexagon.res-map-list .prod .img, .nt-result.res-shape-hexagon.res-list-only .prod .img {
+  border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); background-size:cover;
+}
 /* thumbnails keep their default small rounded look inside shaped cards */
 /* card templates: circle/hexagon turn the card image into a centred square shape */
 .nt-result.res-shape-circle.res-card-grid .prod .img, .nt-result.res-shape-circle.res-cards-map .prod .img, .nt-result.res-shape-circle.res-catalog-grid .prod .img,

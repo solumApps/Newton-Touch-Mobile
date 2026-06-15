@@ -753,7 +753,8 @@
       <div *ngSwitchCase="'review'">
         <div class="step-title">Review &amp; save</div>
         <div class="fld"><label>Theme name <span class="required">*</span></label>
-          <input class="inp" [(ngModel)]="name" placeholder="e.g. Holiday Dark" /></div>
+          <input class="inp" [class.err]="nameError" [(ngModel)]="name" (ngModelChange)="onNameInput()" placeholder="e.g. Holiday Dark" />
+          <p class="field-error" *ngIf="nameError">{{ nameError }}</p></div>
           <table class="sum">
             <tr><td>Home layout</td><td>{{ t.homeLayout }}{{ columnsMatter ? (' · ' + effectiveColumns + (itemCountMatters ? ' items' : ' col') + (t.columns !== undefined ? '' : ' (auto)')) : '' }}</td></tr>
             <tr><td>Scrolling</td><td>{{ t.scrollMode || 'auto' }}</td></tr>

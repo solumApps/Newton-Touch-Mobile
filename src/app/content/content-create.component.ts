@@ -19,6 +19,7 @@ import type { AppMode } from '@contract/layout';
 })
 export class ContentCreateComponent implements OnInit {
   name = '';
+  nameError = '';
   themeId = '';
   themeLockedFromPreview = false;
   mode: AppMode = 'category';
@@ -65,6 +66,12 @@ export class ContentCreateComponent implements OnInit {
     const theme = this.selectedTheme;
     if (!theme || !this.mode) return;
     const name = this.name.trim() || `${theme.name} content`;
+    // Reject a name already used by another content draft (case-insensitive).
+    if (await this.content.nameExists(name)) {
+      this.nameError = `Content named “${name}” already exists. Please choose a different name.`;
+      return;
+    }
+    this.nameError = '';
     const draft: ContentDraft = {
       id: 'cnt_' + Date.now(),
       name,

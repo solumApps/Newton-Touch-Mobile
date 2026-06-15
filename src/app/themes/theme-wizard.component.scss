@@ -769,6 +769,8 @@
 
 .fld label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--nt-text-2); letter-spacing: .5px; margin-bottom: 6px; }
 .required { color: var(--nt-danger); margin-left: 2px; }
+.field-error { color: var(--nt-danger); font-size: 12px; margin: 6px 2px 0; }
+.inp.err { border-color: var(--nt-danger); }
 .inp {
   width: 100%;
   border: 1.5px solid var(--nt-border);
