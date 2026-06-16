@@ -224,20 +224,29 @@
             <button class="mini" *ngIf="mapRoute?.kind==='line' || mapRoute?.kind==='dot'"
                     [class.sel]="markerIdx===-2" (click)="markerIdx=-2">📍 Annotation</button>
           </div>
-          <div class="map-place" #mapBox (click)="placeMarker($event, mapBox)"
-               [style.background-image]="'url('+curResult.mapImage+')'">
-            <ng-container *ngFor="let p of curResult.products; let i = index">
-              <span class="map-dot" *ngIf="p.mapX != null && p.mapY != null"
-                    [class.sel]="markerIdx===i"
-                    [style.left.%]="p.mapX" [style.top.%]="p.mapY"
-                    [style.background]="d.themeTokens.result.pathColor"></span>
-            </ng-container>
-            <span class="map-dot ann" *ngIf="mapRoute?.kind==='dot' && mapRoute?.x != null"
-                  [class.sel]="markerIdx===-2" [style.left.%]="mapRoute?.x" [style.top.%]="mapRoute?.y"
-                  [style.background]="mapRoute?.color || d.themeTokens.result.pathColor"></span>
-            <span class="map-line" *ngIf="mapRoute?.kind==='line' && mapRoute?.x != null"
-                  [style.left.%]="mapRoute?.x" [style.top.%]="mapRoute?.y" [style.width.%]="mapRoute?.w || 40"
-                  [style.background]="mapRoute?.color || d.themeTokens.result.pathColor"></span>
+          <div class="map-zoombar">
+            <button class="mini" (click)="zoomMapOut()" [disabled]="mapZoom<=1" title="Zoom out">−</button>
+            <span class="map-zoomval">{{ (mapZoom * 100) | number:'1.0-0' }}%</span>
+            <button class="mini" (click)="zoomMapIn()" [disabled]="mapZoom>=3" title="Zoom in">+</button>
+          </div>
+          <p class="note" *ngIf="markerIdx===-2 && routeHint">{{ routeHint }}</p>
+          <div class="map-zoomwrap">
+            <div class="map-place" #mapBox (click)="placeMarker($event, mapBox)"
+                 [style.transform]="'scale('+mapZoom+')'" [style.transformOrigin]="'top left'"
+                 [style.background-image]="'url('+curResult.mapImage+')'">
+              <ng-container *ngFor="let p of curResult.products; let i = index">
+                <span class="map-dot" *ngIf="p.mapX != null && p.mapY != null"
+                      [class.sel]="markerIdx===i"
+                      [style.left.%]="p.mapX" [style.top.%]="p.mapY"
+                      [style.background]="d.themeTokens.result.pathColor"></span>
+              </ng-container>
+              <span class="map-dot ann" *ngIf="mapRoute?.kind==='dot' && mapRoute?.x != null"
+                    [class.sel]="markerIdx===-2" [style.left.%]="mapRoute?.x" [style.top.%]="mapRoute?.y"
+                    [style.background]="mapRoute?.color || d.themeTokens.result.pathColor"></span>
+              <span class="map-line" *ngIf="mapRoute?.kind==='line' && mapRoute?.x != null"
+                    [style.left.%]="mapRoute?.x" [style.top.%]="mapRoute?.y" [style.width.%]="mapRoute?.w || 40"
+                    [style.background]="mapRoute?.color || d.themeTokens.result.pathColor"></span>
+            </div>
           </div>
 
           <!-- Map annotation: show the route line, a single dot, or nothing -->

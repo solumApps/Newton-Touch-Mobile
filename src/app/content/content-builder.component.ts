@@ -452,6 +452,17 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
 
   /** Tap-to-place map marker: which product the next map tap positions. */
   markerIdx = 0;
+  /** Editor map zoom (H-2) — 1 = fit. Coordinates stay correct because
+   *  placeMarker reads the (scaled) bounding rect. */
+  mapZoom = 1;
+  zoomMapIn(): void { this.mapZoom = Math.min(3, Math.round((this.mapZoom + 0.25) * 100) / 100); }
+  zoomMapOut(): void { this.mapZoom = Math.max(1, Math.round((this.mapZoom - 0.25) * 100) / 100); }
+  /** Guided Route placement (H-2): tap start, then tap end to set the length. */
+  routePhase: 'start' | 'end' = 'start';
+  get routeHint(): string {
+    if (this.mapRoute?.kind !== 'line') return '';
+    return this.routePhase === 'start' ? 'Tap the map to set the route START point.' : 'Now tap the route END point to set its length.';
+  }
   /** Set the selected product's mapX/mapY (0–100 %) from a tap on the map preview. */
   placeMarker(ev: MouseEvent, box: HTMLElement): void {
     const r = box.getBoundingClientRect();
@@ -463,7 +474,15 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     const cur = this.curResult;
     const route = cur.route;
     if (this.markerIdx === -2 && route && (route.kind === 'line' || route.kind === 'dot')) {
-      this.setCurResult({ ...cur, route: { ...route, x, y } });
+      // Guided two-tap for the Route line: first tap = start, second = end (length).
+      if (route.kind === 'line' && this.routePhase === 'end' && route.x != null) {
+        const w = Math.max(5, Math.min(100, Math.abs(x - route.x)));
+        this.setCurResult({ ...cur, route: { ...route, w } });
+        this.routePhase = 'start';
+      } else {
+        this.setCurResult({ ...cur, route: { ...route, x, y } });
+        this.routePhase = route.kind === 'line' ? 'end' : 'start';
+      }
       return;
     }
     const products = cur.products || [];
@@ -484,6 +503,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     const cur = this.curResult;
     const route = k ? { ...(cur.route || {}), kind: k } : undefined;
     this.setCurResult({ ...cur, route });
+    this.routePhase = 'start';
     if (k === 'line' || k === 'dot') this.markerIdx = -2; // next map tap places the annotation
     else if (this.markerIdx === -2) this.markerIdx = 0;
   }

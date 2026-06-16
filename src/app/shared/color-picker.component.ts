@@ -29,8 +29,27 @@ export class ColorPickerComponent {
    *  where a transparent colour is meaningless. */
   @Input() allowTransparent = true;
 
+  /** Enable the two-stop linear-gradient builder (B-3). */
+  @Input() allowGradient = false;
+
   customOpen = false;
   hue = 270; sat = 65; light = 45;
+
+  // ---- Gradient builder state ----
+  gradientOpen = false;
+  g1 = '#2F006D'; g2 = '#001973'; gAngle = 135;
+  get isGradient(): boolean { return /gradient/i.test(this.value || ''); }
+  get gradientCss(): string { return `linear-gradient(${this.gAngle}deg, ${this.g1}, ${this.g2})`; }
+  openGradient(): void {
+    this.customOpen = false;
+    const m = /linear-gradient\(\s*(-?[0-9.]+)deg\s*,\s*(#[0-9a-fA-F]{3,8})\s*,\s*(#[0-9a-fA-F]{3,8})\s*\)/i.exec(this.value || '');
+    if (m) { this.gAngle = parseFloat(m[1]); this.g1 = m[2]; this.g2 = m[3]; }
+    this.gradientOpen = true;
+  }
+  closeGradient(): void { this.gradientOpen = false; }
+  applyGradient(): void { this.pick(this.gradientCss); }
+  onG1(h: string): void { if (/^[0-9a-fA-F]{6}$/.test(h)) { this.g1 = '#' + h; this.applyGradient(); } }
+  onG2(h: string): void { if (/^[0-9a-fA-F]{6}$/.test(h)) { this.g2 = '#' + h; this.applyGradient(); } }
 
   pick(c: string): void { this.value = c; this.valueChange.emit(c); }
   doReset(): void { this.customOpen = false; this.reset.emit(); }

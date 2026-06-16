@@ -551,7 +551,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     const image = this.page === 'inter' ? this.theme?.intermediate?.backgroundImage
       : this.page === 'result' ? this.theme?.result?.backgroundImage
       : this.theme?.backgroundImage;
-    return image ? `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.28)), url("${image}") center/cover no-repeat, ${bg || '#000'}` : bg;
+    if (!image) return bg;
+    // B-4: home background framing (pan + zoom). Other pages keep center/cover.
+    const framed = this.page === 'home' && (this.theme?.bgImageZoom != null || this.theme?.bgImageX != null || this.theme?.bgImageY != null);
+    const pos = framed ? `${this.theme?.bgImageX ?? 50}% ${this.theme?.bgImageY ?? 50}%` : 'center';
+    const size = framed ? `${this.theme?.bgImageZoom ?? 100}%` : 'cover';
+    return `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.28)), url("${image}") ${pos}/${size} no-repeat, ${bg || '#000'}`;
   }
   get pageCaption(): string {
     return this.page === 'inter' ? 'Intermediate'

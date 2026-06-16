@@ -47,6 +47,20 @@
   background: #2F006D; color: #fff; font-weight: 800; font-size: 14px; font-family: inherit; cursor: pointer;
 }
 
+/* Gradient builder */
+.gradient-sw { background: linear-gradient(135deg, #2F006D, #06b6d4); }
+.gradient-sw .grad-ic { display: none; }
+.cp-gradient {
+  margin-top: 10px; padding: 12px; border: 1.5px solid var(--nt-border); border-radius: 12px; background: var(--nt-card);
+}
+.cp-gradient .cg-preview { height: 40px; border-radius: 8px; border: 1px solid var(--nt-border); margin-bottom: 10px; }
+.cg-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+.cg-row > span:first-child { flex: 0 0 64px; font-size: 12px; font-weight: 700; color: var(--nt-text-2); }
+.cg-sw { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--nt-border); flex: 0 0 auto; }
+.cg-hex { font-family: monospace; font-size: 13px; color: var(--nt-text-2); }
+.cg-hex input { width: 70px; border: 1px solid var(--nt-border); border-radius: 6px; padding: 4px 6px; font-family: monospace; font-size: 13px; text-transform: uppercase; outline: none; }
+.cg-deg { flex: 0 0 42px; text-align: right; font-weight: 800; font-size: 13px; color: var(--nt-brand-ink); }
+
 /* Current selection readout */
 .cp-current { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
 .cp-current .chip { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--nt-border); overflow: hidden; flex: 0 0 auto; }

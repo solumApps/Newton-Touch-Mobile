@@ -195,6 +195,9 @@ export interface ThemeTokens {
   /** Optional horizontal alignment of card text, independent of cardTextPos
    *  (which controls the vertical placement). Absent = inherit/centre. */
   cardTextAlign?: 'left' | 'center' | 'right';
+  /** Home background-image framing (B-4): pan X/Y (0–100%) + zoom (size %).
+   *  All absent = the legacy center/cover behaviour. */
+  bgImageX?: number; bgImageY?: number; bgImageZoom?: number;
   /** Show the top header/brand bar on the Home page. */
   showHeader: boolean;
   /** Header composition. Defaults to 'logo-only' for backward compat. */

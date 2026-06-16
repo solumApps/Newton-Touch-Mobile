@@ -12,6 +12,32 @@
     <button type="button" class="sw custom" [class.sel]="customOpen" (click)="customOpen ? closeCustom() : openCustom()" title="Custom colour">
       <span class="plus">{{ customOpen ? '×' : '+' }}</span>
     </button>
+    <button *ngIf="allowGradient" type="button" class="sw gradient-sw" [class.sel]="gradientOpen || isGradient"
+            (click)="gradientOpen ? closeGradient() : openGradient()" title="Gradient">
+      <span class="grad-ic"></span>
+    </button>
+  </div>
+
+  <!-- Two-stop linear-gradient builder -->
+  <div class="cp-gradient" *ngIf="gradientOpen">
+    <div class="cg-preview" [style.background]="gradientCss"></div>
+    <label class="cg-row">
+      <span>Color 1</span>
+      <span class="cg-sw" [style.background]="g1"></span>
+      <span class="cg-hex">#<input [ngModel]="strip(g1)" (ngModelChange)="onG1($event)" maxlength="6" placeholder="hex" /></span>
+    </label>
+    <label class="cg-row">
+      <span>Color 2</span>
+      <span class="cg-sw" [style.background]="g2"></span>
+      <span class="cg-hex">#<input [ngModel]="strip(g2)" (ngModelChange)="onG2($event)" maxlength="6" placeholder="hex" /></span>
+    </label>
+    <label class="cg-row">
+      <span>Angle</span>
+      <input type="range" min="0" max="360" [value]="gAngle" class="cc-slider"
+             (input)="gAngle = +$any($event.target).value; applyGradient()" />
+      <span class="cg-deg">{{ gAngle }}°</span>
+    </label>
+    <button type="button" class="cc-done" (click)="closeGradient()">Done</button>
   </div>
 
   <!-- In-app custom picker: Hue / Saturation / Lightness sliders -->

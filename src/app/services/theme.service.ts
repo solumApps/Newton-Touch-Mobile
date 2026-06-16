@@ -192,6 +192,11 @@ export class ThemeService {
       ? Math.min(1.25, Math.max(0.8, csn)) : undefined;
     // Optional independent horizontal card-text alignment.
     out.cardTextAlign = ['left', 'center', 'right'].includes(out.cardTextAlign as string) ? out.cardTextAlign : undefined;
+    // Optional background-image framing (B-4).
+    const clampPct = (v: any, lo: number, hi: number) => { const n = Number(v); return v !== undefined && Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : undefined; };
+    out.bgImageX = clampPct(out.bgImageX, 0, 100);
+    out.bgImageY = clampPct(out.bgImageY, 0, 100);
+    out.bgImageZoom = clampPct(out.bgImageZoom, 100, 300);
     return out;
   }
 

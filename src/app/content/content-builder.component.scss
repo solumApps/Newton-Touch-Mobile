@@ -39,6 +39,11 @@
 /* Tap-to-place map marker (Result step) — 1920:540-ish map preview with dots. */
 .marker-seg { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
 .marker-seg .mini.sel { background: var(--nt-brand-ink); color: var(--nt-card); }
+/* H-2: zoomable editor map */
+.map-zoombar { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
+.map-zoombar .map-zoomval { font-size: 12px; font-weight: 800; color: var(--nt-text-2); min-width: 44px; text-align: center; }
+.map-zoomwrap { width: 100%; height: 150px; margin: 0 0 10px; overflow: auto; border: 1px solid var(--nt-border); border-radius: var(--nt-r); -webkit-overflow-scrolling: touch; }
+.map-zoomwrap .map-place { margin: 0; border: 0; border-radius: 0; height: 150px; }
 .map-place {
   position: relative; width: 100%; height: 150px; margin: 0 0 10px;
   border: 1px solid var(--nt-border); border-radius: var(--nt-r);
