@@ -36,6 +36,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-card-text-case]="cardCase"
            [style.--nt-header-text-case]="headerCase"
            [style.--nt-nav-btn-size]="navBtnSize"
+           [style.--nt-card-scale]="cardSizeScaleNum"
+           [style.--nt-card-align]="cardAlignCss"
            [style.--nt-font]="theme?.typography?.fontFamily"
            [style.--nt-base-text]="theme?.typography?.baseTextColor"
            [style.--nt-accent]="theme?.accent"
@@ -475,6 +477,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       if (this.theme?.result?.content === 'text-only') cls.push('res-content-text-only');
       if (this.theme?.result?.textPos) cls.push('res-textpos-' + this.theme.result.textPos);
       if (this.theme?.result?.cardShape) cls.push('res-shape-' + this.theme.result.cardShape);
+      if (this.resTpl === 'map-filter-list' && this.theme?.result?.filterPos) cls.push('res-filter-pos-' + this.theme.result.filterPos);
       if (this.theme?.scrollMode === 'vertical') cls.push('scroll-vertical');
       if (this.theme?.scrollMode === 'horizontal') cls.push('scroll-horizontal');
     } else if (this.page === 'home') cls.push('nt-home');
@@ -495,6 +498,8 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   /* Per-element typography + nav-button vars — same derivation as the LCD
      layout.service injectTheme(), so preview and kiosk render identically. */
+  get cardSizeScaleNum(): number { const n = this.theme?.cardSizeScale; return typeof n === 'number' && n > 0 ? n : 1; }
+  get cardAlignCss(): string { return this.theme?.cardTextAlign === 'left' ? 'left' : this.theme?.cardTextAlign === 'right' ? 'right' : 'center'; }
   get cardScaleNum(): number { const s = this.theme?.typography?.cardTextScale; return s ? textScaleNum(s) : 1; }
   get headerScaleNum(): number { const s = this.theme?.typography?.headerTextScale; return s ? textScaleNum(s) : 1; }
   get cardCase(): string { return textCaseCss(this.theme?.typography?.cardTextCase); }

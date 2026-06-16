@@ -186,6 +186,12 @@ export class ThemeService {
     const tsn = Number(out.typography.textScaleNum);
     out.typography.textScaleNum = out.typography.textScaleNum !== undefined && Number.isFinite(tsn)
       ? Math.min(1.6, Math.max(0.7, tsn)) : undefined;
+    // Optional fine-grained card-size multiplier (slider).
+    const csn = Number(out.cardSizeScale);
+    out.cardSizeScale = out.cardSizeScale !== undefined && Number.isFinite(csn)
+      ? Math.min(1.25, Math.max(0.8, csn)) : undefined;
+    // Optional independent horizontal card-text alignment.
+    out.cardTextAlign = ['left', 'center', 'right'].includes(out.cardTextAlign as string) ? out.cardTextAlign : undefined;
     return out;
   }
 

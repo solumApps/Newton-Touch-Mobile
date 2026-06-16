@@ -221,6 +221,30 @@ export class ThemeWizardComponent implements OnInit {
     this.t.typography.textScaleNum = n;
     this.t.typography.textScale = n < 0.95 ? 'compact' : n > 1.12 ? 'large' : 'normal';
   }
+
+  /** Fine-grained card size (slider). Seeds from the legacy bucket; keeps the
+   *  bucket loosely in sync for consumers that still read cardSize. */
+  get cardSizeValue(): number {
+    const n = this.t.cardSizeScale;
+    if (typeof n === 'number') return n;
+    const s = this.t.cardSize || 'normal';
+    return s === 'xs' ? 0.8 : s === 'small' ? 0.9 : s === 'large' ? 1.2 : 1;
+  }
+  setCardSize(v: string | number): void {
+    const n = Math.min(1.25, Math.max(0.8, Number(v)));
+    this.t.cardSizeScale = n;
+    this.t.cardSize = n <= 0.85 ? 'xs' : n < 0.97 ? 'small' : n > 1.1 ? 'large' : 'normal';
+  }
+
+  /** Independent horizontal card-text alignment (C-3). */
+  cardAligns: { id: 'left' | 'center' | 'right'; label: string }[] = [
+    { id: 'left', label: 'Left' }, { id: 'center', label: 'Center' }, { id: 'right', label: 'Right' },
+  ];
+
+  /** Map-Filter-List filter section position (G-2). */
+  filterPositions: { id: 'top' | 'bottom' | 'left' | 'right'; label: string }[] = [
+    { id: 'top', label: 'Top' }, { id: 'bottom', label: 'Bottom' }, { id: 'left', label: 'Left' }, { id: 'right', label: 'Right' },
+  ];
   resetColumns(): void { this.t.columns = undefined; }
 
   // ----- Overflow scrolling -----
@@ -254,7 +278,11 @@ export class ThemeWizardComponent implements OnInit {
   textFits: { id: TextFit; label: string }[] = [
     { id: 'shrink', label: 'Auto-shrink' }, { id: 'wrap', label: 'Wrap 2 lines' }, { id: 'clip', label: 'Clip …' },
   ];
-  intStyles: IntermediateStyle[] = ['pill-tabs', 'image-grid', 'hex-grid', 'circular', 'card-strip', 'fullscreen', 'center-tiles', 'side-rail', 'brand-grid', 'brand-rail', 'drill-stair'];
+  // 'hex-grid' and 'circular' removed from the picker — they're now achieved by
+  // choosing a base style (e.g. Image grid) and selecting the Circle/Hexagon
+  // Card shape, instead of being separate layout styles. Enums + CSS retained so
+  // existing themes that use them still render.
+  intStyles: IntermediateStyle[] = ['pill-tabs', 'image-grid', 'card-strip', 'fullscreen', 'center-tiles', 'side-rail', 'brand-grid', 'brand-rail', 'drill-stair'];
   intStyleLabels: Partial<Record<IntermediateStyle, string>> = {
     'pill-tabs': 'Pills', 'image-grid': 'Image grid', 'hex-grid': 'Hex grid', 'circular': 'Circular',
     'card-strip': 'Card strip', 'center-tiles': 'Center tiles',

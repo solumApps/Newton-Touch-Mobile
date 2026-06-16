@@ -244,9 +244,11 @@
         <ng-container *ngIf="!isHeroStart">
         <ng-container *ngIf="sizeMatters">
           <div class="step-title sm">Card size</div>
-          <p class="hint">Controls the physical size of each category card.</p>
-          <div class="seg">
-            <button class="tile" *ngFor="let s of cardSizes" [class.sel]="(t.cardSize||'normal')===s" (click)="t.cardSize=s">{{ cardSizeLabels[s] }}</button>
+          <p class="hint">Drag to set the physical size of each category card.</p>
+          <div class="slider-row">
+            <input type="range" class="nt-slider" min="0.8" max="1.25" step="0.05" [value]="cardSizeValue"
+                   (input)="setCardSize($any($event.target).value)" aria-label="Card size" />
+            <span class="slider-val">{{ (cardSizeValue * 100) | number:'1.0-0' }}%</span>
           </div>
         </ng-container>
 
@@ -285,9 +287,13 @@
         </ng-container>
 
         <ng-container *ngIf="showTextPos">
-          <div class="step-title sm">Text position</div>
+          <div class="step-title sm">Text vertical position</div>
           <div class="seg">
             <button class="tile" *ngFor="let p of textPositionsFor" [class.sel]="t.cardTextPos===p.id" (click)="t.cardTextPos=p.id">{{ p.label }}</button>
+          </div>
+          <div class="step-title sm">Text horizontal alignment</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let a of cardAligns" [class.sel]="(t.cardTextAlign||'center')===a.id" (click)="t.cardTextAlign=a.id">{{ a.label }}</button>
           </div>
         </ng-container>
 
@@ -555,6 +561,14 @@
       <div *ngSwitchCase="'resTemplate'">
         <div class="step-title">Result template</div>
         <div class="tiles"><button class="tile" *ngFor="let o of resultTemplates" [class.sel]="t.resultTemplate===o" (click)="t.resultTemplate=o">{{ o }}</button></div>
+
+        <ng-container *ngIf="t.resultTemplate==='map-filter-list'">
+          <div class="step-title sm">Filter position</div>
+          <p class="hint">Where the Popular / A–Z filter bar sits relative to the list.</p>
+          <div class="seg">
+            <button class="tile" *ngFor="let p of filterPositions" [class.sel]="(t.result.filterPos||'top')===p.id" (click)="t.result.filterPos=p.id">{{ p.label }}</button>
+          </div>
+        </ng-container>
 
         <div class="step-title sm">Card content</div>
         <p class="hint">Whether product cards show their image.</p>

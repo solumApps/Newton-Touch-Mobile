@@ -188,6 +188,13 @@ export interface ThemeTokens {
   cardShape: CardShape;
   cardContent: CardContent;
   cardTextPos: CardTextPos;
+  /** Optional fine-grained card-size multiplier (slider). When set it scales the
+   *  card box continuously (via CSS zoom) on top of the cardSize bucket. Absent =
+   *  use cardSize only. Range ~0.8–1.25. */
+  cardSizeScale?: number;
+  /** Optional horizontal alignment of card text, independent of cardTextPos
+   *  (which controls the vertical placement). Absent = inherit/centre. */
+  cardTextAlign?: 'left' | 'center' | 'right';
   /** Show the top header/brand bar on the Home page. */
   showHeader: boolean;
   /** Header composition. Defaults to 'logo-only' for backward compat. */
@@ -206,7 +213,9 @@ export interface ThemeTokens {
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
   intermediate: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; gap?: 'tight' | 'normal' | 'loose'; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; };
-  result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; transparentHeader?: boolean; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; cardShape?: CardShape; };
+  result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; transparentHeader?: boolean; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; cardShape?: CardShape;
+    /** Position of the filter section in Map-Filter-List (G-2). Default 'top'. */
+    filterPos?: 'top' | 'bottom' | 'left' | 'right'; };
   animation: { transition: TransitionType; speed: AnimSpeed; applyToAll: boolean; };
   loader: { style: LoaderStyle; color: string; };
   /** Shared typography/appearance — applied consistently across ALL rendered pages.
