@@ -48,7 +48,7 @@ export type CardStyle =
   | 'circle' | 'icon-text' | 'color-block' | 'gradient' | 'list-row';
 
 /** Card = independent Shape × Content × Text-position. */
-export type CardShape = 'rect' | 'pill' | 'circle' | 'hexagon';
+export type CardShape = 'rect' | 'pill' | 'circle' | 'hexagon' | 'none';
 export type CardContent = 'image-text' | 'image-only' | 'text-only' | 'icon-text' | 'color-block' | 'gradient';
 export type CardTextPos = 'overlay-top' | 'overlay-bottom' | 'below' | 'center';
 
@@ -215,7 +215,10 @@ export interface ThemeTokens {
    *  cardTextCase/headerTextCase apply CSS text-transform ('default' = none). */
   typography: { fontFamily: string; textScale: TextScale; textFit: TextFit; baseTextColor: string;
     cardTextScale?: TextScale; headerTextScale?: TextScale;
-    cardTextCase?: TextCase; headerTextCase?: TextCase; };
+    cardTextCase?: TextCase; headerTextCase?: TextCase;
+    /** Optional fine-grained global text multiplier (slider). When set it
+     *  overrides the textScale bucket; absent = use textScale. Range ~0.7–1.6. */
+    textScaleNum?: number; };
   /** Screensaver overlay content styling (title, subtitle, position, colors). */
   saverOverlay?: SaverOverlay;
 }
@@ -293,7 +296,7 @@ export const THEME_ENUM_VALUES = {
   logoPosition: ['left', 'center', 'right'],
   homeLayout: ['grid-2x3', 'grid-2x2', 'col-2', 'col-3', 'col-4', 'hero-list', 'list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'h-scroll', 'bento'],
   cardSize: ['xs', 'small', 'normal', 'large'],
-  cardShape: ['rect', 'pill', 'circle', 'hexagon'],
+  cardShape: ['rect', 'pill', 'circle', 'hexagon', 'none'],
   cardContent: ['image-text', 'image-only', 'text-only', 'icon-text', 'color-block', 'gradient'],
   cardTextPos: ['overlay-top', 'overlay-bottom', 'below', 'center'],
   cardSurface: ['flat', 'glass', 'raised', 'outlined', 'glow'],

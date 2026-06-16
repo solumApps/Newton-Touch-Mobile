@@ -63,7 +63,10 @@ export class ThemeService {
       resultTemplate: 'map-list',
       intermediate: { headerColor: 'rgba(0,0,0,0.45)', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', gap: 'normal' },
       result: { headerColor: '#2F006D', background: '#0A0A1A', cardBackground: 'rgba(255,255,255,0.06)', cardText: '#FFFFFF', accent: '#FFCD00', pathColor: '#FFCD00', pathStyle: 'dashed', showHeader: true },
-      animation: { transition: 'fade-slide', speed: 'normal', applyToAll: true },
+      // Default to no page transition — faster, more responsive navigation
+      // (per team feedback). The transition options remain available in the
+      // Motion step for anyone who wants them.
+      animation: { transition: 'none', speed: 'normal', applyToAll: true },
       loader: { style: 'spinner', color: '#FFCD00' },
       typography: { fontFamily: DEFAULT_FONT, textScale: 'normal', textFit: 'shrink', baseTextColor: '#FFFFFF' },
       saverOverlay: { ...DEFAULT_SAVER_OVERLAY },
@@ -179,6 +182,10 @@ export class ThemeService {
     // maxHomeItems: positive integer or undefined (= unlimited, user themes).
     const cap = Number(t?.maxHomeItems);
     out.maxHomeItems = Number.isFinite(cap) && cap >= 1 ? Math.round(cap) : undefined;
+    // Optional fine-grained text multiplier (slider) — clamp to a sane range.
+    const tsn = Number(out.typography.textScaleNum);
+    out.typography.textScaleNum = out.typography.textScaleNum !== undefined && Number.isFinite(tsn)
+      ? Math.min(1.6, Math.max(0.7, tsn)) : undefined;
     return out;
   }
 

@@ -352,6 +352,12 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (dataUrl) item.image = dataUrl;
   }
 
+  /** Remove an uploaded image so the item falls back to its default placeholder. */
+  clearImage(item: CardItem | ResultProduct): void {
+    item.image = undefined;
+    item.imageFit = undefined;
+  }
+
   /** Per-image fit segment (shown when an image is set). 'cover' = default → field omitted. */
   readonly fitOpts: ImageFit[] = ['cover', 'contain', 'fill'];
   fitOf(item: CardItem | ResultProduct): ImageFit { return item.imageFit || 'cover'; }

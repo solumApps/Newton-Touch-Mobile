@@ -487,6 +487,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get found(): ResultProduct | undefined { return this.resultCells[0]; }
 
   get scaleNum(): number {
+    // Fine-grained slider value overrides the textScale bucket when present.
+    const n = this.theme?.typography?.textScaleNum;
+    if (typeof n === 'number' && n > 0) return n;
     const s = this.theme?.typography?.textScale;
     return s === 'compact' ? 0.8 : s === 'large' ? 1.25 : 1;
   }
@@ -501,13 +504,18 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get navMode(): string { return this.theme?.nav?.mode || 'icon'; }
   get navBackLabel(): string { return this.theme?.nav?.backLabel || 'Back'; }
   get navHomeLabel(): string { return this.theme?.nav?.homeLabel || 'Home'; }
+  // Default (undefined) nav icons resolve to real built-in SVGs — 'arrow' for
+  // Back, 'home' for Home — so they're always visible (font glyphs were missing
+  // on the kiosk) and clearly distinct from each other.
   get backIconHtml(): SafeHtml | undefined {
     const ic = this.theme?.nav?.backIcon;
-    return navIconKind(ic) === 'builtin' ? this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[ic!]) : undefined;
+    if (navIconKind(ic) === 'custom') return undefined;
+    return this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[navIconKind(ic) === 'builtin' ? ic! : 'arrow']);
   }
   get homeIconHtml(): SafeHtml | undefined {
     const ic = this.theme?.nav?.homeIcon;
-    return navIconKind(ic) === 'builtin' ? this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[ic!]) : undefined;
+    if (navIconKind(ic) === 'custom') return undefined;
+    return this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[navIconKind(ic) === 'builtin' ? ic! : 'home']);
   }
   get backIconCustom(): string { const ic = this.theme?.nav?.backIcon; return navIconKind(ic) === 'custom' ? ic! : ''; }
   get homeIconCustom(): string { const ic = this.theme?.nav?.homeIcon; return navIconKind(ic) === 'custom' ? ic! : ''; }

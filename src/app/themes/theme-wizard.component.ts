@@ -57,7 +57,7 @@ export class ThemeWizardComponent implements OnInit {
     intColors: 'Intermediate colors',
     resTemplate: 'Result',
     resColors: 'Result colors',
-    anim: 'Motion',
+    anim: 'Loader',
     saver: 'Screensaver',
     review: 'Review',
   };
@@ -78,9 +78,11 @@ export class ThemeWizardComponent implements OnInit {
   cardShapes: { id: CardShape; label: string }[] = [
     { id: 'rect', label: 'Rectangle' }, { id: 'pill', label: 'Pill' }, { id: 'circle', label: 'Circle' }, { id: 'hexagon', label: 'Hexagon' },
   ];
+  // 'color-block' removed from the picker — it looked identical to 'text-only'
+  // (both are text on a coloured card). Enum + CSS kept so older themes render.
   cardContents: { id: CardContent; label: string }[] = [
     { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' }, { id: 'text-only', label: 'Text only' },
-    { id: 'icon-text', label: 'Icon + Text' }, { id: 'color-block', label: 'Colour block + Text' }, { id: 'gradient', label: 'Gradient' },
+    { id: 'icon-text', label: 'Icon + Text' }, { id: 'gradient', label: 'Gradient' },
   ];
   cardTextPositions: { id: CardTextPos; label: string }[] = [
     { id: 'overlay-top', label: 'Overlay top' }, { id: 'overlay-bottom', label: 'Overlay bottom' }, { id: 'below', label: 'Below' }, { id: 'center', label: 'Centered' },
@@ -125,15 +127,25 @@ export class ThemeWizardComponent implements OnInit {
         (this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon')) {
       this.t.cardShape = 'rect';
     }
+    // Auto-reset overflow scrolling if the new layout doesn't offer the current
+    // mode (e.g. Column+Horizontal → Hero+List, which has no Horizontal option):
+    // leaving a stale 'horizontal' applied the scroll-horizontal class to a
+    // layout that can't lay out as a row and broke the preview/render.
+    if (!this.scrollModesFor.some((m) => m.id === (this.t.scrollMode || 'auto'))) {
+      this.t.scrollMode = 'auto';
+    }
     this.coerceTextPos();
   }
 
   /** Only show circle/hexagon shapes for layouts where they make visual sense. */
   get availableCardShapes(): { id: CardShape; label: string }[] {
-    if (this.noShapeLayouts.includes(this.t.homeLayout)) {
-      return this.cardShapes.filter(s => s.id !== 'circle' && s.id !== 'hexagon');
-    }
-    return this.cardShapes;
+    let base = this.noShapeLayouts.includes(this.t.homeLayout)
+      ? this.cardShapes.filter(s => s.id !== 'circle' && s.id !== 'hexagon')
+      : this.cardShapes;
+    // Image-only cards get a 'None' option so the image shows un-masked
+    // (any other shape clips/rounds the image).
+    if (this.t.cardContent === 'image-only') base = [{ id: 'none', label: 'None' }, ...base];
+    return base;
   }
   // ----- Free column count (grid/column layouts) -----
   readonly minColumns = MIN_COLUMNS;
@@ -195,6 +207,20 @@ export class ThemeWizardComponent implements OnInit {
     this.t.columns = next;
   }
   setColumns(v: string): void { this.t.columns = coerceColumns(v); }
+
+  /** Fine-grained global text size (slider). Seeds from the legacy bucket when the
+   *  numeric override isn't set yet; keeps the bucket loosely in sync for any
+   *  consumer that still reads textScale. */
+  get textScaleValue(): number {
+    const n = this.t.typography.textScaleNum;
+    if (typeof n === 'number') return n;
+    return this.t.typography.textScale === 'compact' ? 0.8 : this.t.typography.textScale === 'large' ? 1.25 : 1;
+  }
+  setTextScale(v: string | number): void {
+    const n = Math.min(1.6, Math.max(0.7, Number(v)));
+    this.t.typography.textScaleNum = n;
+    this.t.typography.textScale = n < 0.95 ? 'compact' : n > 1.12 ? 'large' : 'normal';
+  }
   resetColumns(): void { this.t.columns = undefined; }
 
   // ----- Overflow scrolling -----
@@ -242,7 +268,11 @@ export class ThemeWizardComponent implements OnInit {
   /** Selectable templates — split-panel / esl-focus (map-width variants of
    *  map-list) and dual-list (2-col list-only) are hidden as near-duplicates;
    *  old themes using them still render (enum + CSS retained). */
-  resultTemplates: ResultTemplate[] = ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'drill-stair', 'filter-list', 'map-filter-list', 'promo-list', 'catalog-grid', 'product-focus', 'hero-product', 'drill-filter', 'shelf'];
+  // Ordered by real-world usage: Map-List + Drill-Stair (+ Map-Filter-List) lead.
+  // 'cards-map' dropped from the picker (near-duplicate of Map-List); enum + CSS
+  // kept so existing themes using it still render. Lower-priority layouts remain
+  // available rather than deleted — removal of specific ones is a product call.
+  resultTemplates: ResultTemplate[] = ['map-list', 'drill-stair', 'map-filter-list', 'list-only', 'filter-list', 'map-full', 'card-grid', 'catalog-grid', 'promo-list', 'product-focus', 'hero-product', 'drill-filter', 'shelf'];
   transitions: TransitionType[] = ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'];
   speeds: AnimSpeed[] = ['slow', 'normal', 'fast'];
   loaders: LoaderStyle[] = ['spinner', 'dot-pulse', 'progress', 'logo', 'skeleton'];
@@ -261,10 +291,13 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'outlined', label: 'Outlined' },
     { id: 'glow', label: 'Glow' },
   ];
+  // Nav Bar Style is intentionally reduced to Floating + Hidden — placement
+  // (incl. Bottom Center, edges) is handled solely by Button Position below, to
+  // remove the overlap/duplication between the two controls. Legacy 'edge' /
+  // 'bottom-center' values stay valid in the enum + CSS so older saved themes
+  // still render; they're just no longer offered for new selection.
   navStyles: { id: NavStyle; label: string }[] = [
     { id: 'floating', label: 'Floating' },
-    { id: 'edge', label: 'Edge buttons' },
-    { id: 'bottom-center', label: 'Bottom center' },
     { id: 'hidden', label: 'Hidden' },
   ];
   cardSizes: Array<'xs' | 'small' | 'normal' | 'large'> = ['xs', 'small', 'normal', 'large'];
@@ -300,8 +333,16 @@ export class ThemeWizardComponent implements OnInit {
   pathStyles: Array<'dashed' | 'solid' | 'dotted' | 'animated'> = ['dashed', 'solid', 'dotted', 'animated'];
   saverModes = ['slideshow', 'single-image', 'video'];
 
-  bgPresets = ['linear-gradient(135deg,#2F006D,#001973)', '#0F172A', '#FFFFFF', '#1A0036', '#0A0A1A'];
-  cardPresets = ['rgba(255,255,255,0.15)', '#FFFFFF', '#1E293B', '#F1F5F9'];
+  /** Gradient presets offered for card-area and card backgrounds (A4/A5). The
+   *  picker renders any CSS background string, and these flow through --nt-bg /
+   *  --nt-card to both the preview and the LCD, so gradients work end-to-end. */
+  gradientPresets = [
+    'linear-gradient(135deg,#2F006D,#001973)', 'linear-gradient(160deg,#0F172A,#334155)',
+    'linear-gradient(135deg,#FFCD00,#FF8A00)', 'linear-gradient(135deg,#10B981,#0EA5E9)',
+    'linear-gradient(135deg,#EC4899,#8B5CF6)',
+  ];
+  bgPresets = ['linear-gradient(135deg,#2F006D,#001973)', '#0F172A', '#FFFFFF', '#1A0036', '#0A0A1A', ...this.gradientPresets.slice(1)];
+  cardPresets = ['rgba(255,255,255,0.15)', '#FFFFFF', '#1E293B', '#F1F5F9', ...this.gradientPresets];
   textPresets = ['#FFFFFF', '#0F172A', '#FFCD00'];
   overlayPresets = ['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)', 'rgba(255,255,255,0.6)', 'rgba(47,0,109,0.7)'];
 

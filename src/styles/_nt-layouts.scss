@@ -106,8 +106,12 @@
 .nt-home .card .img { flex:1; background-size:cover; background-position:center; background-color:rgba(255,255,255,.08); }
 .nt-home .card .meta { flex:0 0 auto; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); min-width:0; box-sizing:border-box; }
 .nt-home .card .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1); font-weight:800; color:var(--nt-text,#fff); }
-.nt-home.surface-glass .card { background:rgba(255,255,255,.14); border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.68); box-shadow:inset 0 0 calc(var(--nt-vw)*2) rgba(255,255,255,.08); }
-.nt-home.surface-raised .card { border:calc(var(--nt-vw)*0.16) solid rgba(255,255,255,.74); box-shadow:0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0,0,0,.24); }
+/* shape 'none' (image-only): show the image with no mask/rounding at all. */
+.nt-home .card.shape-none, .nt-home .card.shape-none .img { border-radius:0 !important; clip-path:none !important; }
+/* glass = frosted translucent pane (blur + bright hairline border + top sheen) */
+.nt-home.surface-glass .card { background:rgba(255,255,255,.14); backdrop-filter:blur(calc(var(--nt-vw)*0.8)); -webkit-backdrop-filter:blur(calc(var(--nt-vw)*0.8)); border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.55); box-shadow:inset 0 calc(var(--nt-vh)*0.45) 0 rgba(255,255,255,.28), inset 0 0 calc(var(--nt-vw)*2) rgba(255,255,255,.08); }
+/* raised = solid borderless card that floats on a deep, layered drop shadow */
+.nt-home.surface-raised .card { border:0; box-shadow:0 calc(var(--nt-vh)*2.4) calc(var(--nt-vh)*3.6) rgba(0,0,0,.42), 0 calc(var(--nt-vh)*0.5) calc(var(--nt-vh)*1) rgba(0,0,0,.3); }
 .nt-home.surface-outlined .card { background:transparent; border:calc(var(--nt-vw)*0.14) solid var(--nt-accent,#FFCD00); }
 .nt-home.surface-glow .card { border:calc(var(--nt-vw)*0.14) solid var(--nt-accent,#FFCD00); box-shadow:0 0 calc(var(--nt-vw)*1.8) var(--nt-accent,#FFCD00); }
 /* clip-path (circle/hexagon) clips box-shadow → shape-following drop-shadow */
@@ -183,6 +187,15 @@
 .nt-home .layout-fullscreen .card:not(.featured) { display:none; }
 /* transparent header is absolute → fullscreen card must not expand behind it */
 .nt-home .hdr.hdr-transparent ~ .layout-fullscreen { padding-top:calc(var(--nt-vh) * 15); }
+/* Transparent header is taken out of flow (position:absolute), so the
+   intermediate/result bodies (and non-fullscreen home cards) would render
+   underneath it. Reserve the header's height (~15%) so only the page
+   background shows through the bar — cards no longer overlap. */
+.nt-inter .hdr.hdr-transparent ~ .body,
+.nt-result .hdr.hdr-transparent ~ .body,
+.nt-home .hdr.hdr-transparent ~ .cards:not(.layout-fullscreen) {
+  padding-top:calc(var(--nt-vh) * 15); box-sizing:border-box;
+}
 
 
 .nt-home .layout-image-strip { display:flex; padding:0; }
@@ -777,8 +790,12 @@
 .nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"].card-size-small .card { flex-basis:calc(var(--nt-vh)*46); width:calc(var(--nt-vh)*46); height:calc(var(--nt-vh)*46); }
 .nt-home .cards.shape.scroll-horizontal[class*="layout-col-"].card-size-large .card,
 .nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"].card-size-large .card { flex-basis:calc(var(--nt-vh)*66); width:calc(var(--nt-vh)*66); height:calc(var(--nt-vh)*66); }
-/* B7: columns + vertical scroll — cardGap applies */
-.nt-home .cards.scroll-vertical[class*="layout-col-"] .card {
+/* B7: columns + vertical scroll — cardGap applies.
+   Exclude shape (circle/hexagon) grids: those are CSS grids with fixed SQUARE
+   cells, and adding card margins here broke the square aspect the hexagon
+   clip-path relies on (hexagons rendered skewed in Columns→Vertical). Shape
+   grids space themselves via the grid track sizing instead. */
+.nt-home .cards.scroll-vertical[class*="layout-col-"]:not(.shape) .card {
   margin:calc(var(--card-gap,calc(var(--nt-vw)*1.5)) * 0.5) calc(var(--card-gap,calc(var(--nt-vw)*1.5)) * 0.35);
 }
 
@@ -910,8 +927,8 @@
   position:absolute !important; left:0; right:0; top:0; bottom:0; width:100% !important; height:100% !important; margin:0 !important; flex:none;
 }
 .nt-inter .item .name { font-weight:800; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
-.nt-inter.surface-glass .item { background:rgba(255,255,255,.14); border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.68); box-shadow:inset 0 0 calc(var(--nt-vw)*2) rgba(255,255,255,.08); }
-.nt-inter.surface-raised .item { border:calc(var(--nt-vw)*0.16) solid rgba(255,255,255,.74); box-shadow:0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0,0,0,.24) !important; }
+.nt-inter.surface-glass .item { background:rgba(255,255,255,.14); backdrop-filter:blur(calc(var(--nt-vw)*0.8)); -webkit-backdrop-filter:blur(calc(var(--nt-vw)*0.8)); border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.55); box-shadow:inset 0 calc(var(--nt-vh)*0.45) 0 rgba(255,255,255,.28), inset 0 0 calc(var(--nt-vw)*2) rgba(255,255,255,.08); }
+.nt-inter.surface-raised .item { border:0; box-shadow:0 calc(var(--nt-vh)*2.4) calc(var(--nt-vh)*3.6) rgba(0,0,0,.42), 0 calc(var(--nt-vh)*0.5) calc(var(--nt-vh)*1) rgba(0,0,0,.3) !important; }
 .nt-inter.surface-outlined .item { background:transparent; border:calc(var(--nt-vw)*0.14) solid var(--nt-int-accent,#FFCD00); }
 .nt-inter.surface-glow .item { border:calc(var(--nt-vw)*0.14) solid var(--nt-int-accent,#FFCD00); box-shadow:0 0 calc(var(--nt-vw)*1.8) var(--nt-int-accent,#FFCD00) !important; }
 .nt-inter.surface-glow .int-hex-grid .item { box-shadow:none !important; filter:drop-shadow(0 0 calc(var(--nt-vw)*1) var(--nt-int-accent,#FFCD00)); }
@@ -979,11 +996,14 @@
 .nt-inter .int-brand-rail::-webkit-scrollbar { display:none; }
 .nt-inter .int-brand-rail .item + .item { margin-left:calc(var(--nt-vw)*2); }
 .nt-inter .int-brand-rail .item { flex:0 0 calc(var(--nt-vh)*44); width:calc(var(--nt-vh)*44); min-width:calc(var(--nt-vh)*44); height:calc(var(--nt-vh)*44); margin:0;
-  border-radius:50%; background:#fff; box-shadow:0 calc(var(--nt-vh)*1) calc(var(--nt-vh)*2) rgba(0,0,0,.14); box-sizing:border-box;
+  border-radius:50%; background:var(--nt-int-card,#fff); box-shadow:0 calc(var(--nt-vh)*1) calc(var(--nt-vh)*2) rgba(0,0,0,.14); box-sizing:border-box;
   display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:calc(var(--nt-vh)*1); }
-.nt-inter .int-brand-rail .item .img { width:74%; height:54%; flex:0 0 auto; background-color:transparent;
+/* logo sits on its own white plate so it stays readable whatever the themed
+   chip colour is, while the chip + label follow the intermediate theme tokens. */
+.nt-inter .int-brand-rail .item .img { width:74%; height:54%; flex:0 0 auto; background-color:#fff; border-radius:calc(var(--nt-vw)*0.6);
   background-size:contain; background-repeat:no-repeat; background-position:center; }
-.nt-inter .int-brand-rail .item .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 0.9); font-weight:900; color:#111; margin-top:calc(var(--nt-vh)*0.6);
+.nt-inter .int-brand-rail .item .img.no-img { background-color:transparent !important; }
+.nt-inter .int-brand-rail .item .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 0.9); font-weight:900; color:var(--nt-int-text,#111); margin-top:calc(var(--nt-vh)*0.6);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:86%; }
 .nt-inter .int-brand-rail::after { content:'Which one will you choose?'; position:sticky; right:0; order:9999;
   flex:0 0 calc(var(--nt-vw)*30); min-width:calc(var(--nt-vw)*30); margin-left:auto; align-self:stretch; display:flex; align-items:center; justify-content:flex-end;
@@ -1215,8 +1235,8 @@
 .nt-result .nm { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1); font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; padding:4px; }
 .nt-result .price { white-space:nowrap; }
 .nt-result .loc { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 0.7); color:var(--nt-res-accent,#FFCD00); margin-top:calc(var(--nt-vh)*0.4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
-.nt-result.surface-glass .prod, .nt-result.surface-glass .fitem { background:rgba(255,255,255,.14); border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.68); box-shadow:inset 0 0 calc(var(--nt-vw)*2) rgba(255,255,255,.08); }
-.nt-result.surface-raised .prod, .nt-result.surface-raised .fitem { border:calc(var(--nt-vw)*0.16) solid rgba(255,255,255,.74); box-shadow:0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0,0,0,.2); }
+.nt-result.surface-glass .prod, .nt-result.surface-glass .fitem { background:rgba(255,255,255,.14); backdrop-filter:blur(calc(var(--nt-vw)*0.8)); -webkit-backdrop-filter:blur(calc(var(--nt-vw)*0.8)); border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.55); box-shadow:inset 0 calc(var(--nt-vh)*0.45) 0 rgba(255,255,255,.28), inset 0 0 calc(var(--nt-vw)*2) rgba(255,255,255,.08); }
+.nt-result.surface-raised .prod, .nt-result.surface-raised .fitem { border:0; box-shadow:0 calc(var(--nt-vh)*2.4) calc(var(--nt-vh)*3.6) rgba(0,0,0,.42), 0 calc(var(--nt-vh)*0.5) calc(var(--nt-vh)*1) rgba(0,0,0,.3); }
 .nt-result.surface-outlined .prod, .nt-result.surface-outlined .fitem { background:transparent; border:calc(var(--nt-vw)*0.14) solid var(--nt-res-accent,#FFCD00); }
 .nt-result.surface-glow .prod, .nt-result.surface-glow .fitem { border:calc(var(--nt-vw)*0.14) solid var(--nt-res-accent,#FFCD00); box-shadow:0 0 calc(var(--nt-vw)*1.8) var(--nt-res-accent,#FFCD00); }
 
@@ -1536,10 +1556,12 @@
 .nt-inter .int-brand-grid .item .img.no-img { background-color:rgba(255,255,255,.85) !important; }
 
 /* ============== INTERMEDIATE OPTION FIXES (pills/image-grid/hex-grid) ===== */
-/* pills: larger tabs (width + height) at every size */
-.nt-inter .int-pill-tabs .item { padding:calc(var(--nt-vh)*7) calc(var(--nt-vw)*9); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 2.4); }
-.nt-inter .int-pill-tabs.int-size-small .item { padding:calc(var(--nt-vh)*5.5) calc(var(--nt-vw)*6.5); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 2); }
-.nt-inter .int-pill-tabs.int-size-large .item { padding:calc(var(--nt-vh)*9.5) calc(var(--nt-vw)*11); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 3.2); }
+/* pills: larger, chunkier tabs. The stage is landscape so vh-only vertical
+   padding rendered the pills too thin — use an explicit min-height (plus more
+   font/padding) so they read as substantial buttons at every size. */
+.nt-inter .int-pill-tabs .item { padding:calc(var(--nt-vh)*9) calc(var(--nt-vw)*9); min-height:calc(var(--nt-vh)*24); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 2.6); }
+.nt-inter .int-pill-tabs.int-size-small .item { padding:calc(var(--nt-vh)*7) calc(var(--nt-vw)*6.5); min-height:calc(var(--nt-vh)*18); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 2.1); }
+.nt-inter .int-pill-tabs.int-size-large .item { padding:calc(var(--nt-vh)*12) calc(var(--nt-vw)*11); min-height:calc(var(--nt-vh)*32); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 3.4); }
 /* image-grid: explicit non-overlapping sizes per item size */
 .nt-inter .int-image-grid.int-size-small .item { transform:none; width:19%; height:38%; }
 .nt-inter .int-image-grid.int-size-large .item { transform:none; width:31%; height:56%; }
@@ -1908,6 +1930,25 @@
 .nt-inter .int-fullscreen.int-textpos-overlay-top .item .name { top:8%; }
 .nt-inter .int-fullscreen.int-textpos-overlay-bottom .item .name { bottom:8%; }
 .nt-inter .int-fullscreen.int-textpos-center .item .name { top:50%; transform:translateY(-50%); }
+/* Full Screen + Text Below: stack image and label in normal flow so the text
+   sits UNDER the card and both fit within the screen (was overlapping). */
+.nt-inter .int-fullscreen.int-textpos-below .item { display:flex; flex-direction:column; box-sizing:border-box; }
+.nt-inter .int-fullscreen.int-textpos-below .item .img {
+  position:static !important; flex:1 1 auto !important; width:100% !important; height:auto !important; min-height:0;
+}
+.nt-inter .int-fullscreen.int-textpos-below .item .name {
+  position:static !important; left:auto; right:auto; top:auto; bottom:auto; transform:none; flex:0 0 auto;
+  background:transparent; color:var(--nt-int-text,#fff); text-align:center;
+  padding:calc(var(--nt-vh)*1.4) calc(var(--nt-vw)*2);
+}
+/* Full Screen carousel: when a scroll direction is chosen, show every item as a
+   full-screen slide in a scroll-snap carousel (horizontal or vertical) instead
+   of only the open one. */
+.nt-inter .int-fullscreen.scroll-horizontal { flex-direction:row; overflow-x:auto !important; overflow-y:hidden !important; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
+.nt-inter .int-fullscreen.scroll-vertical { flex-direction:column; overflow-y:auto !important; overflow-x:hidden !important; scroll-snap-type:y mandatory; -webkit-overflow-scrolling:touch; }
+.nt-inter .int-fullscreen.scroll-horizontal .item, .nt-inter .int-fullscreen.scroll-vertical .item {
+  display:flex !important; flex:0 0 100% !important; width:100% !important; height:100% !important; scroll-snap-align:center;
+}
 .nt-inter .int-center-tiles.int-textpos-overlay-top .item { align-items:flex-start; padding-top:calc(var(--nt-vh)*2); box-sizing:border-box; }
 .nt-inter .int-center-tiles.int-textpos-overlay-bottom .item, .nt-inter .int-center-tiles.int-textpos-below .item { align-items:flex-end; padding-bottom:calc(var(--nt-vh)*2); box-sizing:border-box; }
 /* side-rail + brand-grid: centred items, working gap options */

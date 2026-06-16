@@ -121,6 +121,7 @@
         <div class="seg fit-seg" *ngIf="needsImage && c.image">
           <span class="fit-lbl">Fit</span>
           <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(c)===f" (click)="setFit(c, f)">{{ f | titlecase }}</button>
+          <button class="mini danger" (click)="clearImage(c)" title="Remove image">✕ Image</button>
         </div>
         <div class="prow">
           <input class="inp" [(ngModel)]="c.price" placeholder="Price (optional)" />
@@ -163,6 +164,7 @@
           <div class="seg fit-seg" *ngIf="intermediateNeedsImage && it.image">
             <span class="fit-lbl">Fit</span>
             <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(it)===f" (click)="setFit(it, f)">{{ f | titlecase }}</button>
+            <button class="mini danger" (click)="clearImage(it)" title="Remove image">✕ Image</button>
           </div>
         </ng-container>
       </ng-container>
@@ -240,19 +242,22 @@
 
           <!-- Map annotation: show the route line, a single dot, or nothing -->
           <div class="sec"><span>Map annotation</span></div>
-          <p class="note">Draw the route line, a single dot, or nothing on the map. Pick Line/Dot, then tap the map to place it.</p>
+          <p class="note"><b>Route</b> draws a guide line to the product; <b>Dot</b> marks a single spot; <b>None</b> hides it; <b>Default</b> uses the theme. Pick a mode, then tap the map to place it.</p>
           <div class="seg fit-seg">
             <button class="mini" [class.sel]="!mapRoute?.kind" (click)="setRouteKind(undefined)">Default</button>
-            <button class="mini" [class.sel]="mapRoute?.kind==='line'" (click)="setRouteKind('line')">Line</button>
+            <button class="mini" [class.sel]="mapRoute?.kind==='line'" (click)="setRouteKind('line')">Route</button>
             <button class="mini" [class.sel]="mapRoute?.kind==='dot'" (click)="setRouteKind('dot')">Dot</button>
             <button class="mini" [class.sel]="mapRoute?.kind==='none'" (click)="setRouteKind('none')">None</button>
           </div>
+          <p class="note" *ngIf="mapRoute?.kind==='line'">Set the start point with X / Y (% from top-left) and how far the route runs with Length, or tap the map to position the start.</p>
+          <p class="note" *ngIf="mapRoute?.kind==='dot'">Set the dot position with X / Y (% from top-left), or tap the map to place it.</p>
           <div class="prow" *ngIf="mapRoute?.kind==='line' || mapRoute?.kind==='dot'">
-            <input class="inp" type="number" min="0" max="100" [ngModel]="mapRoute?.x" (ngModelChange)="setRouteNum('x',$event)" placeholder="X %" />
-            <input class="inp" type="number" min="0" max="100" [ngModel]="mapRoute?.y" (ngModelChange)="setRouteNum('y',$event)" placeholder="Y %" />
+            <input class="inp" type="number" min="0" max="100" [ngModel]="mapRoute?.x" (ngModelChange)="setRouteNum('x',$event)" placeholder="Start X %" />
+            <input class="inp" type="number" min="0" max="100" [ngModel]="mapRoute?.y" (ngModelChange)="setRouteNum('y',$event)" placeholder="Start Y %" />
             <input class="inp" type="number" min="5" max="100" *ngIf="mapRoute?.kind==='line'" [ngModel]="mapRoute?.w" (ngModelChange)="setRouteNum('w',$event)" placeholder="Length %" />
           </div>
           <app-color-picker *ngIf="mapRoute?.kind==='line' || mapRoute?.kind==='dot'" label="Annotation color"
+            [allowTransparent]="false"
             [value]="mapRoute?.color || d.themeTokens.result.pathColor"
             (valueChange)="setRouteColor($event)"></app-color-picker>
           <p class="note">Marker &amp; route color comes from the THEME (Result colors step) — override it per content with the Annotation color below.</p>
@@ -302,6 +307,7 @@
         <div class="seg fit-seg" *ngIf="p.image">
           <span class="fit-lbl">Fit</span>
           <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(p)===f" (click)="setFit(p, f)">{{ f | titlecase }}</button>
+          <button class="mini danger" (click)="clearImage(p)" title="Remove image">✕ Image</button>
         </div>
         <div class="prow">
           <input class="inp" [(ngModel)]="p.price" placeholder="Price" />

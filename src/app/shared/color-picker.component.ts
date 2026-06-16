@@ -25,6 +25,9 @@ export class ColorPickerComponent {
    *  parent can clear the stored value (undefined = use the built-in default). */
   @Input() allowReset = false;
   @Output() reset = new EventEmitter<void>();
+  /** Whether to offer the "transparent" swatch. Off for things like map markers
+   *  where a transparent colour is meaningless. */
+  @Input() allowTransparent = true;
 
   customOpen = false;
   hue = 270; sat = 65; light = 45;

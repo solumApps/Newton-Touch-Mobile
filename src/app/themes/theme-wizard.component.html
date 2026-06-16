@@ -219,7 +219,17 @@
           <button class="tile" *ngFor="let o of homeLayouts" [class.sel]="t.homeLayout===o || (o==='col-3' && isGridLike)" (click)="pickLayout(o)">{{ layoutLabels[o] }}</button>
         </div>
 
-        <ng-container *ngIf="columnsMatter">
+        <!-- Overflow scrolling comes first; Columns is shown afterwards and only
+             when relevant (hidden for vertical scrolling on grid layouts). -->
+        <ng-container *ngIf="scrollMatters && !isHeroStart">
+          <div class="step-title sm">Overflow scrolling</div>
+          <p class="hint">When items don't fit: Auto picks the layout's natural direction (grids vertical, rails horizontal).</p>
+          <div class="seg">
+            <button class="tile" *ngFor="let m of scrollModesFor" [class.sel]="(t.scrollMode||'auto')===m.id" (click)="t.scrollMode=m.id">{{ m.label }}</button>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="columnsMatter && !(isGridLike && t.scrollMode === 'vertical')">
           <div class="step-title sm">{{ itemCountMatters ? 'Items' : 'Columns' }}</div>
           <p class="hint">{{ itemCountMatters ? 'How many items to show — the layout fills the screen and extra items scroll.' : 'Free column count (' + minColumns + '–' + maxColumns + '). Extra rows scroll vertically.' }}</p>
           <div class="seg cols-stepper">
@@ -228,14 +238,6 @@
                    [value]="effectiveColumns" (change)="setColumns($any($event.target).value)" aria-label="Column count" />
             <button class="tile" (click)="stepColumns(1)" [disabled]="effectiveColumns >= maxColumns" aria-label="More columns">+</button>
             <button class="tile" *ngIf="t.columns !== undefined" (click)="resetColumns()">Auto</button>
-          </div>
-        </ng-container>
-
-        <ng-container *ngIf="scrollMatters && !isHeroStart">
-          <div class="step-title sm">Overflow scrolling</div>
-          <p class="hint">When items don't fit: Auto picks the layout's natural direction (grids vertical, rails horizontal).</p>
-          <div class="seg">
-            <button class="tile" *ngFor="let m of scrollModesFor" [class.sel]="(t.scrollMode||'auto')===m.id" (click)="t.scrollMode=m.id">{{ m.label }}</button>
           </div>
         </ng-container>
 
@@ -343,12 +345,12 @@
       <div *ngSwitchCase="'colors'">
         <div class="step-title">Colors &amp; branding</div>
         <app-color-picker *ngIf="t.showHeader" label="Header" hint="top bar" [value]="t.headerColor" (valueChange)="t.headerColor=$event"></app-color-picker>
-        <app-color-picker label="Card area background" [value]="t.background" (valueChange)="t.background=$event" [presets]="bgPresets"></app-color-picker>
+        <app-color-picker *ngIf="!t.backgroundImage" label="Card area background" [value]="t.background" (valueChange)="t.background=$event" [presets]="bgPresets"></app-color-picker>
         <div class="media-row">
           <button class="btn-o media-btn" (click)="pickBackground('home')">{{ t.backgroundImage ? 'Replace home background image' : 'Upload home background image' }}</button>
           <button class="btn-o media-clear" *ngIf="t.backgroundImage" (click)="clearBackground('home')">Clear</button>
         </div>
-        <p class="hint" *ngIf="t.backgroundImage">The background image covers the card-area color — clear the image to see the color again.</p>
+        <p class="hint" *ngIf="t.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
         <app-color-picker label="Card background" [value]="t.cardBackground" (valueChange)="t.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker label="Card text" [value]="t.cardText" (valueChange)="t.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker label="Text overlay" hint="background behind text on cards" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
@@ -368,7 +370,12 @@
                   [style.fontFamily]="f.stack" (click)="t.typography.fontFamily=f.stack">{{ f.label }}</button>
         </div>
         <div class="step-title sm">Text size</div>
-        <div class="seg"><button class="tile" *ngFor="let s of textScales" [class.sel]="t.typography.textScale===s" (click)="t.typography.textScale=s">{{ s }}</button></div>
+        <p class="hint">Drag to fine-tune the overall text size.</p>
+        <div class="slider-row">
+          <input type="range" class="nt-slider" min="0.7" max="1.6" step="0.05" [value]="textScaleValue"
+                 (input)="setTextScale($any($event.target).value)" aria-label="Text size" />
+          <span class="slider-val">{{ (textScaleValue * 100) | number:'1.0-0' }}%</span>
+        </div>
         <div class="step-title sm">Text fit</div>
         <div class="seg"><button class="tile" *ngFor="let f of textFits" [class.sel]="t.typography.textFit===f.id" (click)="t.typography.textFit=f.id">{{ f.label }}</button></div>
 
@@ -392,6 +399,15 @@
         <div class="step-title sm">Layout style</div>
         <p class="hint">How sub-categories are arranged on the drill-down screen.</p>
         <div class="tiles"><button class="tile" *ngFor="let o of intStyles" [class.sel]="t.intermediateStyle===o" (click)="t.intermediateStyle=o">{{ intStyleLabel(o) }}</button></div>
+
+        <ng-container *ngIf="t.intermediateStyle==='fullscreen'">
+          <div class="step-title sm">Carousel scrolling</div>
+          <p class="hint">How full-screen items advance when there's more than one.</p>
+          <div class="seg">
+            <button class="tile" [class.sel]="(t.scrollMode||'horizontal')!=='vertical'" (click)="t.scrollMode='horizontal'">Horizontal carousel</button>
+            <button class="tile" [class.sel]="t.scrollMode==='vertical'" (click)="t.scrollMode='vertical'">Vertical carousel</button>
+          </div>
+        </ng-container>
 
         <div class="step-title sm">Item size</div>
         <p class="hint">Physical size of each sub-category tile/row.</p>
@@ -443,11 +459,12 @@
           <span>&#9432;</span> Colors pre-filled from your Home page — adjust below if needed.
         </div>
         <app-color-picker label="Header / breadcrumb" [value]="t.intermediate.headerColor" (valueChange)="t.intermediate.headerColor=$event"></app-color-picker>
-        <app-color-picker label="Page background" [value]="t.intermediate.background" (valueChange)="t.intermediate.background=$event" [presets]="bgPresets"></app-color-picker>
+        <app-color-picker *ngIf="!t.intermediate.backgroundImage" label="Page background" [value]="t.intermediate.background" (valueChange)="t.intermediate.background=$event" [presets]="bgPresets"></app-color-picker>
         <div class="media-row">
           <button class="btn-o media-btn" (click)="pickBackground('inter')">{{ t.intermediate.backgroundImage ? 'Replace intermediate background image' : 'Upload intermediate background image' }}</button>
           <button class="btn-o media-clear" *ngIf="t.intermediate.backgroundImage" (click)="clearBackground('inter')">Clear</button>
         </div>
+        <p class="hint" *ngIf="t.intermediate.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
         <app-color-picker label="Row / card background" [value]="t.intermediate.cardBackground" (valueChange)="t.intermediate.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker label="Card text" [value]="t.intermediate.cardText" (valueChange)="t.intermediate.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker label="Accent / active" [value]="t.intermediate.accent" (valueChange)="t.intermediate.accent=$event"></app-color-picker>
@@ -598,11 +615,12 @@
           <span>&#9432;</span> Colors pre-filled from your Home page — adjust below if needed.
         </div>
         <app-color-picker label="Header" [value]="t.result.headerColor" (valueChange)="t.result.headerColor=$event"></app-color-picker>
-        <app-color-picker label="Page background" [value]="t.result.background" (valueChange)="t.result.background=$event" [presets]="bgPresets"></app-color-picker>
+        <app-color-picker *ngIf="!t.result.backgroundImage" label="Page background" [value]="t.result.background" (valueChange)="t.result.background=$event" [presets]="bgPresets"></app-color-picker>
         <div class="media-row">
           <button class="btn-o media-btn" (click)="pickBackground('result')">{{ t.result.backgroundImage ? 'Replace result background image' : 'Upload result background image' }}</button>
           <button class="btn-o media-clear" *ngIf="t.result.backgroundImage" (click)="clearBackground('result')">Clear</button>
         </div>
+        <p class="hint" *ngIf="t.result.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
         <app-color-picker label="Product card background" [value]="t.result.cardBackground" (valueChange)="t.result.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker label="Card text" [value]="t.result.cardText" (valueChange)="t.result.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker label="Accent / highlight" [value]="t.result.accent" (valueChange)="t.result.accent=$event"></app-color-picker>
@@ -699,11 +717,8 @@
       </div>
 
       <div *ngSwitchCase="'anim'">
-        <div class="step-title">Animations &amp; loader</div>
-        <div class="step-title sm">Page transition <button class="replay" (click)="replayTransition()">▶ Preview</button></div>
-        <div class="seg"><button class="tile" *ngFor="let o of transitions" [class.sel]="t.animation.transition===o" (click)="t.animation.transition=o; replayTransition()">{{ o }}</button></div>
-        <div class="step-title sm">Speed</div>
-        <div class="seg"><button class="tile" *ngFor="let o of speeds" [class.sel]="t.animation.speed===o" (click)="t.animation.speed=o; replayTransition()">{{ o }}</button></div>
+        <div class="step-title">Loader</div>
+        <p class="hint">Page transitions are turned off for faster, more responsive navigation.</p>
         <div class="step-title sm">Loader style <button class="replay" (click)="replayLoader()">▶ Preview</button></div>
         <div class="tiles ldr-tiles">
           <button class="tile ldr-tile" *ngFor="let o of loaders" [class.sel]="t.loader.style===o" (click)="t.loader.style=o; replayLoader()">
