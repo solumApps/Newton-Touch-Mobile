@@ -67,7 +67,7 @@ export class ThemeWizardComponent implements OnInit {
 
   /** Grid/column variants collapse into ONE 'Columns' tile — the free column
    *  stepper picks the count (legacy layouts still map onto it when editing). */
-  homeLayouts: HomeLayout[] = ['col-3', 'hero-list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'h-scroll', 'bento'];
+  homeLayouts: HomeLayout[] = ['col-3', 'hero-list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'bento'];
   layoutLabels: Record<HomeLayout, string> = {
     'grid-2x3': 'Columns', 'grid-2x2': 'Columns', 'col-2': 'Columns', 'col-3': 'Columns', 'col-4': 'Columns',
     'hero-list': 'Hero + list', 'list': 'List rows', 'fullscreen': 'Fullscreen',
@@ -85,7 +85,7 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'icon-text', label: 'Icon + Text' }, { id: 'gradient', label: 'Gradient' },
   ];
   cardTextPositions: { id: CardTextPos; label: string }[] = [
-    { id: 'overlay-top', label: 'Overlay top' }, { id: 'overlay-bottom', label: 'Overlay bottom' }, { id: 'below', label: 'Below' }, { id: 'center', label: 'Centered' },
+    { id: 'overlay-top', label: 'Inner Top' }, { id: 'overlay-bottom', label: 'Inner Bottom' }, { id: 'center', label: 'Center' }, { id: 'above', label: 'Top (above)' }, { id: 'below', label: 'Below' },
   ];
   /** Text-position applies to every content with a label (all except image-only),
    *  and to hero-start (it positions the hero copy). */
@@ -100,16 +100,26 @@ export class ThemeWizardComponent implements OnInit {
     return this.noBelowContents.includes(this.t.cardContent) || this.noBelowLayouts.includes(this.t.homeLayout);
   }
   get textPositionsFor(): { id: CardTextPos; label: string }[] {
-    return this.homeBelowHidden ? this.cardTextPositions.filter((p) => p.id !== 'below') : this.cardTextPositions;
+    return this.homeBelowHidden ? this.cardTextPositions.filter((p) => p.id !== 'below' && p.id !== 'above') : this.cardTextPositions;
   }
   get interTextPositions(): { id: CardTextPos; label: string }[] {
-    return (this.t.intermediate.content || 'image-text') === 'text-only' ? this.cardTextPositions.filter((p) => p.id !== 'below') : this.cardTextPositions;
+    return (this.t.intermediate.content || 'image-text') === 'text-only' ? this.cardTextPositions.filter((p) => p.id !== 'below' && p.id !== 'above') : this.cardTextPositions;
   }
   /** When the current selection is a now-hidden 'below', coerce it to 'center'
    *  (edit-time only — deployed themes keep rendering via CSS fallbacks). */
   private coerceTextPos(): void {
-    if (this.t.cardTextPos === 'below' && this.homeBelowHidden) this.t.cardTextPos = 'center';
-    if ((this.t.intermediate.content || 'image-text') === 'text-only' && this.t.intermediate.textPos === 'below') this.t.intermediate.textPos = 'center';
+    if ((this.t.cardTextPos === 'below' || this.t.cardTextPos === 'above') && this.homeBelowHidden) this.t.cardTextPos = 'center';
+    if ((this.t.intermediate.content || 'image-text') === 'text-only' && (this.t.intermediate.textPos === 'below' || this.t.intermediate.textPos === 'above')) this.t.intermediate.textPos = 'center';
+  }
+  /** Pick card shape; clamp columns if the new shape has a tighter max. */
+  pickShape(s: CardShape): void {
+    this.t.cardShape = s;
+    if (this.t.columns && this.t.columns > this.maxColumns) {
+      this.t.columns = this.maxColumns;
+    }
+    if (typeof this.t.cardSizeScale === 'number' && this.t.cardSizeScale > this.cardSizeMax) {
+      this.setCardSize(this.cardSizeMax);
+    }
   }
   pickContent(c: CardContent): void { this.t.cardContent = c; this.coerceTextPos(); }
   pickInterContent(c: 'image-text' | 'text-only'): void { this.t.intermediate.content = c; this.coerceTextPos(); }
@@ -127,6 +137,7 @@ export class ThemeWizardComponent implements OnInit {
     this.t.cardGap = 'normal';
     this.t.cardGapNum = undefined;
     this.t.cardAlign = 'center';
+    this.t.cardVAlign = 'middle';
     this.t.cardSize = 'normal';
     this.t.cardSizeScale = undefined;
     // Auto-reset circle/hexagon when switching to shape-incompatible layouts
@@ -138,8 +149,8 @@ export class ThemeWizardComponent implements OnInit {
     // mode (e.g. Column+Horizontal → Hero+List, which has no Horizontal option):
     // leaving a stale 'horizontal' applied the scroll-horizontal class to a
     // layout that can't lay out as a row and broke the preview/render.
-    if (!this.scrollModesFor.some((m) => m.id === (this.t.scrollMode || 'auto'))) {
-      this.t.scrollMode = 'auto';
+    if (!this.scrollModesFor.some((m) => m.id === this.t.scrollMode)) {
+      this.t.scrollMode = 'vertical';
     }
     this.coerceTextPos();
   }
@@ -156,7 +167,13 @@ export class ThemeWizardComponent implements OnInit {
   }
   // ----- Free column count (grid/column layouts) -----
   readonly minColumns = MIN_COLUMNS;
-  readonly maxColumns = MAX_COLUMNS;
+  /** Dynamic max columns: circle/hex (square cards) get a tighter cap because
+   *  the card height constrains width on the landscape kiosk (1920×540). */
+  get maxColumns(): number {
+    const shape = this.t.cardShape;
+    if (shape === 'circle' || shape === 'hexagon') return 5;
+    return MAX_COLUMNS;
+  }
   /** Layouts whose column count can be freely overridden. */
   private readonly columnLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-2', 'col-3', 'col-4'];
   get columnsMatter(): boolean { return this.columnLayouts.includes(this.t.homeLayout) || this.itemCountMatters; }
@@ -166,7 +183,7 @@ export class ThemeWizardComponent implements OnInit {
   /** Layouts with a free ITEM count (same stepper, different meaning). */
   get itemCountMatters(): boolean { return ['image-strip', 'bento', 'hero-list'].includes(this.t.homeLayout); }
   /** Overflow-scrolling control: hidden where it breaks the layout or is moot. */
-  get scrollMatters(): boolean { return !['image-strip', 'hero-start', 'h-scroll', 'bento', 'fullscreen', 'promo-categories'].includes(this.t.homeLayout); }
+  get scrollMatters(): boolean { return !['image-strip', 'hero-start', 'bento', 'fullscreen', 'promo-categories'].includes(this.t.homeLayout); }
   /** Card gap: hidden where cards always fill the screen. */
   get gapMatters(): boolean { return !['image-strip', 'fullscreen'].includes(this.t.homeLayout); }
   get scrollModesFor(): { id: ScrollMode; label: string }[] {
@@ -212,6 +229,10 @@ export class ThemeWizardComponent implements OnInit {
   stepColumns(delta: number): void {
     const next = Math.min(this.maxColumns, Math.max(this.minColumns, this.effectiveColumns + delta));
     this.t.columns = next;
+    // Clamp card size if new column count reduces headroom.
+    if (typeof this.t.cardSizeScale === 'number' && this.t.cardSizeScale > this.cardSizeMax) {
+      this.setCardSize(this.cardSizeMax);
+    }
   }
   setColumns(v: string): void { this.t.columns = coerceColumns(v); }
 
@@ -237,8 +258,16 @@ export class ThemeWizardComponent implements OnInit {
     const s = this.t.cardSize || 'normal';
     return s === 'xs' ? 0.8 : s === 'small' ? 0.9 : s === 'large' ? 1.2 : 1;
   }
+  /** Dynamic card size max: more columns → less room to scale up.
+   *  Also accounts for gap eating into available width. */
+  get cardSizeMax(): number {
+    const cols = this.effectiveColumns;
+    const gap = this.cardGapValue;
+    // Base max shrinks as columns grow; gap further reduces headroom.
+    return Math.max(0.9, 1.25 - (cols - 3) * 0.06 - gap * 0.005);
+  }
   setCardSize(v: string | number): void {
-    const n = Math.min(1.25, Math.max(0.8, Number(v)));
+    const n = Math.min(this.cardSizeMax, Math.max(0.8, Number(v)));
     this.t.cardSizeScale = n;
     this.t.cardSize = n <= 0.85 ? 'xs' : n < 0.97 ? 'small' : n > 1.1 ? 'large' : 'normal';
   }
@@ -295,7 +324,7 @@ export class ThemeWizardComponent implements OnInit {
 
   // ----- Overflow scrolling -----
   scrollModes: { id: ScrollMode; label: string }[] = [
-    { id: 'auto', label: 'Auto' }, { id: 'vertical', label: 'Vertical' }, { id: 'horizontal', label: 'Horizontal' },
+    { id: 'vertical', label: 'Vertical' }, { id: 'horizontal', label: 'Horizontal' },
   ];
   fonts = FONTS;
   textScales: TextScale[] = ['compact', 'normal', 'large'];

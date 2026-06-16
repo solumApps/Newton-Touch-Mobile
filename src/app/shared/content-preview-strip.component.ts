@@ -86,9 +86,9 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         </div>
 
         <!-- HOME (LCD markup: .cards.layout-*) -->
-        <div *ngSwitchCase="'home'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
+        <div *ngSwitchCase="'home'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} valign-{{theme?.cardVAlign||'middle'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
              [class.has-cols]="theme?.columns !== undefined" [style.--cols]="theme?.columns" [style.--card-gap]="cardGapPx"
-             [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'">
+             [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [class.no-overlay]="theme?.cardTextOverlay === false">
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
             <span>{{ titleText || 'Product Finder' }}</span>
             <b>Start Search</b>
@@ -579,6 +579,8 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get cellCount(): number {
     const l = this.theme?.homeLayout, c = this.theme?.columns;
     if (c && (l === 'image-strip' || l === 'bento' || l === 'hero-list')) return c;
+    // Vertical scroll: show more cards so user can test scrolling in preview.
+    if (this.theme?.scrollMode === 'vertical') return 12;
     return l === 'hero-list' ? 4 : 6;
   }
   get homeCells(): CardItem[] {

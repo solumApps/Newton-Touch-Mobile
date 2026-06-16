@@ -50,7 +50,7 @@ export type CardStyle =
 /** Card = independent Shape × Content × Text-position. */
 export type CardShape = 'rect' | 'pill' | 'circle' | 'hexagon' | 'none';
 export type CardContent = 'image-text' | 'image-only' | 'text-only' | 'icon-text' | 'color-block' | 'gradient';
-export type CardTextPos = 'overlay-top' | 'overlay-bottom' | 'below' | 'center';
+export type CardTextPos = 'overlay-top' | 'overlay-bottom' | 'below' | 'center' | 'above';
 
 export type IntermediateStyle =
   | 'accordion' | 'pill-tabs' | 'image-grid' | 'hex-grid'
@@ -181,6 +181,8 @@ export interface ThemeTokens {
   cardSize?: CardSize;
   /** Horizontal alignment of cards within their row (for layouts that don't fill the row). */
   cardAlign?: 'left' | 'center' | 'right';
+  /** Vertical alignment of cards within the grid container. */
+  cardVAlign?: 'top' | 'middle' | 'bottom';
   /** Spacing between cards. Overflowing content scrolls (rails horizontally, grids vertically). */
   cardGap?: 'tight' | 'normal' | 'loose';
   /** Fine-grained card-gap in px (slider). When set, overrides the bucket. Range 0–20. */
@@ -190,6 +192,7 @@ export interface ThemeTokens {
   cardShape: CardShape;
   cardContent: CardContent;
   cardTextPos: CardTextPos;
+  cardTextOverlay?: boolean;
   /** Optional fine-grained card-size multiplier (slider). When set it scales the
    *  card box continuously (via CSS zoom) on top of the cardSize bucket. Absent =
    *  use cardSize only. Range ~0.8–1.25. */
@@ -312,7 +315,7 @@ export const THEME_ENUM_VALUES = {
   cardSize: ['xs', 'small', 'normal', 'large'],
   cardShape: ['rect', 'pill', 'circle', 'hexagon', 'none'],
   cardContent: ['image-text', 'image-only', 'text-only', 'icon-text', 'color-block', 'gradient'],
-  cardTextPos: ['overlay-top', 'overlay-bottom', 'below', 'center'],
+  cardTextPos: ['overlay-top', 'overlay-bottom', 'below', 'center', 'above'],
   cardSurface: ['flat', 'glass', 'raised', 'outlined', 'glow'],
   navStyle: ['floating', 'edge', 'bottom-center', 'hidden'],
   navButtonPosition: ['bottom-left', 'bottom-center', 'bottom-right', 'side-left', 'side-right', 'header-left', 'header-right', 'hidden'],

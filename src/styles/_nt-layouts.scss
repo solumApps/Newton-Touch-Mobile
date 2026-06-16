@@ -364,6 +364,24 @@
 .nt-home .card.shape-pill.content-image-text.pos-below .meta { position:absolute; left:0; right:0; top:0; bottom:0; display:flex; align-items:center; justify-content:center; padding:0 14%; background:transparent; }
 .nt-home .card.shape-pill.content-image-text.pos-below .name { color:var(--nt-text,#fff); text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 
+/* above: text above image (mirror of below, order:-1 lifts meta) */
+.nt-home .card.content-image-text.pos-above { display:flex; flex-direction:column; }
+.nt-home .card.content-image-text.pos-above .meta { position:static; flex:0 0 auto; width:100%; background:transparent; order:-1; }
+.nt-home .card.content-image-text.pos-above .img { position:static; flex:1 1 auto; min-height:0; width:100%; }
+.nt-home .card.content-image-text.pos-above .name { white-space:normal; }
+/* pill + pos-above: same absolute treatment as pill + pos-below */
+.nt-home .card.shape-pill.content-image-text.pos-above { position:relative; }
+.nt-home .card.shape-pill.content-image-text.pos-above .img { position:absolute; left:0; right:0; top:0; bottom:0; flex:none; width:100%; height:100%; }
+.nt-home .card.shape-pill.content-image-text.pos-above .meta { position:absolute; left:0; right:0; top:0; bottom:0; display:flex; align-items:center; justify-content:center; padding:0 14%; background:transparent; }
+.nt-home .card.shape-pill.content-image-text.pos-above .name { color:var(--nt-text,#fff); text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.nt-home .layout-hero-start.htext-above .hero-copy { justify-content:flex-start; padding-top:calc(var(--nt-vh)*9); box-sizing:border-box; }
+
+/* overlay toggle: remove gradient when .no-overlay is on the container */
+.nt-home .cards.no-overlay .card.content-image-text.pos-overlay-bottom .meta,
+.nt-home .cards.no-overlay .card.content-image-text.pos-overlay-top .meta { background:transparent !important; }
+.nt-home .cards.no-overlay .card.content-image-text.pos-overlay-bottom .name,
+.nt-home .cards.no-overlay .card.content-image-text.pos-overlay-top .name { color:#fff; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6); }
+
 /* ---- card = shape × content × text-position ---- */
 .nt-home .card.shape-rect { border-radius:10px; }
 .nt-home .card.shape-pill { border-radius:999px; }
@@ -391,7 +409,8 @@
 .nt-home .card.content-text-only, .nt-home .card.content-icon-text, .nt-home .card.content-color-block, .nt-home .card.content-gradient { align-items:center; justify-content:center; }
 /* text contents honour the text-position option too (center/below = centered) */
 .nt-home .card.content-text-only, .nt-home .card.content-color-block, .nt-home .card.content-gradient { position:relative; }
-.nt-home .card.content-text-only.pos-overlay-top .meta, .nt-home .card.content-color-block.pos-overlay-top .meta, .nt-home .card.content-gradient.pos-overlay-top .meta { position:absolute; top:7%; left:0; right:0; width:auto; }
+.nt-home .card.content-text-only.pos-overlay-top .meta, .nt-home .card.content-color-block.pos-overlay-top .meta, .nt-home .card.content-gradient.pos-overlay-top .meta,
+.nt-home .card.content-text-only.pos-above .meta, .nt-home .card.content-color-block.pos-above .meta, .nt-home .card.content-gradient.pos-above .meta { position:absolute; top:7%; left:0; right:0; width:auto; }
 .nt-home .card.content-text-only.pos-overlay-bottom .meta, .nt-home .card.content-color-block.pos-overlay-bottom .meta, .nt-home .card.content-gradient.pos-overlay-bottom .meta,
 .nt-home .card.content-text-only.pos-below .meta, .nt-home .card.content-color-block.pos-below .meta, .nt-home .card.content-gradient.pos-below .meta { position:absolute; bottom:7%; top:auto; left:0; right:0; width:auto; }
 .nt-home .card.content-icon-text .meta::before { content:'★'; display:block; font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 3); line-height:1; color:var(--nt-accent,#FFCD00); margin-bottom:calc(var(--nt-vh)*0.6); }

@@ -1055,6 +1055,13 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 .prev .stage.shape.align-left   { justify-items: start; }
 .prev .stage.shape.align-center { justify-items: center; }
 .prev .stage.shape.align-right  { justify-items: end; }
+/* vertical alignment */
+.prev .stage.valign-top    { align-content: flex-start; align-items: flex-start; }
+.prev .stage.valign-middle { align-content: center; align-items: center; }
+.prev .stage.valign-bottom { align-content: flex-end; align-items: flex-end; }
+.prev .stage.shape.valign-top    { align-content: start; }
+.prev .stage.shape.valign-middle { align-content: center; }
+.prev .stage.shape.valign-bottom { align-content: end; }
 
 /* ===== Intermediate gap / alignment / card shape ===== */
 .prev .stage.int.int-gap-tight  { gap: 2px; }
@@ -1127,6 +1134,16 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
   overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
 }
 .prev .stage.result.scroll-horizontal .list .prod { flex: 0 0 30%; }
+
+/* ===== Alignment grid (3H + 3V icon buttons) ===== */
+.align-grid { display: grid; grid-template-columns: repeat(3, 46px); gap: 6px; margin: 4px 0 12px; }
+.align-btn {
+  width: 46px; height: 46px; display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--nt-border); border-radius: var(--nt-r); background: var(--nt-card);
+  color: var(--nt-text-2); cursor: pointer; transition: all 150ms;
+}
+.align-btn:hover { border-color: var(--nt-brand-ink); }
+.align-btn.sel { border-color: var(--nt-brand-ink); background: var(--nt-tint); color: var(--nt-brand-ink); }
 
 /* ===== Columns stepper (home step) ===== */
 .cols-stepper { align-items: stretch; }
