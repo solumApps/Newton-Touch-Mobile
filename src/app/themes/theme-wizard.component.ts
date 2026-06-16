@@ -122,6 +122,13 @@ export class ThemeWizardComponent implements OnInit {
     this.t.homeLayout = l;
     // Reset the free column count so the new layout's default applies.
     this.t.columns = undefined;
+    // Reset layout-dependent settings so stale values from the previous layout
+    // don't bleed into the new one (e.g. 'loose' gap on a tight layout).
+    this.t.cardGap = 'normal';
+    this.t.cardGapNum = undefined;
+    this.t.cardAlign = 'center';
+    this.t.cardSize = 'normal';
+    this.t.cardSizeScale = undefined;
     // Auto-reset circle/hexagon when switching to shape-incompatible layouts
     if (this.noShapeLayouts.includes(l) &&
         (this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon')) {
@@ -234,6 +241,45 @@ export class ThemeWizardComponent implements OnInit {
     const n = Math.min(1.25, Math.max(0.8, Number(v)));
     this.t.cardSizeScale = n;
     this.t.cardSize = n <= 0.85 ? 'xs' : n < 0.97 ? 'small' : n > 1.1 ? 'large' : 'normal';
+  }
+
+  /** Fine-grained card gap (slider). Seeds from the legacy bucket. */
+  get cardGapValue(): number {
+    const n = this.t.cardGapNum;
+    if (typeof n === 'number') return n;
+    const g = this.t.cardGap || 'normal';
+    return g === 'tight' ? 2 : g === 'loose' ? 10 : 5;
+  }
+  setCardGap(v: string | number): void {
+    const n = Math.min(20, Math.max(0, Number(v)));
+    this.t.cardGapNum = n;
+    this.t.cardGap = n <= 3 ? 'tight' : n >= 8 ? 'loose' : 'normal';
+  }
+
+  /** Fine-grained intermediate card gap (slider). */
+  get intCardGapValue(): number {
+    const n = this.t.intermediate.gapNum;
+    if (typeof n === 'number') return n;
+    const g = this.t.intermediate.gap || 'normal';
+    return g === 'tight' ? 2 : g === 'loose' ? 10 : 5;
+  }
+  setIntCardGap(v: string | number): void {
+    const n = Math.min(20, Math.max(0, Number(v)));
+    this.t.intermediate.gapNum = n;
+    this.t.intermediate.gap = n <= 3 ? 'tight' : n >= 8 ? 'loose' : 'normal';
+  }
+
+  /** Fine-grained intermediate item size (slider). */
+  get intItemSizeValue(): number {
+    const n = this.t.intermediate.itemSizeScale;
+    if (typeof n === 'number') return n;
+    const s = this.t.intermediate.itemSize || 'medium';
+    return s === 'small' ? 0.86 : s === 'large' ? 1.15 : 1;
+  }
+  setIntItemSize(v: string | number): void {
+    const n = Math.min(1.3, Math.max(0.7, Number(v)));
+    this.t.intermediate.itemSizeScale = n;
+    this.t.intermediate.itemSize = n < 0.93 ? 'small' : n > 1.07 ? 'large' : 'medium';
   }
 
   /** Independent horizontal card-text alignment (C-3). */

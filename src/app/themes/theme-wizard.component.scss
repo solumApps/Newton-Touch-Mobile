@@ -177,7 +177,8 @@
 .prev .stage .card .img { flex: 1; min-height: 0; opacity: .85; }
 .prev .stage .card .img.placeholder { opacity: .15; }
 .prev .stage .card .meta { padding: 1px 3px; }
-.prev .stage .card .name { font-size: calc(var(--prev-scale, 1) * 7px); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.prev .stage .card .name { font-size: calc(var(--prev-scale, 1) * 7px); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; text-align: var(--nt-card-align, center); }
+.prev .stage .card .meta { text-align: var(--nt-card-align, center); }
 .prev.surface-glass .stage .card,
 .prev.surface-glass .stage.int .item,
 .prev.surface-glass .stage.result .prod { background: rgba(255,255,255,.12) !important; border-color: rgba(255,255,255,.68) !important; box-shadow: inset 0 0 18px rgba(255,255,255,.08); }

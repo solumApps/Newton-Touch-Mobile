@@ -229,7 +229,7 @@
           </div>
         </ng-container>
 
-        <ng-container *ngIf="columnsMatter && !(isGridLike && t.scrollMode === 'vertical')">
+        <ng-container *ngIf="columnsMatter">
           <div class="step-title sm">{{ itemCountMatters ? 'Items' : 'Columns' }}</div>
           <p class="hint">{{ itemCountMatters ? 'How many items to show — the layout fills the screen and extra items scroll.' : 'Free column count (' + minColumns + '–' + maxColumns + '). Extra rows scroll vertically.' }}</p>
           <div class="seg cols-stepper">
@@ -254,9 +254,11 @@
 
         <ng-container *ngIf="gapMatters">
           <div class="step-title sm">Card gap</div>
-          <p class="hint">Spacing between cards. Overflow scrolls automatically.</p>
-          <div class="seg">
-            <button class="tile" *ngFor="let g of gaps" [class.sel]="(t.cardGap||'normal')===g.id" (click)="t.cardGap=g.id">{{ g.label }}</button>
+          <p class="hint">Spacing between cards. Drag to fine-tune.</p>
+          <div class="slider-row">
+            <input type="range" class="nt-slider" min="0" max="20" step="1" [value]="cardGapValue"
+                   (input)="setCardGap($any($event.target).value)" aria-label="Card gap" />
+            <span class="slider-val">{{ cardGapValue }}px</span>
           </div>
         </ng-container>
 
@@ -422,9 +424,15 @@
           </div>
         </ng-container>
 
+        <ng-container *ngIf="t.intermediateStyle !== 'drill-stair'">
         <div class="step-title sm">Item size</div>
-        <p class="hint">Physical size of each sub-category tile/row.</p>
-        <div class="seg"><button class="tile" *ngFor="let o of sizes" [class.sel]="t.intermediate.itemSize===o" (click)="t.intermediate.itemSize=o">{{ o | titlecase }}</button></div>
+        <p class="hint">Drag to set the physical size of each sub-category tile/row.</p>
+        <div class="slider-row">
+          <input type="range" class="nt-slider" min="0.7" max="1.3" step="0.05" [value]="intItemSizeValue"
+                 (input)="setIntItemSize($any($event.target).value)" aria-label="Item size" />
+          <span class="slider-val">{{ (intItemSizeValue * 100) | number:'1.0-0' }}%</span>
+        </div>
+        </ng-container>
 
         <ng-container *ngIf="intShapeMatters">
           <div class="step-title sm">Card shape</div>
@@ -440,16 +448,24 @@
           <div class="seg"><button class="tile" *ngFor="let p of interTextPositions" [class.sel]="(t.intermediate.textPos||'below')===p.id" (click)="t.intermediate.textPos=p.id">{{ p.label }}</button></div>
         </ng-container>
 
+        <ng-container *ngIf="t.intermediateStyle !== 'drill-stair'">
         <div class="step-title sm">Card gap</div>
-        <div class="seg"><button class="tile" *ngFor="let g of gaps" [class.sel]="(t.intermediate.gap||'normal')===g.id" (click)="t.intermediate.gap=g.id">{{ g.label }}</button></div>
+        <div class="slider-row">
+          <input type="range" class="nt-slider" min="0" max="20" step="1" [value]="intCardGapValue"
+                 (input)="setIntCardGap($any($event.target).value)" aria-label="Intermediate card gap" />
+          <span class="slider-val">{{ intCardGapValue }}px</span>
+        </div>
+        </ng-container>
 
         <ng-container *ngIf="intAlignMatters">
           <div class="step-title sm">Card alignment</div>
           <div class="seg"><button class="tile" *ngFor="let a of aligns" [class.sel]="(t.intermediate.align||'center')===a.id" (click)="t.intermediate.align=a.id">{{ a.label }}</button></div>
         </ng-container>
 
+        <ng-container *ngIf="t.intermediateStyle !== 'drill-stair'">
         <div class="step-title sm">Card surface</div>
         <div class="seg"><button class="tile" *ngFor="let s of cardSurfaces" [class.sel]="(t.cardSurface||'flat')===s.id" (click)="t.cardSurface=s.id">{{ s.label }}</button></div>
+        </ng-container>
 
         <div class="step-title sm">Header bar</div>
         <div class="seg">
@@ -478,11 +494,22 @@
           <button class="btn-o media-clear" *ngIf="t.intermediate.backgroundImage" (click)="clearBackground('inter')">Clear</button>
         </div>
         <p class="hint" *ngIf="t.intermediate.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
+        <ng-container *ngIf="t.intermediate.backgroundImage">
+          <div class="step-title sm">Background framing</div>
+          <p class="hint">Pan and zoom to choose which part of the image shows.</p>
+          <div class="slider-row"><span class="slider-lbl">Pan X</span><input type="range" class="nt-slider" min="0" max="100" step="1" [value]="t.intermediate.bgImageX ?? 50" (input)="t.intermediate.bgImageX=+$any($event.target).value" aria-label="Background pan X" /><span class="slider-val">{{ t.intermediate.bgImageX ?? 50 }}%</span></div>
+          <div class="slider-row"><span class="slider-lbl">Pan Y</span><input type="range" class="nt-slider" min="0" max="100" step="1" [value]="t.intermediate.bgImageY ?? 50" (input)="t.intermediate.bgImageY=+$any($event.target).value" aria-label="Background pan Y" /><span class="slider-val">{{ t.intermediate.bgImageY ?? 50 }}%</span></div>
+          <div class="slider-row"><span class="slider-lbl">Zoom</span><input type="range" class="nt-slider" min="100" max="300" step="5" [value]="t.intermediate.bgImageZoom ?? 100" (input)="t.intermediate.bgImageZoom=+$any($event.target).value" aria-label="Background zoom" /><span class="slider-val">{{ t.intermediate.bgImageZoom ?? 100 }}%</span></div>
+        </ng-container>
         <app-color-picker label="Row / card background" [value]="t.intermediate.cardBackground" (valueChange)="t.intermediate.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker label="Card text" [value]="t.intermediate.cardText" (valueChange)="t.intermediate.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker label="Accent / active" [value]="t.intermediate.accent" (valueChange)="t.intermediate.accent=$event"></app-color-picker>
         <div class="step-title sm">Sub-item size</div>
-        <div class="seg"><button class="tile" *ngFor="let o of sizes" [class.sel]="t.intermediate.itemSize===o" (click)="t.intermediate.itemSize=o">{{ o }}</button></div>
+        <div class="slider-row">
+          <input type="range" class="nt-slider" min="0.7" max="1.3" step="0.05" [value]="intItemSizeValue"
+                 (input)="setIntItemSize($any($event.target).value)" aria-label="Sub-item size" />
+          <span class="slider-val">{{ (intItemSizeValue * 100) | number:'1.0-0' }}%</span>
+        </div>
         <div class="step-title sm">Header bar</div>
         <div class="seg">
           <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>

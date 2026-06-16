@@ -183,6 +183,8 @@ export interface ThemeTokens {
   cardAlign?: 'left' | 'center' | 'right';
   /** Spacing between cards. Overflowing content scrolls (rails horizontally, grids vertically). */
   cardGap?: 'tight' | 'normal' | 'loose';
+  /** Fine-grained card-gap in px (slider). When set, overrides the bucket. Range 0–20. */
+  cardGapNum?: number;
   /** @deprecated legacy single-axis style; superseded by cardShape/cardContent/cardTextPos. */
   cardStyle?: CardStyle;
   cardShape: CardShape;
@@ -215,7 +217,7 @@ export interface ThemeTokens {
   includeIntermediate: boolean;
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
-  intermediate: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; gap?: 'tight' | 'normal' | 'loose'; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; };
+  intermediate: { headerColor: string; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; };
   result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; transparentHeader?: boolean; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; cardShape?: CardShape;
     /** Position of the filter section in Map-Filter-List (G-2). Default 'top'. */
     filterPos?: 'top' | 'bottom' | 'left' | 'right'; };

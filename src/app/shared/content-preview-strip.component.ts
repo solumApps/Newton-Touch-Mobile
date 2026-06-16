@@ -87,7 +87,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
         <!-- HOME (LCD markup: .cards.layout-*) -->
         <div *ngSwitchCase="'home'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
-             [class.has-cols]="theme?.columns !== undefined" [style.--cols]="theme?.columns"
+             [class.has-cols]="theme?.columns !== undefined" [style.--cols]="theme?.columns" [style.--card-gap]="cardGapPx"
              [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'">
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
             <span>{{ titleText || 'Product Finder' }}</span>
@@ -500,6 +500,10 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
      layout.service injectTheme(), so preview and kiosk render identically. */
   get cardSizeScaleNum(): number { const n = this.theme?.cardSizeScale; return typeof n === 'number' && n > 0 ? n : 1; }
   get cardAlignCss(): string { return this.theme?.cardTextAlign === 'left' ? 'left' : this.theme?.cardTextAlign === 'right' ? 'right' : 'center'; }
+  get cardGapPx(): string | null {
+    const n = this.theme?.cardGapNum;
+    return typeof n === 'number' ? n + 'px' : null;
+  }
   get cardScaleNum(): number { const s = this.theme?.typography?.cardTextScale; return s ? textScaleNum(s) : 1; }
   get headerScaleNum(): number { const s = this.theme?.typography?.headerTextScale; return s ? textScaleNum(s) : 1; }
   get cardCase(): string { return textCaseCss(this.theme?.typography?.cardTextCase); }
@@ -552,10 +556,16 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       : this.page === 'result' ? this.theme?.result?.backgroundImage
       : this.theme?.backgroundImage;
     if (!image) return bg;
-    // B-4: home background framing (pan + zoom). Other pages keep center/cover.
-    const framed = this.page === 'home' && (this.theme?.bgImageZoom != null || this.theme?.bgImageX != null || this.theme?.bgImageY != null);
-    const pos = framed ? `${this.theme?.bgImageX ?? 50}% ${this.theme?.bgImageY ?? 50}%` : 'center';
-    const size = framed ? `${this.theme?.bgImageZoom ?? 100}%` : 'cover';
+    // Background framing (pan + zoom) for home and intermediate pages.
+    let framed = false, pos = 'center', size = 'cover';
+    if (this.page === 'home' && (this.theme?.bgImageZoom != null || this.theme?.bgImageX != null || this.theme?.bgImageY != null)) {
+      framed = true; pos = `${this.theme?.bgImageX ?? 50}% ${this.theme?.bgImageY ?? 50}%`; size = `${this.theme?.bgImageZoom ?? 100}%`;
+    } else if (this.page === 'inter') {
+      const i = this.theme?.intermediate;
+      if (i?.bgImageZoom != null || i?.bgImageX != null || i?.bgImageY != null) {
+        framed = true; pos = `${i?.bgImageX ?? 50}% ${i?.bgImageY ?? 50}%`; size = `${i?.bgImageZoom ?? 100}%`;
+      }
+    }
     return `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.28)), url("${image}") ${pos}/${size} no-repeat, ${bg || '#000'}`;
   }
   get pageCaption(): string {
@@ -568,7 +578,8 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   /** Free item count: image-strip / bento / hero-list use theme.columns as "how many". */
   get cellCount(): number {
     const l = this.theme?.homeLayout, c = this.theme?.columns;
-    return c && (l === 'image-strip' || l === 'bento' || l === 'hero-list') ? c : 6;
+    if (c && (l === 'image-strip' || l === 'bento' || l === 'hero-list')) return c;
+    return l === 'hero-list' ? 4 : 6;
   }
   get homeCells(): CardItem[] {
     const n = this.cellCount;

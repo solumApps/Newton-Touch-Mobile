@@ -238,7 +238,7 @@
                 <span class="map-dot" *ngIf="p.mapX != null && p.mapY != null"
                       [class.sel]="markerIdx===i"
                       [style.left.%]="p.mapX" [style.top.%]="p.mapY"
-                      [style.background]="d.themeTokens.result.pathColor"></span>
+                      [style.background]="mapRoute?.color || d.themeTokens.result.pathColor"></span>
               </ng-container>
               <span class="map-dot ann" *ngIf="mapRoute?.kind==='dot' && mapRoute?.x != null"
                     [class.sel]="markerIdx===-2" [style.left.%]="mapRoute?.x" [style.top.%]="mapRoute?.y"
