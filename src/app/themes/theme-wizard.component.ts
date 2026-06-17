@@ -25,7 +25,7 @@ interface Step { key: string; page: PreviewPage; }
   styleUrls: ['./theme-wizard.component.scss'],
 })
 export class ThemeWizardComponent implements OnInit {
-  readonly resultTransparentHeaderColor = 'rgba(255,255,255,.15)';
+  readonly resultTransparentHeaderColor = 'transparent';
   @ViewChild('wizardSteps') wizardSteps?: ElementRef<HTMLElement>;
   @ViewChild(IonContent) content?: IonContent;
   name = '';

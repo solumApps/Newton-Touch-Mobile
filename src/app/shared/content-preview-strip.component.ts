@@ -544,7 +544,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   get resultHeaderColor(): string | undefined {
     return this.theme?.result?.headerColor === 'transparent'
-      ? 'rgba(255,255,255,.15)'
+      ? 'transparent'
       : this.theme?.result?.headerColor;
   }
   get headerVisible(): boolean {
