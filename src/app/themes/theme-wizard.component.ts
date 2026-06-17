@@ -377,7 +377,7 @@ export class ThemeWizardComponent implements OnInit {
   // 'cards-map' dropped from the picker (near-duplicate of Map-List); enum + CSS
   // kept so existing themes using it still render. Lower-priority layouts remain
   // available rather than deleted — removal of specific ones is a product call.
-  resultTemplates: ResultTemplate[] = ['map-list', 'drill-stair'];
+  resultTemplates: ResultTemplate[] = ['map-filter-list', 'list-only', 'filter-list', 'map-full', 'card-grid', 'catalog-grid', 'promo-list', 'product-focus', 'hero-product', 'drill-filter', 'shelf'];
   transitions: TransitionType[] = ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'];
   speeds: AnimSpeed[] = ['slow', 'normal', 'fast'];
   loaders: LoaderStyle[] = ['spinner', 'dot-pulse', 'progress', 'logo', 'skeleton'];
