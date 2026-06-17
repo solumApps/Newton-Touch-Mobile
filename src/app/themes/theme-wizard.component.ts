@@ -345,7 +345,8 @@ export class ThemeWizardComponent implements OnInit {
   navSizes: { id: NavButtonSize; label: string }[] = [
     { id: 'small', label: 'Small' }, { id: 'normal', label: 'Normal' }, { id: 'large', label: 'Large' },
   ];
-  navIconIds = Object.keys(NAV_ICONS);
+  backNavIconIds = ['arrow'];
+  homeNavIconIds = Object.keys(NAV_ICONS).filter(id => id !== 'arrow');
   iconSvg(id: string): SafeHtml { return this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[id] || ''); }
   isCustomNavIcon(v?: string): boolean { return navIconKind(v) === 'custom'; }
   async pickNavIcon(which: 'back' | 'home'): Promise<void> {
