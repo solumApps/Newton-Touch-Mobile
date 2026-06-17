@@ -237,7 +237,7 @@
             <input class="inp cols-inp" type="number" [min]="minColumns" [max]="maxColumns"
                    [value]="effectiveColumns" (change)="setColumns($any($event.target).value)" aria-label="Column count" />
             <button class="tile" (click)="stepColumns(1)" [disabled]="effectiveColumns >= maxColumns" aria-label="More columns">+</button>
-            <button class="tile" *ngIf="t.columns !== undefined" (click)="resetColumns()">Auto</button>
+            <!-- Auto reset removed per requirement -->
           </div>
         </ng-container>
 
@@ -314,7 +314,7 @@
           <div class="seg">
             <button class="tile" *ngFor="let a of cardAligns" [class.sel]="(t.cardTextAlign||'center')===a.id" (click)="t.cardTextAlign=a.id">{{ a.label }}</button>
           </div>
-          <ng-container *ngIf="t.cardTextPos==='overlay-top' || t.cardTextPos==='overlay-bottom' || t.cardTextPos==='center'">
+          <ng-container *ngIf="t.cardContent==='image-text' && (t.cardTextPos==='overlay-top' || t.cardTextPos==='overlay-bottom')">
             <div class="step-title sm">Text Overlay</div>
             <div class="seg">
               <button class="tile" [class.sel]="t.cardTextOverlay !== false" (click)="t.cardTextOverlay=true">On</button>

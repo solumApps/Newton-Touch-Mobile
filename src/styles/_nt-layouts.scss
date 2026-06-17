@@ -350,7 +350,7 @@
 .nt-home .cards.shape .card .img { position:absolute; left:0; right:0; top:0; bottom:0; width:100%; height:100%; }
 .nt-home .cards.shape .card.shape-circle .img { border-radius:50%; }
 .nt-home .cards.shape .card.shape-hexagon .img { clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
-.nt-home .cards.shape .card .meta { position:relative; z-index:1; background:transparent; padding:0 calc(var(--nt-vw)*0.6); width:100%; text-align:center; box-sizing:border-box; }
+.nt-home .cards.shape .card .meta { position:relative; z-index:1; background:transparent; padding:0 calc(var(--nt-vw)*0.6); width:100%; text-align:var(--nt-card-align, center); box-sizing:border-box; }
 .nt-home .cards.shape .card .name { color:#fff; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6);
   font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1); line-height:1.1;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
@@ -419,7 +419,7 @@
   display:block; flex:0 0 auto; width:46%; height:46%; margin:0 auto calc(var(--nt-vh)*0.6);
   background-size:contain; background-repeat:no-repeat; background-position:center;
 }
-.nt-home .card.content-text-only .meta, .nt-home .card.content-icon-text .meta, .nt-home .card.content-color-block .meta, .nt-home .card.content-gradient .meta { text-align:center; width:100%; }
+.nt-home .card.content-text-only .meta, .nt-home .card.content-icon-text .meta, .nt-home .card.content-color-block .meta, .nt-home .card.content-gradient .meta { text-align:var(--nt-card-align, center); width:100%; }
 .nt-home .card.content-text-only { background:var(--nt-card,rgba(255,255,255,.15)); }
 .nt-home .card.content-text-only .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1.3); font-weight:700; color:var(--nt-text,#fff); letter-spacing:normal; text-transform:none; }
 .nt-home .card.content-color-block { background:var(--nt-accent,#FFCD00); border:calc(var(--nt-vh)*0.4) solid rgba(0,0,0,.08); box-shadow:inset 0 calc(var(--nt-vh)*-0.8) 0 rgba(0,0,0,.12); }
@@ -427,11 +427,11 @@
 .nt-home .card.content-gradient { background:linear-gradient(160deg,var(--nt-accent,#FFCD00),var(--nt-card,rgba(255,255,255,.15))); }
 .nt-home .card.content-image-text.pos-overlay-bottom, .nt-home .card.content-image-text.pos-overlay-top, .nt-home .card.content-image-text.pos-center { position:relative; }
 .nt-home .card.content-image-text.pos-overlay-bottom .img, .nt-home .card.content-image-text.pos-overlay-top .img, .nt-home .card.content-image-text.pos-center .img { position:absolute; left:0; right:0; top:0; bottom:0; flex:none; width:100%; height:100%; }
-.nt-home .card.content-image-text.pos-overlay-bottom .meta { position:absolute; left:0; right:0; bottom:0; top:auto; width:auto; display:flex; align-items:center; justify-content:center; text-align:center; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); background:linear-gradient(transparent, var(--nt-overlay, rgba(0,0,0,.6))); color:#fff; }
-.nt-home .card.content-image-text.pos-overlay-top .meta { position:absolute; left:0; right:0; top:0; bottom:auto; width:auto; display:flex; align-items:center; justify-content:center; text-align:center; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); background:linear-gradient(var(--nt-overlay, rgba(0,0,0,.6)), transparent); color:#fff; }
+.nt-home .card.content-image-text.pos-overlay-bottom .meta { position:absolute; left:0; right:0; bottom:0; top:auto; width:auto; display:flex; align-items:center; justify-content:center; text-align:var(--nt-card-align, center); padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); background:linear-gradient(transparent, var(--nt-overlay, rgba(0,0,0,.6))); color:#fff; }
+.nt-home .card.content-image-text.pos-overlay-top .meta { position:absolute; left:0; right:0; top:0; bottom:auto; width:auto; display:flex; align-items:center; justify-content:center; text-align:var(--nt-card-align, center); padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); background:linear-gradient(var(--nt-overlay, rgba(0,0,0,.6)), transparent); color:#fff; }
 .nt-home .card.content-image-text.pos-overlay-bottom .name,
-.nt-home .card.content-image-text.pos-overlay-top .name { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; text-align:center; }
-.nt-home .card.content-image-text.pos-center .meta { position:absolute; left:0; right:0; top:0; bottom:0; width:auto; display:flex; align-items:center; justify-content:center; text-align:center; color:#fff; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6); }
+.nt-home .card.content-image-text.pos-overlay-top .name { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; text-align:var(--nt-card-align, center); }
+.nt-home .card.content-image-text.pos-center .meta { position:absolute; left:0; right:0; top:0; bottom:0; width:auto; display:flex; align-items:center; justify-content:center; text-align:var(--nt-card-align, center); color:#fff; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6); }
 .nt-home .card.shape-pill.content-image-text.pos-overlay-bottom .meta,
 .nt-home .card.shape-circle.content-image-text.pos-overlay-bottom .meta,
 .nt-home .card.shape-hexagon.content-image-text.pos-overlay-bottom .meta {
@@ -694,7 +694,8 @@
 .nt-home .cards.scroll-horizontal.layout-col-2, .nt-home .cards.scroll-horizontal.layout-col-3,
 .nt-home .cards.scroll-horizontal.layout-col-4, .nt-home .cards.scroll-horizontal.layout-hero-list,
 .nt-home .cards.scroll-horizontal.layout-list {
-  display:flex; flex-wrap:nowrap; align-items:center; align-content:center;
+  display:flex !important; flex-wrap:nowrap !important; align-items:center; align-content:center;
+  padding-left:calc(var(--nt-vw)*0.6);
 }
 .nt-home .cards.scroll-horizontal.layout-grid-2x3 .card, .nt-home .cards.scroll-horizontal.layout-grid-2x2 .card,
 .nt-home .cards.scroll-horizontal.layout-col-2 .card, .nt-home .cards.scroll-horizontal.layout-col-3 .card,
@@ -786,7 +787,14 @@
 .nt-home.surface-outlined .cards[class*="layout-col-"]:not(.shape) .card.content-image-text.pos-below .img { background-color:transparent; border:calc(var(--nt-vw)*0.14) solid var(--nt-accent,#FFCD00); }
 .nt-home.surface-glow .cards[class*="layout-col-"]:not(.shape) .card.content-image-text.pos-below .img { border:calc(var(--nt-vw)*0.14) solid var(--nt-accent,#FFCD00); box-shadow:0 0 calc(var(--nt-vw)*1.8) var(--nt-accent,#FFCD00); }
 
-/* B5: columns + horizontal scroll — cardGap applies */
+/* B5: columns + horizontal scroll — card width driven by --cols so count matches preview */
+.nt-home .cards.scroll-horizontal.has-cols[class*="layout-col-"] .card,
+.nt-home .cards.scroll-horizontal.has-cols[class*="layout-grid-"] .card {
+  flex:0 0 calc((100% - var(--cols,3) * var(--card-gap,calc(var(--nt-vw)*1.5))) / var(--cols,3));
+  width:calc((100% - var(--cols,3) * var(--card-gap,calc(var(--nt-vw)*1.5))) / var(--cols,3));
+  height:88%;
+  margin:0 calc(var(--card-gap,calc(var(--nt-vw)*1.5)) * 0.5);
+}
 .nt-home .cards.scroll-horizontal[class*="layout-col-"] .card,
 .nt-home .cards.scroll-horizontal[class*="layout-grid-"] .card {
   margin:0 calc(var(--card-gap,calc(var(--nt-vw)*1.5)) * 0.5);
