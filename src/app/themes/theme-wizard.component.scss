@@ -2,6 +2,7 @@
 .icon-seg .icon-tile { min-width: 44px; }
 .icon-seg .icon-tile span { display: inline-flex; }
 .icon-seg .icon-tile svg { width: 18px; height: 18px; display: block; fill: currentColor; }
+.icon-tile span svg { width: 20px; height: 20px; fill: currentColor; stroke: currentColor; }
 .icon-custom-preview { width: 34px; height: 34px; object-fit: contain; border-radius: 8px; background: rgba(0,0,0,.15); padding: 3px; }
 
 /* keep the wizard title compact so it never overflows / truncates */

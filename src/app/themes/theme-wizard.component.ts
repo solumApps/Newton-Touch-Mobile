@@ -67,7 +67,7 @@ export class ThemeWizardComponent implements OnInit {
 
   /** Grid/column variants collapse into ONE 'Columns' tile — the free column
    *  stepper picks the count (legacy layouts still map onto it when editing). */
-  homeLayouts: HomeLayout[] = ['col-3', 'hero-list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'bento'];
+  homeLayouts: HomeLayout[] = ['col-3', 'fullscreen', 'image-strip', 'promo-categories', 'bento'];
   layoutLabels: Record<HomeLayout, string> = {
     'grid-2x3': 'Columns', 'grid-2x2': 'Columns', 'col-2': 'Columns', 'col-3': 'Columns', 'col-4': 'Columns',
     'hero-list': 'Hero + list', 'list': 'List rows', 'fullscreen': 'Fullscreen',
@@ -132,6 +132,8 @@ export class ThemeWizardComponent implements OnInit {
     this.t.homeLayout = l;
     // Reset the free column count so the new layout's default applies.
     this.t.columns = undefined;
+    if (l === 'image-strip') this.t.columns = 4;
+    if (l === 'bento') this.t.columns = 4;
     // Reset layout-dependent settings so stale values from the previous layout
     // don't bleed into the new one (e.g. 'loose' gap on a tight layout).
     this.t.cardGap = 'normal';
@@ -375,7 +377,7 @@ export class ThemeWizardComponent implements OnInit {
   // 'cards-map' dropped from the picker (near-duplicate of Map-List); enum + CSS
   // kept so existing themes using it still render. Lower-priority layouts remain
   // available rather than deleted — removal of specific ones is a product call.
-  resultTemplates: ResultTemplate[] = ['map-list', 'drill-stair', 'map-filter-list', 'list-only', 'filter-list', 'map-full', 'card-grid', 'catalog-grid', 'promo-list', 'product-focus', 'hero-product', 'drill-filter', 'shelf'];
+  resultTemplates: ResultTemplate[] = ['map-list', 'drill-stair'];
   transitions: TransitionType[] = ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'];
   speeds: AnimSpeed[] = ['slow', 'normal', 'fast'];
   loaders: LoaderStyle[] = ['spinner', 'dot-pulse', 'progress', 'logo', 'skeleton'];

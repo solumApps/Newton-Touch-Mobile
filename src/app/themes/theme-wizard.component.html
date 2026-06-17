@@ -641,11 +641,13 @@
           <div class="seg"><button class="tile" *ngFor="let p of cardTextPositions" [class.sel]="(t.result.textPos||'below')===p.id" (click)="t.result.textPos=p.id">{{ p.label }}</button></div>
         </ng-container>
 
-        <div class="step-title sm">Overflow scrolling</div>
-        <p class="hint">How the product list scrolls when items don't fit. Auto uses the template's natural direction.</p>
-        <div class="seg">
-          <button class="tile" *ngFor="let m of scrollModes" [class.sel]="(t.scrollMode||'auto')===m.id" (click)="t.scrollMode=m.id">{{ m.label }}</button>
-        </div>
+        <ng-container *ngIf="t.resultTemplate !== 'drill-stair'">
+          <div class="step-title sm">Overflow scrolling</div>
+          <p class="hint">How the product list scrolls when items don't fit. Auto uses the template's natural direction.</p>
+          <div class="seg">
+            <button class="tile" *ngFor="let m of scrollModes" [class.sel]="(t.scrollMode||'auto')===m.id" (click)="t.scrollMode=m.id">{{ m.label }}</button>
+          </div>
+        </ng-container>
 
         <div class="step-title sm">Nav bar style</div>
         <div class="seg">
@@ -698,13 +700,6 @@
           <button class="tile" [class.sel]="t.result.showHeader" (click)="t.result.showHeader=true">Show</button>
           <button class="tile" [class.sel]="!t.result.showHeader" (click)="t.result.showHeader=false">Hide</button>
         </div>
-        <ng-container *ngIf="t.result.showHeader">
-          <div class="step-title sm">Header background</div>
-          <div class="seg">
-            <button class="tile" [class.sel]="!t.result.transparentHeader" (click)="t.result.transparentHeader=false">Solid</button>
-            <button class="tile" [class.sel]="!!t.result.transparentHeader" (click)="t.result.transparentHeader=true">Transparent</button>
-          </div>
-        </ng-container>
         <div class="step-title sm">Navigation buttons</div>
         <p class="hint">Style the Back and Home buttons. Set a position to “Hidden” to hide that button.</p>
         <div class="nav-btn-row">

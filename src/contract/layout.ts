@@ -273,6 +273,8 @@ export interface ResultProduct {
    *  so routing varies per product instead of a single fixed marker. */
   mapX?: number;
   mapY?: number;
+  /** Per-product marker color on the map. Falls back to the theme's path/accent color. */
+  markerColor?: string;
 }
 
 /** Which Category-API fields drive the hierarchy/mapping (chosen per-content). */

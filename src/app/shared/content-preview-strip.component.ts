@@ -579,6 +579,8 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get cellCount(): number {
     const l = this.theme?.homeLayout, c = this.theme?.columns;
     if (c && (l === 'image-strip' || l === 'bento' || l === 'hero-list')) return c;
+    // Horizontal scroll: show exactly as many cards as columns
+    if (this.theme?.scrollMode === 'horizontal' && c) return c;
     // Vertical scroll: show more cards so user can test scrolling in preview.
     if (this.theme?.scrollMode === 'vertical') return 12;
     return l === 'hero-list' ? 4 : 6;

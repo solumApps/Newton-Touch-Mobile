@@ -105,7 +105,7 @@
   border-radius:10px; display:flex; flex-direction:column; min-width:0; }
 .nt-home .card .img { flex:1; background-size:cover; background-position:center; background-color:rgba(255,255,255,.08); }
 .nt-home .card .meta { flex:0 0 auto; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); min-width:0; box-sizing:border-box; }
-.nt-home .card .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1); font-weight:800; color:var(--nt-text,#fff); }
+.nt-home .card .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1); font-weight:800; color:var(--nt-base-text, var(--nt-text,#fff)); }
 /* shape 'none' (image-only): show the image with no mask/rounding at all. */
 .nt-home .card.shape-none, .nt-home .card.shape-none .img { border-radius:0 !important; clip-path:none !important; }
 /* C-1: continuous card-size multiplier (zoom) layered on top of the size bucket.
@@ -309,6 +309,11 @@
   text-align:center; display:block !important;
 }
 .nt-home .layout-promo-categories .promo-rail .card .name { color:var(--nt-text,#fff); text-shadow:none; }
+/* promo pill shape: constrain meta so text doesn't overflow the capsule edges */
+.nt-home .layout-promo-categories .promo-rail .card.shape-pill .meta {
+  position:absolute; left:15%; right:15%; bottom:12%;
+  text-align:center; overflow:hidden;
+}
 
 /* list: full-width rows */
 .nt-home .layout-list { display:flex; flex-direction:column; justify-content:flex-start; }
@@ -364,16 +369,21 @@
 .nt-home .card.shape-pill.content-image-text.pos-below .meta { position:absolute; left:0; right:0; top:0; bottom:0; display:flex; align-items:center; justify-content:center; padding:0 14%; background:transparent; }
 .nt-home .card.shape-pill.content-image-text.pos-below .name { color:var(--nt-text,#fff); text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 
-/* above: text above image (mirror of below, order:-1 lifts meta) */
-.nt-home .card.content-image-text.pos-above { display:flex; flex-direction:column; }
-.nt-home .card.content-image-text.pos-above .meta { position:static; flex:0 0 auto; width:100%; background:transparent; order:-1; }
-.nt-home .card.content-image-text.pos-above .img { position:static; flex:1 1 auto; min-height:0; width:100%; }
+/* above: text OUTSIDE the card (no card background wrapping the label) */
+.nt-home .card.content-image-text.pos-above { display:flex; flex-direction:column; background:transparent !important; box-shadow:none !important; border:none !important; }
+.nt-home .card.content-image-text.pos-above .meta { position:static; flex:0 0 auto; width:100%; background:transparent; order:-1; padding:0 0 calc(var(--nt-vh)*0.5) 0; }
+.nt-home .card.content-image-text.pos-above .img { position:static; flex:1 1 auto; min-height:0; width:100%; border-radius:10px; background-color:var(--nt-card, rgba(255,255,255,.15)); }
 .nt-home .card.content-image-text.pos-above .name { white-space:normal; }
-/* pill + pos-above: same absolute treatment as pill + pos-below */
-.nt-home .card.shape-pill.content-image-text.pos-above { position:relative; }
-.nt-home .card.shape-pill.content-image-text.pos-above .img { position:absolute; left:0; right:0; top:0; bottom:0; flex:none; width:100%; height:100%; }
-.nt-home .card.shape-pill.content-image-text.pos-above .meta { position:absolute; left:0; right:0; top:0; bottom:0; display:flex; align-items:center; justify-content:center; padding:0 14%; background:transparent; }
-.nt-home .card.shape-pill.content-image-text.pos-above .name { color:var(--nt-text,#fff); text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+/* pill + pos-above: text outside, image keeps pill shape */
+.nt-home .card.shape-pill.content-image-text.pos-above { background:transparent !important; }
+.nt-home .card.shape-pill.content-image-text.pos-above .img { border-radius:999px; background-color:var(--nt-card, rgba(255,255,255,.15)); position:static; flex:1 1 auto; width:100%; height:auto; }
+.nt-home .card.shape-pill.content-image-text.pos-above .meta { position:static; order:-1; display:block; padding:0 0 calc(var(--nt-vh)*0.5) 0; background:transparent; }
+/* circle + pos-above */
+.nt-home .card.shape-circle.content-image-text.pos-above { background:transparent !important; }
+.nt-home .card.shape-circle.content-image-text.pos-above .img { border-radius:50%; background-color:var(--nt-card, rgba(255,255,255,.15)); }
+/* hexagon + pos-above */
+.nt-home .card.shape-hexagon.content-image-text.pos-above { background:transparent !important; }
+.nt-home .card.shape-hexagon.content-image-text.pos-above .img { clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); background-color:var(--nt-card, rgba(255,255,255,.15)); }
 .nt-home .layout-hero-start.htext-above .hero-copy { justify-content:flex-start; padding-top:calc(var(--nt-vh)*9); box-sizing:border-box; }
 
 /* overlay toggle: remove gradient when .no-overlay is on the container */
@@ -430,7 +440,7 @@
 .nt-home .card.content-image-text.pos-overlay-bottom .meta { position:absolute; left:0; right:0; bottom:0; top:auto; width:auto; display:flex; align-items:center; justify-content:center; text-align:var(--nt-card-align, center); padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); background:linear-gradient(transparent, var(--nt-overlay, rgba(0,0,0,.6))); color:#fff; }
 .nt-home .card.content-image-text.pos-overlay-top .meta { position:absolute; left:0; right:0; top:0; bottom:auto; width:auto; display:flex; align-items:center; justify-content:center; text-align:var(--nt-card-align, center); padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); background:linear-gradient(var(--nt-overlay, rgba(0,0,0,.6)), transparent); color:#fff; }
 .nt-home .card.content-image-text.pos-overlay-bottom .name,
-.nt-home .card.content-image-text.pos-overlay-top .name { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; text-align:var(--nt-card-align, center); }
+.nt-home .card.content-image-text.pos-overlay-top .name { display:block; width:100%; max-width:100%; overflow:hidden; text-overflow:ellipsis; text-align:var(--nt-card-align, center); }
 .nt-home .card.content-image-text.pos-center .meta { position:absolute; left:0; right:0; top:0; bottom:0; width:auto; display:flex; align-items:center; justify-content:center; text-align:var(--nt-card-align, center); color:#fff; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6); }
 .nt-home .card.shape-pill.content-image-text.pos-overlay-bottom .meta,
 .nt-home .card.shape-circle.content-image-text.pos-overlay-bottom .meta,
@@ -588,13 +598,13 @@
 .nt-home .cards .card.content-icon-text.pos-overlay-top.has-img .img { top:58%; }
 .nt-home .cards .card.content-icon-text.pos-overlay-top .name {
   top:9%; padding:calc(var(--nt-vh)*0.35) calc(var(--nt-vw)*0.45); border-radius:999px;
-  background:var(--nt-overlay,rgba(0,0,0,.52)); color:#fff;
+  background:transparent; color:#fff;
 }
 .nt-home .cards .card.content-icon-text.pos-overlay-bottom .meta::before,
 .nt-home .cards .card.content-icon-text.pos-overlay-bottom.has-img .img { top:40%; }
 .nt-home .cards .card.content-icon-text.pos-overlay-bottom .name {
   top:auto; bottom:9%; padding:calc(var(--nt-vh)*0.35) calc(var(--nt-vw)*0.45); border-radius:999px;
-  background:var(--nt-overlay,rgba(0,0,0,.52)); color:#fff;
+  background:transparent; color:#fff;
 }
 .nt-home .cards .card.content-icon-text.pos-below .meta::before,
 .nt-home .cards .card.content-icon-text.pos-below.has-img .img { top:34%; }
@@ -623,14 +633,21 @@
 .nt-home .layout-h-scroll[class*="card-size-"] .h-scroll-rail .card.shape-circle,
 .nt-home .layout-h-scroll[class*="card-size-"] .h-scroll-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*63); width:calc(var(--nt-vh)*63); }
 
-/* ---- bento (grid gap:1vw → half-gap card margins) ---- */
-.nt-home .layout-bento { display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(2,1fr); }
-.nt-home .layout-bento .card { width:auto; height:auto; margin:calc(var(--nt-vw)*0.5); }
-.nt-home .layout-bento .card.featured { grid-column:1 / 3; grid-row:1 / 3; }
-.nt-home .layout-bento .card:nth-child(n+6) { display:none; }
-/* bento with a free item count: columns follow --cols, every item renders, extra rows scroll */
-.nt-home .cards.has-cols.layout-bento { grid-template-columns:repeat(var(--cols,4),1fr); grid-auto-rows:48%; }
-.nt-home .cards.has-cols.layout-bento .card:nth-child(n+6) { display:flex; }
+/* ---- bento grid: left hero + right rows ---- */
+.nt-home .layout-bento { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; height:100%; padding:calc(var(--nt-vw)*0.6); box-sizing:border-box; }
+.nt-home .layout-bento .card { min-width:0; min-height:0; margin:calc(var(--card-gap, calc(var(--nt-vw)*0.6)) * 0.5); }
+/* 1 item: full span */
+.nt-home .layout-bento .card:first-child:last-child { grid-column:1 / -1; grid-row:1 / -1; }
+/* 2 items: equal columns */
+.nt-home .layout-bento .card:first-child:nth-last-child(2) { grid-row:1 / -1; }
+.nt-home .layout-bento .card:nth-child(2):last-child { grid-row:1 / -1; }
+/* 3+ items: first card = left column full height, rest fill right column */
+.nt-home .layout-bento .card:first-child:nth-last-child(n+3) { grid-column:1; grid-row:1 / -1; }
+.nt-home .layout-bento .card:nth-child(n+2):nth-last-child(n+2) { grid-column:2; }
+.nt-home .layout-bento .card:nth-child(n+2):last-child { grid-column:2; }
+/* Bento + has-cols: use column count for right side rows */
+.nt-home .layout-bento.has-cols { grid-template-columns:minmax(30%,1fr) repeat(calc(var(--cols,4) - 1), 1fr); grid-template-rows:1fr 1fr; }
+.nt-home .layout-bento.has-cols .card:first-child { grid-column:1; grid-row:1 / -1; min-width:calc(var(--nt-vw)*15); }
 .nt-home .layout-bento .card.featured .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1.8); }
 .nt-home .layout-bento.card-size-xs .card .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 0.85); }
 .nt-home .layout-bento.card-size-large .card .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1.25); }
@@ -686,6 +703,13 @@
 .nt-home .cards.shape.shape-hex.has-cols.align-left   { justify-items:start !important; }
 .nt-home .cards.shape.shape-hex.has-cols.align-center { justify-items:center !important; }
 .nt-home .cards.shape.shape-hex.has-cols.align-right  { justify-items:end !important; }
+
+/* 1-column cap: don't let a single card stretch the full width */
+.nt-home .cards.has-cols .card { max-width:calc(var(--nt-vw)*45); }
+.nt-home .cards.has-cols.shape .card { max-width:none; }
+
+/* shape has-cols gap: apply --card-gap to circle/hex grid */
+.nt-home .cards.shape.has-cols[style*="--card-gap"] { grid-column-gap:var(--card-gap) !important; grid-row-gap:var(--card-gap) !important; }
 
 /* ---- scrollMode override ---- */
 .nt-home .cards.scroll-vertical { overflow-y:auto !important; overflow-x:hidden !important; }
@@ -1079,7 +1103,7 @@
 
 /* image grid */
 .nt-inter .int-image-grid { display:flex; flex-wrap:wrap; }
-.nt-inter .int-image-grid .item { width:23%; height:46%; margin:1%; display:flex; flex-direction:column; }
+.nt-inter .int-image-grid .item { width:23%; height:46%; margin:1%; display:flex; flex-direction:column; background:var(--nt-int-card, rgba(255,255,255,.12)); }
 .nt-inter .int-image-grid .item .img { flex:1; }
 .nt-inter .int-image-grid .item .name { padding:calc(var(--nt-vh)*0.8) calc(var(--nt-vw)*0.6); font-size:calc(var(--nt-vw)*0.85); white-space:nowrap; }
 
@@ -1534,7 +1558,7 @@
 .nt-home .layout-hero-list.align-left   { align-content:start; }
 .nt-home .layout-hero-list.align-center { align-content:center; }
 .nt-home .layout-hero-list.align-right  { align-content:end; }
-/* bento: dense packing so side tiles fill evenly around the featured tile */
+/* bento: dense packing so cards fill evenly */
 .nt-home .layout-bento { grid-auto-flow:dense; }
 /* hexagons: pack side-by-side (tight centred rows) instead of loose grid cells —
    the clipped corners otherwise leave awkward diagonal gaps */
@@ -1910,7 +1934,7 @@
 .nt-home .layout-h-scroll.card-size-xs    .h-scroll-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*42) !important; width:calc(var(--nt-vh)*42) !important; height:calc(var(--nt-vh)*48); }
 .nt-home .layout-h-scroll.card-size-small .h-scroll-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*48) !important; width:calc(var(--nt-vh)*48) !important; height:calc(var(--nt-vh)*55); }
 .nt-home .layout-h-scroll.card-size-large .h-scroll-rail .card.shape-hexagon { flex-basis:calc(var(--nt-vh)*62) !important; width:calc(var(--nt-vh)*62) !important; height:calc(var(--nt-vh)*70); }
-/* bento with a free count: cards stretch their cells equally */
+/* bento: cards stretch their cells equally */
 .nt-home .cards.has-cols.layout-bento { align-items:stretch; justify-items:stretch; }
 /* BELOW: the label is static + centred under the shape — beats the absolute
    bubble rules above (hexagon label was drifting right) */
