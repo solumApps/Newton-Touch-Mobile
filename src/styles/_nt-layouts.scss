@@ -293,9 +293,10 @@
 }
 .nt-home .layout-promo-categories .promo-rail .card.shape-circle .meta,
 .nt-home .layout-promo-categories .promo-rail .card.shape-hexagon .meta {
-  position:absolute !important; left:12% !important; right:12% !important; top:auto !important; bottom:10% !important; width:auto;
-  display:flex; align-items:center; justify-content:center; border-radius:999px;
-  background:var(--nt-overlay, rgba(0,0,0,.52)) !important; padding:calc(var(--nt-vh)*0.4) calc(var(--nt-vw)*0.5);
+  position:absolute !important; left:16% !important; right:16% !important; top:auto !important; bottom:14% !important; width:auto !important;
+  display:flex !important; align-items:center !important; justify-content:center !important; text-align:center !important; border-radius:999px !important;
+  background:var(--nt-overlay, rgba(0,0,0,.52)) !important; padding:calc(var(--nt-vh)*0.4) calc(var(--nt-vw)*0.9) !important;
+  transform:none !important; box-sizing:border-box !important;
 }
 .nt-home .layout-promo-categories .promo-rail .card.shape-circle .name,
 .nt-home .layout-promo-categories .promo-rail .card.shape-hexagon .name { color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
@@ -306,7 +307,7 @@
 .nt-home .layout-promo-categories .promo-rail .card:not(.shape-circle):not(.shape-hexagon) .meta {
   position:static !important; left:auto !important; right:auto !important;
   bottom:auto !important; top:auto !important; width:100% !important; background:transparent !important; padding:0 !important;
-  text-align:center; display:block !important;
+  text-align:center; display:block !important; transform:none !important;
 }
 .nt-home .layout-promo-categories .promo-rail .card .name { color:var(--nt-text,#fff); text-shadow:none; }
 /* promo pill shape: constrain meta so text doesn't overflow the capsule edges */
@@ -1985,9 +1986,17 @@
 }
 /* promo-categories: text position */
 .nt-home .layout-promo-categories .promo-rail .card { position:relative; }
-.nt-home .layout-promo-categories .promo-rail .card.pos-overlay-top .meta { position:absolute !important; top:6%; left:50%; transform:translateX(-50%); bottom:auto; }
-.nt-home .layout-promo-categories .promo-rail .card.pos-overlay-bottom .meta { position:absolute !important; bottom:6%; left:50%; transform:translateX(-50%); top:auto; }
-.nt-home .layout-promo-categories .promo-rail .card.pos-center .meta { position:absolute !important; top:50%; left:50%; transform:translate(-50%,-50%); bottom:auto; }
+.nt-home .layout-promo-categories .promo-rail .card.pos-overlay-top .meta,
+.nt-home .layout-promo-categories .promo-rail .card.pos-overlay-bottom .meta,
+.nt-home .layout-promo-categories .promo-rail .card.pos-center .meta {
+  position:absolute !important; left:16% !important; right:16% !important; width:auto !important;
+  display:flex !important; align-items:center !important; justify-content:center !important; text-align:center !important; border-radius:999px !important;
+  background:var(--nt-overlay, rgba(0,0,0,.52)) !important; padding:calc(var(--nt-vh)*0.4) calc(var(--nt-vw)*0.9) !important;
+  box-sizing:border-box !important;
+}
+.nt-home .layout-promo-categories .promo-rail .card.pos-overlay-top .meta { top:14% !important; bottom:auto !important; transform:none !important; }
+.nt-home .layout-promo-categories .promo-rail .card.pos-overlay-bottom .meta { bottom:14% !important; top:auto !important; transform:none !important; }
+.nt-home .layout-promo-categories .promo-rail .card.pos-center .meta { top:50% !important; bottom:auto !important; transform:translateY(-50%) !important; }
 /* intermediate: text position for circular / hex-grid / fullscreen / center-tiles */
 .nt-inter .int-circular.int-textpos-overlay-top .item { align-items:flex-start; }
 .nt-inter .int-circular.int-textpos-overlay-top .item .name { padding:calc(var(--nt-vh)*1.4) calc(var(--nt-vw)*0.8) 0; }
