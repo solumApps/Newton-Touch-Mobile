@@ -295,6 +295,10 @@ export class DeployComponent implements OnInit, OnDestroy {
           (p) => (this.percent = 90 + Math.round(p * 0.1)));
         this.pushStep('  ✓ layout sent');
       }
+      // Throttle before serverConfig so the LCD receiver finishes persisting
+      // layout.json — without this, concurrent Filesystem.writeFile calls on the
+      // Chromium-60 WebView race and layout.json is silently dropped.
+      await this.sleep(this.SEND_DELAY_MS);
       // Category / +ESL need the server config on the LCD for runtime LED blink.
       if (this.draft.appMode !== 'prototype') {
         const creds = await this.workspace.creds();
