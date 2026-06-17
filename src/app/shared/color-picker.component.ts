@@ -28,6 +28,7 @@ export class ColorPickerComponent {
   /** Whether to offer the "transparent" swatch. Off for things like map markers
    *  where a transparent colour is meaningless. */
   @Input() allowTransparent = true;
+  @Input() transparentValue = 'transparent';
 
   /** Enable the two-stop linear-gradient builder (B-3). */
   @Input() allowGradient = false;

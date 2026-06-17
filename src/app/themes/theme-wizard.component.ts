@@ -25,6 +25,7 @@ interface Step { key: string; page: PreviewPage; }
   styleUrls: ['./theme-wizard.component.scss'],
 })
 export class ThemeWizardComponent implements OnInit {
+  readonly resultTransparentHeaderColor = 'rgba(255,255,255,.15)';
   @ViewChild('wizardSteps') wizardSteps?: ElementRef<HTMLElement>;
   @ViewChild(IonContent) content?: IonContent;
   name = '';
@@ -508,8 +509,13 @@ export class ThemeWizardComponent implements OnInit {
   }
   headerColorForPage(page: PreviewPage): string {
     return page === 'inter' ? this.t.intermediate.headerColor
-      : page === 'result' ? this.t.result.headerColor
+      : page === 'result' ? this.resultHeaderColor
       : this.t.headerColor;
+  }
+  get resultHeaderColor(): string {
+    return this.t.result.headerColor === 'transparent'
+      ? this.resultTransparentHeaderColor
+      : this.t.result.headerColor;
   }
   /** Per-page transparent-header flag — mirrors the LCD's hdr-transparent handling. */
   transparentFor(page: PreviewPage): boolean {

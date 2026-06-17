@@ -6,7 +6,7 @@
     <button *ngFor="let c of presets" class="sw" [class.sel]="c===value" [style.background]="c" (click)="pick(c)">
       <span class="tick" *ngIf="c===value">✓</span>
     </button>
-    <button *ngIf="allowTransparent" class="sw transparent-sw" [class.sel]="value==='transparent'" (click)="pick('transparent')" title="Transparent">
+    <button *ngIf="allowTransparent" class="sw transparent-sw" [class.sel]="value===transparentValue" (click)="pick(transparentValue)" title="Transparent">
       <span class="checker"></span>
     </button>
     <button type="button" class="sw custom" [class.sel]="customOpen" (click)="customOpen ? closeCustom() : openCustom()" title="Custom colour">
@@ -66,8 +66,8 @@
 
   <!-- Current selection at a glance (hidden while the custom panel is open) -->
   <div class="cp-current" *ngIf="!customOpen">
-    <span class="chip" [class.is-transparent]="value==='transparent'" [style.background]="value==='transparent' ? null : value">
-      <span class="checker" *ngIf="value==='transparent'"></span>
+    <span class="chip" [class.is-transparent]="value===transparentValue" [style.background]="value===transparentValue ? null : value">
+      <span class="checker" *ngIf="value===transparentValue"></span>
     </span>
     <span class="val">{{ value }}</span>
     <button type="button" class="cp-reset" *ngIf="allowReset" (click)="doReset()">Reset to default</button>
