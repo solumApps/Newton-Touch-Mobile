@@ -44,6 +44,11 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-card]="theme?.cardBackground"
            [style.--nt-text]="theme?.cardText"
            [style.--nt-overlay]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
+           [style.--prev-scale]="scaleNum"
+           [style.--prev-accent]="theme?.accent"
+           [style.--prev-card]="theme?.cardBackground"
+           [style.--prev-text]="theme?.cardText"
+           [style.--prev-overlay]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
            [style.--nt-int-card]="theme?.intermediate?.cardBackground"
            [style.--nt-int-accent]="theme?.intermediate?.accent"
            [style.--nt-int-text]="theme?.intermediate?.cardText"
@@ -96,7 +101,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
         <!-- HOME (LCD markup: .cards.layout-*) -->
         <div *ngSwitchCase="'home'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} valign-{{theme?.cardVAlign||'middle'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
-             [class.has-cols]="theme?.columns !== undefined" [style.--cols]="theme?.columns" [style.--card-gap]="cardGapPx"
+             [class.has-cols]="cols !== undefined" [style.--cols]="cols" [style.--card-gap]="cardGapPx"
              [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [class.no-overlay]="theme?.cardTextOverlay === false">
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
             <span>{{ titleText || 'Product Finder' }}</span>
@@ -507,7 +512,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   private static readonly PH_FILLS = ['%2386EFAC', '%23FDE68A', '%23FCA5A5', '%23A5B4FC', '%2367E8F9', '%23F9A8D4'];
   phImg(i: number): string {
     const c = ContentPreviewStripComponent.PH_FILLS[i % ContentPreviewStripComponent.PH_FILLS.length];
-    return `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'><rect width='160' height='100' fill='${c}'/><polygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/></svg>")`;
+    return `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'%3E%3Crect width='160' height='100' fill='${c}'/%3E%3Cpolygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/%3E%3C/svg%3E")`;
   }
 
   /* ===== Stage units: --nt-vw/--nt-vh/--nt-vmin in px from the measured stage width.
@@ -625,6 +630,14 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   /* Per-element typography + nav-button vars — same derivation as the LCD
      layout.service injectTheme(), so preview and kiosk render identically. */
+  get cols(): number | undefined {
+    const l = this.theme?.homeLayout, c = this.theme?.columns;
+    if (l === 'bento') {
+      const itemCount = this.homeCells.length;
+      return Math.max(2, 1 + Math.ceil((itemCount - 1) / 2));
+    }
+    return c;
+  }
   get cardSizeScaleNum(): number { const n = this.theme?.cardSizeScale; return typeof n === 'number' && n > 0 ? n : 1; }
   get cardAlignCss(): string { return this.theme?.cardTextAlign === 'left' ? 'left' : this.theme?.cardTextAlign === 'right' ? 'right' : 'center'; }
   get cardGapPx(): string | null {
