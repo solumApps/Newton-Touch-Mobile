@@ -308,7 +308,21 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   /** Result templates that render a map image — drives the map upload UI. */
   get resultNeedsMap(): boolean {
     const t = this.draft?.themeTokens.resultTemplate;
-    return t === 'map-list' || t === 'cards-map' || t === 'split-panel' || t === 'map-full' || t === 'map-filter-list';
+    return t === 'map-list' || t === 'cards-map' || t === 'split-panel' || t === 'map-full' || t === 'map-filter-list' || t === 'promo-map-rank';
+  }
+
+  /** promo-map-rank shows a per-product Zone in the ranked list. */
+  get isPromoRank(): boolean { return this.draft?.themeTokens.resultTemplate === 'promo-map-rank'; }
+  /** finder-detail adds description, sale price, attributes and fitments. */
+  get isFinder(): boolean { return this.draft?.themeTokens.resultTemplate === 'finder-detail'; }
+
+  addSpec(p: ResultProduct): void { (p.specs = p.specs || []).push({ label: '', value: '' }); }
+  removeSpec(p: ResultProduct, i: number): void { p.specs?.splice(i, 1); }
+  addFitment(p: ResultProduct): void { (p.fitments = p.fitments || []).push({ label: '' }); }
+  removeFitment(p: ResultProduct, i: number): void { p.fitments?.splice(i, 1); }
+  async pickFitImage(f: { image?: string }): Promise<void> {
+    const dataUrl = await this.picker.pick();
+    if (dataUrl) f.image = dataUrl;
   }
 
   /** shelf uses the promo image as its side category panel. */

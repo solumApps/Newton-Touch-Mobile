@@ -319,6 +319,7 @@ export class DeployComponent implements OnInit, OnDestroy {
           // own token lifecycle (generate + refresh) exactly like the sample apps.
           // Username/password are AES-GCM encrypted; the LCD decrypts them.
           const cred = await this.session.getCredentials();
+          if (!cred.password) this.pushStep('⚠ No saved password — sign out & sign in again so the LCD can log in to ESL');
           const encUser = await encryptText(cred.username);
           const encPass = await encryptText(cred.password);
           const serverConfig = JSON.stringify({ kind: 'serverConfig', serverUrl: creds.serverUrl, username: encUser, password: encPass, companyId: creds.companyId, storeId: creds.storeId, ledColour: this.draft.ledColour || 'Red', ledDuration: this.draft.ledDuration || '10s', environment: w.environment });

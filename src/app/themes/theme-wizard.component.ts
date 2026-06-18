@@ -210,7 +210,7 @@ export class ThemeWizardComponent implements OnInit {
   }
   /** Intermediate text-position applies to these styles. */
   get intTextPosMatters(): boolean {
-    return ['image-grid', 'card-strip', 'circular', 'hex-grid', 'fullscreen', 'center-tiles'].includes(this.t.intermediateStyle);
+    return ['columns', 'card-strip', 'circular', 'hex-grid', 'fullscreen'].includes(this.t.intermediateStyle);
   }
   get isImageStrip(): boolean { return this.t.homeLayout === 'image-strip'; }
   /** Card size: hidden where cards always fill the screen (fullscreen, strips). */
@@ -376,17 +376,26 @@ export class ThemeWizardComponent implements OnInit {
   // choosing a base style (e.g. Image grid) and selecting the Circle/Hexagon
   // Card shape, instead of being separate layout styles. Enums + CSS retained so
   // existing themes that use them still render.
-  intStyles: IntermediateStyle[] = ['pill-tabs', 'image-grid', 'card-strip', 'fullscreen', 'center-tiles', 'side-rail', 'brand-grid', 'brand-rail', 'drill-stair'];
+  intStyles: IntermediateStyle[] = ['columns', 'card-strip', 'fullscreen', 'side-rail', 'brand-grid', 'brand-rail', 'drill-stair', 'finder-select'];
   intStyleLabels: Partial<Record<IntermediateStyle, string>> = {
-    'pill-tabs': 'Pills', 'image-grid': 'Image grid', 'hex-grid': 'Hex grid', 'circular': 'Circular',
-    'card-strip': 'Card strip', 'center-tiles': 'Center tiles',
+    'columns': 'Columns', 'hex-grid': 'Hex grid', 'circular': 'Circular',
+    'card-strip': 'Card strip',
     'side-rail': 'Side rail', 'brand-grid': 'Brand grid', 'brand-rail': 'Brand rail', 'drill-stair': 'Drill stair',
+    'finder-select': 'Finder select',
   };
   intStyleLabel(s: IntermediateStyle): string { return this.intStyleLabels[s] || s; }
   /** Card shape only affects intermediate styles that show a per-item image. */
   get intShapeMatters(): boolean {
-    return ['image-grid', 'card-strip', 'side-rail', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle);
+    return ['columns', 'card-strip', 'side-rail', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle);
   }
+  /** finder-select index-strip modes + step-label CSV binding. */
+  indexModes = ['auto', 'alpha', 'values', 'off'];
+  get intStepsCsv(): string { return (this.t.intermediate.stepLabels || []).join(','); }
+  set intStepsCsv(v: string) { this.t.intermediate.stepLabels = v.split(',').map((s) => s.trim()).filter(Boolean); }
+  /** Intermediate 'columns' style exposes a column-count slider (like Home). */
+  get intColumnsMatters(): boolean { return this.t.intermediateStyle === 'columns'; }
+  get intColumnsValue(): number { return this.t.intermediate.columns || 3; }
+  setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(2, Math.min(6, Math.round(n))); }
   /** Selectable templates — split-panel / esl-focus (map-width variants of
    *  map-list) and dual-list (2-col list-only) are hidden as near-duplicates;
    *  old themes using them still render (enum + CSS retained). */
@@ -394,7 +403,39 @@ export class ThemeWizardComponent implements OnInit {
   // 'cards-map' dropped from the picker (near-duplicate of Map-List); enum + CSS
   // kept so existing themes using it still render. Lower-priority layouts remain
   // available rather than deleted — removal of specific ones is a product call.
-  resultTemplates: ResultTemplate[] = ['map-list', 'drill-filter','map-filter-list', 'filter-list','card-grid', 'promo-list', 'product-focus', 'hero-product', 'shelf'];
+  resultTemplates: ResultTemplate[] = ['map-list', 'drill-filter','map-filter-list', 'filter-list','card-grid', 'promo-list', 'product-focus', 'hero-product', 'shelf', 'promo-map-rank', 'finder-detail'];
+  /** Friendly labels for the result-template tiles. */
+  private tplLabels: Record<string, string> = {
+    'map-list': 'Map List', 'drill-filter': 'Drill Filter', 'map-filter-list': 'Map + Filter',
+    'filter-list': 'Filter List', 'card-grid': 'Card Grid', 'promo-list': 'Promo List',
+    'product-focus': 'Product Focus', 'hero-product': 'Hero Product', 'shelf': 'Shelf',
+    'promo-map-rank': 'Promo Map + Ranks', 'finder-detail': 'Finder + Detail',
+  };
+  tplLabel(o: string): string { return this.tplLabels[o] || o; }
+
+  /** finder-detail sort-tab options + toggle helpers. */
+  finderSortOpts = [
+    { id: 'recommend', label: 'Recommend' }, { id: 'alpha', label: 'Alphabetical' },
+    { id: 'low-price', label: 'Low Price' }, { id: 'on-sale', label: 'On Sale' },
+  ] as const;
+  hasSortTab(id: string): boolean {
+    const cur = this.t.result.sortTabs;
+    return cur ? cur.includes(id as any) : true; // undefined = all on
+  }
+  toggleSortTab(id: string): void {
+    const all = ['recommend', 'alpha', 'low-price', 'on-sale'] as const;
+    let cur = this.t.result.sortTabs ? [...this.t.result.sortTabs] : [...all];
+    cur = cur.includes(id as any) ? cur.filter((x) => x !== id) : [...cur, id as any];
+    // keep canonical order, never allow an empty set
+    this.t.result.sortTabs = all.filter((x) => cur.includes(x)) as any;
+    if (!this.t.result.sortTabs!.length) this.t.result.sortTabs = ['recommend'];
+  }
+
+  /** Floors / breadcrumb labels as comma-separated text for the inputs. */
+  get floorsCsv(): string { return (this.t.result.floors || []).join(','); }
+  set floorsCsv(v: string) { this.t.result.floors = v.split(',').map((s) => s.trim()).filter(Boolean); }
+  get breadcrumbCsv(): string { return (this.t.result.breadcrumbLabels || []).join(','); }
+  set breadcrumbCsv(v: string) { this.t.result.breadcrumbLabels = v.split(',').map((s) => s.trim()).filter(Boolean); }
   // resultTemplates: ResultTemplate[] = ['map-filter-list', 'list-only', 'filter-list', 'map-full', 'card-grid', 'catalog-grid', 'promo-list', 'product-focus', 'hero-product', 'drill-filter', 'shelf'];
   transitions: TransitionType[] = ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'];
   speeds: AnimSpeed[] = ['slow', 'normal', 'fast'];
