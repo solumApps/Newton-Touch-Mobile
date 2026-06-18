@@ -25,6 +25,7 @@ interface Step { key: string; page: PreviewPage; }
   styleUrls: ['./theme-wizard.component.scss'],
 })
 export class ThemeWizardComponent implements OnInit {
+  readonly resultTransparentHeaderColor = 'transparent';
   @ViewChild('wizardSteps') wizardSteps?: ElementRef<HTMLElement>;
   @ViewChild(IonContent) content?: IonContent;
   name = '';
@@ -344,7 +345,8 @@ export class ThemeWizardComponent implements OnInit {
   navSizes: { id: NavButtonSize; label: string }[] = [
     { id: 'small', label: 'Small' }, { id: 'normal', label: 'Normal' }, { id: 'large', label: 'Large' },
   ];
-  navIconIds = Object.keys(NAV_ICONS);
+  backNavIconIds = ['arrow'];
+  homeNavIconIds = Object.keys(NAV_ICONS).filter(id => id !== 'arrow');
   iconSvg(id: string): SafeHtml { return this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[id] || ''); }
   isCustomNavIcon(v?: string): boolean { return navIconKind(v) === 'custom'; }
   async pickNavIcon(which: 'back' | 'home'): Promise<void> {
@@ -377,7 +379,8 @@ export class ThemeWizardComponent implements OnInit {
   // 'cards-map' dropped from the picker (near-duplicate of Map-List); enum + CSS
   // kept so existing themes using it still render. Lower-priority layouts remain
   // available rather than deleted — removal of specific ones is a product call.
-  resultTemplates: ResultTemplate[] = ['map-list', 'drill-stair','map-filter-list', 'list-only', 'filter-list', 'map-full', 'card-grid', 'catalog-grid', 'promo-list', 'product-focus', 'hero-product', 'drill-filter', 'shelf'];
+  resultTemplates: ResultTemplate[] = ['map-list', 'drill-filter','map-filter-list', 'filter-list','card-grid', 'promo-list', 'product-focus', 'hero-product', 'shelf'];
+  // resultTemplates: ResultTemplate[] = ['map-filter-list', 'list-only', 'filter-list', 'map-full', 'card-grid', 'catalog-grid', 'promo-list', 'product-focus', 'hero-product', 'drill-filter', 'shelf'];
   transitions: TransitionType[] = ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'];
   speeds: AnimSpeed[] = ['slow', 'normal', 'fast'];
   loaders: LoaderStyle[] = ['spinner', 'dot-pulse', 'progress', 'logo', 'skeleton'];
@@ -508,8 +511,13 @@ export class ThemeWizardComponent implements OnInit {
   }
   headerColorForPage(page: PreviewPage): string {
     return page === 'inter' ? this.t.intermediate.headerColor
-      : page === 'result' ? this.t.result.headerColor
+      : page === 'result' ? this.resultHeaderColor
       : this.t.headerColor;
+  }
+  get resultHeaderColor(): string {
+    return this.t.result.headerColor === 'transparent'
+      ? this.resultTransparentHeaderColor
+      : this.t.result.headerColor;
   }
   /** Per-page transparent-header flag — mirrors the LCD's hdr-transparent handling. */
   transparentFor(page: PreviewPage): boolean {

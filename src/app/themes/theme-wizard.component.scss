@@ -1,8 +1,29 @@
 /* nav icon picker (built-in SVG tiles + custom upload preview) */
-.icon-seg .icon-tile { min-width: 44px; }
-.icon-seg .icon-tile span { display: inline-flex; }
-.icon-seg .icon-tile svg { width: 18px; height: 18px; display: block; fill: currentColor; }
-.icon-tile span svg { width: 20px; height: 20px; fill: currentColor; stroke: currentColor; }
+.icon-seg .icon-tile {
+  flex: 0 0 44px;
+  width: 44px;
+  min-width: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--nt-text);
+}
+.icon-seg .icon-tile span {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+:host ::ng-deep .icon-seg .icon-tile svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  fill: currentColor;
+  stroke: currentColor;
+}
+.icon-seg .icon-tile.sel { color: var(--nt-brand-ink); }
 .icon-custom-preview { width: 34px; height: 34px; object-fit: contain; border-radius: 8px; background: rgba(0,0,0,.15); padding: 3px; }
 
 /* keep the wizard title compact so it never overflows / truncates */
