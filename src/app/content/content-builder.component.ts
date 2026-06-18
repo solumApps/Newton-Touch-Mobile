@@ -457,34 +457,16 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   mapZoom = 1;
   zoomMapIn(): void { this.mapZoom = Math.min(3, Math.round((this.mapZoom + 0.25) * 100) / 100); }
   zoomMapOut(): void { this.mapZoom = Math.max(1, Math.round((this.mapZoom - 0.25) * 100) / 100); }
-  /** Guided Route placement (H-2): tap start, then tap end to set the length. */
-  routePhase: 'start' | 'end' = 'start';
-  get routeHint(): string {
-    if (this.mapRoute?.kind !== 'line') return '';
-    return this.routePhase === 'start' ? 'Tap the map to set the route START point.' : 'Now tap the route END point to set its length.';
-  }
+  get mapDotsEnabled(): boolean { return this.mapRoute?.kind !== 'none'; }
   /** Set the selected product's mapX/mapY (0–100 %) from a tap on the map preview. */
   placeMarker(ev: MouseEvent, box: HTMLElement): void {
+    if (!this.mapDotsEnabled) return;
     const r = box.getBoundingClientRect();
     if (!r.width || !r.height) return;
     const x = Math.round(Math.max(0, Math.min(100, ((ev.clientX - r.left) / r.width) * 100)));
     const y = Math.round(Math.max(0, Math.min(100, ((ev.clientY - r.top) / r.height) * 100)));
-    // Annotation mode (markerIdx -2): the tap places the route line / dot instead.
     // All reads/writes go through curResult so per-item mode edits the ACTIVE card's page.
     const cur = this.curResult;
-    const route = cur.route;
-    if (this.markerIdx === -2 && route && (route.kind === 'line' || route.kind === 'dot')) {
-      // Guided two-tap for the Route line: first tap = start, second = end (length).
-      if (route.kind === 'line' && this.routePhase === 'end' && route.x != null) {
-        const w = Math.max(5, Math.min(100, Math.abs(x - route.x)));
-        this.setCurResult({ ...cur, route: { ...route, w } });
-        this.routePhase = 'start';
-      } else {
-        this.setCurResult({ ...cur, route: { ...route, x, y } });
-        this.routePhase = route.kind === 'line' ? 'end' : 'start';
-      }
-      return;
-    }
     const products = cur.products || [];
     if (this.markerIdx >= products.length) this.markerIdx = 0;
     const p = products[this.markerIdx];
@@ -494,20 +476,21 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     this.setCurResult({ ...cur, products: [...products] });
   }
 
-  /** Map annotation (ResultContent.route) of the ACTIVE result page: line / dot / none + position + color. */
-  get mapRoute(): { kind?: 'line' | 'dot' | 'none'; x?: number; y?: number; w?: number; color?: string } | undefined {
-    return this.draft ? this.curResult.route : undefined;
+  /** Map marker placement mode of the ACTIVE result page: dot / none. */
+  get mapRoute(): { kind?: 'dot' | 'none'; x?: number; y?: number; color?: string } | undefined {
+    const route = this.draft ? this.curResult.route : undefined;
+    if (route?.kind === 'line') return { ...route, kind: 'dot' };
+    return route as { kind?: 'dot' | 'none'; x?: number; y?: number; color?: string } | undefined;
   }
-  setRouteKind(k?: 'line' | 'dot' | 'none'): void {
+  setRouteKind(k: 'dot' | 'none'): void {
     if (!this.draft) return;
     const cur = this.curResult;
-    const route = k ? { ...(cur.route || {}), kind: k } : undefined;
+    const { w: _w, ...prev } = cur.route || {};
+    const route = { ...prev, kind: k };
     this.setCurResult({ ...cur, route });
-    this.routePhase = 'start';
-    if (k === 'line' || k === 'dot') this.markerIdx = -2; // next map tap places the annotation
-    else if (this.markerIdx === -2) this.markerIdx = 0;
+    if (this.markerIdx === -2) this.markerIdx = 0;
   }
-  setRouteNum(key: 'x' | 'y' | 'w', v: unknown): void {
+  setRouteNum(key: 'x' | 'y', v: unknown): void {
     if (!this.draft) return;
     const cur = this.curResult;
     if (!cur.route) return;
@@ -517,8 +500,8 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   setRouteColor(c: string): void {
     if (!this.draft) return;
     const cur = this.curResult;
-    if (!cur.route) return;
-    this.setCurResult({ ...cur, route: { ...cur.route, color: c } });
+    const { w: _w, ...prev } = cur.route || {};
+    this.setCurResult({ ...cur, route: { ...prev, kind: prev.kind === 'none' ? 'dot' : (prev.kind || 'dot'), color: c } });
   }
 
   /** Pick the result map background image (active result page). */

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import type { ThemeTokens, CardItem, ResultProduct, Screensaver } from '@contract/layout';
@@ -157,7 +157,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="scol">
               <div class="scol-label">Category</div>
               <div class="scol-items">
-                <div class="scol-item" *ngFor="let p of resultCells; let i = index" [class.picked]="i===0">{{ p.name }}</div>
+                <div class="scol-item" *ngFor="let p of resultCells; let i = index" [class.picked]="isFound(i)" (click)="selectResult(i)">{{ p.name }}</div>
               </div>
             </div>
             <div class="scol scol-result">
@@ -173,7 +173,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <div class="body stair" *ngIf="resTpl==='drill-filter'">
             <div class="scol">
               <div class="scol-items">
-                <div class="scol-item" *ngFor="let p of resultCells.slice(0,3); let i = index" [class.picked]="i===0">{{ p.name }}</div>
+                <div class="scol-item" *ngFor="let p of resultCells.slice(0,3); let i = index" [class.picked]="isFound(i)" (click)="selectResult(i)">{{ p.name }}</div>
               </div>
             </div>
             <div class="scol scol-flist">
@@ -182,7 +182,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 <div class="ftab">Alphabetic</div>
               </div>
               <div class="filter-list">
-                <div class="fitem" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+                <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                   <span class="fnum">{{ i + 1 }}</span>
                   <div class="finfo">
                     <div class="fnm">{{ p.name }}</div>
@@ -199,7 +199,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <div class="ftab">Alphabetical</div>
             </div>
             <div class="filter-list">
-              <div class="fitem" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+                <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                 <span class="fnum">{{ i + 1 }}</span>
                 <div class="finfo">
                   <div class="fnm">{{ p.name }}</div>
@@ -211,14 +211,14 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- map-filter-list -->
           <div class="body map-filter-body" *ngIf="resTpl==='map-filter-list'">
             <div class="map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
-              <div class="marker" [style.top]="markerTop" [style.left]="markerLeft"></div>
+              <div class="marker" *ngIf="markerVisible" [style.top]="markerTop" [style.left]="markerLeft" [style.background]="markerColor"></div>
             </div>
             <div class="filter-rail">
               <div class="ftab active">Popular</div>
               <div class="ftab">Alphabetical</div>
             </div>
             <div class="filter-list">
-              <div class="fitem" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+              <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                 <span class="fnum">{{ i + 1 }}</span>
                 <div class="finfo">
                   <div class="fnm">{{ p.name }}</div>
@@ -237,7 +237,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 <div class="ftab active">Popular</div>
                 <div class="ftab">Alphabetical</div>
               </div>
-              <div class="prod" [class.found]="i===0" *ngFor="let p of resultCells.slice(0,5); let i = index">
+              <div class="prod" [class.found]="isFound(i)" *ngFor="let p of resultCells.slice(0,5); let i = index" (click)="selectResult(i)">
                 <div class="info">
                   <div class="nm">{{ p.name }}<span class="price" *ngIf="p.price"> · {{ p.price }}</span></div>
                   <div class="loc" *ngIf="p.aisle">ZONE {{ p.aisle }}</div>
@@ -259,7 +259,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             </div>
             <div class="focus-image" *ngIf="found?.image" [style.background-image]="'url('+found?.image+')'" [style.background-size]="fitSize(found?.imageFit)" [style.background-repeat]="found?.imageFit ? 'no-repeat' : null"></div>
             <div class="focus-list">
-              <div class="mini" *ngFor="let p of resultCells.slice(0,4); let i = index" [class.found]="i===0">{{ p.name }}</div>
+              <div class="mini" *ngFor="let p of resultCells.slice(0,4); let i = index" [class.found]="isFound(i)" (click)="selectResult(i)">{{ p.name }}</div>
             </div>
           </div>
           <!-- hero-product -->
@@ -290,7 +290,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 <div class="ftab">Alphabetical</div>
               </div>
               <div class="shelf-prods">
-                <div class="sprod" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+                <div class="sprod" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                   <div class="s-img" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)"></div>
                   <div class="s-nm">{{ p.name }}</div>
                   <div class="s-price" *ngIf="p.price">{{ p.price }}</div>
@@ -302,10 +302,10 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- default: map + list -->
           <div class="body" *ngIf="!specialResult">
             <div class="map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
-              <div class="marker" [style.top]="markerTop" [style.left]="markerLeft"></div>
+              <div class="marker" *ngIf="markerVisible" [style.top]="markerTop" [style.left]="markerLeft" [style.background]="markerColor"></div>
             </div>
             <div class="list">
-              <div class="prod" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+              <div class="prod" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                 <div class="img" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="info">
                   <div class="nm">{{ p.name }}<span class="price" *ngIf="p.price"> · {{ p.price }}</span></div>
@@ -401,6 +401,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   /** Set false to hide the caption text under the preview. */
   @Input() showStripCaption = true;
   @Input() draftName?: string;
+  /** Product index highlighted on map/result previews. If absent, preview clicks own it. */
+  @Input() selectedResultIndex?: number;
+  @Output() selectedResultIndexChange = new EventEmitter<number>();
 
   @ViewChild('ntStage') ntStage?: ElementRef<HTMLElement>;
   private resizeObserver?: { disconnect(): void };
@@ -483,7 +486,19 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get specialResult(): boolean {
     return ['drill-stair', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'product-focus', 'hero-product', 'shelf'].includes(this.resTpl);
   }
-  get found(): ResultProduct | undefined { return this.resultCells[0]; }
+  private localResultIndex = 0;
+  get activeResultIndex(): number {
+    const n = this.resultCells.length;
+    const raw = this.selectedResultIndex ?? this.localResultIndex;
+    if (!n || !Number.isFinite(raw)) return 0;
+    return Math.max(0, Math.min(n - 1, Math.trunc(raw)));
+  }
+  get found(): ResultProduct | undefined { return this.resultCells[this.activeResultIndex]; }
+  isFound(i: number): boolean { return i === this.activeResultIndex; }
+  selectResult(i: number): void {
+    this.localResultIndex = i;
+    this.selectedResultIndexChange.emit(i);
+  }
 
   get scaleNum(): number {
     // Fine-grained slider value overrides the textScale bucket when present.
@@ -658,4 +673,6 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     if (r?.kind === 'dot' && r.x != null) return r.x + '%';
     const f = this.found; return (f && f.mapX != null ? f.mapX : 25) + '%';
   }
+  get markerVisible(): boolean { return this.result?.route?.kind !== 'none'; }
+  get markerColor(): string | undefined { return this.result?.route?.color || this.theme?.result?.pathColor || this.theme?.result?.accent; }
 }

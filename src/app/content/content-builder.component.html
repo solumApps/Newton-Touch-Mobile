@@ -40,6 +40,7 @@
       [screensaver]="d.screensaver"
       [header]="d.header"
       [draftName]="d.name"
+      [(selectedResultIndex)]="markerIdx"
       [caption]="step.label"></app-content-preview-strip>
   </div>
 
@@ -221,55 +222,36 @@
           <div class="seg fit-seg marker-seg">
             <button class="mini" *ngFor="let p of curResult.products; let i = index"
                     [class.sel]="markerIdx===i" (click)="markerIdx=i">{{ p.name || ('Product ' + (i+1)) }}</button>
-            <button class="mini" *ngIf="mapRoute?.kind==='line' || mapRoute?.kind==='dot'"
-                    [class.sel]="markerIdx===-2" (click)="markerIdx=-2">📍 Annotation</button>
           </div>
           <div class="map-zoombar">
             <button class="mini" (click)="zoomMapOut()" [disabled]="mapZoom<=1" title="Zoom out">−</button>
             <span class="map-zoomval">{{ (mapZoom * 100) | number:'1.0-0' }}%</span>
             <button class="mini" (click)="zoomMapIn()" [disabled]="mapZoom>=3" title="Zoom in">+</button>
           </div>
-          <p class="note" *ngIf="markerIdx===-2 && routeHint">{{ routeHint }}</p>
           <div class="map-zoomwrap">
             <div class="map-place" #mapBox (click)="placeMarker($event, mapBox)"
                  [style.transform]="'scale('+mapZoom+')'" [style.transformOrigin]="'top left'"
                  [style.background-image]="'url('+curResult.mapImage+')'">
               <ng-container *ngFor="let p of curResult.products; let i = index">
-                <span class="map-dot" *ngIf="p.mapX != null && p.mapY != null"
+                <span class="map-dot" *ngIf="mapDotsEnabled && p.mapX != null && p.mapY != null"
                       [class.sel]="markerIdx===i"
                       [style.left.%]="p.mapX" [style.top.%]="p.mapY"
                       [style.background]="mapRoute?.color || d.themeTokens.result.pathColor"></span>
               </ng-container>
-              <span class="map-dot ann" *ngIf="mapRoute?.kind==='dot' && mapRoute?.x != null"
-                    [class.sel]="markerIdx===-2" [style.left.%]="mapRoute?.x" [style.top.%]="mapRoute?.y"
-                    [style.background]="mapRoute?.color || d.themeTokens.result.pathColor"></span>
-              <span class="map-line" *ngIf="mapRoute?.kind==='line' && mapRoute?.x != null"
-                    [style.left.%]="mapRoute?.x" [style.top.%]="mapRoute?.y" [style.width.%]="mapRoute?.w || 40"
-                    [style.background]="mapRoute?.color || d.themeTokens.result.pathColor"></span>
             </div>
           </div>
 
-          <!-- Map annotation: show the route line, a single dot, or nothing -->
-          <div class="sec"><span>Map annotation</span></div>
-          <p class="note"><b>Route</b> draws a guide line to the product; <b>Dot</b> marks a single spot; <b>None</b> hides it; <b>Default</b> uses the theme. Pick a mode, then tap the map to place it.</p>
+          <div class="sec"><span>Map dots</span></div>
+          <p class="note"><b>Dot</b> lets you place product dots on the map. <b>None</b> hides dots and disables map placement.</p>
           <div class="seg fit-seg">
-            <button class="mini" [class.sel]="!mapRoute?.kind" (click)="setRouteKind(undefined)">Default</button>
-            <button class="mini" [class.sel]="mapRoute?.kind==='line'" (click)="setRouteKind('line')">Route</button>
-            <button class="mini" [class.sel]="mapRoute?.kind==='dot'" (click)="setRouteKind('dot')">Dot</button>
+            <button class="mini" [class.sel]="mapDotsEnabled" (click)="setRouteKind('dot')">Dot</button>
             <button class="mini" [class.sel]="mapRoute?.kind==='none'" (click)="setRouteKind('none')">None</button>
           </div>
-          <p class="note" *ngIf="mapRoute?.kind==='line'">Set the start point with X / Y (% from top-left) and how far the route runs with Length, or tap the map to position the start.</p>
-          <p class="note" *ngIf="mapRoute?.kind==='dot'">Set the dot position with X / Y (% from top-left), or tap the map to place it.</p>
-          <div class="prow" *ngIf="mapRoute?.kind==='line' || mapRoute?.kind==='dot'">
-            <input class="inp" type="number" min="0" max="100" [ngModel]="mapRoute?.x" (ngModelChange)="setRouteNum('x',$event)" placeholder="Start X %" />
-            <input class="inp" type="number" min="0" max="100" [ngModel]="mapRoute?.y" (ngModelChange)="setRouteNum('y',$event)" placeholder="Start Y %" />
-            <input class="inp" type="number" min="5" max="100" *ngIf="mapRoute?.kind==='line'" [ngModel]="mapRoute?.w" (ngModelChange)="setRouteNum('w',$event)" placeholder="Length %" />
-          </div>
-          <app-color-picker *ngIf="mapRoute?.kind==='line' || mapRoute?.kind==='dot'" label="Annotation color"
+          <app-color-picker *ngIf="mapDotsEnabled" label="Marker color"
             [allowTransparent]="false"
             [value]="mapRoute?.color || d.themeTokens.result.pathColor"
             (valueChange)="setRouteColor($event)"></app-color-picker>
-          <p class="note">Marker &amp; route color comes from the THEME (Result colors step) — override it per content with the Annotation color below.</p>
+          <p class="note" *ngIf="mapDotsEnabled">Marker color comes from the THEME (Result colors step) — override it per content below.</p>
         </ng-container>
       </ng-container>
 

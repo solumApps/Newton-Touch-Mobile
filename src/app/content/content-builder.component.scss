@@ -79,12 +79,6 @@
 }
 @keyframes nt-save-spin { to { transform: rotate(360deg); } }
 
-/* route-line annotation preview on the placement map */
-.map-line {
-  position: absolute; height: 4px; border-radius: 2px; transform: translateY(-50%);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, .4); pointer-events: none;
-}
-
 /* Pre-deploy validation modal list (modal shell styled globally via .nt-confirm). */
 .val-list { list-style: none; margin: 10px 0 14px; padding: 0; text-align: left; }
 .val-list li { font-size: 13px; line-height: 1.5; margin: 6px 0; }
