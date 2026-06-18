@@ -50,8 +50,6 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-res-card]="theme?.result?.cardBackground"
            [style.--nt-res-accent]="theme?.result?.accent"
            [style.--nt-res-text]="theme?.result?.cardText"
-           [style.--nt-path]="routeColor"
-           [style.--nt-route-x]="routeX" [style.--nt-route-y]="routeY" [style.--nt-route-w]="routeW"
            [ngSwitch]="page">
         <!-- HEADER (LCD markup: .hdr > .brand-logo + .brand-text(.title/.caption)) -->
         <div class="hdr" *ngIf="headerVisible"
@@ -213,7 +211,6 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- map-filter-list -->
           <div class="body map-filter-body" *ngIf="resTpl==='map-filter-list'">
             <div class="map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
-              <div class="route route-{{theme?.result?.pathStyle}}"></div>
               <div class="marker" [style.top]="markerTop" [style.left]="markerLeft"></div>
             </div>
             <div class="filter-rail">
@@ -305,7 +302,6 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- default: map + list -->
           <div class="body" *ngIf="!specialResult">
             <div class="map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
-              <div class="route route-{{theme?.result?.pathStyle}}"></div>
               <div class="marker" [style.top]="markerTop" [style.left]="markerLeft"></div>
             </div>
             <div class="list">
@@ -662,9 +658,4 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     if (r?.kind === 'dot' && r.x != null) return r.x + '%';
     const f = this.found; return (f && f.mapX != null ? f.mapX : 25) + '%';
   }
-  /* Route annotation (ResultContent.route) — mirrors LCD ResultComponent. */
-  get routeColor(): string | undefined { return this.result?.route?.color || this.theme?.result?.pathColor; }
-  get routeX(): string | null { const v = this.result?.route?.x; return v != null ? v + '%' : null; }
-  get routeY(): string | null { const v = this.result?.route?.y; return v != null ? v + '%' : null; }
-  get routeW(): string | null { const v = this.result?.route?.w; return v != null ? v + '%' : null; }
 }

@@ -112,9 +112,7 @@
         <!-- RESULT -->
         <div *ngSwitchCase="'result'" class="stage result res-{{t.resultTemplate}}"
              [class.scroll-vertical]="t.scrollMode==='vertical'" [class.scroll-horizontal]="t.scrollMode==='horizontal'">
-          <div class="map" [style.borderColor]="t.result.pathColor">
-            <div class="path path-{{t.result.pathStyle}}" [style.background]="t.result.pathColor" [style.borderColor]="t.result.pathColor"></div>
-          </div>
+          <div class="map"></div>
           <div class="filters" *ngIf="t.resultTemplate==='filter-list'">
             <span class="filter on" [style.background]="t.result.accent">Popular</span>
             <span class="filter">A-Z</span>
@@ -678,7 +676,7 @@
       </div>
 
       <div *ngSwitchCase="'resColors'">
-        <div class="step-title">Result colors &amp; path</div>
+        <div class="step-title">Result colors</div>
         <div class="inherited-hint">
           <span>&#9432;</span> Colors pre-filled from your Home page — adjust below if needed.
         </div>
@@ -692,9 +690,6 @@
         <app-color-picker label="Product card background" [value]="t.result.cardBackground" (valueChange)="t.result.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker label="Card text" [value]="t.result.cardText" (valueChange)="t.result.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker label="Accent / highlight" [value]="t.result.accent" (valueChange)="t.result.accent=$event"></app-color-picker>
-        <app-color-picker label="Path routing color" [value]="t.result.pathColor" (valueChange)="t.result.pathColor=$event"></app-color-picker>
-        <div class="step-title sm">Path style</div>
-        <div class="seg"><button class="tile" *ngFor="let o of pathStyles" [class.sel]="t.result.pathStyle===o" (click)="t.result.pathStyle=o">{{ o }}</button></div>
         <div class="step-title sm">Header bar</div>
         <div class="seg">
           <button class="tile" [class.sel]="t.result.showHeader" (click)="t.result.showHeader=true">Show</button>
@@ -839,7 +834,6 @@
             <tr><td>Header</td><td>{{ t.showHeader ? ((t.headerLayout==='custom' ? 'custom' : (t.headerStyle || 'logo-only')) + (t.transparentHeader ? ' · transparent' : '')) : 'Hidden' }}</td></tr>
             <tr><td>Intermediate</td><td>{{ t.includeIntermediate ? (t.intermediateStyle + ' · ' + (t.intermediate.itemSize || 'medium') + ' · ' + (t.intermediate.cardShape || 'rect') + ' · ' + (t.intermediate.content || 'image-text')) : 'Skipped (Home → Result)' }}</td></tr>
             <tr><td>Result</td><td>{{ t.resultTemplate }} · {{ t.result.content || 'image-text' }}{{ t.result.cardShape ? ' · ' + t.result.cardShape : '' }}{{ t.result.textPos ? ' · ' + t.result.textPos : '' }}</td></tr>
-            <tr><td>Map path</td><td>{{ t.result.pathStyle }} · {{ t.result.pathColor }}</td></tr>
             <tr><td>Nav buttons</td><td>{{ t.navStyle || 'floating' }} · {{ t.nav?.split ? ('back ' + (t.nav?.backPosition || 'bottom-left') + ' / home ' + (t.nav?.homePosition || 'bottom-right')) : (t.nav?.position || 'bottom-left') }}</td></tr>
             <tr><td>Typography</td><td>{{ t.typography.fontFamily.split(',')[0] }} · {{ t.typography.textScale }} · {{ t.typography.textFit }}</td></tr>
             <tr><td>Animation</td><td>{{ t.animation.transition }} · {{ t.animation.speed }}</td></tr>

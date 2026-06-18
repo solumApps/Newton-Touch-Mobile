@@ -438,7 +438,6 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'bottom-right', label: 'Bottom right' },
   ];
   sizes: Array<'small' | 'medium' | 'large'> = ['small', 'medium', 'large'];
-  pathStyles: Array<'dashed' | 'solid' | 'dotted' | 'animated'> = ['dashed', 'solid', 'dotted', 'animated'];
   saverModes = ['slideshow', 'single-image', 'video'];
 
   /** Gradient presets offered for card-area and card backgrounds (A4/A5). The
