@@ -9,6 +9,7 @@ import { DeviceService } from '../services/device.service';
 import { TransferService, FoundDevice } from '../services/transfer.service';
 import { WorkspaceService } from '../services/workspace.service';
 import { SessionService } from '../services/session.service';
+import { encryptText } from '../services/crypto-util';
 import type { LayoutJson, CardItem } from '@contract/layout';
 
 @Component({
@@ -314,8 +315,13 @@ export class DeployComponent implements OnInit, OnDestroy {
         const creds = await this.workspace.creds();
         const w = await this.workspace.get();
         if (creds) {
-          const refreshToken = await this.session.getRefreshToken();
-          const serverConfig = JSON.stringify({ kind: 'serverConfig', serverUrl: creds.serverUrl, token: creds.token, refreshToken, username: creds.username, companyId: creds.companyId, storeId: creds.storeId, ledColour: this.draft.ledColour || 'FF0000', ledDuration: this.draft.ledDuration || '10', environment: w.environment });
+          // Forward CREDENTIALS (not a token) so the LCD logs in and manages its
+          // own token lifecycle (generate + refresh) exactly like the sample apps.
+          // Username/password are AES-GCM encrypted; the LCD decrypts them.
+          const cred = await this.session.getCredentials();
+          const encUser = await encryptText(cred.username);
+          const encPass = await encryptText(cred.password);
+          const serverConfig = JSON.stringify({ kind: 'serverConfig', serverUrl: creds.serverUrl, username: encUser, password: encPass, companyId: creds.companyId, storeId: creds.storeId, ledColour: this.draft.ledColour || 'Red', ledDuration: this.draft.ledDuration || '10s', environment: w.environment });
           try { await this.transfer.send(this.targetHost, this.targetPort, serverConfig, () => {}); await this.sleep(this.SEND_DELAY_MS); } catch { /* non-fatal */ }
         }
       }

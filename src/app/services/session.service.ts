@@ -7,8 +7,10 @@ export interface Session {
   token: string;
   username: string;
   environment: string;
-  /** SOLUM refresh token — shipped to the LCD so it can keep its token alive. */
+  /** SOLUM refresh token (kept for reference; the LCD now logs in itself). */
   refreshToken?: string;
+  /** Login password — forwarded to the LCD so it can generate its own token. */
+  password?: string;
 }
 
 const KEY = 'nt.session';
@@ -50,6 +52,13 @@ export class SessionService {
     return this.session?.refreshToken || '';
   }
 
+  /** Username + password from the last sign-in — forwarded to the LCD so it can
+   *  generate (and keep refreshing) its own SOLUM token, like the sample apps. */
+  async getCredentials(): Promise<{ username: string; password: string }> {
+    await this.ensure();
+    return { username: this.session?.username || '', password: this.session?.password || '' };
+  }
+
   /** Real SOLUM login: POST {base}/common/api/v2/token → store access/refresh token. */
   async signIn(username: string, password: string): Promise<void> {
     const w = await this.ws.get();
@@ -65,7 +74,7 @@ export class SessionService {
     const token = msg?.access_token;
     if (!token) throw new Error(this.responseError(body) || 'Invalid credentials');
     this.refreshToken = msg?.refresh_token || '';
-    this.session = { token, username, environment: w.environment, refreshToken: this.refreshToken };
+    this.session = { token, username, environment: w.environment, refreshToken: this.refreshToken, password };
     this.loaded = true;
     await Preferences.set({ key: KEY, value: JSON.stringify(this.session) });
     // Make the token available to the Category API.
