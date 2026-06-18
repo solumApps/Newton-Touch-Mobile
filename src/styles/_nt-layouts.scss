@@ -1556,18 +1556,7 @@
 .nt-home .layout-hero-list.align-right  { align-content:end; }
 /* bento: dense packing so cards fill evenly */
 .nt-home .layout-bento { grid-auto-flow:dense; }
-/* hexagons: pack side-by-side (tight centred rows) instead of loose grid cells —
-   the clipped corners otherwise leave awkward diagonal gaps */
-.nt-home .cards.shape.shape-hex.layout-col-2, .nt-home .cards.shape.shape-hex.layout-col-3, .nt-home .cards.shape.shape-hex.layout-col-4,
-.nt-home .cards.shape.shape-hex.layout-grid-2x3, .nt-home .cards.shape.shape-hex.layout-grid-2x2 {
-  display:flex; flex-wrap:wrap; align-items:center; align-content:center; justify-content:center;
-}
-.nt-home .cards.shape.shape-hex .card.shape-hexagon {
-  flex: 0 0 auto;
-  margin:calc(var(--nt-vh)*0.8) calc(var(--card-gap, calc(var(--nt-vw)*1.5)) * 0.12);
-}
-.nt-home .cards.shape.shape-hex.align-left   { justify-content:flex-start; }
-.nt-home .cards.shape.shape-hex.align-right  { justify-content:flex-end; }
+
 /* ---- card-size coverage (no overlap/overflow: sizes scale within their cells) ---- */
 /* col-2 / col-3 (flex variants) */
 .nt-home .layout-col-2.card-size-xs    .card { flex-basis:38%; height:74%; }
@@ -1903,15 +1892,7 @@
 .nt-home .card.content-color-block .name { color:#111 !important; }
 /* h-scroll hexagons: proper hexagon proportions (square clip looked squat/broken) */
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon { flex:0 0 calc(var(--nt-vh)*55); width:calc(var(--nt-vh)*55); height:calc(var(--nt-vh)*63); }
-/* hexagons honour the free column count (explicit count beats tight packing) */
-.nt-home .cards.shape.shape-hex.has-cols { display:grid; grid-template-columns:repeat(var(--cols,3),1fr); grid-auto-rows:48%; align-items:center; }
-.nt-home .cards.shape.shape-hex.has-cols.layout-col-2,
-.nt-home .cards.shape.shape-hex.has-cols.layout-col-3,
-.nt-home .cards.shape.shape-hex.has-cols.layout-col-4 {
-  grid-auto-rows: 94%;
-  align-content: start;
-}
-.nt-home .cards.shape.shape-hex.has-cols .card.shape-hexagon { margin:0; }
+
 /* promo: label centred under/over the disc */
 .nt-home .layout-promo-categories .promo-rail .card .meta { margin-left:auto !important; margin-right:auto !important; text-align:center; }
 /* promo: card size works for every shape (pill keeps its pill ratio) */
