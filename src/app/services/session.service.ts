@@ -37,7 +37,10 @@ export class SessionService {
 
   async isAuthed(): Promise<boolean> {
     await this.ensure();
-    return !!this.session?.token;
+    // Require BOTH token and password: the LCD needs the password to generate its
+    // own ESL token, so a legacy session that predates password storage is treated
+    // as incomplete — forcing one clean re-login that captures the password.
+    return !!this.session?.token && !!this.session?.password;
   }
 
   async current(): Promise<Session | null> {
