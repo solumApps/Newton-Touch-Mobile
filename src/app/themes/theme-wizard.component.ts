@@ -91,6 +91,14 @@ export class ThemeWizardComponent implements OnInit {
   /** Text-position applies to every content with a label (all except image-only),
    *  and to hero-start (it positions the hero copy). */
   get showTextPos(): boolean { return this.t.homeLayout === 'hero-start' || this.t.cardContent !== 'image-only'; }
+  /** Text overlay only makes sense for image-text content when the text is
+   *  positioned on top of the image (overlay-top, overlay-bottom, center).
+   *  For 'above'/'below' positions text is outside the image, and for
+   *  non-image content types there is no image to overlay on. */
+  private readonly overlayPositions: CardTextPos[] = ['overlay-top', 'overlay-bottom', 'center'];
+  get overlayRelevant(): boolean {
+    return this.t.cardContent === 'image-text' && this.overlayPositions.includes(this.t.cardTextPos);
+  }
   /** 'Below' only makes sense when there is an image to sit below — hidden for
    *  every text-style content, and for arrangements with no under-card area
    *  (image-strip, hero-start). Centralized so every QA scenario goes through
@@ -206,7 +214,7 @@ export class ThemeWizardComponent implements OnInit {
   }
   /** Intermediate text-position applies to these styles. */
   get intTextPosMatters(): boolean {
-    return ['image-grid', 'card-strip', 'circular', 'hex-grid', 'fullscreen', 'center-tiles'].includes(this.t.intermediateStyle);
+    return ['columns', 'card-strip', 'circular', 'hex-grid', 'fullscreen'].includes(this.t.intermediateStyle);
   }
   get isImageStrip(): boolean { return this.t.homeLayout === 'image-strip'; }
   /** Card size: hidden where cards always fill the screen (fullscreen, strips). */
@@ -233,6 +241,13 @@ export class ThemeWizardComponent implements OnInit {
   }
   /** Effective count shown in the stepper: override, else derived from the layout. */
   get effectiveColumns(): number { return this.t.columns ?? columnsForLayout(this.t.homeLayout); }
+  get computedColumns(): number {
+    const c = this.effectiveColumns;
+    if (this.t.homeLayout === 'bento') {
+      return Math.max(2, 1 + Math.ceil((c - 1) / 2));
+    }
+    return c;
+  }
   stepColumns(delta: number): void {
     const next = Math.min(this.maxColumns, Math.max(this.minColumns, this.effectiveColumns + delta));
     this.t.columns = next;
@@ -268,7 +283,7 @@ export class ThemeWizardComponent implements OnInit {
   /** Dynamic card size max: more columns → less room to scale up.
    *  Also accounts for gap eating into available width. */
   get cardSizeMax(): number {
-    const cols = this.effectiveColumns;
+    const cols = this.computedColumns;
     const gap = this.cardGapValue;
     // Base max shrinks as columns grow; gap further reduces headroom.
     return Math.max(0.9, 1.25 - (cols - 3) * 0.06 - gap * 0.005);
@@ -365,17 +380,26 @@ export class ThemeWizardComponent implements OnInit {
   // choosing a base style (e.g. Image grid) and selecting the Circle/Hexagon
   // Card shape, instead of being separate layout styles. Enums + CSS retained so
   // existing themes that use them still render.
-  intStyles: IntermediateStyle[] = ['pill-tabs', 'image-grid', 'card-strip', 'fullscreen', 'center-tiles', 'side-rail', 'brand-grid', 'brand-rail', 'drill-stair'];
+  intStyles: IntermediateStyle[] = ['columns', 'card-strip', 'fullscreen', 'side-rail', 'brand-grid', 'brand-rail', 'drill-stair', 'finder-select'];
   intStyleLabels: Partial<Record<IntermediateStyle, string>> = {
-    'pill-tabs': 'Pills', 'image-grid': 'Image grid', 'hex-grid': 'Hex grid', 'circular': 'Circular',
-    'card-strip': 'Card strip', 'center-tiles': 'Center tiles',
+    'columns': 'Columns', 'hex-grid': 'Hex grid', 'circular': 'Circular',
+    'card-strip': 'Card strip',
     'side-rail': 'Side rail', 'brand-grid': 'Brand grid', 'brand-rail': 'Brand rail', 'drill-stair': 'Drill stair',
+    'finder-select': 'Finder select',
   };
   intStyleLabel(s: IntermediateStyle): string { return this.intStyleLabels[s] || s; }
   /** Card shape only affects intermediate styles that show a per-item image. */
   get intShapeMatters(): boolean {
-    return ['image-grid', 'card-strip', 'side-rail', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle);
+    return ['columns', 'card-strip', 'side-rail', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle);
   }
+  /** finder-select index-strip modes + step-label CSV binding. */
+  indexModes = ['auto', 'alpha', 'values', 'off'];
+  get intStepsCsv(): string { return (this.t.intermediate.stepLabels || []).join(','); }
+  set intStepsCsv(v: string) { this.t.intermediate.stepLabels = v.split(',').map((s) => s.trim()).filter(Boolean); }
+  /** Intermediate 'columns' style exposes a column-count slider (like Home). */
+  get intColumnsMatters(): boolean { return this.t.intermediateStyle === 'columns'; }
+  get intColumnsValue(): number { return this.t.intermediate.columns || 3; }
+  setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(2, Math.min(6, Math.round(n))); }
   /** Selectable templates — split-panel / esl-focus (map-width variants of
    *  map-list) and dual-list (2-col list-only) are hidden as near-duplicates;
    *  old themes using them still render (enum + CSS retained). */

@@ -44,12 +44,28 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-card]="theme?.cardBackground"
            [style.--nt-text]="theme?.cardText"
            [style.--nt-overlay]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
+           [style.--prev-scale]="scaleNum"
+           [style.--prev-accent]="theme?.accent"
+           [style.--prev-card]="theme?.cardBackground"
+           [style.--prev-text]="theme?.cardText"
+           [style.--prev-overlay]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
            [style.--nt-int-card]="theme?.intermediate?.cardBackground"
            [style.--nt-int-accent]="theme?.intermediate?.accent"
            [style.--nt-int-text]="theme?.intermediate?.cardText"
            [style.--nt-res-card]="theme?.result?.cardBackground"
            [style.--nt-res-accent]="theme?.result?.accent"
            [style.--nt-res-text]="theme?.result?.cardText"
+           [style.--nt-res-header]="theme?.result?.headerColor"
+           [style.--prm-panel]="theme?.result?.panelColor"
+           [style.--prm-subpanel]="theme?.result?.subPanelColor"
+           [style.--prm-accent]="theme?.result?.accent"
+           [style.--prm-map]="theme?.result?.mapBg"
+           [style.--prm-rail]="theme?.result?.railBg"
+           [style.--prm-list]="theme?.result?.listBg"
+           [style.--prm-card]="theme?.result?.cardBg"
+           [style.--prm-cardtext]="theme?.result?.cardTextColor"
+           [style.--nt-path]="routeColor"
+           [style.--nt-route-x]="routeX" [style.--nt-route-y]="routeY" [style.--nt-route-w]="routeW"
            [ngSwitch]="page">
         <!-- HEADER (LCD markup: .hdr > .brand-logo + .brand-text(.title/.caption)) -->
         <div class="hdr" *ngIf="headerVisible"
@@ -85,7 +101,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
         <!-- HOME (LCD markup: .cards.layout-*) -->
         <div *ngSwitchCase="'home'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} valign-{{theme?.cardVAlign||'middle'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
-             [class.has-cols]="theme?.columns !== undefined" [style.--cols]="theme?.columns" [style.--card-gap]="cardGapPx"
+             [class.has-cols]="cols !== undefined" [style.--cols]="cols" [style.--card-gap]="cardGapPx"
              [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [class.no-overlay]="theme?.cardTextOverlay === false">
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
             <span>{{ titleText || 'Product Finder' }}</span>
@@ -123,6 +139,24 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
         <!-- INTERMEDIATE (LCD markup: .body.int-*) -->
         <ng-container *ngSwitchCase="'inter'">
+          <!-- finder-select: hero progress rail + selection cards + index strip -->
+          <div class="body fs-body" *ngIf="theme?.intermediateStyle==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || null" [style.--prm-accent]="theme?.intermediate?.accent || null">
+            <div class="fs-hero">
+              <div class="fs-hero-title">{{ titleText || 'Product Finder' }}</div>
+              <div class="fs-home"><span class="fs-home-ic">&#8962;</span> Home</div>
+              <div class="fs-steps">
+                <div class="fs-step done"><span class="fs-step-lbl">Manufacturer</span><span class="fs-step-ic">&#10003;</span></div>
+                <div class="fs-step done"><span class="fs-step-lbl">Model</span><span class="fs-step-ic">&#10003;</span></div>
+                <div class="fs-step current"><span class="fs-step-lbl">Year</span><span class="fs-step-dot"></span></div>
+              </div>
+            </div>
+            <div class="fs-main">
+              <div class="fs-top"><button type="button" class="fs-back">&#8592;</button><div class="fs-prompt">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div></div>
+              <div class="fs-cards"><div class="fs-card" *ngFor="let it of interCells.slice(0,5)"><span class="fs-card-nm">{{ it.name }}</span></div></div>
+              <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let it of interCells.slice(0,6); let i=index" [class.active]="i===0">{{ it.name }}</span></div>
+            </div>
+          </div>
+          <ng-container *ngIf="theme?.intermediateStyle!=='finder-select'">
           <!-- drill-stair: side-by-side columns (mirrors LCD .col structure) -->
           <div class="body int-drill-stair" *ngIf="theme?.intermediateStyle==='drill-stair'; else flatInter">
             <div class="col">
@@ -142,12 +176,15 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <ng-template #flatInter>
             <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediateStyle==='side-rail' ? 'left' : (theme?.intermediate?.align||'center')}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}}"
                  [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'">
+            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediate?.align||'center'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}}"
+                 [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [style.--int-cols]="theme?.intermediate?.columns || 3">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0">
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                 <span class="name">{{ it.name }}</span>
               </div>
             </div>
           </ng-template>
+          </ng-container>
         </ng-container>
 
         <!-- RESULT (LCD markup: res-* class on the stage, .body variants inside) -->
@@ -299,6 +336,54 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               </div>
             </div>
           </div>
+          <!-- promo-map-rank -->
+          <div class="body promo-rank-body" *ngIf="resTpl==='promo-map-rank'">
+            <div class="prm-map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
+              <div class="prm-shelf" *ngFor="let s of shelfRects" [style.top]="s.t" [style.left]="s.l" [style.width]="s.w" [style.height]="s.h"></div>
+              <div class="prm-dot" *ngFor="let p of resultCells.slice(0,3); let i=index" [style.top]="(40+i*16)+'%'" [style.left]="(30+i*16)+'%'" [style.background]="theme?.result?.dotColor || null"></div>
+              <div class="prm-pin" style="top:32%;left:34%;" [style.background]="theme?.result?.pinColor || null"><span class="prm-pin-lbl" *ngIf="theme?.result?.youAreHereLabel !== ''">{{ theme?.result?.youAreHereLabel || 'YOU ARE HERE' }}</span></div>
+              <div class="prm-floors">
+                <div class="prm-floor" *ngFor="let f of previewFloors; let i=index" [class.active]="i === previewFloors.length - 1">{{ f }}</div>
+              </div>
+            </div>
+            <div class="prm-panel">
+              <div class="prm-head"><span class="prm-title">{{ titleText || 'Promotion' }}</span><span class="prm-bell" *ngIf="theme?.result?.showBell">&#128276;</span><span class="prm-timer" *ngIf="theme?.result?.showTimer">00:25:53</span></div>
+              <div class="prm-cols">
+                <div class="prm-primary"><div class="prm-pill" *ngFor="let c of homeCells.slice(0,5); let i=index" [class.active]="i===3">{{ c.name }}</div></div>
+                <div class="prm-secondary"><div class="prm-sub" *ngFor="let s of interCells.slice(0,5); let i=index" [class.active]="i===0">{{ s.name }}</div></div>
+                <div class="prm-listwrap">
+                  <div class="prm-tabs" *ngIf="theme?.result?.showSortTabs!==false"><div class="ftab active">Popular</div><div class="ftab">Alphabetical</div></div>
+                  <div class="prm-list"><div class="prm-row" [class.found]="i===0" *ngFor="let p of promoCells; let i=index"><span class="prm-rank" *ngIf="theme?.result?.showRanks!==false">{{ i+1 < 10 ? '0'+(i+1) : i+1 }}</span><div class="prm-info"><div class="prm-nm">{{ p.name }}</div><div class="prm-meta"><span *ngIf="p.price">{{ p.price }}</span><span *ngIf="theme?.result?.showZone!==false && (p.zone||p.aisle)"> &middot; {{ p.zone||p.aisle }}</span></div></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- finder-detail -->
+          <div class="body finder-body" *ngIf="resTpl==='finder-detail'">
+            <div class="fd-hero" [style.background-image]="theme?.result?.heroImage ? 'url('+theme?.result?.heroImage+')' : null">
+              <div class="fd-hero-title">{{ titleText || 'Product Finder' }}</div>
+              <div class="fd-home"><span class="fd-home-ic">&#8962;</span> Home</div>
+              <div class="fd-chips"><div class="fd-chip" *ngFor="let c of breadcrumbPreview"><span class="fd-chip-lbl">{{ c.label }}</span><span class="fd-chip-val">{{ c.value }}</span></div></div>
+            </div>
+            <div class="fd-list">
+              <div class="fd-sorts"><div class="fd-sort active">Recommend</div><div class="fd-sort">A&ndash;Z</div></div>
+              <div class="fd-prod" [class.found]="i===0" *ngFor="let p of finderCells; let i=index">
+                <div class="fd-prod-top"><div class="fd-prod-nm">{{ p.name }}</div><div class="fd-price"><span class="fd-sale-badge" *ngIf="theme?.result?.showSaleBadge!==false && p.onSale">SALE</span><span class="fd-orig" *ngIf="p.onSale && p.salePrice">{{ p.price }}</span><span class="fd-now" [class.sale]="p.onSale && p.salePrice">{{ (p.onSale && p.salePrice) ? p.salePrice : (p.price || '$58.88') }}</span></div></div>
+                <div class="fd-specs" *ngIf="p.specs?.length"><span class="fd-spec" *ngFor="let s of p.specs">{{ s.label }} &middot; {{ s.value }}</span></div>
+              </div>
+            </div>
+            <div class="fd-detail" *ngIf="finderFound as r">
+              <div class="fd-d-head"><div class="fd-d-title">{{ r.name }}</div><button type="button" class="fd-find-all" [style.background]="theme?.result?.findColor || null">{{ theme?.result?.findAllLabel || 'Find All' }}</button></div>
+              <div class="fd-d-desc" *ngIf="r.description">{{ r.description }}</div>
+              <div class="fd-fit" *ngFor="let f of (r.fitments?.length ? r.fitments : previewFitments)">
+                <div class="fd-fit-info"><div class="fd-fit-nm">{{ f.label }}</div><div class="fd-fit-sub" *ngIf="f.articleId || f.name">{{ f.articleId }}<span *ngIf="f.name"> &middot; {{ f.name }}</span></div><div class="fd-fit-price"><span class="fd-orig" *ngIf="f.salePrice">{{ f.price }}</span><span class="fd-now" [class.sale]="f.salePrice">{{ f.salePrice || f.price }}</span></div></div>
+                <button type="button" class="fd-find-it" [style.background]="theme?.result?.findColor || null">{{ theme?.result?.findItLabel || 'Find It' }}</button>
+                <div class="fd-fit-img" *ngIf="f.image" [style.background-image]="'url('+f.image+')'"></div>
+              </div>
+            </div>
+          </div>
+
           <!-- default: map + list -->
           <div class="body" *ngIf="!specialResult">
             <div class="map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
@@ -430,7 +515,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   private static readonly PH_FILLS = ['%2386EFAC', '%23FDE68A', '%23FCA5A5', '%23A5B4FC', '%2367E8F9', '%23F9A8D4'];
   phImg(i: number): string {
     const c = ContentPreviewStripComponent.PH_FILLS[i % ContentPreviewStripComponent.PH_FILLS.length];
-    return `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'><rect width='160' height='100' fill='${c}'/><polygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/></svg>")`;
+    return `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'%3E%3Crect width='160' height='100' fill='${c}'/%3E%3Cpolygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/%3E%3C/svg%3E")`;
   }
 
   /* ===== Stage units: --nt-vw/--nt-vh/--nt-vmin in px from the measured stage width.
@@ -484,7 +569,58 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   get resTpl(): string { return this.theme?.resultTemplate || 'map-list'; }
   get specialResult(): boolean {
-    return ['drill-stair', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'product-focus', 'hero-product', 'shelf'].includes(this.resTpl);
+    return ['drill-stair', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'product-focus', 'hero-product', 'shelf', 'promo-map-rank', 'finder-detail'].includes(this.resTpl);
+  }
+  /** finder-detail preview breadcrumb chips (custom labels + sample values). */
+  get breadcrumbPreview(): { label: string; value: string }[] {
+    const labels = this.theme?.result?.breadcrumbLabels?.length ? this.theme.result.breadcrumbLabels : ['Manufacturer', 'Model', 'Year'];
+    const vals = ['Mercedes-Benz', 'S Class', '2021'];
+    return labels.slice(0, 3).map((label, i) => ({ label, value: vals[i] || '—' }));
+  }
+  private swatch(hex: string): string {
+    return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Crect width='120' height='80' fill='${hex}'/%3E%3C/svg%3E`;
+  }
+  /** finder-detail preview placeholder fitments when a product has none. */
+  get previewFitments(): any[] {
+    return [
+      { label: 'Driver Side', articleId: 'AAA001', name: '26 inch', price: '$88.88', salePrice: '$58.88', image: this.swatch('%23f7d046') },
+      { label: 'Passenger Side', articleId: 'AAA002', name: '16 inch', price: '$88.88', image: this.swatch('%23f7d046') },
+    ];
+  }
+  /** finder-detail middle list: enrich placeholders with attributes + a sale row. */
+  get finderCells(): ResultProduct[] {
+    const specs = [{ label: 'Color', value: 'Black' }, { label: 'Material', value: 'Rubber' }, { label: 'Type', value: 'Traditional' }];
+    return this.resultCells.map((p, i) => ({
+      ...p,
+      specs: p.specs?.length ? p.specs : specs,
+      onSale: p.onSale ?? (i === 0),
+      salePrice: p.salePrice || (i === 0 ? '$58.88' : ''),
+      price: p.price || '$88.88',
+    } as ResultProduct));
+  }
+  /** finder-detail right detail: the first product, with a fallback description. */
+  get finderFound(): ResultProduct {
+    const f = this.finderCells[0];
+    return { ...f, description: f.description || 'Smooth, clean, streak-free wipe with embedded friction reducers and multiple pressure points.' } as ResultProduct;
+  }
+  /** promo-map-rank preview: floor selector labels (default when none set). */
+  get previewFloors(): string[] {
+    return this.theme?.result?.floors?.length ? this.theme.result.floors : ['3F', '2F', '1F'];
+  }
+  /** promo-map-rank preview: faint shelf rectangles so the map reads like a floorplan. */
+  readonly shelfRects = [
+    { t: '20%', l: '14%', w: '20%', h: '16%' }, { t: '20%', l: '46%', w: '22%', h: '16%' },
+    { t: '46%', l: '12%', w: '24%', h: '14%' }, { t: '58%', l: '48%', w: '26%', h: '14%' },
+    { t: '74%', l: '20%', w: '20%', h: '12%' },
+  ];
+  /** promo-map-rank ranked list: placeholders get a price + zone. */
+  get promoCells(): ResultProduct[] {
+    const zones = ['Beverage', 'Beverage', 'Office', 'Toy & Doll', 'Beverage', 'Living'];
+    return this.resultCells.map((p, i) => ({
+      ...p,
+      price: p.price || '$' + ((i + 1) * 3),
+      zone: p.zone || zones[i % zones.length],
+    } as ResultProduct));
   }
   private localResultIndex = 0;
   get activeResultIndex(): number {
@@ -509,6 +645,14 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   /* Per-element typography + nav-button vars — same derivation as the LCD
      layout.service injectTheme(), so preview and kiosk render identically. */
+  get cols(): number | undefined {
+    const l = this.theme?.homeLayout, c = this.theme?.columns;
+    if (l === 'bento') {
+      const itemCount = this.homeCells.length;
+      return Math.max(2, 1 + Math.ceil((itemCount - 1) / 2));
+    }
+    return c;
+  }
   get cardSizeScaleNum(): number { const n = this.theme?.cardSizeScale; return typeof n === 'number' && n > 0 ? n : 1; }
   get cardAlignCss(): string { return this.theme?.cardTextAlign === 'left' ? 'left' : this.theme?.cardTextAlign === 'right' ? 'right' : 'center'; }
   get cardGapPx(): string | null {
@@ -561,7 +705,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get headerVisible(): boolean {
     if (this.page === 'saver') return false;
     if (this.page === 'inter') return this.theme?.intermediate?.showHeader !== false;
-    if (this.page === 'result') return this.theme?.result?.showHeader !== false;
+    if (this.page === 'result') {
+      // Full-bleed templates carry their own header (promo panel / hero), so the
+      // global top bar is suppressed — matches the kiosk render.
+      if (this.resTpl === 'promo-map-rank' || this.resTpl === 'finder-detail') return false;
+      return this.theme?.result?.showHeader !== false;
+    }
     return this.theme?.showHeader !== false;
   }
   get backgroundForPage(): string | undefined {
@@ -598,7 +747,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     // Horizontal scroll: show exactly as many cards as columns
     if (this.theme?.scrollMode === 'horizontal' && c) return c;
     // Vertical scroll: show more cards so user can test scrolling in preview.
-    if (this.theme?.scrollMode === 'vertical') return 12;
+    if (this.theme?.scrollMode === 'vertical') return c ? c * 4 : 12;
+    // Grid layouts: show full rows that match the chosen column count.
+    if (c) return Math.min(12, c * 2);
     return l === 'hero-list' ? 4 : 6;
   }
   get homeCells(): CardItem[] {
@@ -616,9 +767,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return this.intermediate || [];
   }
   get interCells(): CardItem[] {
-    const real = this.intermediateSource.slice(0, 6);
+    // 'columns' style fills full rows that match the chosen column count.
+    const cols = this.theme?.intermediate?.columns;
+    const n = this.theme?.intermediateStyle === 'columns' && cols ? Math.min(12, cols * 2) : 6;
+    const real = this.intermediateSource.slice(0, n);
     if (real.length) return real.map(c => ({ ...c, name: c.name || 'Item' }));
-    return this.placeholderSlots.map(i => ({ id: 'ph' + i, name: this.placeholderLabels[i] } as CardItem));
+    return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: this.placeholderLabels[i % this.placeholderLabels.length] } as CardItem));
   }
   get resultCells(): ResultProduct[] {
     const real = (this.result?.products || []).slice(0, 6);

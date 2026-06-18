@@ -54,7 +54,7 @@ export type CardTextPos = 'overlay-top' | 'overlay-bottom' | 'below' | 'center' 
 
 export type IntermediateStyle =
   | 'accordion' | 'pill-tabs' | 'image-grid' | 'hex-grid'
-  | 'circular' | 'scroll-list' | 'card-strip' | 'fullscreen'
+  | 'circular' | 'scroll-list' | 'card-strip' | 'fullscreen' | 'columns'
   /** side-rail: persistent left rail/sidebar + large selectable cards/grid. */
   | 'side-rail'
   /** center-tiles: centered large tiles with explicit back/home navigation affordance. */
@@ -67,7 +67,12 @@ export type IntermediateStyle =
   | 'drill-stair'
   /** brand-rail: a centered horizontal row of round brand/logo tiles with a bold
    *  playful side headline + mascot space. Inspired by pet-food / FMCG kiosks. */
-  | 'brand-rail';
+  | 'brand-rail'
+  /** finder-select: dark left progress rail (title + Home + drill steps with
+   *  check/dot state) beside big white selection cards, a "TOUCH YOUR …" prompt,
+   *  a back arrow, and a bottom index strip (alphabet / value list). Mirrors the
+   *  finder-detail result for the drill step. Inspired by the wiper-finder kiosk. */
+  | 'finder-select';
 
 export type ResultTemplate =
   | 'map-list' | 'cards-map' | 'dual-list' | 'split-panel' | 'list-only'
@@ -230,7 +235,10 @@ export interface ThemeTokens {
   includeIntermediate: boolean;
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
-  intermediate: { headerColor: string; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; };
+  intermediate: { headerColor: string; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: 'image-text' | 'text-only'; textPos?: CardTextPos;
+    /** finder-select template: dark hero rail + selection cards + index strip. */
+    heroColor?: string; heroImage?: string; promptPrefix?: string; showPrompt?: boolean;
+    showBack?: boolean; indexStrip?: 'auto' | 'alpha' | 'values' | 'off'; stepLabels?: string[]; columns?: number; };
   result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; transparentHeader?: boolean; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; cardShape?: CardShape;
     /** Position of the filter section in Map-Filter-List (G-2). Default 'top'. */
     filterPos?: 'top' | 'bottom' | 'left' | 'right';

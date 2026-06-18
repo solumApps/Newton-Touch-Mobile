@@ -359,7 +359,7 @@
           <div class="seg">
             <button class="tile" *ngFor="let a of cardAligns" [class.sel]="(t.cardTextAlign||'center')===a.id" (click)="t.cardTextAlign=a.id">{{ a.label }}</button>
           </div>
-          <ng-container *ngIf="t.cardContent==='image-text' && (t.cardTextPos==='overlay-top' || t.cardTextPos==='overlay-bottom')">
+          <ng-container *ngIf="overlayRelevant">
             <div class="step-title sm">Text Overlay</div>
             <div class="seg">
               <button class="tile" [class.sel]="t.cardTextOverlay !== false" (click)="t.cardTextOverlay=true">On</button>
@@ -431,7 +431,7 @@
         </ng-container>
         <app-color-picker label="Card background" [allowGradient]="true" [value]="t.cardBackground" (valueChange)="t.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker label="Card text" [value]="t.cardText" (valueChange)="t.cardText=$event" [presets]="textPresets"></app-color-picker>
-        <app-color-picker label="Text overlay" hint="background behind text on cards" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
+        <app-color-picker *ngIf="overlayRelevant" label="Text overlay" hint="background behind text on cards" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
         <app-color-picker label="Accent / highlight" [value]="t.accent" (valueChange)="t.accent=$event"></app-color-picker>
         <ng-container *ngIf="t.showHeader && !isCustomHeader">
           <div class="step-title sm">Logo position</div>
@@ -468,8 +468,6 @@
         <div class="seg"><button class="tile" *ngFor="let s of elementScales" [class.sel]="t.typography.headerTextScale===s.id" (click)="t.typography.headerTextScale=s.id">{{ s.label }}</button></div>
         <div class="step-title sm">Header text case</div>
         <div class="seg"><button class="tile" *ngFor="let c of textCases" [class.sel]="(t.typography.headerTextCase||'default')===c.id" (click)="t.typography.headerTextCase=c.id">{{ c.label }}</button></div>
-
-        <app-color-picker label="Base text color" [value]="t.typography.baseTextColor" (valueChange)="t.typography.baseTextColor=$event" [presets]="textPresets"></app-color-picker>
       </div>
 
       <div *ngSwitchCase="'intStyle'">
@@ -477,6 +475,30 @@
         <div class="step-title sm">Layout style</div>
         <p class="hint">How sub-categories are arranged on the drill-down screen.</p>
         <div class="tiles"><button class="tile" *ngFor="let o of intStyles" [class.sel]="t.intermediateStyle===o" (click)="pickInterStyle(o)">{{ intStyleLabel(o) }}</button></div>
+
+        <ng-container *ngIf="intColumnsMatters">
+          <div class="step-title sm">Columns</div>
+          <p class="hint">How many sub-category cards per row.</p>
+          <div class="slider-row">
+            <input type="range" class="nt-slider" min="2" max="6" step="1" [value]="intColumnsValue" (input)="setIntColumns(+$any($event.target).value)" aria-label="Intermediate columns" />
+            <span class="slider-val">{{ intColumnsValue }}</span>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="t.intermediateStyle==='finder-select'">
+          <div class="step-title sm">Finder options</div>
+          <input class="inp" placeholder="Prompt prefix (e.g. TOUCH YOUR)" [(ngModel)]="t.intermediate.promptPrefix" />
+          <input class="inp" placeholder="Step labels (comma e.g. Manufacturer,Model,Year)" [ngModel]="intStepsCsv" (ngModelChange)="intStepsCsv=$event" />
+          <div class="step-title sm">Index strip</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let m of indexModes" [class.sel]="(t.intermediate.indexStrip||'auto')===m" (click)="t.intermediate.indexStrip=$any(m)">{{ m }}</button>
+          </div>
+          <div class="seg">
+            <button class="tile" [class.sel]="t.intermediate.showBack!==false" (click)="t.intermediate.showBack=!(t.intermediate.showBack!==false)">Back arrow</button>
+            <button class="tile" [class.sel]="t.intermediate.showPrompt!==false" (click)="t.intermediate.showPrompt=!(t.intermediate.showPrompt!==false)">Prompt</button>
+          </div>
+          <app-color-picker label="Hero panel" [value]="t.intermediate.heroColor || '#23262b'" (valueChange)="t.intermediate.heroColor=$event"></app-color-picker>
+        </ng-container>
 
         <ng-container *ngIf="t.intermediateStyle==='fullscreen'">
           <div class="step-title sm">Carousel scrolling</div>
