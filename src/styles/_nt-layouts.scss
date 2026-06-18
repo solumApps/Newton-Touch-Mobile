@@ -1170,7 +1170,7 @@
 .nt-inter .int-center-tiles .item .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1.55); font-weight:900; line-height:1.15; }
 
 /* side-rail: sticky left rail + large cards */
-.nt-inter .int-side-rail { display:flex; padding:0; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden;
+.nt-inter .int-side-rail { display:flex; justify-content:flex-start; align-items:stretch; padding:0; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden;
   -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; }
 .nt-inter .int-side-rail .item { flex-shrink:0; }
 .nt-inter .int-side-rail::before {
@@ -1178,7 +1178,7 @@
   background:linear-gradient(rgba(0,0,0,.62),rgba(0,0,0,.68));
   border-right:1px solid rgba(255,255,255,.12);
 }
-.nt-inter .int-side-rail .item { flex:0 0 16%; height:64%; margin:auto calc(var(--nt-vw)*1); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+.nt-inter .int-side-rail .item { flex:0 0 16%; height:64%; align-self:center; margin:0 calc(var(--nt-vw)*1); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
 .nt-inter .int-side-rail .item .img { width:70%; height:48%; margin:0 0 calc(var(--nt-vh)*1); background-size:contain; background-repeat:no-repeat; }
 .nt-inter .int-side-rail .item .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1); font-weight:900; line-height:1.12; text-align:center; white-space:normal; overflow-wrap:break-word; }
 
@@ -1266,25 +1266,11 @@
 /* ================= RESULT ================================================= */
 .nt-result .body { flex:1; min-height:0; display:flex; padding:calc(var(--nt-vh)*2) calc(var(--nt-vw)*2); box-sizing:border-box; overflow:hidden; }
 
-.nt-result .map { flex:1; min-width:0; background:rgba(255,255,255,.05); border:1px solid var(--nt-path,rgba(255,255,255,.1)); border-radius:8px;
+.nt-result .map { flex:1; min-width:0; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:8px;
   margin-right:calc(var(--nt-vw)*1); position:relative; background-size:cover; background-position:center; overflow:hidden; box-shadow:0 calc(var(--nt-vh)*0.8) calc(var(--nt-vh)*1.8) rgba(0,0,0,.12); }
-.nt-result .route { position:absolute; left:var(--nt-route-x,12%); top:var(--nt-route-y,54%); width:var(--nt-route-w,64%); height:calc(var(--nt-vh)*0.5); background:var(--nt-path,#FFCD00); border-radius:999px; }
-/* content-configurable map annotation: line only, dot only, or none */
-.nt-result.route-kind-dot .route, .nt-result.route-kind-none .route { display:none; }
-/* The .marker is the per-product "it's here" dot (ResultProduct.mapX/mapY) and is
-   INDEPENDENT of the map annotation (ResultContent.route). Builder copy: "tap the map
-   where it lives — the LCD shows the dot there", and the builder editor always renders
-   product dots regardless of annotation kind. Annotation kind only toggles the .route
-   line; for kind 'dot' the templates reposition .marker to the annotation x/y. So the
-   marker is never hidden by route-kind-* (previously hidden for 'line'/'none', which
-   made deployed/previewed markers invisible). */
-.nt-result .route-dashed { height:0; background:transparent; border-top:calc(var(--nt-vh)*0.45) dashed var(--nt-path,#FFCD00); }
-.nt-result .route-dotted { height:0; background:transparent; border-top:calc(var(--nt-vh)*0.55) dotted var(--nt-path,#FFCD00); }
-.nt-result .route-animated { animation:nt-route 1s linear infinite; box-shadow:0 0 calc(var(--nt-vw)*1) rgba(255,255,255,.25); }
-@keyframes nt-route { 0%,100% { opacity:.45; transform:translateX(0); } 50% { opacity:1; transform:translateX(calc(var(--nt-vw)*2)); } }
-/* marker dot: positioned per-product via inline top/left (mapY/mapX %), colored
-   with the theme's route/marker color (result.pathColor → --nt-path) */
-.nt-result .marker { position:absolute; width:calc(var(--nt-vw)*1); height:calc(var(--nt-vw)*1); border-radius:50%; background:var(--nt-path,var(--nt-res-accent,#FFCD00));
+/* Marker dot: positioned per-product via inline top/left (mapY/mapX %), colored
+   with the result accent. */
+.nt-result .marker { position:absolute; width:calc(var(--nt-vw)*1); height:calc(var(--nt-vw)*1); border-radius:50%; background:var(--nt-res-accent,#FFCD00);
   top:30%; left:25%; box-shadow:0 0 0 calc(var(--nt-vw)*0.3) rgba(255,255,255,.35); }
 
 .nt-result .list { flex:1; min-width:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;

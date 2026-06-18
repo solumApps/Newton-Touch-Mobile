@@ -132,6 +132,10 @@ export class ThemeWizardComponent implements OnInit {
   }
   pickContent(c: CardContent): void { this.t.cardContent = c; this.coerceTextPos(); }
   pickInterContent(c: 'image-text' | 'text-only'): void { this.t.intermediate.content = c; this.coerceTextPos(); }
+  pickInterStyle(s: IntermediateStyle): void {
+    this.t.intermediateStyle = s;
+    if (s === 'side-rail') this.t.intermediate.align = 'left';
+  }
 
   /** Layouts where circle/hexagon shapes don't render well and are hidden.
    *  h-scroll DOES support all shapes (handled inside the rail), hero-list does NOT. */
@@ -206,7 +210,7 @@ export class ThemeWizardComponent implements OnInit {
   ];
   /** Alignment is a no-op for styles whose items always fill the row. */
   get intAlignMatters(): boolean {
-    return !['fullscreen', 'accordion', 'scroll-list', 'drill-stair'].includes(this.t.intermediateStyle);
+    return !['fullscreen', 'accordion', 'scroll-list', 'drill-stair', 'side-rail'].includes(this.t.intermediateStyle);
   }
   /** Intermediate text-position applies to these styles. */
   get intTextPosMatters(): boolean {
@@ -494,7 +498,6 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'bottom-right', label: 'Bottom right' },
   ];
   sizes: Array<'small' | 'medium' | 'large'> = ['small', 'medium', 'large'];
-  pathStyles: Array<'dashed' | 'solid' | 'dotted' | 'animated'> = ['dashed', 'solid', 'dotted', 'animated'];
   saverModes = ['slideshow', 'single-image', 'video'];
 
   /** Gradient presets offered for card-area and card backgrounds (A4/A5). The
