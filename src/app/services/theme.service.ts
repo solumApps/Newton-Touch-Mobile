@@ -45,6 +45,7 @@ export class ThemeService {
       // 'col-3' (not legacy 'grid-2x3') so a NEW theme's preview matches the
       // pre-selected "Columns" tile in the wizard exactly.
       homeLayout: 'col-3',
+      columns: 3,
       scrollMode: 'auto',
       cardSize: 'normal',
       cardAlign: 'center',

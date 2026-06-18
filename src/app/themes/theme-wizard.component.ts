@@ -143,8 +143,11 @@ export class ThemeWizardComponent implements OnInit {
 
   pickLayout(l: HomeLayout): void {
     this.t.homeLayout = l;
-    // Reset the free column count so the new layout's default applies.
-    this.t.columns = undefined;
+    if (this.columnLayouts.includes(l)) {
+      this.t.columns = columnsForLayout(l);
+    } else {
+      this.t.columns = undefined;
+    }
     if (l === 'image-strip') this.t.columns = 4;
     if (l === 'bento') this.t.columns = 4;
     // Reset layout-dependent settings so stale values from the previous layout

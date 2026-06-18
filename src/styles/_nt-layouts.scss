@@ -1563,6 +1563,7 @@
   display:flex; flex-wrap:wrap; align-items:center; align-content:center; justify-content:center;
 }
 .nt-home .cards.shape.shape-hex .card.shape-hexagon {
+  flex: 0 0 auto;
   margin:calc(var(--nt-vh)*0.8) calc(var(--card-gap, calc(var(--nt-vw)*1.5)) * 0.12);
 }
 .nt-home .cards.shape.shape-hex.align-left   { justify-content:flex-start; }
