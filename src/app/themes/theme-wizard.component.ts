@@ -91,6 +91,14 @@ export class ThemeWizardComponent implements OnInit {
   /** Text-position applies to every content with a label (all except image-only),
    *  and to hero-start (it positions the hero copy). */
   get showTextPos(): boolean { return this.t.homeLayout === 'hero-start' || this.t.cardContent !== 'image-only'; }
+  /** Text overlay only makes sense for image-text content when the text is
+   *  positioned on top of the image (overlay-top, overlay-bottom, center).
+   *  For 'above'/'below' positions text is outside the image, and for
+   *  non-image content types there is no image to overlay on. */
+  private readonly overlayPositions: CardTextPos[] = ['overlay-top', 'overlay-bottom', 'center'];
+  get overlayRelevant(): boolean {
+    return this.t.cardContent === 'image-text' && this.overlayPositions.includes(this.t.cardTextPos);
+  }
   /** 'Below' only makes sense when there is an image to sit below — hidden for
    *  every text-style content, and for arrangements with no under-card area
    *  (image-strip, hero-start). Centralized so every QA scenario goes through
@@ -124,6 +132,10 @@ export class ThemeWizardComponent implements OnInit {
   }
   pickContent(c: CardContent): void { this.t.cardContent = c; this.coerceTextPos(); }
   pickInterContent(c: 'image-text' | 'text-only'): void { this.t.intermediate.content = c; this.coerceTextPos(); }
+  pickInterStyle(s: IntermediateStyle): void {
+    this.t.intermediateStyle = s;
+    if (s === 'side-rail') this.t.intermediate.align = 'left';
+  }
 
   /** Layouts where circle/hexagon shapes don't render well and are hidden.
    *  h-scroll DOES support all shapes (handled inside the rail), hero-list does NOT. */
@@ -198,7 +210,7 @@ export class ThemeWizardComponent implements OnInit {
   ];
   /** Alignment is a no-op for styles whose items always fill the row. */
   get intAlignMatters(): boolean {
-    return !['fullscreen', 'accordion', 'scroll-list', 'drill-stair'].includes(this.t.intermediateStyle);
+    return !['fullscreen', 'accordion', 'scroll-list', 'drill-stair', 'side-rail'].includes(this.t.intermediateStyle);
   }
   /** Intermediate text-position applies to these styles. */
   get intTextPosMatters(): boolean {
@@ -229,6 +241,13 @@ export class ThemeWizardComponent implements OnInit {
   }
   /** Effective count shown in the stepper: override, else derived from the layout. */
   get effectiveColumns(): number { return this.t.columns ?? columnsForLayout(this.t.homeLayout); }
+  get computedColumns(): number {
+    const c = this.effectiveColumns;
+    if (this.t.homeLayout === 'bento') {
+      return Math.max(2, 1 + Math.ceil((c - 1) / 2));
+    }
+    return c;
+  }
   stepColumns(delta: number): void {
     const next = Math.min(this.maxColumns, Math.max(this.minColumns, this.effectiveColumns + delta));
     this.t.columns = next;
@@ -264,7 +283,7 @@ export class ThemeWizardComponent implements OnInit {
   /** Dynamic card size max: more columns → less room to scale up.
    *  Also accounts for gap eating into available width. */
   get cardSizeMax(): number {
-    const cols = this.effectiveColumns;
+    const cols = this.computedColumns;
     const gap = this.cardGapValue;
     // Base max shrinks as columns grow; gap further reduces headroom.
     return Math.max(0.9, 1.25 - (cols - 3) * 0.06 - gap * 0.005);
@@ -479,7 +498,6 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'bottom-right', label: 'Bottom right' },
   ];
   sizes: Array<'small' | 'medium' | 'large'> = ['small', 'medium', 'large'];
-  pathStyles: Array<'dashed' | 'solid' | 'dotted' | 'animated'> = ['dashed', 'solid', 'dotted', 'animated'];
   saverModes = ['slideshow', 'single-image', 'video'];
 
   /** Gradient presets offered for card-area and card backgrounds (A4/A5). The

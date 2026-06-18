@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import type { ThemeTokens, CardItem, ResultProduct, Screensaver } from '@contract/layout';
@@ -44,6 +44,11 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-card]="theme?.cardBackground"
            [style.--nt-text]="theme?.cardText"
            [style.--nt-overlay]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
+           [style.--prev-scale]="scaleNum"
+           [style.--prev-accent]="theme?.accent"
+           [style.--prev-card]="theme?.cardBackground"
+           [style.--prev-text]="theme?.cardText"
+           [style.--prev-overlay]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
            [style.--nt-int-card]="theme?.intermediate?.cardBackground"
            [style.--nt-int-accent]="theme?.intermediate?.accent"
            [style.--nt-int-text]="theme?.intermediate?.cardText"
@@ -96,7 +101,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
         <!-- HOME (LCD markup: .cards.layout-*) -->
         <div *ngSwitchCase="'home'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} valign-{{theme?.cardVAlign||'middle'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
-             [class.has-cols]="theme?.columns !== undefined" [style.--cols]="theme?.columns" [style.--card-gap]="cardGapPx"
+             [class.has-cols]="cols !== undefined" [style.--cols]="cols" [style.--card-gap]="cardGapPx"
              [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [class.no-overlay]="theme?.cardTextOverlay === false">
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
             <span>{{ titleText || 'Product Finder' }}</span>
@@ -170,6 +175,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           </ng-container>
           <ng-template #flatInter>
+            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediateStyle==='side-rail' ? 'left' : (theme?.intermediate?.align||'center')}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}}"
+                 [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'">
             <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediate?.align||'center'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}}"
                  [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [style.--int-cols]="theme?.intermediate?.columns || 3">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0">
@@ -187,7 +194,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="scol">
               <div class="scol-label">Category</div>
               <div class="scol-items">
-                <div class="scol-item" *ngFor="let p of resultCells; let i = index" [class.picked]="i===0">{{ p.name }}</div>
+                <div class="scol-item" *ngFor="let p of resultCells; let i = index" [class.picked]="isFound(i)" (click)="selectResult(i)">{{ p.name }}</div>
               </div>
             </div>
             <div class="scol scol-result">
@@ -203,7 +210,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <div class="body stair" *ngIf="resTpl==='drill-filter'">
             <div class="scol">
               <div class="scol-items">
-                <div class="scol-item" *ngFor="let p of resultCells.slice(0,3); let i = index" [class.picked]="i===0">{{ p.name }}</div>
+                <div class="scol-item" *ngFor="let p of resultCells.slice(0,3); let i = index" [class.picked]="isFound(i)" (click)="selectResult(i)">{{ p.name }}</div>
               </div>
             </div>
             <div class="scol scol-flist">
@@ -212,7 +219,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 <div class="ftab">Alphabetic</div>
               </div>
               <div class="filter-list">
-                <div class="fitem" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+                <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                   <span class="fnum">{{ i + 1 }}</span>
                   <div class="finfo">
                     <div class="fnm">{{ p.name }}</div>
@@ -229,7 +236,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <div class="ftab">Alphabetical</div>
             </div>
             <div class="filter-list">
-              <div class="fitem" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+                <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                 <span class="fnum">{{ i + 1 }}</span>
                 <div class="finfo">
                   <div class="fnm">{{ p.name }}</div>
@@ -241,15 +248,14 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- map-filter-list -->
           <div class="body map-filter-body" *ngIf="resTpl==='map-filter-list'">
             <div class="map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
-              <div class="route route-{{theme?.result?.pathStyle}}"></div>
-              <div class="marker" [style.top]="markerTop" [style.left]="markerLeft"></div>
+              <div class="marker" *ngIf="markerVisible" [style.top]="markerTop" [style.left]="markerLeft" [style.background]="markerColor"></div>
             </div>
             <div class="filter-rail">
               <div class="ftab active">Popular</div>
               <div class="ftab">Alphabetical</div>
             </div>
             <div class="filter-list">
-              <div class="fitem" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+              <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                 <span class="fnum">{{ i + 1 }}</span>
                 <div class="finfo">
                   <div class="fnm">{{ p.name }}</div>
@@ -268,7 +274,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 <div class="ftab active">Popular</div>
                 <div class="ftab">Alphabetical</div>
               </div>
-              <div class="prod" [class.found]="i===0" *ngFor="let p of resultCells.slice(0,5); let i = index">
+              <div class="prod" [class.found]="isFound(i)" *ngFor="let p of resultCells.slice(0,5); let i = index" (click)="selectResult(i)">
                 <div class="info">
                   <div class="nm">{{ p.name }}<span class="price" *ngIf="p.price"> · {{ p.price }}</span></div>
                   <div class="loc" *ngIf="p.aisle">ZONE {{ p.aisle }}</div>
@@ -290,7 +296,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             </div>
             <div class="focus-image" *ngIf="found?.image" [style.background-image]="'url('+found?.image+')'" [style.background-size]="fitSize(found?.imageFit)" [style.background-repeat]="found?.imageFit ? 'no-repeat' : null"></div>
             <div class="focus-list">
-              <div class="mini" *ngFor="let p of resultCells.slice(0,4); let i = index" [class.found]="i===0">{{ p.name }}</div>
+              <div class="mini" *ngFor="let p of resultCells.slice(0,4); let i = index" [class.found]="isFound(i)" (click)="selectResult(i)">{{ p.name }}</div>
             </div>
           </div>
           <!-- hero-product -->
@@ -321,7 +327,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 <div class="ftab">Alphabetical</div>
               </div>
               <div class="shelf-prods">
-                <div class="sprod" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+                <div class="sprod" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                   <div class="s-img" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)"></div>
                   <div class="s-nm">{{ p.name }}</div>
                   <div class="s-price" *ngIf="p.price">{{ p.price }}</div>
@@ -381,11 +387,10 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- default: map + list -->
           <div class="body" *ngIf="!specialResult">
             <div class="map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
-              <div class="route route-{{theme?.result?.pathStyle}}"></div>
-              <div class="marker" [style.top]="markerTop" [style.left]="markerLeft"></div>
+              <div class="marker" *ngIf="markerVisible" [style.top]="markerTop" [style.left]="markerLeft" [style.background]="markerColor"></div>
             </div>
             <div class="list">
-              <div class="prod" [class.found]="i===0" *ngFor="let p of resultCells; let i = index">
+              <div class="prod" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                 <div class="img" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="info">
                   <div class="nm">{{ p.name }}<span class="price" *ngIf="p.price"> · {{ p.price }}</span></div>
@@ -481,6 +486,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   /** Set false to hide the caption text under the preview. */
   @Input() showStripCaption = true;
   @Input() draftName?: string;
+  /** Product index highlighted on map/result previews. If absent, preview clicks own it. */
+  @Input() selectedResultIndex?: number;
+  @Output() selectedResultIndexChange = new EventEmitter<number>();
 
   @ViewChild('ntStage') ntStage?: ElementRef<HTMLElement>;
   private resizeObserver?: { disconnect(): void };
@@ -507,7 +515,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   private static readonly PH_FILLS = ['%2386EFAC', '%23FDE68A', '%23FCA5A5', '%23A5B4FC', '%2367E8F9', '%23F9A8D4'];
   phImg(i: number): string {
     const c = ContentPreviewStripComponent.PH_FILLS[i % ContentPreviewStripComponent.PH_FILLS.length];
-    return `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'><rect width='160' height='100' fill='${c}'/><polygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/></svg>")`;
+    return `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'%3E%3Crect width='160' height='100' fill='${c}'/%3E%3Cpolygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/%3E%3C/svg%3E")`;
   }
 
   /* ===== Stage units: --nt-vw/--nt-vh/--nt-vmin in px from the measured stage width.
@@ -614,7 +622,19 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       zone: p.zone || zones[i % zones.length],
     } as ResultProduct));
   }
-  get found(): ResultProduct | undefined { return this.resultCells[0]; }
+  private localResultIndex = 0;
+  get activeResultIndex(): number {
+    const n = this.resultCells.length;
+    const raw = this.selectedResultIndex ?? this.localResultIndex;
+    if (!n || !Number.isFinite(raw)) return 0;
+    return Math.max(0, Math.min(n - 1, Math.trunc(raw)));
+  }
+  get found(): ResultProduct | undefined { return this.resultCells[this.activeResultIndex]; }
+  isFound(i: number): boolean { return i === this.activeResultIndex; }
+  selectResult(i: number): void {
+    this.localResultIndex = i;
+    this.selectedResultIndexChange.emit(i);
+  }
 
   get scaleNum(): number {
     // Fine-grained slider value overrides the textScale bucket when present.
@@ -625,6 +645,14 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   /* Per-element typography + nav-button vars — same derivation as the LCD
      layout.service injectTheme(), so preview and kiosk render identically. */
+  get cols(): number | undefined {
+    const l = this.theme?.homeLayout, c = this.theme?.columns;
+    if (l === 'bento') {
+      const itemCount = this.homeCells.length;
+      return Math.max(2, 1 + Math.ceil((itemCount - 1) / 2));
+    }
+    return c;
+  }
   get cardSizeScaleNum(): number { const n = this.theme?.cardSizeScale; return typeof n === 'number' && n > 0 ? n : 1; }
   get cardAlignCss(): string { return this.theme?.cardTextAlign === 'left' ? 'left' : this.theme?.cardTextAlign === 'right' ? 'right' : 'center'; }
   get cardGapPx(): string | null {
@@ -799,9 +827,6 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     if (r?.kind === 'dot' && r.x != null) return r.x + '%';
     const f = this.found; return (f && f.mapX != null ? f.mapX : 25) + '%';
   }
-  /* Route annotation (ResultContent.route) — mirrors LCD ResultComponent. */
-  get routeColor(): string | undefined { return this.result?.route?.color || this.theme?.result?.pathColor; }
-  get routeX(): string | null { const v = this.result?.route?.x; return v != null ? v + '%' : null; }
-  get routeY(): string | null { const v = this.result?.route?.y; return v != null ? v + '%' : null; }
-  get routeW(): string | null { const v = this.result?.route?.w; return v != null ? v + '%' : null; }
+  get markerVisible(): boolean { return this.result?.route?.kind !== 'none'; }
+  get markerColor(): string | undefined { return this.result?.route?.color || this.theme?.result?.pathColor || this.theme?.result?.accent; }
 }
