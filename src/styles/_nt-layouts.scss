@@ -1161,7 +1161,7 @@
 .nt-inter .int-center-tiles .item .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1.55); font-weight:900; line-height:1.15; }
 
 /* side-rail: sticky left rail + large cards */
-.nt-inter .int-side-rail { display:flex; padding:0; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden;
+.nt-inter .int-side-rail { display:flex; justify-content:flex-start; align-items:stretch; padding:0; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden;
   -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; }
 .nt-inter .int-side-rail .item { flex-shrink:0; }
 .nt-inter .int-side-rail::before {
@@ -1169,7 +1169,7 @@
   background:linear-gradient(rgba(0,0,0,.62),rgba(0,0,0,.68));
   border-right:1px solid rgba(255,255,255,.12);
 }
-.nt-inter .int-side-rail .item { flex:0 0 16%; height:64%; margin:auto calc(var(--nt-vw)*1); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+.nt-inter .int-side-rail .item { flex:0 0 16%; height:64%; align-self:center; margin:0 calc(var(--nt-vw)*1); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
 .nt-inter .int-side-rail .item .img { width:70%; height:48%; margin:0 0 calc(var(--nt-vh)*1); background-size:contain; background-repeat:no-repeat; }
 .nt-inter .int-side-rail .item .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1); font-weight:900; line-height:1.12; text-align:center; white-space:normal; overflow-wrap:break-word; }
 
