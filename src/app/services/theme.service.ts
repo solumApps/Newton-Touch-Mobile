@@ -185,7 +185,7 @@ export class ThemeService {
     // Optional fine-grained text multiplier (slider) — clamp to a sane range.
     const tsn = Number(out.typography.textScaleNum);
     out.typography.textScaleNum = out.typography.textScaleNum !== undefined && Number.isFinite(tsn)
-      ? Math.min(1.6, Math.max(0.7, tsn)) : undefined;
+      ? Math.min(2.0, Math.max(0.7, tsn)) : undefined;
     // Optional fine-grained card-size multiplier (slider).
     const csn = Number(out.cardSizeScale);
     out.cardSizeScale = out.cardSizeScale !== undefined && Number.isFinite(csn)

@@ -263,7 +263,7 @@ export class ThemeWizardComponent implements OnInit {
     return this.t.typography.textScale === 'compact' ? 0.8 : this.t.typography.textScale === 'large' ? 1.25 : 1;
   }
   setTextScale(v: string | number): void {
-    const n = Math.min(1.6, Math.max(0.7, Number(v)));
+    const n = Math.min(2.0, Math.max(0.7, Number(v)));
     this.t.typography.textScaleNum = n;
     this.t.typography.textScale = n < 0.95 ? 'compact' : n > 1.12 ? 'large' : 'normal';
   }
