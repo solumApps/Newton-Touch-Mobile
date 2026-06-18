@@ -173,10 +173,9 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               </div>
             </div>
           </div>
+          </ng-container>
           <ng-template #flatInter>
             <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediateStyle==='side-rail' ? 'left' : (theme?.intermediate?.align||'center')}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}}"
-                 [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'">
-            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediate?.align||'center'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}}"
                  [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [style.--int-cols]="theme?.intermediate?.columns || 3">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0">
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
@@ -184,7 +183,6 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               </div>
             </div>
           </ng-template>
-          </ng-container>
         </ng-container>
 
         <!-- RESULT (LCD markup: res-* class on the stage, .body variants inside) -->
@@ -829,4 +827,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   get markerVisible(): boolean { return this.result?.route?.kind !== 'none'; }
   get markerColor(): string | undefined { return this.result?.route?.color || this.theme?.result?.pathColor || this.theme?.result?.accent; }
+  /* Route annotation (ResultContent.route) — mirrors LCD ResultComponent. */
+  get routeColor(): string | undefined { return this.result?.route?.color || this.theme?.result?.pathColor; }
+  get routeX(): string | null { const v = this.result?.route?.x; return v != null ? v + '%' : null; }
+  get routeY(): string | null { const v = this.result?.route?.y; return v != null ? v + '%' : null; }
+  get routeW(): string | null { const v = this.result?.route?.w; return v != null ? v + '%' : null; }
 }

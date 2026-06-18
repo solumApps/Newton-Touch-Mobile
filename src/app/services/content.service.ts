@@ -39,6 +39,13 @@ export interface ContentDraft {
   /** Prototype+ESL LED blink appearance: colour (hex) + duration in seconds. */
   ledColour?: string;
   ledDuration?: string;
+  /** Per-content text/data for template sections (moved OUT of the theme so the
+   *  theme stays style-only). Merged into the deployed theme at buildPayload. */
+  templateData?: {
+    floors?: string[]; youAreHereLabel?: string; timerSeconds?: number;       // promo-map-rank
+    breadcrumbLabels?: string[]; findItLabel?: string; findAllLabel?: string; heroImage?: string; // finder-detail
+    promptPrefix?: string; stepLabels?: string[];                              // finder-select
+  };
   screensaver: Screensaver;
   /** Per-deploy header content — fields shown depend on theme.headerStyle. */
   header?: { title?: string; caption?: string; logo?: string };
@@ -224,11 +231,27 @@ export class ContentService {
       products: (r?.products || []).map((p) => ({ ...p, mapX: clampPct(p.mapX), mapY: clampPct(p.mapY) })),
     });
     const result: ResultContent = clampResult(d.result);
+    // Merge per-content template text/data into a CLONED theme (theme itself stays
+    // style-only and gets overwritten on re-sync, so the data lives on the draft).
+    const theme: ThemeTokens = { ...d.themeTokens, result: { ...d.themeTokens.result }, intermediate: { ...d.themeTokens.intermediate } };
+    const td = d.templateData;
+    if (td) {
+      const r: any = theme.result, im: any = theme.intermediate;
+      if (td.floors) r.floors = td.floors;
+      if (td.youAreHereLabel != null) r.youAreHereLabel = td.youAreHereLabel;
+      if (td.timerSeconds != null) r.timerSeconds = td.timerSeconds;
+      if (td.breadcrumbLabels) r.breadcrumbLabels = td.breadcrumbLabels;
+      if (td.findItLabel != null) r.findItLabel = td.findItLabel;
+      if (td.findAllLabel != null) r.findAllLabel = td.findAllLabel;
+      if (td.heroImage != null) r.heroImage = td.heroImage;
+      if (td.promptPrefix != null) im.promptPrefix = td.promptPrefix;
+      if (td.stepLabels) im.stepLabels = td.stepLabels;
+    }
     const payload: LayoutJson = {
       schemaVersion: 1,
       contentName: d.name,
       appMode: d.appMode,
-      theme: d.themeTokens,
+      theme,
       home: d.home,
       intermediate: d.intermediate,
       result,

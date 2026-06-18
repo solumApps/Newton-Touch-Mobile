@@ -487,8 +487,7 @@
 
         <ng-container *ngIf="t.intermediateStyle==='finder-select'">
           <div class="step-title sm">Finder options</div>
-          <input class="inp" placeholder="Prompt prefix (e.g. TOUCH YOUR)" [(ngModel)]="t.intermediate.promptPrefix" />
-          <input class="inp" placeholder="Step labels (comma e.g. Manufacturer,Model,Year)" [ngModel]="intStepsCsv" (ngModelChange)="intStepsCsv=$event" />
+          <p class="hint">Prompt text and step labels are entered in Content creation.</p>
           <div class="step-title sm">Index strip</div>
           <div class="seg">
             <button class="tile" *ngFor="let m of indexModes" [class.sel]="(t.intermediate.indexStrip||'auto')===m" (click)="t.intermediate.indexStrip=$any(m)">{{ m }}</button>
@@ -691,9 +690,7 @@
             <button class="tile" [class.sel]="t.result.showSortTabs!==false" (click)="t.result.showSortTabs=!(t.result.showSortTabs!==false)">Sort tabs</button>
             <button class="tile" [class.sel]="t.result.showZone!==false" (click)="t.result.showZone=!(t.result.showZone!==false)">Zone</button>
           </div>
-          <div class="slider-row" *ngIf="t.result.showTimer"><span class="slider-lbl">Timer (sec)</span><input class="inp cols-inp" type="number" min="0" max="36000" [ngModel]="t.result.timerSeconds ?? 1553" (ngModelChange)="t.result.timerSeconds=+$event" /></div>
-          <input class="inp" placeholder="Floors (comma e.g. 3F,2F,1F)" [ngModel]="floorsCsv" (ngModelChange)="floorsCsv=$event" />
-          <input class="inp" placeholder="'You are here' label" [(ngModel)]="t.result.youAreHereLabel" />
+          <p class="hint">Timer value, floor labels and the "you are here" label are entered in Content creation.</p>
           <app-color-picker label="Promo panel" [value]="t.result.panelColor || '#3a3a38'" (valueChange)="t.result.panelColor=$event"></app-color-picker>
           <app-color-picker label="Sub-category panel" [value]="t.result.subPanelColor || '#5f5e5a'" (valueChange)="t.result.subPanelColor=$event"></app-color-picker>
           <app-color-picker label="Map pin" [value]="t.result.pinColor || '#7f77dd'" (valueChange)="t.result.pinColor=$event"></app-color-picker>
@@ -712,11 +709,7 @@
           <div class="seg">
             <button class="tile" [class.sel]="t.result.showSaleBadge!==false" (click)="t.result.showSaleBadge=!(t.result.showSaleBadge!==false)">SALE badge</button>
           </div>
-          <input class="inp" placeholder="Breadcrumb labels (comma e.g. Manufacturer,Model,Year)" [ngModel]="breadcrumbCsv" (ngModelChange)="breadcrumbCsv=$event" />
-          <div class="prow">
-            <input class="inp" placeholder="Find It label" [(ngModel)]="t.result.findItLabel" />
-            <input class="inp" placeholder="Find All label" [(ngModel)]="t.result.findAllLabel" />
-          </div>
+          <p class="hint">Breadcrumb labels and Find It / Find All button text are entered in Content creation.</p>
           <app-color-picker label="Find button" [value]="t.result.findColor || '#1d3a66'" (valueChange)="t.result.findColor=$event"></app-color-picker>
           <app-color-picker label="Hero accent" [value]="t.result.accent" (valueChange)="t.result.accent=$event"></app-color-picker>
           <app-color-picker label="List background" [value]="t.result.listBg || '#f3f3ef'" (valueChange)="t.result.listBg=$event"></app-color-picker>
