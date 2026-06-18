@@ -168,6 +168,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               </div>
             </div>
           </div>
+          </ng-container>
           <ng-template #flatInter>
             <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediate?.align||'center'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}}"
                  [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [style.--int-cols]="theme?.intermediate?.columns || 3">
@@ -177,7 +178,6 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               </div>
             </div>
           </ng-template>
-          </ng-container>
         </ng-container>
 
         <!-- RESULT (LCD markup: res-* class on the stage, .body variants inside) -->
