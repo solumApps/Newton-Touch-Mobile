@@ -337,6 +337,15 @@
         <div class="sec"><span>ESL blink by</span></div>
         <app-select-field placeholder="Blink by" [options]="eslByOpts"
           [value]="d.eslBlinkBy || 'article'" (valueChange)="setEslBy($any($event))"></app-select-field>
+
+        <div class="sec"><span>LED blink appearance</span></div>
+        <app-color-picker label="LED colour" [allowTransparent]="false"
+          [value]="ledColourHex" [presets]="ledPresets"
+          (valueChange)="setLedColour($event)"></app-color-picker>
+        <div class="sec"><span>Blink duration (seconds)</span></div>
+        <input class="inp" type="number" min="0" max="600"
+          [ngModel]="d.ledDuration || '10'" (ngModelChange)="setLedDuration($event)"
+          placeholder="Duration in seconds (e.g. 10)" />
       </ng-container>
     </div>
 

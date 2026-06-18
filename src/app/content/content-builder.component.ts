@@ -556,6 +556,21 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   }
   setEslBy(v: 'article' | 'label'): void { this.draft!.eslBlinkBy = v; this.save(); }
 
+  /** Preset LED colours (the SOLUM tags support solid colours). */
+  ledPresets: string[] = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#00FFFF', '#FF00FF', '#FFA500', '#FFFFFF'];
+  /** Current LED colour as a #RRGGBB value for the picker (default red). */
+  get ledColourHex(): string {
+    const c = this.draft?.ledColour || 'FF0000';
+    return c.startsWith('#') ? c : '#' + c;
+  }
+  setLedColour(v: string): void { if (this.draft) { this.draft.ledColour = v; this.save(); } }
+  setLedDuration(v: string): void {
+    if (!this.draft) return;
+    const n = Math.max(0, Math.min(600, Math.round(Number(v) || 0)));
+    this.draft.ledDuration = String(n);
+    this.save();
+  }
+
   /** True while a save is in flight — drives the blocking saving overlay. */
   saving = false;
   /** Brief "Saved ✓" confirmation on the header Save button. */

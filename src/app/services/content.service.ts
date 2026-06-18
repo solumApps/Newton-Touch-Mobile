@@ -36,6 +36,9 @@ export interface ContentDraft {
   itemResults?: { [cardId: string]: ResultContent };
   eslLinks?: EslLink[];
   eslBlinkBy?: EslBlinkBy;
+  /** Prototype+ESL LED blink appearance: colour (hex) + duration in seconds. */
+  ledColour?: string;
+  ledDuration?: string;
   screensaver: Screensaver;
   /** Per-deploy header content — fields shown depend on theme.headerStyle. */
   header?: { title?: string; caption?: string; logo?: string };

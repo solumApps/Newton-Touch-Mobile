@@ -8,6 +8,7 @@ import { ContentService, ContentDraft } from '../services/content.service';
 import { DeviceService } from '../services/device.service';
 import { TransferService, FoundDevice } from '../services/transfer.service';
 import { WorkspaceService } from '../services/workspace.service';
+import { SessionService } from '../services/session.service';
 import type { LayoutJson, CardItem } from '@contract/layout';
 
 @Component({
@@ -45,6 +46,7 @@ export class DeployComponent implements OnInit, OnDestroy {
     private deviceSvc: DeviceService,
     private transfer: TransferService,
     private workspace: WorkspaceService,
+    private session: SessionService,
     private route: ActivatedRoute,
     private router: Router,
   ) {}
@@ -312,7 +314,8 @@ export class DeployComponent implements OnInit, OnDestroy {
         const creds = await this.workspace.creds();
         const w = await this.workspace.get();
         if (creds) {
-          const serverConfig = JSON.stringify({ kind: 'serverConfig', serverUrl: creds.serverUrl, token: creds.token, companyId: creds.companyId, storeId: creds.storeId, ledColour: 'red', ledDuration: '10', environment: w.environment });
+          const refreshToken = await this.session.getRefreshToken();
+          const serverConfig = JSON.stringify({ kind: 'serverConfig', serverUrl: creds.serverUrl, token: creds.token, refreshToken, username: creds.username, companyId: creds.companyId, storeId: creds.storeId, ledColour: this.draft.ledColour || 'FF0000', ledDuration: this.draft.ledDuration || '10', environment: w.environment });
           try { await this.transfer.send(this.targetHost, this.targetPort, serverConfig, () => {}); await this.sleep(this.SEND_DELAY_MS); } catch { /* non-fatal */ }
         }
       }
