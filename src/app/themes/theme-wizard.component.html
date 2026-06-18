@@ -423,8 +423,6 @@
         <div class="seg"><button class="tile" *ngFor="let s of elementScales" [class.sel]="t.typography.headerTextScale===s.id" (click)="t.typography.headerTextScale=s.id">{{ s.label }}</button></div>
         <div class="step-title sm">Header text case</div>
         <div class="seg"><button class="tile" *ngFor="let c of textCases" [class.sel]="(t.typography.headerTextCase||'default')===c.id" (click)="t.typography.headerTextCase=c.id">{{ c.label }}</button></div>
-
-        <app-color-picker label="Base text color" [value]="t.typography.baseTextColor" (valueChange)="t.typography.baseTextColor=$event" [presets]="textPresets"></app-color-picker>
       </div>
 
       <div *ngSwitchCase="'intStyle'">
