@@ -480,6 +480,30 @@
         <p class="hint">How sub-categories are arranged on the drill-down screen.</p>
         <div class="tiles"><button class="tile" *ngFor="let o of intStyles" [class.sel]="t.intermediateStyle===o" (click)="t.intermediateStyle=o">{{ intStyleLabel(o) }}</button></div>
 
+        <ng-container *ngIf="intColumnsMatters">
+          <div class="step-title sm">Columns</div>
+          <p class="hint">How many sub-category cards per row.</p>
+          <div class="slider-row">
+            <input type="range" class="nt-slider" min="2" max="6" step="1" [value]="intColumnsValue" (input)="setIntColumns(+$any($event.target).value)" aria-label="Intermediate columns" />
+            <span class="slider-val">{{ intColumnsValue }}</span>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="t.intermediateStyle==='finder-select'">
+          <div class="step-title sm">Finder options</div>
+          <input class="inp" placeholder="Prompt prefix (e.g. TOUCH YOUR)" [(ngModel)]="t.intermediate.promptPrefix" />
+          <input class="inp" placeholder="Step labels (comma e.g. Manufacturer,Model,Year)" [ngModel]="intStepsCsv" (ngModelChange)="intStepsCsv=$event" />
+          <div class="step-title sm">Index strip</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let m of indexModes" [class.sel]="(t.intermediate.indexStrip||'auto')===m" (click)="t.intermediate.indexStrip=$any(m)">{{ m }}</button>
+          </div>
+          <div class="seg">
+            <button class="tile" [class.sel]="t.intermediate.showBack!==false" (click)="t.intermediate.showBack=!(t.intermediate.showBack!==false)">Back arrow</button>
+            <button class="tile" [class.sel]="t.intermediate.showPrompt!==false" (click)="t.intermediate.showPrompt=!(t.intermediate.showPrompt!==false)">Prompt</button>
+          </div>
+          <app-color-picker label="Hero panel" [value]="t.intermediate.heroColor || '#23262b'" (valueChange)="t.intermediate.heroColor=$event"></app-color-picker>
+        </ng-container>
+
         <ng-container *ngIf="t.intermediateStyle==='fullscreen'">
           <div class="step-title sm">Carousel scrolling</div>
           <p class="hint">How full-screen items advance when there's more than one.</p>

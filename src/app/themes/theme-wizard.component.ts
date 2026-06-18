@@ -202,7 +202,7 @@ export class ThemeWizardComponent implements OnInit {
   }
   /** Intermediate text-position applies to these styles. */
   get intTextPosMatters(): boolean {
-    return ['image-grid', 'card-strip', 'circular', 'hex-grid', 'fullscreen', 'center-tiles'].includes(this.t.intermediateStyle);
+    return ['columns', 'card-strip', 'circular', 'hex-grid', 'fullscreen'].includes(this.t.intermediateStyle);
   }
   get isImageStrip(): boolean { return this.t.homeLayout === 'image-strip'; }
   /** Card size: hidden where cards always fill the screen (fullscreen, strips). */
@@ -361,17 +361,26 @@ export class ThemeWizardComponent implements OnInit {
   // choosing a base style (e.g. Image grid) and selecting the Circle/Hexagon
   // Card shape, instead of being separate layout styles. Enums + CSS retained so
   // existing themes that use them still render.
-  intStyles: IntermediateStyle[] = ['pill-tabs', 'image-grid', 'card-strip', 'fullscreen', 'center-tiles', 'side-rail', 'brand-grid', 'brand-rail', 'drill-stair'];
+  intStyles: IntermediateStyle[] = ['columns', 'card-strip', 'fullscreen', 'side-rail', 'brand-grid', 'brand-rail', 'drill-stair', 'finder-select'];
   intStyleLabels: Partial<Record<IntermediateStyle, string>> = {
-    'pill-tabs': 'Pills', 'image-grid': 'Image grid', 'hex-grid': 'Hex grid', 'circular': 'Circular',
-    'card-strip': 'Card strip', 'center-tiles': 'Center tiles',
+    'columns': 'Columns', 'hex-grid': 'Hex grid', 'circular': 'Circular',
+    'card-strip': 'Card strip',
     'side-rail': 'Side rail', 'brand-grid': 'Brand grid', 'brand-rail': 'Brand rail', 'drill-stair': 'Drill stair',
+    'finder-select': 'Finder select',
   };
   intStyleLabel(s: IntermediateStyle): string { return this.intStyleLabels[s] || s; }
   /** Card shape only affects intermediate styles that show a per-item image. */
   get intShapeMatters(): boolean {
-    return ['image-grid', 'card-strip', 'side-rail', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle);
+    return ['columns', 'card-strip', 'side-rail', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle);
   }
+  /** finder-select index-strip modes + step-label CSV binding. */
+  indexModes = ['auto', 'alpha', 'values', 'off'];
+  get intStepsCsv(): string { return (this.t.intermediate.stepLabels || []).join(','); }
+  set intStepsCsv(v: string) { this.t.intermediate.stepLabels = v.split(',').map((s) => s.trim()).filter(Boolean); }
+  /** Intermediate 'columns' style exposes a column-count slider (like Home). */
+  get intColumnsMatters(): boolean { return this.t.intermediateStyle === 'columns'; }
+  get intColumnsValue(): number { return this.t.intermediate.columns || 3; }
+  setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(2, Math.min(6, Math.round(n))); }
   /** Selectable templates — split-panel / esl-focus (map-width variants of
    *  map-list) and dual-list (2-col list-only) are hidden as near-duplicates;
    *  old themes using them still render (enum + CSS retained). */
