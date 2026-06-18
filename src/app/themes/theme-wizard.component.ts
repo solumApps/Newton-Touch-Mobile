@@ -229,6 +229,13 @@ export class ThemeWizardComponent implements OnInit {
   }
   /** Effective count shown in the stepper: override, else derived from the layout. */
   get effectiveColumns(): number { return this.t.columns ?? columnsForLayout(this.t.homeLayout); }
+  get computedColumns(): number {
+    const c = this.effectiveColumns;
+    if (this.t.homeLayout === 'bento') {
+      return Math.max(2, 1 + Math.ceil((c - 1) / 2));
+    }
+    return c;
+  }
   stepColumns(delta: number): void {
     const next = Math.min(this.maxColumns, Math.max(this.minColumns, this.effectiveColumns + delta));
     this.t.columns = next;
@@ -264,7 +271,7 @@ export class ThemeWizardComponent implements OnInit {
   /** Dynamic card size max: more columns → less room to scale up.
    *  Also accounts for gap eating into available width. */
   get cardSizeMax(): number {
-    const cols = this.effectiveColumns;
+    const cols = this.computedColumns;
     const gap = this.cardGapValue;
     // Base max shrinks as columns grow; gap further reduces headroom.
     return Math.max(0.9, 1.25 - (cols - 3) * 0.06 - gap * 0.005);
