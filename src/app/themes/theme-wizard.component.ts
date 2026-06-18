@@ -91,6 +91,14 @@ export class ThemeWizardComponent implements OnInit {
   /** Text-position applies to every content with a label (all except image-only),
    *  and to hero-start (it positions the hero copy). */
   get showTextPos(): boolean { return this.t.homeLayout === 'hero-start' || this.t.cardContent !== 'image-only'; }
+  /** Text overlay only makes sense for image-text content when the text is
+   *  positioned on top of the image (overlay-top, overlay-bottom, center).
+   *  For 'above'/'below' positions text is outside the image, and for
+   *  non-image content types there is no image to overlay on. */
+  private readonly overlayPositions: CardTextPos[] = ['overlay-top', 'overlay-bottom', 'center'];
+  get overlayRelevant(): boolean {
+    return this.t.cardContent === 'image-text' && this.overlayPositions.includes(this.t.cardTextPos);
+  }
   /** 'Below' only makes sense when there is an image to sit below — hidden for
    *  every text-style content, and for arrangements with no under-card area
    *  (image-strip, hero-start). Centralized so every QA scenario goes through

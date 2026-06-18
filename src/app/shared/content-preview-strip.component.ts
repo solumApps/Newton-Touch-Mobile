@@ -44,6 +44,11 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-card]="theme?.cardBackground"
            [style.--nt-text]="theme?.cardText"
            [style.--nt-overlay]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
+           [style.--prev-scale]="scaleNum"
+           [style.--prev-accent]="theme?.accent"
+           [style.--prev-card]="theme?.cardBackground"
+           [style.--prev-text]="theme?.cardText"
+           [style.--prev-overlay]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
            [style.--nt-int-card]="theme?.intermediate?.cardBackground"
            [style.--nt-int-accent]="theme?.intermediate?.accent"
            [style.--nt-int-text]="theme?.intermediate?.cardText"
@@ -431,7 +436,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   private static readonly PH_FILLS = ['%2386EFAC', '%23FDE68A', '%23FCA5A5', '%23A5B4FC', '%2367E8F9', '%23F9A8D4'];
   phImg(i: number): string {
     const c = ContentPreviewStripComponent.PH_FILLS[i % ContentPreviewStripComponent.PH_FILLS.length];
-    return `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'><rect width='160' height='100' fill='${c}'/><polygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/></svg>")`;
+    return `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'%3E%3Crect width='160' height='100' fill='${c}'/%3E%3Cpolygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/%3E%3C/svg%3E")`;
   }
 
   /* ===== Stage units: --nt-vw/--nt-vh/--nt-vmin in px from the measured stage width.

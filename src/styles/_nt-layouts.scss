@@ -443,6 +443,15 @@
 .nt-home .card.content-image-text.pos-overlay-bottom .name,
 .nt-home .card.content-image-text.pos-overlay-top .name { display:block; width:100%; max-width:100%; overflow:hidden; text-overflow:ellipsis; text-align:var(--nt-card-align, center); }
 .nt-home .card.content-image-text.pos-center .meta { position:absolute; left:0; right:0; top:0; bottom:0; width:auto; display:flex; align-items:center; justify-content:center; text-align:var(--nt-card-align, center); color:#fff; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6); }
+.nt-home .card.content-image-text.pos-center .name {
+  background: var(--nt-overlay, rgba(0,0,0,.6));
+  padding: calc(var(--nt-vh) * 0.45) calc(var(--nt-vw) * 1.2);
+  border-radius: 999px;
+  display: inline-block;
+  max-width: 90%;
+  box-sizing: border-box;
+}
+.nt-home .cards.no-overlay .card.content-image-text.pos-center .name { background: transparent !important; }
 .nt-home .card.shape-pill.content-image-text.pos-overlay-bottom .meta,
 .nt-home .card.shape-circle.content-image-text.pos-overlay-bottom .meta,
 .nt-home .card.shape-hexagon.content-image-text.pos-overlay-bottom .meta {

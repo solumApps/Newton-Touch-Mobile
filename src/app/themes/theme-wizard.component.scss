@@ -400,6 +400,14 @@
 .prev .stage .card.content-image-text.pos-overlay-bottom .meta { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(transparent, var(--prev-overlay, rgba(0,0,0,.6))); color: var(--prev-text, #fff); }
 .prev .stage .card.content-image-text.pos-overlay-top .meta { position: absolute; left: 0; right: 0; top: 0; background: linear-gradient(var(--prev-overlay, rgba(0,0,0,.6)), transparent); color: var(--prev-text, #fff); }
 .prev .stage .card.content-image-text.pos-center .meta { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--prev-text, #fff); text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.prev .stage .card.content-image-text.pos-center .name {
+  background: var(--prev-overlay, rgba(0,0,0,.52));
+  padding: 1px 6px;
+  border-radius: 999px;
+  display: inline-block;
+  max-width: 90%;
+  box-sizing: border-box;
+}
 /* below (non-shape): image on top, label beneath; image flexes so the label always fits.
    (base .card is already flex-column — do NOT re-set display here or it overrides the
    display:none that fullscreen/image-strip use to hide non-featured cards.) */
