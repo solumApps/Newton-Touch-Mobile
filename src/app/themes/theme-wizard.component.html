@@ -450,7 +450,7 @@
         <div class="step-title sm">Text size</div>
         <p class="hint">Drag to fine-tune the overall text size.</p>
         <div class="slider-row">
-          <input type="range" class="nt-slider" min="0.7" max="1.6" step="0.05" [value]="textScaleValue"
+          <input type="range" class="nt-slider" min="0.7" max="2.0" step="0.05" [value]="textScaleValue"
                  (input)="setTextScale($any($event.target).value)" aria-label="Text size" />
           <span class="slider-val">{{ (textScaleValue * 100) | number:'1.0-0' }}%</span>
         </div>
