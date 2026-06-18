@@ -171,8 +171,14 @@ export class DeployComponent implements OnInit, OnDestroy {
   /** Pause between sends so the LCD's LAN-transfer plugin can flush each file
    *  to disk before the next payload arrives — otherwise the receiver sometimes
    *  reads a 0-byte file on receiveComplete and the image is silently dropped. */
-  private readonly SEND_DELAY_MS = 350;
+  private readonly SEND_DELAY_MS = 450;
   private sleep(ms: number): Promise<void> { return new Promise((r) => setTimeout(r, ms)); }
+  /** Throttle that scales with payload size — big images (e.g. 100KB+) need more
+   *  time for the receiver to finish writing to disk before the next TCP connection
+   *  opens, otherwise the larger payload is dropped with a transfer error. */
+  private delayFor(charLen: number): number {
+    return Math.min(2000, this.SEND_DELAY_MS + Math.round(charLen / 350));
+  }
 
   /** Decoded (binary) size of a base64 data URI — sent alongside each image and in
    *  the layout's imageSizes map so the LCD can verify every file on disk. */
@@ -264,7 +270,7 @@ export class DeployComponent implements OnInit, OnDestroy {
             JSON.stringify({ kind: 'image', id: img.id, ext: img.ext, bytes: this.decodedBytes(img.data), data: img.data }));
           this.pushStep(`  ✓ ${img.id} sent`);
           this.percent = Math.round(((i + 1) / total) * 90);
-          await this.sleep(this.SEND_DELAY_MS);
+          await this.sleep(this.delayFor(img.data.length));
         }
         layoutJson = JSON.stringify(layout);
       } else {
@@ -289,10 +295,10 @@ export class DeployComponent implements OnInit, OnDestroy {
             JSON.stringify({ kind: 'image', id: img.id, ext: img.ext, bytes: this.decodedBytes(img.data), data: img.data }), () => {});
           this.pushStep(`  ✓ ${img.id} sent`);
           this.percent = Math.round(((i + 1) / total) * 90);
-          // CRITICAL: throttle so the receiver finishes flushing the previous
-          // file before we open a new TCP write. Without this, the plugin
-          // races and writes 0-byte files for some payloads.
-          await this.sleep(this.SEND_DELAY_MS);
+          // CRITICAL: throttle (scaled by size) so the receiver finishes flushing
+          // the previous file before we open a new TCP write. Without enough time,
+          // larger payloads are dropped with a transfer error.
+          await this.sleep(this.delayFor(img.data.length));
         }
         layoutJson = JSON.stringify(layout);
       }
