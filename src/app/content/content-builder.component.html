@@ -331,6 +331,38 @@
         <input class="inp" *ngIf="d.appMode === 'prototype-esl'"
           [ngModel]="eslId(p.id)" (ngModelChange)="setEslId(p.id, $event)"
           [placeholder]="(d.eslBlinkBy || 'article') === 'article' ? 'Article ID' : 'Label ID'" />
+
+        <!-- promo-map-rank: zone label shown in the ranked list -->
+        <input class="inp" *ngIf="isPromoRank" [(ngModel)]="p.zone" placeholder="Zone (e.g. Beverage)" />
+
+        <!-- finder-detail: description, sale, attribute grid, fitments -->
+        <ng-container *ngIf="isFinder">
+          <input class="inp" [(ngModel)]="p.description" placeholder="Description (right detail panel)" />
+          <div class="prow">
+            <input class="inp" [(ngModel)]="p.salePrice" placeholder="Sale price" />
+            <label class="chk"><input type="checkbox" [(ngModel)]="p.onSale" /> On sale</label>
+          </div>
+          <div class="sec sub"><span>Attributes</span><button class="mini" (click)="addSpec(p)">+ Attr</button></div>
+          <div class="prow" *ngFor="let s of p.specs; let si = index">
+            <input class="inp" [(ngModel)]="s.label" placeholder="Label (e.g. Color)" />
+            <input class="inp" [(ngModel)]="s.value" placeholder="Value (e.g. Black)" />
+            <button class="del" (click)="removeSpec(p, si)">✕</button>
+          </div>
+          <div class="sec sub"><span>Fitments — each is a Find It target</span><button class="mini" (click)="addFitment(p)">+ Fitment</button></div>
+          <div class="pcard" *ngFor="let f of p.fitments; let fi = index">
+            <div class="erow">
+              <div class="thumb" [style.background-image]="f.image ? 'url('+f.image+')' : null" (click)="pickFitImage(f)">{{ f.image ? '' : '📷' }}</div>
+              <input class="inp" [(ngModel)]="f.label" placeholder="Label (e.g. Driver Side)" />
+              <button class="del" (click)="removeFitment(p, fi)">✕</button>
+            </div>
+            <div class="prow">
+              <input class="inp" [(ngModel)]="f.name" placeholder="Sub-name (e.g. 26 inch)" />
+              <input class="inp" [(ngModel)]="f.price" placeholder="Price" />
+              <input class="inp" [(ngModel)]="f.salePrice" placeholder="Sale price" />
+            </div>
+            <input class="inp" [(ngModel)]="f.articleId" placeholder="Article ID (LED blink target)" />
+          </div>
+        </ng-container>
       </div>
 
       <ng-container *ngIf="d.appMode === 'prototype-esl'">

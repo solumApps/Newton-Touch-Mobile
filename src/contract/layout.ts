@@ -97,7 +97,17 @@ export type ResultTemplate =
   /** shelf: retail product shelf — side category image panel + horizontally
    *  scrolling product cards (image, name, price, zone) with filter tabs.
    *  Inspired by cosmetics/hair-care kiosk result screens. */
-  | 'shelf';
+  | 'shelf'
+  /** promo-map-rank: store wayfinding — left floor map (floor selector + "you are
+   *  here" pin + per-product dots) beside a dark promotion panel with optional
+   *  countdown timer, two-level category nav (primary pills + secondary list) and
+   *  a numbered/ranked product list with popular/alphabetical sort + zone. */
+  | 'promo-map-rank'
+  /** finder-detail: product finder — left hero with drill breadcrumb chips, a
+   *  middle sortable product list (attribute grid + sale price), and a right
+   *  detail panel with description, "Find All" + per-fitment "Find It" LED blink
+   *  (Driver/Passenger style). Inspired by the windshield-wiper finder kiosk. */
+  | 'finder-detail';
 
 export type TransitionType = 'fade-slide' | 'scale-up' | 'slide-left' | 'shimmer' | 'none';
 export type AnimSpeed = 'slow' | 'normal' | 'fast';
@@ -223,7 +233,26 @@ export interface ThemeTokens {
   intermediate: { headerColor: string; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; };
   result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; transparentHeader?: boolean; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; cardShape?: CardShape;
     /** Position of the filter section in Map-Filter-List (G-2). Default 'top'. */
-    filterPos?: 'top' | 'bottom' | 'left' | 'right'; };
+    filterPos?: 'top' | 'bottom' | 'left' | 'right';
+    /** promo-map-rank: header countdown timer (mm:ss start) + alert bell. */
+    showTimer?: boolean; timerSeconds?: number; showBell?: boolean;
+    /** promo-map-rank: floor selector labels (top→bottom), e.g. ['3F','2F','1F']. */
+    floors?: string[]; activeFloor?: string;
+    /** promo-map-rank: ranked numbers on/off, sort tabs on/off, show zone. */
+    showRanks?: boolean; showSortTabs?: boolean; showZone?: boolean;
+    /** promo-map-rank: "you are here" pin label + colour, map dot colour. */
+    youAreHereLabel?: string; pinColor?: string; dotColor?: string;
+    /** promo-map-rank/finder: dark panel + secondary panel colours. */
+    panelColor?: string; subPanelColor?: string;
+    /** finder-detail: which sort tabs to show. */
+    sortTabs?: ('recommend' | 'alpha' | 'low-price' | 'on-sale')[];
+    /** finder-detail: SALE badge on/off; Find It / Find All button colour + labels. */
+    showSaleBadge?: boolean; findColor?: string; findItLabel?: string; findAllLabel?: string;
+    /** finder-detail: left hero background image + breadcrumb chip labels. */
+    heroImage?: string; breadcrumbLabels?: string[];
+    /** Neutral-surface overrides (default to light). promo-map-rank: map area +
+     *  category rail; finder-detail: middle list bg + product/detail card bg/text. */
+    mapBg?: string; railBg?: string; listBg?: string; cardBg?: string; cardTextColor?: string; };
   animation: { transition: TransitionType; speed: AnimSpeed; applyToAll: boolean; };
   loader: { style: LoaderStyle; color: string; };
   /** Shared typography/appearance — applied consistently across ALL rendered pages.
@@ -275,6 +304,30 @@ export interface ResultProduct {
   mapY?: number;
   /** Per-product marker color on the map. Falls back to the theme's path/accent color. */
   markerColor?: string;
+  /** Shelf/aisle zone label (promo-map-rank ranked list, e.g. "Beverage"). */
+  zone?: string;
+  /** finder-detail: longer description shown in the right detail panel. */
+  description?: string;
+  /** finder-detail: sale price + flag (shows strikethrough original + SALE badge). */
+  salePrice?: string;
+  onSale?: boolean;
+  saleDate?: string;
+  /** finder-detail: flexible attribute grid (e.g. Color/Material/Type). */
+  specs?: { label: string; value: string }[];
+  /** finder-detail: per-fitment items, each its own LED-blink target (Find It). */
+  fitments?: Fitment[];
+}
+
+/** finder-detail fitment row — one LED-blink target (e.g. Driver / Passenger side). */
+export interface Fitment {
+  label: string;          // e.g. "Driver Side"
+  articleId?: string;     // ESL blink target (Find It)
+  labelId?: string;       // when blinking by label
+  name?: string;          // sub-title, e.g. "…WeatherBeater 26inch"
+  price?: string;
+  salePrice?: string;
+  saleDate?: string;
+  image?: string;
 }
 
 /** Which Category-API fields drive the hierarchy/mapping (chosen per-content). */

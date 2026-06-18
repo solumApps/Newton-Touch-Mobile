@@ -112,7 +112,7 @@
         <!-- RESULT -->
         <div *ngSwitchCase="'result'" class="stage result res-{{t.resultTemplate}}"
              [class.scroll-vertical]="t.scrollMode==='vertical'" [class.scroll-horizontal]="t.scrollMode==='horizontal'">
-          <div class="map" [style.borderColor]="t.result.pathColor">
+          <div class="map" *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='finder-detail'" [style.borderColor]="t.result.pathColor">
             <div class="path path-{{t.result.pathStyle}}" [style.background]="t.result.pathColor" [style.borderColor]="t.result.pathColor"></div>
           </div>
           <div class="filters" *ngIf="t.resultTemplate==='filter-list'">
@@ -139,11 +139,58 @@
             <span class="filter on" [style.background]="t.result.accent">All</span>
             <span class="filter">Care</span>
           </div>
-          <div class="list">
+          <div class="list" *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='finder-detail'">
             <div class="prod" *ngFor="let n of [0,1,2]; let i = index" [class.found]="i===0"
                  [style.background]="t.result.cardBackground" [style.color]="t.result.cardText"
                  [style.borderColor]="i===0 ? t.result.accent : 'transparent'">
               <span class="dot" [style.background]="t.result.accent"></span>Product
+            </div>
+          </div>
+
+          <!-- promo-map-rank preview -->
+          <div *ngIf="t.resultTemplate==='promo-map-rank'" style="position:absolute;inset:0;display:flex;border-radius:inherit;overflow:hidden;">
+            <div [style.background]="t.result.mapBg || '#f0f0ec'" style="flex:0 0 46%;position:relative;border-right:1px solid rgba(0,0,0,.1);">
+              <span [style.background]="t.result.pinColor || '#7f77dd'" style="position:absolute;top:30%;left:38%;width:10px;height:10px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);"></span>
+              <span [style.background]="t.result.dotColor || '#e24b4a'" style="position:absolute;top:56%;left:55%;width:6px;height:6px;border-radius:50%;"></span>
+              <span [style.background]="t.result.dotColor || '#e24b4a'" style="position:absolute;top:72%;left:24%;width:6px;height:6px;border-radius:50%;"></span>
+              <div style="position:absolute;right:5px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:4px;">
+                <i style="font-style:normal;font-size:8px;padding:2px 4px;background:#2c2c2a;color:#fff;border-radius:3px;">1F</i>
+                <i style="font-style:normal;font-size:8px;padding:2px 4px;background:#fff;border:1px solid #ccc;border-radius:3px;">2F</i>
+              </div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;min-width:0;" [style.background]="t.result.panelColor || '#3a3a38'">
+              <div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:rgba(0,0,0,.25);color:#fff;">
+                <b style="flex:1;font-size:10px;">Promotion</b><span *ngIf="t.result.showTimer" style="font-size:9px;">00:25:53</span>
+              </div>
+              <div style="display:flex;flex:1;min-height:0;">
+                <div [style.background]="t.result.railBg || '#f0f0ec'" style="flex:0 0 38%;padding:5px;display:flex;flex-direction:column;gap:4px;">
+                  <i style="font-style:normal;font-size:8px;text-align:center;padding:3px;background:#2c2c2a;color:#fff;border-radius:999px;">Wine</i>
+                  <i style="font-style:normal;font-size:8px;text-align:center;padding:3px;background:#fff;border:1px solid #ccc;border-radius:999px;">Beverage</i>
+                </div>
+                <div style="flex:1;padding:5px;color:#fff;min-width:0;" [style.background]="t.result.subPanelColor || '#5f5e5a'">
+                  <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px;" *ngFor="let n of [1,2,3]"><b *ngIf="t.result.showRanks!==false" style="opacity:.5;font-size:10px;">0{{n}}</b><span style="font-size:9px;">Product</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- finder-detail preview -->
+          <div *ngIf="t.resultTemplate==='finder-detail'" style="position:absolute;inset:0;display:flex;border-radius:inherit;overflow:hidden;">
+            <div style="flex:0 0 30%;background:#23262b;color:#fff;padding:6px;display:flex;flex-direction:column;min-width:0;">
+              <b style="font-size:9px;line-height:1.15;">WIPER FINDER</b>
+              <div style="margin-top:auto;display:flex;flex-direction:column;gap:3px;">
+                <i style="font-style:normal;font-size:7px;padding:3px 4px;background:rgba(255,255,255,.1);border-radius:3px;display:flex;justify-content:space-between;"><span style="opacity:.6;">MAKER</span><b [style.color]="t.result.accent">BENZ</b></i>
+                <i style="font-style:normal;font-size:7px;padding:3px 4px;background:rgba(255,255,255,.1);border-radius:3px;display:flex;justify-content:space-between;"><span style="opacity:.6;">YEAR</span><b [style.color]="t.result.accent">2021</b></i>
+              </div>
+            </div>
+            <div [style.background]="t.result.listBg || '#f0f0ec'" style="flex:1;padding:5px;display:flex;flex-direction:column;gap:4px;min-width:0;">
+              <div *ngFor="let n of [1,2]" [style.background]="t.result.cardBg || '#fff'" style="border:1px solid #e0e0da;border-radius:5px;padding:5px;">
+                <div style="display:flex;justify-content:space-between;"><b style="font-size:8px;" [style.color]="t.result.cardTextColor || '#2c2c2a'">Wiper Blade</b><span style="font-size:8px;color:#e24b4a;">$58</span></div>
+              </div>
+            </div>
+            <div [style.background]="t.result.cardBg || '#fff'" style="flex:0 0 34%;border-left:1px solid #eee;padding:6px;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;"><b style="font-size:8px;">Detail</b><i style="font-style:normal;font-size:7px;color:#fff;padding:2px 6px;border-radius:999px;" [style.background]="t.result.findColor || '#1d3a66'">{{ t.result.findAllLabel || 'Find All' }}</i></div>
+              <div *ngFor="let n of [1,2]" style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;border-top:1px solid #eee;padding-top:4px;"><span style="font-size:8px;">Driver Side</span><i style="font-style:normal;font-size:7px;color:#fff;padding:2px 6px;border-radius:999px;" [style.background]="t.result.findColor || '#1d3a66'">{{ t.result.findItLabel || 'Find It' }}</i></div>
             </div>
           </div>
         </div>
@@ -612,7 +659,50 @@
 
       <div *ngSwitchCase="'resTemplate'">
         <div class="step-title">Result template</div>
-        <div class="tiles"><button class="tile" *ngFor="let o of resultTemplates" [class.sel]="t.resultTemplate===o" (click)="t.resultTemplate=o">{{ o }}</button></div>
+        <div class="tiles"><button class="tile" *ngFor="let o of resultTemplates" [class.sel]="t.resultTemplate===o" (click)="t.resultTemplate=o">{{ tplLabel(o) }}</button></div>
+
+        <!-- promo-map-rank: per-section customisation -->
+        <ng-container *ngIf="t.resultTemplate==='promo-map-rank'">
+          <div class="step-title sm">Promotion panel</div>
+          <div class="seg">
+            <button class="tile" [class.sel]="t.result.showTimer" (click)="t.result.showTimer=!t.result.showTimer">Timer</button>
+            <button class="tile" [class.sel]="t.result.showBell" (click)="t.result.showBell=!t.result.showBell">Bell</button>
+            <button class="tile" [class.sel]="t.result.showRanks!==false" (click)="t.result.showRanks=!(t.result.showRanks!==false)">Ranks</button>
+            <button class="tile" [class.sel]="t.result.showSortTabs!==false" (click)="t.result.showSortTabs=!(t.result.showSortTabs!==false)">Sort tabs</button>
+            <button class="tile" [class.sel]="t.result.showZone!==false" (click)="t.result.showZone=!(t.result.showZone!==false)">Zone</button>
+          </div>
+          <div class="slider-row" *ngIf="t.result.showTimer"><span class="slider-lbl">Timer (sec)</span><input class="inp cols-inp" type="number" min="0" max="36000" [ngModel]="t.result.timerSeconds ?? 1553" (ngModelChange)="t.result.timerSeconds=+$event" /></div>
+          <input class="inp" placeholder="Floors (comma e.g. 3F,2F,1F)" [ngModel]="floorsCsv" (ngModelChange)="floorsCsv=$event" />
+          <input class="inp" placeholder="'You are here' label" [(ngModel)]="t.result.youAreHereLabel" />
+          <app-color-picker label="Promo panel" [value]="t.result.panelColor || '#3a3a38'" (valueChange)="t.result.panelColor=$event"></app-color-picker>
+          <app-color-picker label="Sub-category panel" [value]="t.result.subPanelColor || '#5f5e5a'" (valueChange)="t.result.subPanelColor=$event"></app-color-picker>
+          <app-color-picker label="Map pin" [value]="t.result.pinColor || '#7f77dd'" (valueChange)="t.result.pinColor=$event"></app-color-picker>
+          <app-color-picker label="Location dots" [value]="t.result.dotColor || '#e24b4a'" (valueChange)="t.result.dotColor=$event"></app-color-picker>
+          <app-color-picker label="Map area" [value]="t.result.mapBg || '#f3f3ef'" (valueChange)="t.result.mapBg=$event"></app-color-picker>
+          <app-color-picker label="Category rail" [value]="t.result.railBg || '#f3f3ef'" (valueChange)="t.result.railBg=$event"></app-color-picker>
+        </ng-container>
+
+        <!-- finder-detail: per-section customisation -->
+        <ng-container *ngIf="t.resultTemplate==='finder-detail'">
+          <div class="step-title sm">Sort tabs</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let s of finderSortOpts" [class.sel]="hasSortTab(s.id)" (click)="toggleSortTab(s.id)">{{ s.label }}</button>
+          </div>
+          <div class="step-title sm">Options</div>
+          <div class="seg">
+            <button class="tile" [class.sel]="t.result.showSaleBadge!==false" (click)="t.result.showSaleBadge=!(t.result.showSaleBadge!==false)">SALE badge</button>
+          </div>
+          <input class="inp" placeholder="Breadcrumb labels (comma e.g. Manufacturer,Model,Year)" [ngModel]="breadcrumbCsv" (ngModelChange)="breadcrumbCsv=$event" />
+          <div class="prow">
+            <input class="inp" placeholder="Find It label" [(ngModel)]="t.result.findItLabel" />
+            <input class="inp" placeholder="Find All label" [(ngModel)]="t.result.findAllLabel" />
+          </div>
+          <app-color-picker label="Find button" [value]="t.result.findColor || '#1d3a66'" (valueChange)="t.result.findColor=$event"></app-color-picker>
+          <app-color-picker label="Hero accent" [value]="t.result.accent" (valueChange)="t.result.accent=$event"></app-color-picker>
+          <app-color-picker label="List background" [value]="t.result.listBg || '#f3f3ef'" (valueChange)="t.result.listBg=$event"></app-color-picker>
+          <app-color-picker label="Product / detail card" [value]="t.result.cardBg || '#ffffff'" (valueChange)="t.result.cardBg=$event"></app-color-picker>
+          <app-color-picker label="Card text" [value]="t.result.cardTextColor || '#2c2c2a'" (valueChange)="t.result.cardTextColor=$event"></app-color-picker>
+        </ng-container>
 
         <ng-container *ngIf="t.resultTemplate==='map-filter-list'">
           <div class="step-title sm">Filter position</div>
