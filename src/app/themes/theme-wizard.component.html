@@ -565,7 +565,7 @@
           <div class="step-title sm">&#8249; Back icon</div>
           <div class="seg icon-seg">
             <button class="tile" [class.sel]="!t.nav?.backIcon" (click)="t.nav!.backIcon=undefined">Default</button>
-            <button class="tile icon-tile" *ngFor="let ic of navIconIds" [class.sel]="t.nav?.backIcon===ic" (click)="t.nav!.backIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
+            <button class="tile icon-tile" *ngFor="let ic of backNavIconIds" [class.sel]="t.nav?.backIcon===ic" (click)="t.nav!.backIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
             <button class="tile" [class.sel]="isCustomNavIcon(t.nav?.backIcon)" (click)="pickNavIcon('back')">Upload…</button>
           </div>
           <div class="media-row" *ngIf="isCustomNavIcon(t.nav?.backIcon)">
@@ -575,7 +575,7 @@
           <div class="step-title sm">&#8962; Home icon</div>
           <div class="seg icon-seg">
             <button class="tile" [class.sel]="!t.nav?.homeIcon" (click)="t.nav!.homeIcon=undefined">Default</button>
-            <button class="tile icon-tile" *ngFor="let ic of navIconIds" [class.sel]="t.nav?.homeIcon===ic" (click)="t.nav!.homeIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
+            <button class="tile icon-tile" *ngFor="let ic of homeNavIconIds" [class.sel]="t.nav?.homeIcon===ic" (click)="t.nav!.homeIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
             <button class="tile" [class.sel]="isCustomNavIcon(t.nav?.homeIcon)" (click)="pickNavIcon('home')">Upload…</button>
           </div>
           <div class="media-row" *ngIf="isCustomNavIcon(t.nav?.homeIcon)">
@@ -682,7 +682,7 @@
         <div class="inherited-hint">
           <span>&#9432;</span> Colors pre-filled from your Home page — adjust below if needed.
         </div>
-        <app-color-picker label="Header" [value]="t.result.headerColor" (valueChange)="t.result.headerColor=$event"></app-color-picker>
+        <app-color-picker label="Header" [value]="t.result.headerColor" [transparentValue]="resultTransparentHeaderColor" (valueChange)="t.result.headerColor=$event"></app-color-picker>
         <app-color-picker *ngIf="!t.result.backgroundImage" label="Page background" [value]="t.result.background" (valueChange)="t.result.background=$event" [presets]="bgPresets"></app-color-picker>
         <div class="media-row">
           <button class="btn-o media-btn" (click)="pickBackground('result')">{{ t.result.backgroundImage ? 'Replace result background image' : 'Upload result background image' }}</button>
@@ -732,7 +732,7 @@
           <div class="step-title sm">&#8249; Back icon</div>
           <div class="seg icon-seg">
             <button class="tile" [class.sel]="!t.nav?.backIcon" (click)="t.nav!.backIcon=undefined">Default</button>
-            <button class="tile icon-tile" *ngFor="let ic of navIconIds" [class.sel]="t.nav?.backIcon===ic" (click)="t.nav!.backIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
+            <button class="tile icon-tile" *ngFor="let ic of backNavIconIds" [class.sel]="t.nav?.backIcon===ic" (click)="t.nav!.backIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
             <button class="tile" [class.sel]="isCustomNavIcon(t.nav?.backIcon)" (click)="pickNavIcon('back')">Upload…</button>
           </div>
           <div class="media-row" *ngIf="isCustomNavIcon(t.nav?.backIcon)">
@@ -742,7 +742,7 @@
           <div class="step-title sm">&#8962; Home icon</div>
           <div class="seg icon-seg">
             <button class="tile" [class.sel]="!t.nav?.homeIcon" (click)="t.nav!.homeIcon=undefined">Default</button>
-            <button class="tile icon-tile" *ngFor="let ic of navIconIds" [class.sel]="t.nav?.homeIcon===ic" (click)="t.nav!.homeIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
+            <button class="tile icon-tile" *ngFor="let ic of homeNavIconIds" [class.sel]="t.nav?.homeIcon===ic" (click)="t.nav!.homeIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
             <button class="tile" [class.sel]="isCustomNavIcon(t.nav?.homeIcon)" (click)="pickNavIcon('home')">Upload…</button>
           </div>
           <div class="media-row" *ngIf="isCustomNavIcon(t.nav?.homeIcon)">

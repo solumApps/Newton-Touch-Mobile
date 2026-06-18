@@ -539,8 +539,13 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get saverShowContent(): boolean { return this.theme?.saverOverlay?.showContent !== false; }
   get headerColor(): string | undefined {
     return this.page === 'inter' ? this.theme?.intermediate?.headerColor
-      : this.page === 'result' ? this.theme?.result?.headerColor
+      : this.page === 'result' ? this.resultHeaderColor
       : this.theme?.headerColor;
+  }
+  get resultHeaderColor(): string | undefined {
+    return this.theme?.result?.headerColor === 'transparent'
+      ? 'transparent'
+      : this.theme?.result?.headerColor;
   }
   get headerVisible(): boolean {
     if (this.page === 'saver') return false;
