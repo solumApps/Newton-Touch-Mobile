@@ -337,6 +337,13 @@
         <div class="sec"><span>ESL blink by</span></div>
         <app-select-field placeholder="Blink by" [options]="eslByOpts"
           [value]="d.eslBlinkBy || 'article'" (valueChange)="setEslBy($any($event))"></app-select-field>
+
+        <div class="sec"><span>LED colour</span></div>
+        <app-select-field placeholder="LED colour" [options]="ledColorOpts"
+          [value]="d.ledColour || 'Red'" (valueChange)="setLedColour($any($event))"></app-select-field>
+        <div class="sec"><span>Blink duration</span></div>
+        <app-select-field placeholder="Blink duration" [options]="ledDurationOpts"
+          [value]="d.ledDuration || '10s'" (valueChange)="setLedDuration($any($event))"></app-select-field>
       </ng-container>
     </div>
 

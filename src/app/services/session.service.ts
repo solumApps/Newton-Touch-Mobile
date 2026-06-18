@@ -7,6 +7,10 @@ export interface Session {
   token: string;
   username: string;
   environment: string;
+  /** SOLUM refresh token (kept for reference; the LCD now logs in itself). */
+  refreshToken?: string;
+  /** Login password — forwarded to the LCD so it can generate its own token. */
+  password?: string;
 }
 
 const KEY = 'nt.session';
@@ -33,12 +37,29 @@ export class SessionService {
 
   async isAuthed(): Promise<boolean> {
     await this.ensure();
-    return !!this.session?.token;
+    // Require BOTH token and password: the LCD needs the password to generate its
+    // own ESL token, so a legacy session that predates password storage is treated
+    // as incomplete — forcing one clean re-login that captures the password.
+    return !!this.session?.token && !!this.session?.password;
   }
 
   async current(): Promise<Session | null> {
     await this.ensure();
     return this.session;
+  }
+
+  /** Refresh token from the last sign-in (in-memory, else persisted session). */
+  async getRefreshToken(): Promise<string> {
+    if (this.refreshToken) return this.refreshToken;
+    await this.ensure();
+    return this.session?.refreshToken || '';
+  }
+
+  /** Username + password from the last sign-in — forwarded to the LCD so it can
+   *  generate (and keep refreshing) its own SOLUM token, like the sample apps. */
+  async getCredentials(): Promise<{ username: string; password: string }> {
+    await this.ensure();
+    return { username: this.session?.username || '', password: this.session?.password || '' };
   }
 
   /** Real SOLUM login: POST {base}/common/api/v2/token → store access/refresh token. */
@@ -56,7 +77,7 @@ export class SessionService {
     const token = msg?.access_token;
     if (!token) throw new Error(this.responseError(body) || 'Invalid credentials');
     this.refreshToken = msg?.refresh_token || '';
-    this.session = { token, username, environment: w.environment };
+    this.session = { token, username, environment: w.environment, refreshToken: this.refreshToken, password };
     this.loaded = true;
     await Preferences.set({ key: KEY, value: JSON.stringify(this.session) });
     // Make the token available to the Category API.
