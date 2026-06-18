@@ -12,7 +12,7 @@ import { SelectFieldComponent, SelectOption } from '../shared/select-field.compo
 import { ColorPickerComponent } from '../shared/color-picker.component';
 import { CardTreeEditorComponent } from './card-tree-editor.component';
 import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
-import type { ResultProduct, CardItem, ImageFit, ResultContent } from '@contract/layout';
+import type { ResultProduct, CardItem, ImageFit, ResultContent, ThemeTokens } from '@contract/layout';
 
 type StepKey = 'home' | 'inter' | 'result' | 'saver' | 'review';
 interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' | 'saver'; }
@@ -323,6 +323,38 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   async pickFitImage(f: { image?: string }): Promise<void> {
     const dataUrl = await this.picker.pick();
     if (dataUrl) f.image = dataUrl;
+  }
+
+  /** Is the finder-select intermediate template active? */
+  get isFinderSelect(): boolean { return this.draft?.themeTokens.intermediateStyle === 'finder-select'; }
+  /** Lazily-created per-content template data bag (text/labels moved out of theme). */
+  get td(): NonNullable<ContentDraft['templateData']> {
+    const d = this.draft!;
+    return (d.templateData = d.templateData || {});
+  }
+  get tplFloorsCsv(): string { return (this.td.floors || []).join(','); }
+  set tplFloorsCsv(v: string) { this.td.floors = v.split(',').map((s) => s.trim()).filter(Boolean); }
+  get tplStepsCsv(): string { return (this.td.stepLabels || []).join(','); }
+  set tplStepsCsv(v: string) { this.td.stepLabels = v.split(',').map((s) => s.trim()).filter(Boolean); }
+  get tplCrumbsCsv(): string { return (this.td.breadcrumbLabels || []).join(','); }
+  set tplCrumbsCsv(v: string) { this.td.breadcrumbLabels = v.split(',').map((s) => s.trim()).filter(Boolean); }
+  setTplTimer(v: string): void { this.td.timerSeconds = Math.max(0, Math.round(Number(v) || 0)); }
+  /** Theme overlaid with per-content template data, for the live preview. */
+  get previewTheme(): ThemeTokens {
+    const t = this.draft!.themeTokens;
+    const td = this.draft!.templateData;
+    if (!td) return t;
+    const r: any = { ...t.result }, im: any = { ...t.intermediate };
+    if (td.floors) r.floors = td.floors;
+    if (td.youAreHereLabel != null) r.youAreHereLabel = td.youAreHereLabel;
+    if (td.timerSeconds != null) r.timerSeconds = td.timerSeconds;
+    if (td.breadcrumbLabels) r.breadcrumbLabels = td.breadcrumbLabels;
+    if (td.findItLabel != null) r.findItLabel = td.findItLabel;
+    if (td.findAllLabel != null) r.findAllLabel = td.findAllLabel;
+    if (td.heroImage != null) r.heroImage = td.heroImage;
+    if (td.promptPrefix != null) im.promptPrefix = td.promptPrefix;
+    if (td.stepLabels) im.stepLabels = td.stepLabels;
+    return { ...t, result: r, intermediate: im };
   }
 
   /** shelf uses the promo image as its side category panel. */

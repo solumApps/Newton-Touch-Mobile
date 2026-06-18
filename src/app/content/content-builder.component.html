@@ -32,7 +32,7 @@
   <!-- Sticky live preview for the current step -->
   <div class="preview-block" *ngIf="step.key !== 'review'">
     <app-content-preview-strip
-      [theme]="d.themeTokens"
+      [theme]="previewTheme"
       [page]="step.page"
       [home]="d.home"
       [intermediate]="d.intermediate"
@@ -359,6 +359,32 @@
         <app-select-field placeholder="Blink duration" [options]="ledDurationOpts"
           [value]="d.ledDuration || '10s'" (valueChange)="setLedDuration($any($event))"></app-select-field>
       </ng-container>
+
+      <!-- promo-map-rank: per-content text/data (theme keeps only styling) -->
+      <ng-container *ngIf="isPromoRank">
+        <div class="sec"><span>Promotion header &amp; map</span></div>
+        <input class="inp" placeholder="Floor labels (comma e.g. 3F,2F,1F)" [ngModel]="tplFloorsCsv" (ngModelChange)="tplFloorsCsv=$event" />
+        <input class="inp" placeholder="'You are here' label" [(ngModel)]="td.youAreHereLabel" />
+        <input class="inp" type="number" min="0" max="36000" placeholder="Timer seconds (e.g. 1553)" [ngModel]="td.timerSeconds" (ngModelChange)="setTplTimer($event)" />
+        <p class="note">Categories → sub-categories → products come from your Home cards &amp; their children/products. The ranked list shows the picked sub-item's products (LED blinks those).</p>
+      </ng-container>
+
+      <!-- finder-detail: per-content text/data -->
+      <ng-container *ngIf="isFinder">
+        <div class="sec"><span>Finder labels</span></div>
+        <input class="inp" placeholder="Breadcrumb labels (comma e.g. Manufacturer,Model,Year)" [ngModel]="tplCrumbsCsv" (ngModelChange)="tplCrumbsCsv=$event" />
+        <div class="prow">
+          <input class="inp" placeholder="Find It label" [(ngModel)]="td.findItLabel" />
+          <input class="inp" placeholder="Find All label" [(ngModel)]="td.findAllLabel" />
+        </div>
+      </ng-container>
+
+      <!-- finder-select intermediate: per-content text/data -->
+      <ng-container *ngIf="isFinderSelect">
+        <div class="sec"><span>Finder steps &amp; prompt</span></div>
+        <input class="inp" placeholder="Step labels (comma e.g. Manufacturer,Model,Year)" [ngModel]="tplStepsCsv" (ngModelChange)="tplStepsCsv=$event" />
+        <input class="inp" placeholder="Prompt prefix (e.g. TOUCH YOUR)" [(ngModel)]="td.promptPrefix" />
+      </ng-container>
     </div>
 
     <!-- ============ SCREENSAVER ============ -->
@@ -390,7 +416,7 @@
       <div class="review-slider" #revSlider (scroll)="onReviewScroll(revSlider)">
         <div class="review-slide" *ngFor="let pg of reviewPages">
           <app-content-preview-strip
-            [theme]="d.themeTokens"
+            [theme]="previewTheme"
             [page]="pg.page"
             [home]="d.home"
             [intermediate]="d.intermediate"
