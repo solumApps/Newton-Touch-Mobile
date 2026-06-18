@@ -241,6 +241,9 @@ export class DeployComponent implements OnInit, OnDestroy {
 
     this.sending = true; this.percent = 0; this.doneMsg = ''; this.steps = [];
     try {
+      // Built inside the branch, but sent LAST (after serverConfig) so nothing can
+      // clobber the layout transfer — see note before the layout send below.
+      let layoutJson = '';
       if (!this.transfer.isNative) {
         // Browser dev (relay): externalize images and send them individually,
         // then send the compact layout — mirrors the native path so the LCD
@@ -263,10 +266,7 @@ export class DeployComponent implements OnInit, OnDestroy {
           this.percent = Math.round(((i + 1) / total) * 90);
           await this.sleep(this.SEND_DELAY_MS);
         }
-        this.pushStep('▸ layout.json …');
-        await this.transfer.send(this.targetHost, this.targetPort, JSON.stringify(layout),
-          (p) => (this.percent = 90 + Math.round(p * 0.1)));
-        this.pushStep('  ✓ layout sent');
+        layoutJson = JSON.stringify(layout);
       } else {
         // Device: send each image as its own file payload first, then the tiny layout.
         const { layout, images } = this.externalizeImages(this.payload);
@@ -274,7 +274,11 @@ export class DeployComponent implements OnInit, OnDestroy {
         // verify completeness AND integrity (size match) after the deploy.
         layout.imageManifest = images.map((im) => im.id);
         layout.imageSizes = Object.fromEntries(images.map((im) => [im.id, this.decodedBytes(im.data)]));
-        layout.imageFallbacks = await this.buildFallbacks(images);
+        // NOTE: do NOT embed imageFallbacks on native — the LCD resolves images from
+        // the ntimg/ files on disk, so the inline fallbacks only bloat layout.json
+        // (up to ~1MB) and that oversized payload fails to transfer over real LAN
+        // (the layout was being dropped). Keep the native layout small & reliable.
+        layout.imageFallbacks = {};
         const total = images.length + 1;
         this.pushStep(`Preparing ${images.length} image(s) + layout`);
         for (let i = 0; i < images.length; i++) {
@@ -290,24 +294,28 @@ export class DeployComponent implements OnInit, OnDestroy {
           // races and writes 0-byte files for some payloads.
           await this.sleep(this.SEND_DELAY_MS);
         }
-        this.pushStep('▸ layout.json …');
-        await this.transfer.send(this.targetHost, this.targetPort, JSON.stringify(layout),
-          (p) => (this.percent = 90 + Math.round(p * 0.1)));
-        this.pushStep('  ✓ layout sent');
+        layoutJson = JSON.stringify(layout);
       }
-      // Throttle before serverConfig so the LCD receiver finishes persisting
-      // layout.json — without this, concurrent Filesystem.writeFile calls on the
-      // Chromium-60 WebView race and layout.json is silently dropped.
+      // Send serverConfig FIRST (it's only present for Category / +ESL), THEN the
+      // layout LAST — so the layout is always the final payload and nothing opens a
+      // new connection while it's still in flight (this is exactly why +ESL deploys
+      // were dropping layout.json while plain Prototype, which sends no serverConfig,
+      // worked). Throttle between each so the receiver flushes one before the next.
       await this.sleep(this.SEND_DELAY_MS);
-      // Category / +ESL need the server config on the LCD for runtime LED blink.
       if (this.draft.appMode !== 'prototype') {
         const creds = await this.workspace.creds();
         const w = await this.workspace.get();
         if (creds) {
           const serverConfig = JSON.stringify({ kind: 'serverConfig', serverUrl: creds.serverUrl, token: creds.token, companyId: creds.companyId, storeId: creds.storeId, ledColour: 'red', ledDuration: '10', environment: w.environment });
-          try { await this.transfer.send(this.targetHost, this.targetPort, serverConfig, () => {}); } catch { /* non-fatal */ }
+          try { await this.transfer.send(this.targetHost, this.targetPort, serverConfig, () => {}); await this.sleep(this.SEND_DELAY_MS); } catch { /* non-fatal */ }
         }
       }
+      // LAYOUT LAST — the final payload, so no other send can clobber it in flight.
+      // The LCD applies it on receive and navigates to the home screen.
+      this.pushStep('▸ layout.json …');
+      await this.transfer.send(this.targetHost, this.targetPort, layoutJson,
+        (p) => (this.percent = 90 + Math.round(p * 0.1)));
+      this.pushStep('  ✓ layout sent');
       const dev = await this.deviceSvc.upsertReturning(this.targetName, this.targetHost, this.targetPort);
       await this.deviceSvc.recordDeploy(dev.id, this.draft.name);
       this.draft.deployedTo = this.targetName; this.draft.deployedAt = Date.now(); this.draft.status = 'complete';
