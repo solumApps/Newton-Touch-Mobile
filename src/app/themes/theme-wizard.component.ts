@@ -383,7 +383,39 @@ export class ThemeWizardComponent implements OnInit {
   // 'cards-map' dropped from the picker (near-duplicate of Map-List); enum + CSS
   // kept so existing themes using it still render. Lower-priority layouts remain
   // available rather than deleted — removal of specific ones is a product call.
-  resultTemplates: ResultTemplate[] = ['map-list', 'drill-filter','map-filter-list', 'filter-list','card-grid', 'promo-list', 'product-focus', 'hero-product', 'shelf'];
+  resultTemplates: ResultTemplate[] = ['map-list', 'drill-filter','map-filter-list', 'filter-list','card-grid', 'promo-list', 'product-focus', 'hero-product', 'shelf', 'promo-map-rank', 'finder-detail'];
+  /** Friendly labels for the result-template tiles. */
+  private tplLabels: Record<string, string> = {
+    'map-list': 'Map List', 'drill-filter': 'Drill Filter', 'map-filter-list': 'Map + Filter',
+    'filter-list': 'Filter List', 'card-grid': 'Card Grid', 'promo-list': 'Promo List',
+    'product-focus': 'Product Focus', 'hero-product': 'Hero Product', 'shelf': 'Shelf',
+    'promo-map-rank': 'Promo Map + Ranks', 'finder-detail': 'Finder + Detail',
+  };
+  tplLabel(o: string): string { return this.tplLabels[o] || o; }
+
+  /** finder-detail sort-tab options + toggle helpers. */
+  finderSortOpts = [
+    { id: 'recommend', label: 'Recommend' }, { id: 'alpha', label: 'Alphabetical' },
+    { id: 'low-price', label: 'Low Price' }, { id: 'on-sale', label: 'On Sale' },
+  ] as const;
+  hasSortTab(id: string): boolean {
+    const cur = this.t.result.sortTabs;
+    return cur ? cur.includes(id as any) : true; // undefined = all on
+  }
+  toggleSortTab(id: string): void {
+    const all = ['recommend', 'alpha', 'low-price', 'on-sale'] as const;
+    let cur = this.t.result.sortTabs ? [...this.t.result.sortTabs] : [...all];
+    cur = cur.includes(id as any) ? cur.filter((x) => x !== id) : [...cur, id as any];
+    // keep canonical order, never allow an empty set
+    this.t.result.sortTabs = all.filter((x) => cur.includes(x)) as any;
+    if (!this.t.result.sortTabs!.length) this.t.result.sortTabs = ['recommend'];
+  }
+
+  /** Floors / breadcrumb labels as comma-separated text for the inputs. */
+  get floorsCsv(): string { return (this.t.result.floors || []).join(','); }
+  set floorsCsv(v: string) { this.t.result.floors = v.split(',').map((s) => s.trim()).filter(Boolean); }
+  get breadcrumbCsv(): string { return (this.t.result.breadcrumbLabels || []).join(','); }
+  set breadcrumbCsv(v: string) { this.t.result.breadcrumbLabels = v.split(',').map((s) => s.trim()).filter(Boolean); }
   // resultTemplates: ResultTemplate[] = ['map-filter-list', 'list-only', 'filter-list', 'map-full', 'card-grid', 'catalog-grid', 'promo-list', 'product-focus', 'hero-product', 'drill-filter', 'shelf'];
   transitions: TransitionType[] = ['fade-slide', 'scale-up', 'slide-left', 'shimmer', 'none'];
   speeds: AnimSpeed[] = ['slow', 'normal', 'fast'];
