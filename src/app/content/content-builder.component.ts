@@ -197,6 +197,9 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
    *  Legacy drafts without the flag infer 'individual' from existing children. */
   get drillMode(): 'common' | 'individual' {
     if (this.draft?.drillMode) return this.draft.drillMode;
+    // Hierarchical templates (finder-select / promo-map-rank / finder-detail) need
+    // the per-card nested tree so Category → Sub → Products is enterable.
+    if (this.isFinderSelect || this.interAllowProducts || this.isFinder) return 'individual';
     return this.draft?.home.some(c => c.children && c.children.length > 0) ? 'individual' : 'common';
   }
   setDrillMode(m: 'common' | 'individual'): void { if (this.draft) this.draft.drillMode = m; }
@@ -327,6 +330,14 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
 
   /** Is the finder-select intermediate template active? */
   get isFinderSelect(): boolean { return this.draft?.themeTokens.intermediateStyle === 'finder-select'; }
+  /** Templates that display a full category → sub → products hierarchy and so need
+   *  products attachable to each sub-item in the intermediate tree editor. */
+  get interAllowProducts(): boolean {
+    // promo-map-rank shows the picked sub-item's products in the ranked list, so
+    // products attach to sub-items here. finder-detail keeps products on the
+    // Result step (each carries its fitments), so its tree stays product-free.
+    return this.draft?.themeTokens.resultTemplate === 'promo-map-rank';
+  }
   /** Lazily-created per-content template data bag (text/labels moved out of theme). */
   get td(): NonNullable<ContentDraft['templateData']> {
     const d = this.draft!;

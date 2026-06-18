@@ -143,13 +143,21 @@
     <div *ngSwitchCase="'inter'">
       <h2 class="step-title">Intermediate page</h2>
       <p class="note">Style: <b>{{ d.themeTokens.intermediateStyle }}</b><span *ngIf="intermediateNeedsImage"> — this style shows an image per item.</span></p>
+
+      <!-- finder-select: steps + prompt (the selection cards are the sub-items below) -->
+      <ng-container *ngIf="isFinderSelect">
+        <div class="sec"><span>Finder steps &amp; prompt</span></div>
+        <input class="inp" placeholder="Step labels (comma e.g. Manufacturer,Model,Year)" [ngModel]="tplStepsCsv" (ngModelChange)="tplStepsCsv=$event" />
+        <input class="inp" placeholder="Prompt prefix (e.g. TOUCH YOUR)" [(ngModel)]="td.promptPrefix" />
+        <p class="note">The selection cards for each level are the sub-items you add per card below (each card → its children → … → products).</p>
+      </ng-container>
       <!-- Individual drill mode: fill each home card's OWN intermediate page here -->
       <ng-container *ngIf="!showIntermediateEditor && d.themeTokens.includeIntermediate !== false">
         <p class="note"><b>Individual mode</b> — each home card opens its own intermediate page. Fill each one below.</p>
         <div class="pcard" *ngFor="let c of d.home">
           <div class="sec"><span>{{ c.name || 'Home card' }} — sub-items</span></div>
           <app-card-tree-editor [card]="c" [depth]="1" [maxDepth]="maxDepth"
-            [needsImage]="intermediateNeedsImage" [allowProducts]="false"></app-card-tree-editor>
+            [needsImage]="intermediateNeedsImage" [allowProducts]="interAllowProducts"></app-card-tree-editor>
         </div>
       </ng-container>
 
@@ -379,12 +387,6 @@
         </div>
       </ng-container>
 
-      <!-- finder-select intermediate: per-content text/data -->
-      <ng-container *ngIf="isFinderSelect">
-        <div class="sec"><span>Finder steps &amp; prompt</span></div>
-        <input class="inp" placeholder="Step labels (comma e.g. Manufacturer,Model,Year)" [ngModel]="tplStepsCsv" (ngModelChange)="tplStepsCsv=$event" />
-        <input class="inp" placeholder="Prompt prefix (e.g. TOUCH YOUR)" [(ngModel)]="td.promptPrefix" />
-      </ng-container>
     </div>
 
     <!-- ============ SCREENSAVER ============ -->
