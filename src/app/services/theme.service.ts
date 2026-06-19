@@ -60,7 +60,7 @@ export class ThemeService {
       titlePos: 'center',
       captionPos: 'center',
       includeIntermediate: true,
-      intermediateStyle: 'pill-tabs',
+      intermediateStyle: 'columns',
       resultTemplate: 'map-list',
       intermediate: { headerColor: 'rgba(0,0,0,0.45)', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', gap: 'normal' },
       result: { headerColor: '#2F006D', background: '#0A0A1A', cardBackground: 'rgba(255,255,255,0.06)', cardText: '#FFFFFF', accent: '#FFCD00', pathColor: '#FFCD00', pathStyle: 'dashed', showHeader: true },
