@@ -45,6 +45,7 @@ export class ThemeService {
       // 'col-3' (not legacy 'grid-2x3') so a NEW theme's preview matches the
       // pre-selected "Columns" tile in the wizard exactly.
       homeLayout: 'col-3',
+      columns: 3,
       scrollMode: 'auto',
       cardSize: 'normal',
       cardAlign: 'center',
@@ -186,7 +187,7 @@ export class ThemeService {
     // Optional fine-grained text multiplier (slider) — clamp to a sane range.
     const tsn = Number(out.typography.textScaleNum);
     out.typography.textScaleNum = out.typography.textScaleNum !== undefined && Number.isFinite(tsn)
-      ? Math.min(1.6, Math.max(0.7, tsn)) : undefined;
+      ? Math.min(2.0, Math.max(0.7, tsn)) : undefined;
     // Optional fine-grained card-size multiplier (slider).
     const csn = Number(out.cardSizeScale);
     out.cardSizeScale = out.cardSizeScale !== undefined && Number.isFinite(csn)
