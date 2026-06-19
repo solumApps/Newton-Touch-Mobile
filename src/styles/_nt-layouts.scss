@@ -105,7 +105,7 @@
   border-radius:10px; display:flex; flex-direction:column; min-width:0; }
 .nt-home .card .img { flex:1; background-size:cover; background-position:center; background-color:rgba(255,255,255,.08); }
 .nt-home .card .meta { flex:0 0 auto; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); min-width:0; box-sizing:border-box; }
-.nt-home .card .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1); font-weight:800; color:var(--nt-base-text, var(--nt-text,#fff)); }
+.nt-home .card .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1); font-weight:800; color:var(--nt-text, var(--nt-base-text,#fff)); }
 /* shape 'none' (image-only): show the image with no mask/rounding at all. */
 .nt-home .card.shape-none, .nt-home .card.shape-none .img { border-radius:0 !important; clip-path:none !important; }
 /* C-1: continuous card-size multiplier (zoom) layered on top of the size bucket.
@@ -210,7 +210,7 @@
 /* image-strip honours text position (center is the default) */
 .nt-home .layout-image-strip .card.pos-overlay-top .meta { margin:calc(var(--nt-vh)*5) auto auto; }
 .nt-home .layout-image-strip .card.pos-overlay-bottom .meta, .nt-home .layout-image-strip .card.pos-below .meta { margin:auto auto calc(var(--nt-vh)*5); }
-.nt-home .layout-image-strip .card .name { color:#fff; font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1.55); text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.6) rgba(0,0,0,.7); }
+.nt-home .layout-image-strip .card .name { color:var(--nt-text,#fff); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1.55); text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.6) rgba(0,0,0,.7); }
 
 .nt-home .layout-hero-start { display:block; padding:0; position:relative; }
 .nt-home .layout-hero-start .hero-copy { position:absolute; left:0; right:0; top:0; bottom:0; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; color:var(--nt-text,#fff); }
@@ -391,7 +391,7 @@
 .nt-home .cards.no-overlay .card.content-image-text.pos-overlay-bottom .meta,
 .nt-home .cards.no-overlay .card.content-image-text.pos-overlay-top .meta { background:transparent !important; }
 .nt-home .cards.no-overlay .card.content-image-text.pos-overlay-bottom .name,
-.nt-home .cards.no-overlay .card.content-image-text.pos-overlay-top .name { color:#fff; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6); }
+.nt-home .cards.no-overlay .card.content-image-text.pos-overlay-top .name { color:var(--nt-text,#fff); text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6); }
 
 /* ---- card = shape × content × text-position ---- */
 .nt-home .card.shape-rect { border-radius:10px; }
@@ -436,13 +436,14 @@
 .nt-home .card.content-color-block { background:var(--nt-accent,#FFCD00); border:calc(var(--nt-vh)*0.4) solid rgba(0,0,0,.08); box-shadow:inset 0 calc(var(--nt-vh)*-0.8) 0 rgba(0,0,0,.12); }
 .nt-home .card.content-color-block .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1.9); font-weight:900; color:var(--nt-text,#111); text-transform:uppercase; letter-spacing:0.08em; text-shadow:0 calc(var(--nt-vh)*0.2) 0 rgba(255,255,255,.25); }
 .nt-home .card.content-gradient { background:linear-gradient(160deg,var(--nt-accent,#FFCD00),var(--nt-card,rgba(255,255,255,.15))); }
+.nt-home .card.content-gradient .name { color:var(--nt-text,#fff); }
 .nt-home .card.content-image-text.pos-overlay-bottom, .nt-home .card.content-image-text.pos-overlay-top, .nt-home .card.content-image-text.pos-center { position:relative; }
 .nt-home .card.content-image-text.pos-overlay-bottom .img, .nt-home .card.content-image-text.pos-overlay-top .img, .nt-home .card.content-image-text.pos-center .img { position:absolute; left:0; right:0; top:0; bottom:0; flex:none; width:100%; height:100%; }
-.nt-home .card.content-image-text.pos-overlay-bottom .meta { position:absolute; left:0; right:0; bottom:0; top:auto; width:auto; display:flex; align-items:center; justify-content:center; text-align:var(--nt-card-align, center); padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); background:linear-gradient(transparent, var(--nt-overlay, rgba(0,0,0,.6))); color:#fff; }
-.nt-home .card.content-image-text.pos-overlay-top .meta { position:absolute; left:0; right:0; top:0; bottom:auto; width:auto; display:flex; align-items:center; justify-content:center; text-align:var(--nt-card-align, center); padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); background:linear-gradient(var(--nt-overlay, rgba(0,0,0,.6)), transparent); color:#fff; }
+.nt-home .card.content-image-text.pos-overlay-bottom .meta { position:absolute; left:0; right:0; bottom:0; top:auto; width:auto; display:flex; align-items:center; justify-content:center; text-align:var(--nt-card-align, center); padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); background:linear-gradient(transparent, var(--nt-overlay, rgba(0,0,0,.6))); color:var(--nt-text,#fff); }
+.nt-home .card.content-image-text.pos-overlay-top .meta { position:absolute; left:0; right:0; top:0; bottom:auto; width:auto; display:flex; align-items:center; justify-content:center; text-align:var(--nt-card-align, center); padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); background:linear-gradient(var(--nt-overlay, rgba(0,0,0,.6)), transparent); color:var(--nt-text,#fff); }
 .nt-home .card.content-image-text.pos-overlay-bottom .name,
 .nt-home .card.content-image-text.pos-overlay-top .name { display:block; width:100%; max-width:100%; overflow:hidden; text-overflow:ellipsis; text-align:var(--nt-card-align, center); }
-.nt-home .card.content-image-text.pos-center .meta { position:absolute; left:0; right:0; top:0; bottom:0; width:auto; display:flex; align-items:center; justify-content:center; text-align:var(--nt-card-align, center); color:#fff; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6); }
+.nt-home .card.content-image-text.pos-center .meta { position:absolute; left:0; right:0; top:0; bottom:0; width:auto; display:flex; align-items:center; justify-content:center; text-align:var(--nt-card-align, center); color:var(--nt-text,#fff); text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6); }
 .nt-home .card.content-image-text.pos-center .name {
   background: var(--nt-overlay, rgba(0,0,0,.6));
   padding: calc(var(--nt-vh) * 0.45) calc(var(--nt-vw) * 1.2);
@@ -469,7 +470,7 @@
 .nt-home .card.shape-circle.content-image-text.pos-overlay-bottom .name,
 .nt-home .card.shape-circle.content-image-text.pos-overlay-top .name,
 .nt-home .card.shape-hexagon.content-image-text.pos-overlay-bottom .name,
-.nt-home .card.shape-hexagon.content-image-text.pos-overlay-top .name { color:#fff; line-height:1.08; max-width:100%; }
+.nt-home .card.shape-hexagon.content-image-text.pos-overlay-top .name { color:var(--nt-text,#fff); line-height:1.08; max-width:100%; }
 .nt-home .card.shape-pill.content-image-text.pos-overlay-bottom .name,
 .nt-home .card.shape-pill.content-image-text.pos-overlay-top .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 0.9); }
 
@@ -529,7 +530,7 @@
 }
 .nt-home .cards:not(.shape) .card.shape-circle.content-image-text.pos-below .name,
 .nt-home .cards:not(.shape) .card.shape-hexagon.content-image-text.pos-below .name {
-  color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
+  color:var(--nt-text,#fff); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
 }
 
 /* ---- h-scroll ---- */
@@ -608,13 +609,13 @@
 .nt-home .cards .card.content-icon-text.pos-overlay-top.has-img .img { top:58%; }
 .nt-home .cards .card.content-icon-text.pos-overlay-top .name {
   top:9%; padding:calc(var(--nt-vh)*0.35) calc(var(--nt-vw)*0.45); border-radius:999px;
-  background:transparent; color:#fff;
+  background:transparent; color:var(--nt-text,#fff);
 }
 .nt-home .cards .card.content-icon-text.pos-overlay-bottom .meta::before,
 .nt-home .cards .card.content-icon-text.pos-overlay-bottom.has-img .img { top:40%; }
 .nt-home .cards .card.content-icon-text.pos-overlay-bottom .name {
   top:auto; bottom:9%; padding:calc(var(--nt-vh)*0.35) calc(var(--nt-vw)*0.45); border-radius:999px;
-  background:transparent; color:#fff;
+  background:transparent; color:var(--nt-text,#fff);
 }
 .nt-home .cards .card.content-icon-text.pos-below .meta::before,
 .nt-home .cards .card.content-icon-text.pos-below.has-img .img { top:34%; }
@@ -1556,17 +1557,7 @@
 .nt-home .layout-hero-list.align-right  { align-content:end; }
 /* bento: dense packing so cards fill evenly */
 .nt-home .layout-bento { grid-auto-flow:dense; }
-/* hexagons: pack side-by-side (tight centred rows) instead of loose grid cells —
-   the clipped corners otherwise leave awkward diagonal gaps */
-.nt-home .cards.shape.shape-hex.layout-col-2, .nt-home .cards.shape.shape-hex.layout-col-3, .nt-home .cards.shape.shape-hex.layout-col-4,
-.nt-home .cards.shape.shape-hex.layout-grid-2x3, .nt-home .cards.shape.shape-hex.layout-grid-2x2 {
-  display:flex; flex-wrap:wrap; align-items:center; align-content:center; justify-content:center;
-}
-.nt-home .cards.shape.shape-hex .card.shape-hexagon {
-  margin:calc(var(--nt-vh)*0.8) calc(var(--card-gap, calc(var(--nt-vw)*1.5)) * 0.12);
-}
-.nt-home .cards.shape.shape-hex.align-left   { justify-content:flex-start; }
-.nt-home .cards.shape.shape-hex.align-right  { justify-content:flex-end; }
+
 /* ---- card-size coverage (no overlap/overflow: sizes scale within their cells) ---- */
 /* col-2 / col-3 (flex variants) */
 .nt-home .layout-col-2.card-size-xs    .card { flex-basis:38%; height:74%; }
@@ -1902,15 +1893,7 @@
 .nt-home .card.content-color-block .name { color:#111 !important; }
 /* h-scroll hexagons: proper hexagon proportions (square clip looked squat/broken) */
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon { flex:0 0 calc(var(--nt-vh)*55); width:calc(var(--nt-vh)*55); height:calc(var(--nt-vh)*63); }
-/* hexagons honour the free column count (explicit count beats tight packing) */
-.nt-home .cards.shape.shape-hex.has-cols { display:grid; grid-template-columns:repeat(var(--cols,3),1fr); grid-auto-rows:48%; align-items:center; }
-.nt-home .cards.shape.shape-hex.has-cols.layout-col-2,
-.nt-home .cards.shape.shape-hex.has-cols.layout-col-3,
-.nt-home .cards.shape.shape-hex.has-cols.layout-col-4 {
-  grid-auto-rows: 94%;
-  align-content: start;
-}
-.nt-home .cards.shape.shape-hex.has-cols .card.shape-hexagon { margin:0; }
+
 /* promo: label centred under/over the disc */
 .nt-home .layout-promo-categories .promo-rail .card .meta { margin-left:auto !important; margin-right:auto !important; text-align:center; }
 /* promo: card size works for every shape (pill keeps its pill ratio) */
