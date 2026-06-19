@@ -2286,22 +2286,27 @@
 .nt-inter .fs-letter.active, .nt-inter .fs-val.active { color:var(--prm-accent,#185fa5); font-weight:900; }
 
 /* ---- intermediate 'columns' grid (column count from --int-cols, like Home) ---- */
-.nt-inter .body.int-columns { display:grid; grid-template-columns:repeat(var(--int-cols,3), 1fr); gap:calc(var(--nt-vh)*1.6) calc(var(--nt-vw)*1.4); align-content:start; padding:calc(var(--nt-vh)*2) calc(var(--nt-vw)*2); overflow-y:auto; box-sizing:border-box; }
-.nt-inter .body.int-columns .item { display:flex; flex-direction:column; min-height:0; background:var(--nt-int-card, rgba(255,255,255,.12)); border-radius:10px; overflow:hidden; cursor:pointer; }
-.nt-inter .body.int-columns .item .img { flex:1; min-height:calc(var(--nt-vh)*14); background-size:cover; background-position:center; }
-.nt-inter .body.int-columns.int-content-text-only .item .img { display:none; }
-.nt-inter .body.int-columns .item .name { padding:calc(var(--nt-vh)*0.8) calc(var(--nt-vw)*0.6); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw)*0.9); font-weight:700; text-align:center; color:var(--nt-int-text,#fff); }
+.nt-inter .body.int-columns { display:grid; grid-template-columns:repeat(var(--int-cols,3), 1fr); gap:calc(var(--nt-vh)*1.6) calc(var(--nt-vw)*1.4); align-content:start; justify-items:center; padding:calc(var(--nt-vh)*2) calc(var(--nt-vw)*2); overflow-y:auto; overflow-x:hidden; box-sizing:border-box; }
+.nt-inter .body.int-columns.scroll-horizontal { grid-auto-flow:column; grid-template-columns:none; grid-auto-columns:calc((100% - (var(--int-cols,3) - 1) * var(--nt-vw)*1.4) / var(--int-cols,3)); overflow-x:auto; overflow-y:hidden; }
+.nt-inter .body.int-columns .item { width:100%; display:flex; flex-direction:column; min-height:0; height:calc(var(--nt-vh)*34 * var(--nt-int-scale,1)); background:var(--nt-int-card, rgba(255,255,255,.12)); border-radius:10px; overflow:hidden; cursor:pointer; box-sizing:border-box; }
+.nt-inter .body.int-columns .item .img { flex:1; min-height:0; background-size:cover; background-position:center; }
+.nt-inter .body.int-columns.int-content-text-only .item .img, .nt-inter .body.int-columns.int-content-image-only .item .name { display:none; }
+.nt-inter .body.int-columns .item .name { padding:calc(var(--nt-vh)*0.8) calc(var(--nt-vw)*0.6); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw)*0.9); font-weight:700; text-align:var(--nt-card-align,center); color:var(--nt-int-text,#fff); }
+.nt-inter .body.int-columns.int-textpos-overlay-bottom .item, .nt-inter .body.int-columns.int-textpos-overlay-top .item { position:relative; }
+.nt-inter .body.int-columns[class*="int-textpos-overlay"] .item .img { position:absolute; inset:0; }
+.nt-inter .body.int-columns[class*="int-textpos-overlay"] .item .name { position:relative; z-index:1; margin-top:auto; background:var(--nt-overlay,rgba(0,0,0,.5)); }
+.nt-inter .body.int-columns.int-textpos-overlay-top .item .name { margin-top:0; margin-bottom:auto; }
 .nt-inter .body.int-columns.int-shape-pill .item { border-radius:999px; }
-.nt-inter .body.int-columns.int-shape-circle .item .img { border-radius:50%; }
-.nt-inter .body.int-columns.int-shape-hexagon .item .img { clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+.nt-inter .body.int-columns.int-shape-circle .item, .nt-inter .body.int-columns.int-shape-hexagon .item { aspect-ratio:1; height:auto; width:calc(var(--nt-vh)*30 * var(--nt-int-scale,1)); }
+.nt-inter .body.int-columns.int-shape-circle .item { border-radius:50%; }
+.nt-inter .body.int-columns.int-shape-hexagon .item { clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
 
 /* ---- card-strip restyled like Home 'image-strip' (full-bleed, image behind name) ---- */
 .nt-inter .body.int-card-strip { display:flex; flex-wrap:nowrap; padding:0 !important; gap:0; overflow-x:auto; overflow-y:hidden; }
-.nt-inter .body.int-card-strip .item { flex:0 0 28% !important; height:100% !important; margin:0 !important; position:relative; display:flex; align-items:center; justify-content:center; border-radius:0 !important; clip-path:none !important; border:0; border-right:calc(var(--nt-vw)*0.08) solid rgba(255,255,255,.15) !important; }
+.nt-inter .body.int-card-strip .item { flex:0 0 calc(100% / var(--int-cols,3)) !important; height:100% !important; margin:0 !important; position:relative; display:flex; align-items:center; justify-content:center; border-radius:0 !important; clip-path:none !important; border:0; border-right:calc(var(--nt-vw)*0.08) solid rgba(255,255,255,.15) !important; }
 .nt-inter .body.int-card-strip .item .img { position:absolute !important; inset:0 !important; flex:none !important; width:auto !important; height:auto !important; opacity:.6; border-radius:0 !important; clip-path:none !important; background-size:cover; background-position:center; }
 .nt-inter .body.int-card-strip .item .name { position:relative; z-index:1; margin:auto; padding:0; text-align:center; color:#fff; font-size:calc(var(--nt-text-scale,1) * var(--nt-vw)*1.45); font-weight:800; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.6) rgba(0,0,0,.7); white-space:normal; }
-.nt-inter .body.int-card-strip.int-size-small .item { flex-basis:22% !important; }
-.nt-inter .body.int-card-strip.int-size-large .item { flex-basis:36% !important; }
+/* card-strip visible-count is driven by --int-cols (above); item-size buckets no-op here */
 
 /* ---- overflow scroll lead-in: first card offset from the edge, extras overflow ---- */
 .nt-home .cards.scroll-horizontal, .nt-inter .body.scroll-horizontal { justify-content:flex-start !important; padding-left:calc(var(--nt-vw)*2.5) !important; padding-right:calc(var(--nt-vw)*2.5) !important; }

@@ -176,7 +176,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </ng-container>
           <ng-template #flatInter>
             <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediateStyle==='side-rail' ? 'left' : (theme?.intermediate?.align||'center')}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}}"
-                 [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [style.--int-cols]="theme?.intermediate?.columns || 3">
+                 [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [style.--int-cols]="theme?.intermediate?.columns || 3" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0">
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                 <span class="name">{{ it.name }}</span>
@@ -765,9 +765,11 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return this.intermediate || [];
   }
   get interCells(): CardItem[] {
-    // 'columns' style fills full rows that match the chosen column count.
+    // 'columns' shows ONE row matching the chosen column count (extra items
+    // overflow via scroll). card-strip shows the visible-count too.
     const cols = this.theme?.intermediate?.columns;
-    const n = this.theme?.intermediateStyle === 'columns' && cols ? Math.min(12, cols * 2) : 6;
+    const n = (this.theme?.intermediateStyle === 'columns' || this.theme?.intermediateStyle === 'card-strip') && cols
+      ? cols : 6;
     const real = this.intermediateSource.slice(0, n);
     if (real.length) return real.map(c => ({ ...c, name: c.name || 'Item' }));
     return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: this.placeholderLabels[i % this.placeholderLabels.length] } as CardItem));

@@ -85,6 +85,13 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' }, { id: 'text-only', label: 'Text only' },
     { id: 'icon-text', label: 'Icon + Text' }, { id: 'gradient', label: 'Gradient' },
   ];
+  /** Card-content options for the current layout. Image-based layouts (image-strip)
+   *  only offer image content types so the configuration can't contradict itself. */
+  get cardContentsFor(): { id: CardContent; label: string }[] {
+    return this.t.homeLayout === 'image-strip'
+      ? this.cardContents.filter((c) => c.id === 'image-text' || c.id === 'image-only')
+      : this.cardContents;
+  }
   cardTextPositions: { id: CardTextPos; label: string }[] = [
     { id: 'overlay-top', label: 'Inner Top' }, { id: 'overlay-bottom', label: 'Inner Bottom' }, { id: 'center', label: 'Center' }, { id: 'above', label: 'Top (above)' }, { id: 'below', label: 'Below' },
   ];
@@ -131,7 +138,7 @@ export class ThemeWizardComponent implements OnInit {
     }
   }
   pickContent(c: CardContent): void { this.t.cardContent = c; this.coerceTextPos(); }
-  pickInterContent(c: 'image-text' | 'text-only'): void { this.t.intermediate.content = c; this.coerceTextPos(); }
+  pickInterContent(c: 'image-text' | 'image-only' | 'text-only'): void { this.t.intermediate.content = c; this.coerceTextPos(); }
   pickInterStyle(s: IntermediateStyle): void {
     this.t.intermediateStyle = s;
     if (s === 'side-rail') this.t.intermediate.align = 'left';
@@ -150,6 +157,10 @@ export class ThemeWizardComponent implements OnInit {
     }
     if (l === 'image-strip') this.t.columns = 4;
     if (l === 'bento') this.t.columns = 4;
+    // image-strip is image-based — coerce a non-image content to Image + Text.
+    if (l === 'image-strip' && !['image-text', 'image-only'].includes(this.t.cardContent)) {
+      this.pickContent('image-text');
+    }
     // Reset layout-dependent settings so stale values from the previous layout
     // don't bleed into the new one (e.g. 'loose' gap on a tight layout).
     this.t.cardGap = 'normal';
@@ -208,14 +219,14 @@ export class ThemeWizardComponent implements OnInit {
     return this.t.homeLayout === 'hero-list' ? this.scrollModes.filter(m => m.id !== 'horizontal') : this.scrollModes;
   }
   /** Intermediate content options (image layouts only). */
-  interContents: { id: 'image-text' | 'text-only'; label: string }[] = [
-    { id: 'image-text', label: 'Image + Text' }, { id: 'text-only', label: 'Text only' },
+  interContents: { id: 'image-text' | 'image-only' | 'text-only'; label: string }[] = [
+    { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' }, { id: 'text-only', label: 'Text only' },
   ];
-  /** Alignment is a no-op for styles whose items always fill the row. */
+  /** Card/text horizontal alignment — only for the 'columns' grid. */
   get intAlignMatters(): boolean {
-    return !['fullscreen', 'accordion', 'scroll-list', 'drill-stair', 'side-rail'].includes(this.t.intermediateStyle);
+    return this.t.intermediateStyle === 'columns';
   }
-  /** Intermediate text-position applies to these styles. */
+  /** Text vertical position applies to image card styles. */
   get intTextPosMatters(): boolean {
     return ['columns', 'card-strip', 'circular', 'hex-grid', 'fullscreen'].includes(this.t.intermediateStyle);
   }
@@ -393,16 +404,23 @@ export class ThemeWizardComponent implements OnInit {
   intStyleLabel(s: IntermediateStyle): string { return this.intStyleLabels[s] || s; }
   /** Card shape only affects intermediate styles that show a per-item image. */
   get intShapeMatters(): boolean {
-    return ['columns', 'card-strip', 'side-rail', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle);
+    // card-strip is a full-bleed image strip — no per-card shape control.
+    return ['columns', 'side-rail', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle);
   }
   /** finder-select index-strip modes + step-label CSV binding. */
   indexModes = ['auto', 'alpha', 'values', 'off'];
   get intStepsCsv(): string { return (this.t.intermediate.stepLabels || []).join(','); }
   set intStepsCsv(v: string) { this.t.intermediate.stepLabels = v.split(',').map((s) => s.trim()).filter(Boolean); }
-  /** Intermediate 'columns' style exposes a column-count slider (like Home). */
-  get intColumnsMatters(): boolean { return this.t.intermediateStyle === 'columns'; }
+  /** Column / item count input — for 'columns' (grid) AND 'card-strip' (visible count). */
+  get intColumnsMatters(): boolean { return this.t.intermediateStyle === 'columns' || this.t.intermediateStyle === 'card-strip'; }
   get intColumnsValue(): number { return this.t.intermediate.columns || 3; }
+  /** Stepper used like Home: +/- buttons. */
+  stepIntColumns(delta: number): void { this.setIntColumns(this.intColumnsValue + delta); }
   setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(2, Math.min(6, Math.round(n))); }
+  /** Overflow scrolling matters for the columns grid. */
+  get intScrollMatters(): boolean { return this.t.intermediateStyle === 'columns'; }
+  /** Card content (image/text) applies to every image-showing style incl. card-strip. */
+  get intContentMatters(): boolean { return this.intShapeMatters || this.t.intermediateStyle === 'card-strip'; }
   /** Selectable templates — split-panel / esl-focus (map-width variants of
    *  map-list) and dual-list (2-col list-only) are hidden as near-duplicates;
    *  old themes using them still render (enum + CSS retained). */
@@ -729,6 +747,13 @@ export class ThemeWizardComponent implements OnInit {
   }
 
   private afterStepChange(): void {
+    // Removed layout styles (pills / image-grid / center-tiles) are no longer
+    // selectable — when arriving at the intermediate-design step with one of them
+    // (or anything not in the current list), default to 'columns' so a tile is
+    // selected and its preview shows.
+    if (this.visibleSteps[this.stepIndex]?.key === 'intStyle' && !this.intStyles.includes(this.t.intermediateStyle)) {
+      this.t.intermediateStyle = 'columns';
+    }
     setTimeout(() => {
       void this.content?.scrollToTop(0);
       const host = this.wizardSteps?.nativeElement;
