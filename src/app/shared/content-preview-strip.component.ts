@@ -116,7 +116,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
                  [class.has-img]="!!c.image || usePh" *ngFor="let c of homeCells; let i = index">
               <div class="img" [class.placeholder]="!c.image && !usePh" [style.background-image]="c.image ? 'url('+c.image+')' : (usePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="(!c.image && !usePh) ? theme?.accent : null"></div>
-              <div class="meta"><span class="name">{{ c.name }}</span></div>
+              <div class="meta"><span class="name">{{ c.name }}</span><span class="price" *ngIf="c.price">{{ c.price }}<span class="unit" *ngIf="c.unit"> / {{ c.unit }}</span></span></div>
             </div>
           </div>
           <!-- h-scroll: single horizontally-scrolling rail -->
@@ -124,7 +124,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
                  [class.has-img]="!!c.image || usePh" *ngFor="let c of homeCells; let i = index">
               <div class="img" [class.placeholder]="!c.image && !usePh" [style.background-image]="c.image ? 'url('+c.image+')' : (usePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="(!c.image && !usePh) ? theme?.accent : null"></div>
-              <div class="meta"><span class="name">{{ c.name }}</span></div>
+              <div class="meta"><span class="name">{{ c.name }}</span><span class="price" *ngIf="c.price">{{ c.price }}<span class="unit" *ngIf="c.unit"> / {{ c.unit }}</span></span></div>
             </div>
           </div>
           <!-- all other layouts -->
@@ -132,7 +132,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
                  [class.featured]="i===0" [class.has-img]="!!c.image || usePh" *ngFor="let c of homeCells; let i = index">
               <div class="img" [class.placeholder]="!c.image && !usePh" [style.background-image]="c.image ? 'url('+c.image+')' : (usePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="(!c.image && !usePh) ? theme?.accent : null"></div>
-              <div class="meta"><span class="name">{{ c.name }}</span></div>
+              <div class="meta"><span class="name">{{ c.name }}</span><span class="price" *ngIf="c.price">{{ c.price }}<span class="unit" *ngIf="c.unit"> / {{ c.unit }}</span></span></div>
             </div>
           </ng-container>
         </div>

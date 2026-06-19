@@ -106,6 +106,8 @@
 .nt-home .card .img { flex:1; background-size:cover; background-position:center; background-color:rgba(255,255,255,.08); }
 .nt-home .card .meta { flex:0 0 auto; padding:calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8); min-width:0; box-sizing:border-box; }
 .nt-home .card .name { font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1); font-weight:800; color:var(--nt-base-text, var(--nt-text,#fff)); }
+.nt-home .card .meta .price { display:block; margin-top:calc(var(--nt-vh)*0.25); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 0.9); font-weight:900; color:var(--nt-accent,#FFCD00); }
+.nt-home .card .meta .price .unit { font-weight:600; opacity:.85; color:var(--nt-base-text, var(--nt-text,#fff)); }
 /* shape 'none' (image-only): show the image with no mask/rounding at all. */
 .nt-home .card.shape-none, .nt-home .card.shape-none .img { border-radius:0 !important; clip-path:none !important; }
 /* C-1: continuous card-size multiplier (zoom) layered on top of the size bucket.
