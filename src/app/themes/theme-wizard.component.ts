@@ -454,7 +454,7 @@ export class ThemeWizardComponent implements OnInit {
   get intColumnsValue(): number { return this.t.intermediate.columns || 3; }
   /** Stepper used like Home: +/- buttons. */
   stepIntColumns(delta: number): void { this.setIntColumns(this.intColumnsValue + delta); }
-  setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(1, Math.min(4, Math.round(n))); }
+  setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(1, Math.min(MAX_COLUMNS, Math.round(n))); }
   /** Overflow scrolling matters for the columns grid + brand grid/rail. */
   get intScrollMatters(): boolean { return ['columns', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle); }
   /** brand-rail is a single horizontal row — only horizontal scroll allowed. */
