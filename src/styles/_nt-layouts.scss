@@ -2445,9 +2445,9 @@
 /* Circle/hexagon column cards can be narrower than the viewport, so their
    explicit card alignment remains useful during horizontal scrolling. */
 .nt-inter .body.int-columns.scroll-horizontal.int-shape-circle.int-align-center,
-.nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-center { justify-content:center !important; }
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-center { justify-content:safe center !important; }
 .nt-inter .body.int-columns.scroll-horizontal.int-shape-circle.int-align-right,
-.nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-right { justify-content:flex-end !important; }
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-right { justify-content:safe flex-end !important; }
 .nt-inter .body.int-columns.scroll-horizontal.int-shape-circle.int-align-left,
 .nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-left { justify-content:flex-start !important; }
 .nt-home .cards.scroll-vertical, .nt-inter .body.scroll-vertical { align-content:flex-start !important; padding-top:calc(var(--nt-vh)*2.5) !important; padding-bottom:calc(var(--nt-vh)*2.5) !important; }
@@ -2477,6 +2477,10 @@
 .nt-inter .body.int-fullscreen.int-align-left .item .name { text-align:left; }
 .nt-inter .body.int-fullscreen.int-align-right .item .name { text-align:right; }
 .nt-inter .body.int-fullscreen.int-align-center .item .name { text-align:center; }
+/* #3 overflow peek: show a sliver of the next card so scrollability is obvious */
+.nt-inter .body.int-columns.scroll-horizontal .item { flex:0 0 calc(100% / (var(--int-cols,3) + 0.4)) !important; }
+.nt-inter .body.int-card-strip .item { flex:0 0 calc(100% / (var(--int-cols,3) + 0.4)) !important; }
+.nt-inter .body.int-columns.scroll-horizontal, .nt-inter .body.int-card-strip { scroll-padding-inline-end:calc(var(--nt-vw)*4); }
 
 /* ---- #16 brand-grid overflow: horizontal (nowrap, scroll-x) or vertical (wrap, scroll-y) ---- */
 .nt-inter .body.int-brand-grid.scroll-horizontal { flex-wrap:nowrap; justify-content:flex-start; overflow-x:auto; overflow-y:hidden; }

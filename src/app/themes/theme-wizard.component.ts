@@ -158,9 +158,14 @@ export class ThemeWizardComponent implements OnInit {
     // Carousel-scrolling toggle reflects a real direction and switching to
     // vertical actually changes the scroll. Use the per-intermediate scroll field
     // (the renderers prefer it over the global one).
-    if (s === 'fullscreen') this.t.intermediate.scrollMode = 'horizontal';
+    if (s === 'fullscreen') this.setInterScroll('horizontal');
     // brand-rail is a horizontal single-row rail.
-    if (s === 'brand-rail') this.t.intermediate.scrollMode = 'horizontal';
+    if (s === 'brand-rail') this.setInterScroll('horizontal');
+    // #2/#5 full-bleed styles must use an inner text position; #4 ensure content set.
+    if (s === 'fullscreen' || s === 'card-strip') {
+      this.coerceInnerTextPos();
+      if (!this.t.intermediate.content) this.t.intermediate.content = 'image-text';
+    }
   }
 
   /** Layouts where circle/hexagon shapes don't render well and are hidden.
@@ -169,6 +174,8 @@ export class ThemeWizardComponent implements OnInit {
 
   pickLayout(l: HomeLayout): void {
     this.t.homeLayout = l;
+    // #2 full-bleed fullscreen must use an inner text position.
+    if (l === 'fullscreen') this.coerceHomeInnerTextPos();
     if (this.columnLayouts.includes(l)) {
       this.t.columns = columnsForLayout(l);
     } else {
@@ -246,9 +253,9 @@ export class ThemeWizardComponent implements OnInit {
   resultContents: { id: 'image-text' | 'text-only'; label: string }[] = [
     { id: 'image-text', label: 'Image + Text' }, { id: 'text-only', label: 'Text only' },
   ];
-  /** Card-strip only supports image content; other styles get the full set. */
+  /** Card-strip & fullscreen are full-bleed image cards → image content only. */
   get interContentsFor(): { id: CardContent; label: string }[] {
-    return this.t.intermediateStyle === 'card-strip'
+    return (this.t.intermediateStyle === 'card-strip' || this.t.intermediateStyle === 'fullscreen')
       ? this.interContents.filter((c) => c.id === 'image-text' || c.id === 'image-only')
       : this.interContents;
   }
@@ -452,15 +459,49 @@ export class ThemeWizardComponent implements OnInit {
   /** Column / item count input — for 'columns' (grid) AND 'card-strip' (visible count). */
   get intColumnsMatters(): boolean { return this.t.intermediateStyle === 'columns' || this.t.intermediateStyle === 'card-strip'; }
   get intColumnsValue(): number { return this.t.intermediate.columns || 3; }
+  /** #6 Dynamic max "visible cards": shaped cards (circle/hex) distort sooner. */
+  get maxVisibleCards(): number {
+    if (this.t.intermediateStyle === 'columns') return 4;
+    const sh = this.t.intermediate.cardShape;
+    return (sh === 'circle' || sh === 'hexagon') ? 5 : 8;
+  }
   /** Stepper used like Home: +/- buttons. */
   stepIntColumns(delta: number): void { this.setIntColumns(this.intColumnsValue + delta); }
-  setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(1, Math.min(MAX_COLUMNS, Math.round(n))); }
+  setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(1, Math.min(this.maxVisibleCards, Math.round(n))); }
+  /** Cap visible cards if a shape change lowered the dynamic max. */
+  setInterShape(s: CardShape): void { this.t.intermediate.cardShape = s; if ((this.t.intermediate.columns || 3) > this.maxVisibleCards) this.setIntColumns(this.maxVisibleCards); }
   /** Overflow scrolling matters for the columns grid + brand grid/rail. */
   get intScrollMatters(): boolean { return ['columns', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle); }
   /** brand-rail is a single horizontal row — only horizontal scroll allowed. */
   get intScrollHorizontalOnly(): boolean { return this.t.intermediateStyle === 'brand-rail'; }
-  /** Card content (image/text) applies to every image-showing style incl. card-strip. */
-  get intContentMatters(): boolean { return this.intShapeMatters || this.t.intermediateStyle === 'card-strip'; }
+  /** #4 Card content applies to image-showing styles incl. card-strip + fullscreen. */
+  get intContentMatters(): boolean { return this.intShapeMatters || this.t.intermediateStyle === 'card-strip' || this.t.intermediateStyle === 'fullscreen'; }
+
+  /** #1 Scroll-direction helpers (Home uses global scrollMode; Intermediate its own). */
+  private readonly innerTextPositions: CardTextPos[] = ['overlay-top', 'overlay-bottom', 'center'];
+  get isHomeVerticalScroll(): boolean { return this.t.scrollMode === 'vertical'; }
+  get isHomeHorizontalScroll(): boolean { return this.t.scrollMode === 'horizontal' || this.t.homeLayout === 'h-scroll'; }
+  get isInterVerticalScroll(): boolean { return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'vertical'; }
+  get isInterHorizontalScroll(): boolean { return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'horizontal' || this.t.intermediateStyle === 'brand-rail' || this.t.intermediateStyle === 'card-strip'; }
+  /** Set Home scroll + coerce alignment to a safe, non-clipping default. */
+  setHomeScroll(m: ScrollMode): void {
+    this.t.scrollMode = m;
+    if (m === 'vertical') { this.t.cardVAlign = 'top'; this.t.cardAlign = 'left'; }
+    else if (m === 'horizontal') { this.t.cardAlign = 'left'; this.t.cardVAlign = 'middle'; }
+  }
+  /** Set Intermediate scroll + coerce alignment to a safe, non-clipping default. */
+  setInterScroll(m: ScrollMode): void {
+    this.t.intermediate.scrollMode = m;
+    if (m === 'vertical') { this.t.intermediate.valign = 'top'; this.t.intermediate.align = 'left'; }
+    else if (m === 'horizontal') { this.t.intermediate.align = 'left'; this.t.intermediate.valign = 'middle'; }
+  }
+  /** #2/#5 Coerce text position to an inner position for full-bleed styles. */
+  private coerceInnerTextPos(): void {
+    if (!this.innerTextPositions.includes(this.t.intermediate.textPos || 'below')) this.t.intermediate.textPos = 'overlay-bottom';
+  }
+  private coerceHomeInnerTextPos(): void {
+    if (!this.innerTextPositions.includes(this.t.cardTextPos)) this.t.cardTextPos = 'overlay-bottom';
+  }
   /** Selectable templates — split-panel / esl-focus (map-width variants of
    *  map-list) and dual-list (2-col list-only) are hidden as near-duplicates;
    *  old themes using them still render (enum + CSS retained). */
