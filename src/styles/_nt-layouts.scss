@@ -2363,10 +2363,17 @@
 .nt-inter .body.int-card-strip.scroll-horizontal { padding-left:0 !important; padding-right:0 !important; padding-top:0 !important; padding-bottom:0 !important; }
 /* image-only content: hide the card name across every intermediate style */
 .nt-inter .body[class*="int-content-image-only"] .item .name { display:none !important; }
-/* #5 vertical alignment of the whole card group (columns / brand-grid) */
-.nt-inter .body.int-columns.int-valign-top, .nt-inter .body.int-brand-grid.int-valign-top { align-content:flex-start; }
-.nt-inter .body.int-columns.int-valign-middle, .nt-inter .body.int-brand-grid.int-valign-middle { align-content:center; }
-.nt-inter .body.int-columns.int-valign-bottom, .nt-inter .body.int-brand-grid.int-valign-bottom { align-content:flex-end; }
+/* #3 Text Overlay OFF: remove the background behind overlaid card text */
+.nt-inter .body.no-overlay .item .name { background:transparent !important; }
+/* #5 vertical alignment of the whole card group (columns / brand-grid).
+   'safe' keeps the group centered when it fits, but scrolls from the first
+   card (no clipped/skipped initial cards) when it overflows. */
+.nt-inter .body.int-columns.int-valign-top, .nt-inter .body.int-brand-grid.int-valign-top { align-content:safe flex-start; }
+.nt-inter .body.int-columns.int-valign-middle, .nt-inter .body.int-brand-grid.int-valign-middle { align-content:safe center; }
+.nt-inter .body.int-columns.int-valign-bottom, .nt-inter .body.int-brand-grid.int-valign-bottom { align-content:safe flex-end; }
+.nt-inter .body.int-columns, .nt-inter .body.int-brand-grid { justify-content:safe center; }
+.nt-inter .body.int-columns.int-align-left, .nt-inter .body.int-brand-grid.int-align-left { justify-content:safe flex-start; }
+.nt-inter .body.int-columns.int-align-right, .nt-inter .body.int-brand-grid.int-align-right { justify-content:safe flex-end; }
 /* #11 horizontal alignment for brand-grid (card group) + fullscreen (text) */
 .nt-inter .body.int-brand-grid.int-align-left { justify-content:flex-start; }
 .nt-inter .body.int-brand-grid.int-align-center { justify-content:center; }

@@ -106,6 +106,12 @@ export class ThemeWizardComponent implements OnInit {
   get overlayRelevant(): boolean {
     return this.t.cardContent === 'image-text' && this.overlayPositions.includes(this.t.cardTextPos);
   }
+  /** Intermediate text-overlay toggle is relevant only for image-text content
+   *  positioned over the image (overlay-top / overlay-bottom / center). */
+  get interOverlayRelevant(): boolean {
+    return (this.t.intermediate.content || 'image-text') === 'image-text'
+      && this.overlayPositions.includes(this.t.intermediate.textPos || 'below');
+  }
   /** 'Below' only makes sense when there is an image to sit below — hidden for
    *  every text-style content, and for arrangements with no under-card area
    *  (image-strip, hero-start). Centralized so every QA scenario goes through
@@ -148,9 +154,10 @@ export class ThemeWizardComponent implements OnInit {
   pickInterStyle(s: IntermediateStyle): void {
     this.t.intermediateStyle = s;
     if (s === 'side-rail') this.t.intermediate.align = 'left';
-    // Fullscreen shows ONE card by default (carousel only when a scroll dir is set),
-    // so reset scroll to 'auto' to avoid a card-strip-like multi-card preview.
-    if (s === 'fullscreen') this.t.scrollMode = 'auto';
+    // Fullscreen is a one-card-at-a-time carousel; default to horizontal so the
+    // Carousel-scrolling toggle reflects a real direction and switching to
+    // vertical actually changes the scroll.
+    if (s === 'fullscreen') this.t.scrollMode = 'horizontal';
     // brand-rail is a horizontal single-row rail.
     if (s === 'brand-rail') this.t.scrollMode = 'horizontal';
   }
