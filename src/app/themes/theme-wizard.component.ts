@@ -475,7 +475,7 @@ export class ThemeWizardComponent implements OnInit {
   get intColumnsValue(): number { return this.t.intermediate.columns || 3; }
   /** #6 Dynamic max "visible cards": shaped cards (circle/hex) distort sooner. */
   get maxVisibleCards(): number {
-    if (this.t.intermediateStyle === 'columns') return 8;
+    if (this.t.intermediateStyle === 'columns') return 4;
     const sh = this.t.intermediate.cardShape;
     return (sh === 'circle' || sh === 'hexagon') ? 5 : 8;
   }

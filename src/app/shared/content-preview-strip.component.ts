@@ -802,7 +802,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       } as CardItem));
       return [...real, ...dummy];
     }
-    const n = this.theme?.intermediateStyle === 'card-strip' && cols
+    const n = (this.theme?.intermediateStyle === 'columns' || this.theme?.intermediateStyle === 'card-strip') && cols
       ? cols : 6;
     const real = source.slice(0, n);
     if (real.length) return real.map(c => ({ ...c, name: c.name || 'Item' }));
