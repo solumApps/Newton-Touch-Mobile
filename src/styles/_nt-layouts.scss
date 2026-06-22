@@ -6827,9 +6827,10 @@
   color: #111 !important;
 }
 
-re-assert the selected card shape on the card itself. */
+/* Re-assert the selected card shape on the card itself. */
 
 /* Gradient cards have no image layer, so the late background override must
+   preserve the selected shape on the card itself. */
 .nt-home .card.shape-pill.content-gradient { border-radius:999px !important; clip-path:none !important; }
 .nt-home .card.shape-circle.content-gradient { border-radius:50% !important; clip-path:none !important; }
 .nt-home .card.shape-hexagon.content-gradient {
@@ -8901,7 +8902,7 @@ re-assert the selected card shape on the card itself. */
 }
 
 .nt-inter .body.int-card-strip .item {
-  flex: 0 0 calc(100% / var(--int-cols, 3)) !important;
+  flex: 0 0 var(--int-strip-card-width, 33.333%) !important;
   height: 100% !important;
   margin: 0 !important;
   position: relative;
@@ -9026,6 +9027,10 @@ re-assert the selected card shape on the card itself. */
   padding-bottom: 0 !important;
 }
 
+.nt-inter .body.int-card-strip.int-strip-few {
+  justify-content: center !important;
+}
+
 /* image-only content: hide the card name across every intermediate style */
 .nt-inter .body[class*="int-content-image-only"] .item .name {
   display: none !important;
@@ -9110,7 +9115,7 @@ re-assert the selected card shape on the card itself. */
 }
 
 .nt-inter .body.int-card-strip .item {
-  flex: 0 0 calc(100% / (var(--int-cols, 3) + 0.4)) !important;
+  flex-basis: var(--int-strip-card-width, 33.333%) !important;
 }
 
 .nt-inter .body.int-columns.scroll-horizontal,

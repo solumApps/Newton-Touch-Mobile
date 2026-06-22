@@ -177,7 +177,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </ng-container>
           <ng-template #flatInter>
             <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediateStyle==='side-rail' ? 'left' : (theme?.intermediate?.align||'center')}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-valign-{{theme?.intermediate?.valign||'middle'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}}"
-                 [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && interScrollMode==='vertical' && (theme?.intermediate?.columns || 3)===1" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [style.--int-cols]="interVisibleColumns" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
+                 [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && interScrollMode==='vertical' && (theme?.intermediate?.columns || 3)===1" [class.int-strip-few]="theme?.intermediateStyle==='card-strip' && interStripRenderedCount<=2" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [style.--int-cols]="interVisibleColumns" [style.--int-strip-card-width]="interStripCardWidth" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0">
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                 <span class="name">{{ it.name }}</span>
@@ -660,6 +660,14 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return this.theme?.intermediateStyle === 'columns' && this.interScrollMode === 'horizontal'
       ? 4 : (this.theme?.intermediate?.columns || 3);
   }
+  get interStripRenderedCount(): number {
+    const configured = this.theme?.intermediate?.columns || 3;
+    const sourceCount = this.intermediateSource.length;
+    return Math.max(1, sourceCount ? Math.min(sourceCount, configured) : configured);
+  }
+  get interStripCardWidth(): string {
+    return this.interStripRenderedCount <= 2 ? '33.333%' : `${100 / this.interStripRenderedCount}%`;
+  }
   get cardGapPx(): string | null {
     const n = this.theme?.cardGapNum;
     return typeof n === 'number' ? n + 'px' : null;
@@ -786,7 +794,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       return [...real, ...dummy];
     }
     if (this.theme?.intermediateStyle === 'columns') {
-      const cardCount = Math.max(8, Math.min(source.length, 12));
+      const cardCount = cols || 3;
       const real = source.slice(0, cardCount).map(c => ({ ...c, name: c.name || 'Item' }));
       const dummy = Array.from({ length: cardCount - real.length }, (_, i) => ({
         id: 'inter-scroll-ph' + i,
