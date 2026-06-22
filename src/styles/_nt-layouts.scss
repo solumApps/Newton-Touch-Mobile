@@ -997,9 +997,9 @@
 }
 .nt-inter .item .name { font-weight:800; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
 .nt-inter .body .item .name { text-align:var(--nt-int-card-align, center) !important; }
-.nt-inter .body.int-textalign-left .item .name { justify-content:flex-start !important; }
-.nt-inter .body.int-textalign-center .item .name { justify-content:center !important; }
-.nt-inter .body.int-textalign-right .item .name { justify-content:flex-end !important; }
+.nt-inter .body.int-textalign-left .item .name { text-align:left !important; justify-content:flex-start !important; }
+.nt-inter .body.int-textalign-center .item .name { text-align:center !important; justify-content:center !important; }
+.nt-inter .body.int-textalign-right .item .name { text-align:right !important; justify-content:flex-end !important; }
 .nt-inter.surface-glass .item { background:rgba(255,255,255,.14); backdrop-filter:blur(calc(var(--nt-vw)*0.8)); -webkit-backdrop-filter:blur(calc(var(--nt-vw)*0.8)); border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.55); box-shadow:inset 0 calc(var(--nt-vh)*0.45) 0 rgba(255,255,255,.28), inset 0 0 calc(var(--nt-vw)*2) rgba(255,255,255,.08); }
 .nt-inter.surface-raised .item { border:0; box-shadow:0 calc(var(--nt-vh)*2.4) calc(var(--nt-vh)*3.6) rgba(0,0,0,.42), 0 calc(var(--nt-vh)*0.5) calc(var(--nt-vh)*1) rgba(0,0,0,.3) !important; }
 .nt-inter.surface-outlined .item { background:transparent; border:calc(var(--nt-vw)*0.14) solid var(--nt-int-accent,#FFCD00); }
@@ -2419,7 +2419,14 @@
 .nt-inter .body.int-card-strip { display:flex; flex-wrap:nowrap; padding:0 !important; gap:0; overflow-x:auto; overflow-y:hidden; }
 .nt-inter .body.int-card-strip .item { flex:0 0 calc(100% / var(--int-cols,3)) !important; height:100% !important; margin:0 !important; position:relative; display:flex; align-items:center; justify-content:center; border-radius:0 !important; clip-path:none !important; border:0; border-right:calc(var(--nt-vw)*0.08) solid rgba(255,255,255,.15) !important; }
 .nt-inter .body.int-card-strip .item .img { position:absolute !important; inset:0 !important; flex:none !important; width:auto !important; height:auto !important; opacity:.6; border-radius:0 !important; clip-path:none !important; background-size:cover; background-position:center; }
-.nt-inter .body.int-card-strip .item .name { position:relative; z-index:1; margin:auto; padding:0; text-align:center; color:#fff; font-size:calc(var(--nt-text-scale,1) * var(--nt-vw)*1.45); font-weight:800; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.6) rgba(0,0,0,.7); white-space:normal; }
+.nt-inter .body.int-card-strip .item .name { position:absolute !important; left:8% !important; right:8% !important; z-index:1; margin:0; padding:0; color:#fff; font-size:calc(var(--nt-text-scale,1) * var(--nt-vw)*1.45); font-weight:800; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.6) rgba(0,0,0,.7); white-space:normal; }
+/* The full-bleed strip has no area outside its image, so above/below pin the
+   label to the corresponding card edge while the overlay options add an inset. */
+.nt-inter .body.int-card-strip.int-textpos-overlay-top .item .name { top:7% !important; bottom:auto !important; transform:none; }
+.nt-inter .body.int-card-strip.int-textpos-above .item .name { top:0 !important; bottom:auto !important; transform:none; }
+.nt-inter .body.int-card-strip.int-textpos-center .item .name { top:50% !important; bottom:auto !important; transform:translateY(-50%); }
+.nt-inter .body.int-card-strip.int-textpos-overlay-bottom .item .name { top:auto !important; bottom:7% !important; transform:none; }
+.nt-inter .body.int-card-strip.int-textpos-below .item .name { top:auto !important; bottom:0 !important; transform:none; }
 /* card-strip visible-count is driven by --int-cols (above); item-size buckets no-op here */
 
 /* ---- overflow scroll lead-in: first card offset from the edge, extras overflow ---- */
