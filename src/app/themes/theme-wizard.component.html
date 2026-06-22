@@ -481,8 +481,8 @@
           <p class="hint">{{ t.intermediateStyle==='card-strip' ? 'How many cards are visible at once in the strip.' : 'How many sub-category cards per row.' }}</p>
           <div class="seg cols-stepper">
             <button class="tile" (click)="stepIntColumns(-1)" [disabled]="intColumnsValue<=1" aria-label="Fewer">−</button>
-            <input class="inp cols-inp" type="number" min="1" max="6" [value]="intColumnsValue" (input)="setIntColumns(+$any($event.target).value)" aria-label="Columns" />
-            <button class="tile" (click)="stepIntColumns(1)" [disabled]="intColumnsValue>=6" aria-label="More">+</button>
+            <input class="inp cols-inp" type="number" min="1" max="4" [value]="intColumnsValue" (input)="setIntColumns(+$any($event.target).value)" aria-label="Columns" />
+            <button class="tile" (click)="stepIntColumns(1)" [disabled]="intColumnsValue>=4" aria-label="More">+</button>
           </div>
         </ng-container>
 
@@ -547,6 +547,8 @@
         <ng-container *ngIf="intAlignMatters">
           <div class="step-title sm">Card alignment</div>
           <div class="seg"><button class="tile" *ngFor="let a of aligns" [class.sel]="(t.intermediate.align||'center')===a.id" (click)="t.intermediate.align=a.id">{{ a.label }}</button></div>
+          <div class="step-title sm">Vertical alignment</div>
+          <div class="seg"><button class="tile" *ngFor="let v of valigns" [class.sel]="(t.intermediate.valign||'middle')===v.id" (click)="t.intermediate.valign=v.id">{{ v.label }}</button></div>
         </ng-container>
 
         <ng-container *ngIf="t.intermediateStyle !== 'drill-stair' && t.intermediateStyle !== 'card-strip'">
@@ -568,14 +570,7 @@
           <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
           <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
         </div>
-        <ng-container *ngIf="t.intermediate.showHeader">
-          <div class="step-title sm">Header background</div>
-          <div class="seg">
-            <button class="tile" [class.sel]="!t.intermediate.transparentHeader" (click)="t.intermediate.transparentHeader=false">Solid</button>
-            <button class="tile" [class.sel]="!!t.intermediate.transparentHeader" (click)="t.intermediate.transparentHeader=true">Transparent</button>
-          </div>
-        </ng-container>
-        <p class="hint">Colours, sub-item details and navigation buttons are set on the next step.</p>
+        <p class="hint">Header background (solid/transparent), colours, sub-item details and navigation buttons are set on the next step.</p>
       </div>
 
       <div *ngSwitchCase="'intColors'">
