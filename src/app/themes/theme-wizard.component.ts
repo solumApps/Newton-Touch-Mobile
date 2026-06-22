@@ -156,10 +156,11 @@ export class ThemeWizardComponent implements OnInit {
     if (s === 'side-rail') this.t.intermediate.align = 'left';
     // Fullscreen is a one-card-at-a-time carousel; default to horizontal so the
     // Carousel-scrolling toggle reflects a real direction and switching to
-    // vertical actually changes the scroll.
-    if (s === 'fullscreen') this.t.scrollMode = 'horizontal';
+    // vertical actually changes the scroll. Use the per-intermediate scroll field
+    // (the renderers prefer it over the global one).
+    if (s === 'fullscreen') this.t.intermediate.scrollMode = 'horizontal';
     // brand-rail is a horizontal single-row rail.
-    if (s === 'brand-rail') this.t.scrollMode = 'horizontal';
+    if (s === 'brand-rail') this.t.intermediate.scrollMode = 'horizontal';
   }
 
   /** Layouts where circle/hexagon shapes don't render well and are hidden.

@@ -513,8 +513,8 @@
           <div class="step-title sm">Carousel scrolling</div>
           <p class="hint">How full-screen items advance when there's more than one.</p>
           <div class="seg">
-            <button class="tile" [class.sel]="(t.scrollMode||'horizontal')!=='vertical'" (click)="t.scrollMode='horizontal'">Horizontal carousel</button>
-            <button class="tile" [class.sel]="t.scrollMode==='vertical'" (click)="t.scrollMode='vertical'">Vertical carousel</button>
+            <button class="tile" [class.sel]="(t.intermediate.scrollMode||'horizontal')!=='vertical'" (click)="t.intermediate.scrollMode='horizontal'">Horizontal carousel</button>
+            <button class="tile" [class.sel]="t.intermediate.scrollMode==='vertical'" (click)="t.intermediate.scrollMode='vertical'">Vertical carousel</button>
           </div>
         </ng-container>
 
