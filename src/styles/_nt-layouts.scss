@@ -9010,6 +9010,70 @@
   bottom: auto !important;
 }
 
+/* Intermediate Columns: Gradient mirrors Home gradient cards. Keep the
+   gradient on the shaped card itself and hide the unused image layer. */
+.nt-inter .body.int-columns.int-content-gradient .item {
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, var(--nt-int-accent, #FFCD00), var(--nt-int-card, rgba(255, 255, 255, .15))) !important;
+  border: calc(var(--nt-vw)*0.12) solid rgba(255, 255, 255, .38) !important;
+  box-shadow: inset 0 0 calc(var(--nt-vw)*1.2) rgba(0, 0, 0, .16) !important;
+  overflow: hidden !important;
+}
+
+.nt-inter .body.int-columns.int-content-gradient .item .img {
+  display: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-gradient .item .name {
+  position: absolute !important;
+  left: 8% !important;
+  right: 8% !important;
+  top: 50% !important;
+  bottom: auto !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: calc(var(--nt-vh)*0.6) calc(var(--nt-vw)*0.8) !important;
+  transform: translateY(-50%) !important;
+  background: transparent !important;
+  color: var(--nt-int-text, #fff) !important;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .45);
+  box-sizing: border-box;
+}
+
+.nt-inter .body.int-columns.int-content-gradient:is(.int-textpos-above, .int-textpos-overlay-top) .item .name {
+  top: 7% !important;
+  transform: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-gradient:is(.int-textpos-below, .int-textpos-overlay-bottom) .item .name {
+  top: auto !important;
+  bottom: 7% !important;
+  transform: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-gradient.int-shape-rect .item {
+  border-radius: 10px !important;
+  clip-path: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-gradient.int-shape-pill .item {
+  border-radius: 999px !important;
+  clip-path: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-gradient.int-shape-circle .item {
+  border-radius: 50% !important;
+  clip-path: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-gradient.int-shape-hexagon .item {
+  border-radius: 0 !important;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%) !important;
+}
+
 /* ---- card-strip restyled like Home 'image-strip' (full-bleed, image behind name) ---- */
 .nt-inter .body.int-card-strip {
   display: flex;

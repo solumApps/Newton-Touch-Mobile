@@ -580,6 +580,27 @@
   background: var(--int-card); color: var(--int-text); }
 .prev .stage.int .item .img { width: 14%; height: 70%; border-radius: 2px; background: var(--int-accent); opacity: .55; margin-right: 4px; }
 .prev .stage.int .item .name { font-size: calc(var(--prev-scale, 1) * 7px); font-weight: 700; white-space: nowrap; }
+/* Columns gradient content mirrors Home: a full-card accent-to-card gradient,
+   with no image placeholder competing with it. */
+.prev .stage.int.int-columns.int-content-gradient .item {
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, var(--int-accent), var(--int-card)) !important;
+  box-shadow: inset 0 0 5px rgba(0,0,0,.16);
+}
+.prev .stage.int.int-columns.int-content-gradient .item .img { display: none; }
+.prev .stage.int.int-columns.int-content-gradient .item .name {
+  position: absolute;
+  left: 8%; right: 8%;
+  text-align: center;
+  color: var(--int-text);
+}
+.prev .stage.int.int-columns.int-content-gradient.int-textpos-above .item .name,
+.prev .stage.int.int-columns.int-content-gradient.int-textpos-overlay-top .item .name { top: 8%; }
+.prev .stage.int.int-columns.int-content-gradient.int-textpos-below .item .name,
+.prev .stage.int.int-columns.int-content-gradient.int-textpos-overlay-bottom .item .name { bottom: 8%; }
+.prev .stage.int.int-columns.int-content-gradient.int-textpos-center .item .name { top: 50%; transform: translateY(-50%); }
 /* active state only where the style inherently has one */
 .prev .stage.int.int-pill-tabs .item.open { background: var(--int-accent); color: #fff; }
 .prev .stage.int.int-accordion .item.open { border-left: 3px solid var(--int-accent); }
