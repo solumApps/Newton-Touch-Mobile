@@ -250,6 +250,10 @@ export class ThemeWizardComponent implements OnInit {
   }
   /** Card / text alignment — for the 'columns' grid, 'brand-grid' and 'fullscreen'. */
   get intAlignMatters(): boolean {
+    const shape = this.t.intermediate.cardShape || 'rect';
+    if (this.t.intermediateStyle === 'columns' &&
+        (this.t.intermediate.scrollMode || 'horizontal') === 'horizontal' &&
+        !['circle', 'hexagon'].includes(shape)) return false;
     return ['columns', 'brand-grid', 'fullscreen'].includes(this.t.intermediateStyle);
   }
   /** Text vertical position applies to image card styles. */
