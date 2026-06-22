@@ -602,6 +602,9 @@ export class ThemeWizardComponent implements OnInit {
   valigns: { id: 'top' | 'middle' | 'bottom'; label: string }[] = [
     { id: 'top', label: 'Top' }, { id: 'middle', label: 'Middle' }, { id: 'bottom', label: 'Bottom' },
   ];
+  brandRailValigns: { id: 'top' | 'center' | 'bottom'; label: string }[] = [
+    { id: 'top', label: 'Top' }, { id: 'center', label: 'Center' }, { id: 'bottom', label: 'Bottom' },
+  ];
   gaps: { id: 'tight' | 'normal' | 'loose'; label: string }[] = [
     { id: 'tight', label: 'Tight' }, { id: 'normal', label: 'Normal' }, { id: 'loose', label: 'Loose' },
   ];

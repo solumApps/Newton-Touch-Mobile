@@ -1033,6 +1033,7 @@
 }
 
 .nt-home .layout-promo-categories .promo-rail .card .img {
+  display: block !important;
   position: static !important;
   flex: 0 0 auto;
   height: calc(var(--nt-vh)*33);
@@ -6831,6 +6832,26 @@
   color: #111 !important;
 }
 
+/* Promo Categories is an image/icon rail. Generic color-block/gradient content
+   rules must not turn the rail chips into square cards or hide the media. */
+.nt-home .layout-promo-categories .promo-rail .card.content-color-block,
+.nt-home .layout-promo-categories .promo-rail .card.content-gradient {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.nt-home .layout-promo-categories .promo-rail .card.content-color-block .img,
+.nt-home .layout-promo-categories .promo-rail .card.content-gradient .img,
+.nt-home .layout-promo-categories .promo-rail .card.content-icon-text .img {
+  display: block !important;
+}
+
+.nt-home .layout-promo-categories .promo-rail .card.content-icon-text .meta::before {
+  display: none !important;
+  content: none !important;
+}
+
 /* Re-assert the selected card shape on the card itself. */
 
 /* Gradient cards have no image layer, so the late background override must
@@ -8747,8 +8768,6 @@
   bottom: 12%;
   z-index: 1;
   text-shadow: 0 1px 3px rgba(0, 0, 0, .8);
-}
-
 }
 
 .nt-result.res-shelf .sprod {
