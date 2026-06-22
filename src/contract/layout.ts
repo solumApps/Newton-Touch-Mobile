@@ -235,7 +235,7 @@ export interface ThemeTokens {
   includeIntermediate: boolean;
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
-  intermediate: { headerColor: string; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: CardContent; textPos?: CardTextPos; valign?: 'top' | 'middle' | 'bottom'; textOverlay?: boolean;
+  intermediate: { headerColor: string; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; textAlign?: 'left' | 'center' | 'right'; scrollMode?: ScrollMode; valign?: 'top' | 'middle' | 'bottom'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: CardContent; textPos?: CardTextPos; textOverlay?: boolean;
     /** finder-select template: dark hero rail + selection cards + index strip. */
     heroColor?: string; heroImage?: string; promptPrefix?: string; showPrompt?: boolean;
     showBack?: boolean; indexStrip?: 'auto' | 'alpha' | 'values' | 'off'; stepLabels?: string[]; columns?: number; };
@@ -389,6 +389,7 @@ export const THEME_ENUM_VALUES = {
   headerLayout: ['preset', 'custom'],
   headerItemPos: ['left', 'center', 'right', 'hidden'],
   align: ['left', 'center', 'right'],
+  valign: ['top', 'middle', 'bottom'],
   gap: ['tight', 'normal', 'loose'],
   scrollMode: ['auto', 'vertical', 'horizontal'],
   intermediateStyle: ['accordion', 'pill-tabs', 'image-grid', 'hex-grid', 'circular', 'scroll-list', 'card-strip', 'fullscreen', 'columns', 'side-rail', 'center-tiles', 'brand-grid', 'drill-stair', 'brand-rail', 'finder-select'],

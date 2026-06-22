@@ -62,7 +62,7 @@ export class ThemeService {
       includeIntermediate: true,
       intermediateStyle: 'columns',
       resultTemplate: 'map-list',
-      intermediate: { headerColor: 'rgba(0,0,0,0.45)', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', gap: 'normal' },
+      intermediate: { headerColor: 'rgba(0,0,0,0.45)', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'middle', gap: 'normal' },
       result: { headerColor: '#2F006D', background: '#0A0A1A', cardBackground: 'rgba(255,255,255,0.06)', cardText: '#FFFFFF', accent: '#FFCD00', pathColor: '#FFCD00', pathStyle: 'dashed', showHeader: true },
       // Default to no page transition — faster, more responsive navigation
       // (per team feedback). The transition options remain available in the
@@ -168,6 +168,9 @@ export class ThemeService {
     out.intermediate.cardShape = coerceEnum(out.intermediate.cardShape, E.cardShape, 'rect', 'intermediate.cardShape');
     out.intermediate.align = coerceEnum(out.intermediate.align, E.align, out.intermediateStyle === 'side-rail' ? 'left' : 'center', 'intermediate.align');
     if (out.intermediateStyle === 'side-rail') out.intermediate.align = 'left';
+    out.intermediate.textAlign = coerceEnum(out.intermediate.textAlign, E.align, 'center', 'intermediate.textAlign');
+    out.intermediate.scrollMode = coerceEnum(out.intermediate.scrollMode, E.scrollMode, 'horizontal', 'intermediate.scrollMode');
+    out.intermediate.valign = coerceEnum(out.intermediate.valign, E.valign, 'middle', 'intermediate.valign');
     out.intermediate.gap = coerceEnum(out.intermediate.gap, E.gap, 'normal', 'intermediate.gap');
     out.result.pathStyle = coerceEnum(out.result.pathStyle, E.pathStyle, d.result.pathStyle, 'result.pathStyle');
     out.animation.transition = coerceEnum(out.animation.transition, E.transition, d.animation.transition, 'animation.transition');

@@ -269,7 +269,7 @@
   width:auto !important; align-self:center; border-radius:999px;
   background:var(--nt-overlay, rgba(0,0,0,.45)) !important; padding:calc(var(--nt-vh)*0.4) calc(var(--nt-vw)*0.9) !important;
 }
-.nt-home .layout-promo-categories .promo-rail .card .name { color:#fff; }
+.nt-home .layout-promo-categories .promo-rail .card .name { color:var(--nt-text,#fff); }
 /* card surface applies to the promo tile image */
 .nt-home.surface-glass    .layout-promo-categories .promo-rail .card .img { border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.68); }
 .nt-home.surface-raised   .layout-promo-categories .promo-rail .card .img { box-shadow:0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0,0,0,.24); }
@@ -301,7 +301,7 @@
   transform:none !important; box-sizing:border-box !important;
 }
 .nt-home .layout-promo-categories .promo-rail .card.shape-circle .name,
-.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon .name { color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon .name { color:var(--nt-text,#fff); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 .nt-home.surface-glass .layout-promo-categories .promo-rail .card,
 .nt-home.surface-raised .layout-promo-categories .promo-rail .card,
 .nt-home.surface-outlined .layout-promo-categories .promo-rail .card,
@@ -359,7 +359,7 @@
 .nt-home .cards.shape .card.shape-circle .img { border-radius:50%; }
 .nt-home .cards.shape .card.shape-hexagon .img { clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
 .nt-home .cards.shape .card .meta { position:relative; z-index:1; background:transparent; padding:0 calc(var(--nt-vw)*0.6); width:100%; text-align:var(--nt-card-align, center); box-sizing:border-box; }
-.nt-home .cards.shape .card .name { color:#fff; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6);
+.nt-home .cards.shape .card .name { color:var(--nt-text,#fff); text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0,0,0,.6);
   font-size:calc(var(--nt-text-scale,1) * var(--nt-vw) * 1); line-height:1.1;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 
@@ -564,7 +564,7 @@
   background:var(--nt-overlay, rgba(0,0,0,.5)); border-radius:999px; padding:calc(var(--nt-vh)*0.45) calc(var(--nt-vw)*0.4);
 }
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-circle .name,
-.nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon .name { color:#fff; }
+.nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon .name { color:var(--nt-text,#fff); }
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-circle.content-image-text.pos-below,
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon.content-image-text.pos-below {
   display:grid; grid-template-rows:minmax(0,1fr) auto;
@@ -996,6 +996,10 @@
   position:absolute !important; left:0; right:0; top:0; bottom:0; width:100% !important; height:100% !important; margin:0 !important; flex:none;
 }
 .nt-inter .item .name { font-weight:800; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+.nt-inter .body .item .name { text-align:var(--nt-int-card-align, center) !important; }
+.nt-inter .body.int-textalign-left .item .name { text-align:left !important; justify-content:flex-start !important; }
+.nt-inter .body.int-textalign-center .item .name { text-align:center !important; justify-content:center !important; }
+.nt-inter .body.int-textalign-right .item .name { text-align:right !important; justify-content:flex-end !important; }
 .nt-inter.surface-glass .item { background:rgba(255,255,255,.14); backdrop-filter:blur(calc(var(--nt-vw)*0.8)); -webkit-backdrop-filter:blur(calc(var(--nt-vw)*0.8)); border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.55); box-shadow:inset 0 calc(var(--nt-vh)*0.45) 0 rgba(255,255,255,.28), inset 0 0 calc(var(--nt-vw)*2) rgba(255,255,255,.08); }
 .nt-inter.surface-raised .item { border:0; box-shadow:0 calc(var(--nt-vh)*2.4) calc(var(--nt-vh)*3.6) rgba(0,0,0,.42), 0 calc(var(--nt-vh)*0.5) calc(var(--nt-vh)*1) rgba(0,0,0,.3) !important; }
 .nt-inter.surface-outlined .item { background:transparent; border:calc(var(--nt-vw)*0.14) solid var(--nt-int-accent,#FFCD00); }
@@ -2326,15 +2330,13 @@
 .nt-inter .body.int-columns { display:flex; flex-wrap:wrap; align-items:flex-start; align-content:flex-start; justify-content:center; gap:calc(var(--nt-vh)*1.4) calc(var(--nt-vw)*1.4); padding:calc(var(--nt-vh)*2) calc(var(--nt-vw)*2); overflow-y:auto; overflow-x:hidden; box-sizing:border-box; }
 .nt-inter .body.int-columns.scroll-horizontal { flex-wrap:nowrap; justify-content:flex-start; overflow-x:auto; overflow-y:hidden; }
 /* rect cards: 1/cols of the row width, tall enough to read; one row fills, extras overflow */
-.nt-inter .body.int-columns .item { flex:0 0 calc((100% - (var(--int-cols,3) - 1) * var(--nt-vw)*1.4) / var(--int-cols,3)); height:calc(var(--nt-vh)*48 * var(--nt-int-scale,1)); position:relative; display:flex; flex-direction:column; min-height:0; background:var(--nt-int-card, rgba(255,255,255,.12)); border-radius:10px; overflow:hidden; cursor:pointer; box-sizing:border-box; }
+.nt-inter .body.int-columns .item { flex:0 0 calc((100% - (var(--int-cols,3) - 1) * var(--nt-vw)*1.4) / var(--int-cols,3)); height:calc(var(--nt-vh)*60 * var(--nt-int-scale,1)); position:relative; display:flex; flex-direction:column; min-height:0; background:var(--nt-int-card, rgba(255,255,255,.12)); border-radius:10px; overflow:hidden; cursor:pointer; box-sizing:border-box; }
 .nt-inter .body.int-columns .item .img { flex:1; min-height:0; background-size:cover; background-position:center; }
 .nt-inter .body.int-columns.int-content-text-only .item .img, .nt-inter .body.int-columns.int-content-image-only .item .name { display:none; }
 .nt-inter .body.int-columns .item .name { padding:calc(var(--nt-vh)*0.8) calc(var(--nt-vw)*0.6); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw)*0.9); font-weight:700; text-align:center; color:var(--nt-int-text,#fff); }
-/* card alignment (where cards sit in the row) + text alignment — both follow int-align-* */
+/* Card alignment controls where cards sit in the row; text alignment is independent. */
 .nt-inter .body.int-columns.int-align-left { justify-content:flex-start; }
 .nt-inter .body.int-columns.int-align-right { justify-content:flex-end; }
-.nt-inter .body.int-columns.int-align-left .item .name { text-align:left; }
-.nt-inter .body.int-columns.int-align-right .item .name { text-align:right; }
 /* text vertical position (overlay = text over image; no bg for below/above handled per-style) */
 .nt-inter .body.int-columns[class*="int-textpos-overlay"] .item .img { position:absolute; inset:0; }
 .nt-inter .body.int-columns[class*="int-textpos-overlay"] .item .name { position:relative; z-index:1; margin-top:auto; background:var(--nt-overlay,rgba(0,0,0,.5)); }
@@ -2346,16 +2348,102 @@
 .nt-inter .body.int-columns.int-shape-hexagon .item { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
 .nt-inter .body.int-columns.int-shape-circle .item .img, .nt-inter .body.int-columns.int-shape-hexagon .item .img { position:absolute; inset:0; }
 .nt-inter .body.int-columns.int-shape-circle .item .name, .nt-inter .body.int-columns.int-shape-hexagon .item .name { position:absolute; left:0; right:0; bottom:12%; z-index:1; text-shadow:0 1px 3px rgba(0,0,0,.8); }
+/* Circle/hexagon: preserve the selected inner overlay position instead of
+   letting the shape's default bottom label placement override it. */
+.nt-inter .body.int-columns.int-shape-circle.int-textpos-overlay-top .item .name,
+.nt-inter .body.int-columns.int-shape-hexagon.int-textpos-overlay-top .item .name {
+  position:absolute; left:8%; right:8%; top:10%; bottom:auto; margin:0;
+}
+.nt-inter .body.int-columns.int-shape-circle.int-textpos-overlay-bottom .item .name,
+.nt-inter .body.int-columns.int-shape-hexagon.int-textpos-overlay-bottom .item .name {
+  position:absolute; left:8%; right:8%; top:auto; bottom:10%; margin:0;
+}
+
+/* Columns: Center overlays the label at the card midpoint for every shape. */
+.nt-inter .body.int-columns.int-textpos-center .item .img {
+  position:absolute !important; inset:0 !important; width:100% !important; height:100% !important; flex:none !important;
+}
+.nt-inter .body.int-columns.int-textpos-center .item .name {
+  position:absolute !important; left:8%; right:8%; top:50% !important; bottom:auto !important;
+  transform:translateY(-50%); z-index:1; margin:0; display:flex; align-items:center;
+  background:var(--nt-overlay,rgba(0,0,0,.5)); border-radius:999px; color:#fff;
+  padding:calc(var(--nt-vh)*0.6) calc(var(--nt-vw)*0.8); box-sizing:border-box;
+}
+/* Columns: Top/Below keep the label outside the image, matching Home cards. */
+.nt-inter .body.int-columns:not(.int-content-text-only).int-textpos-above .item,
+.nt-inter .body.int-columns:not(.int-content-text-only).int-textpos-below .item {
+  background:transparent !important; border:0 !important; box-shadow:none !important;
+  clip-path:none !important; border-radius:0 !important; overflow:visible;
+}
+.nt-inter .body.int-columns.int-textpos-above .item { flex-direction:column-reverse; }
+.nt-inter .body.int-columns.int-textpos-below .item { flex-direction:column; }
+.nt-inter .body.int-columns.int-textpos-above .item .img,
+.nt-inter .body.int-columns.int-textpos-below .item .img {
+  position:static !important; inset:auto !important; width:100% !important; height:auto !important;
+  flex:1 1 auto !important; min-height:0; background-color:var(--nt-int-card, rgba(255,255,255,.12));
+}
+/* The global no-image rule is transparent; here the image shell must remain visible. */
+.nt-inter .body.int-columns:not(.int-content-text-only):is(.int-textpos-above,.int-textpos-below) .item .img.no-img {
+  background-color:var(--nt-int-card, rgba(255,255,255,.12)) !important;
+}
+.nt-inter .body.int-columns.int-textpos-above .item .name,
+.nt-inter .body.int-columns.int-textpos-below .item .name {
+  position:static !important; inset:auto !important; transform:none; flex:0 0 auto; width:100%;
+  margin:0; background:transparent !important; color:var(--nt-int-text,#fff); text-shadow:none;
+  box-sizing:border-box;
+}
+.nt-inter .body.int-columns.int-textpos-above .item .name { padding:0 calc(var(--nt-vw)*0.7) calc(var(--nt-vh)*0.8); }
+.nt-inter .body.int-columns.int-textpos-below .item .name { padding:calc(var(--nt-vh)*0.8) calc(var(--nt-vw)*0.7) 0; }
+/* Keep the selected card shape on the image only, never around the outside label. */
+.nt-inter .body.int-columns.int-shape-rect:is(.int-textpos-above,.int-textpos-below) .item .img { border-radius:10px; }
+.nt-inter .body.int-columns.int-shape-pill:is(.int-textpos-above,.int-textpos-below) .item .img { border-radius:999px; }
+.nt-inter .body.int-columns.int-shape-circle:is(.int-textpos-above,.int-textpos-below) .item .img { border-radius:50%; }
+.nt-inter .body.int-columns.int-shape-hexagon:is(.int-textpos-above,.int-textpos-below) .item .img {
+  border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+}
+/* Surface decoration belongs to the image when its label is outside. */
+.nt-inter.surface-outlined .body.int-columns:is(.int-textpos-above,.int-textpos-below) .item .img,
+.nt-inter.surface-glow .body.int-columns:is(.int-textpos-above,.int-textpos-below) .item .img {
+  border:calc(var(--nt-vw)*0.14) solid var(--nt-int-accent,#FFCD00); box-sizing:border-box;
+}
+.nt-inter.surface-glow .body.int-columns:is(.int-textpos-above,.int-textpos-below) .item .img { box-shadow:0 0 calc(var(--nt-vw)*1.4) var(--nt-int-accent,#FFCD00); }
+.nt-inter.surface-glass .body.int-columns:is(.int-textpos-above,.int-textpos-below) .item .img {
+  border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.68); box-sizing:border-box;
+}
+.nt-inter.surface-raised .body.int-columns:is(.int-textpos-above,.int-textpos-below) .item .img {
+  border:calc(var(--nt-vw)*0.16) solid rgba(255,255,255,.74); box-sizing:border-box;
+  box-shadow:0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0,0,0,.24) !important;
+}
 
 /* ---- card-strip restyled like Home 'image-strip' (full-bleed, image behind name) ---- */
 .nt-inter .body.int-card-strip { display:flex; flex-wrap:nowrap; padding:0 !important; gap:0; overflow-x:auto; overflow-y:hidden; }
 .nt-inter .body.int-card-strip .item { flex:0 0 calc(100% / var(--int-cols,3)) !important; height:100% !important; margin:0 !important; position:relative; display:flex; align-items:center; justify-content:center; border-radius:0 !important; clip-path:none !important; border:0; border-right:calc(var(--nt-vw)*0.08) solid rgba(255,255,255,.15) !important; }
 .nt-inter .body.int-card-strip .item .img { position:absolute !important; inset:0 !important; flex:none !important; width:auto !important; height:auto !important; opacity:.6; border-radius:0 !important; clip-path:none !important; background-size:cover; background-position:center; }
-.nt-inter .body.int-card-strip .item .name { position:relative; z-index:1; margin:auto; padding:0; text-align:center; color:#fff; font-size:calc(var(--nt-text-scale,1) * var(--nt-vw)*1.45); font-weight:800; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.6) rgba(0,0,0,.7); white-space:normal; }
+.nt-inter .body.int-card-strip .item .name { position:absolute !important; left:8% !important; right:8% !important; z-index:1; margin:0; padding:0; color:#fff; font-size:calc(var(--nt-text-scale,1) * var(--nt-vw)*1.45); font-weight:800; text-shadow:0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.6) rgba(0,0,0,.7); white-space:normal; }
+/* The full-bleed strip has no area outside its image, so above/below pin the
+   label to the corresponding card edge while the overlay options add an inset. */
+.nt-inter .body.int-card-strip.int-textpos-overlay-top .item .name { top:7% !important; bottom:auto !important; transform:none; }
+.nt-inter .body.int-card-strip.int-textpos-above .item .name { top:0 !important; bottom:auto !important; transform:none; }
+.nt-inter .body.int-card-strip.int-textpos-center .item .name { top:50% !important; bottom:auto !important; transform:translateY(-50%); }
+.nt-inter .body.int-card-strip.int-textpos-overlay-bottom .item .name { top:auto !important; bottom:7% !important; transform:none; }
+.nt-inter .body.int-card-strip.int-textpos-below .item .name { top:auto !important; bottom:0 !important; transform:none; }
 /* card-strip visible-count is driven by --int-cols (above); item-size buckets no-op here */
 
 /* ---- overflow scroll lead-in: first card offset from the edge, extras overflow ---- */
-.nt-home .cards.scroll-horizontal, .nt-inter .body.scroll-horizontal { justify-content:flex-start !important; padding-left:calc(var(--nt-vw)*2.5) !important; padding-right:calc(var(--nt-vw)*2.5) !important; }
+.nt-home .cards.scroll-horizontal, .nt-inter .body.scroll-horizontal {
+  justify-content:flex-start !important;
+  padding-left:calc(var(--nt-vw)*2.5) !important;
+  padding-right:calc(var(--nt-vw)*2.5) !important;
+  align-items:center;
+}
+/* Circle/hexagon column cards can be narrower than the viewport, so their
+   explicit card alignment remains useful during horizontal scrolling. */
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-circle.int-align-center,
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-center { justify-content:center !important; }
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-circle.int-align-right,
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-right { justify-content:flex-end !important; }
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-circle.int-align-left,
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-left { justify-content:flex-start !important; }
 .nt-home .cards.scroll-vertical, .nt-inter .body.scroll-vertical { align-content:flex-start !important; padding-top:calc(var(--nt-vh)*2.5) !important; padding-bottom:calc(var(--nt-vh)*2.5) !important; }
 .nt-inter .body.int-card-strip.scroll-horizontal { padding-left:0 !important; }
 /* card-strip: zero padding/gaps all around (no stray space at the end/below) */

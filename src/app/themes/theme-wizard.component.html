@@ -490,8 +490,8 @@
           <div class="step-title sm">Overflow scrolling</div>
           <p class="hint">How extra cards scroll when they don't fit one screen.</p>
           <div class="seg">
-            <button class="tile" *ngIf="!intScrollHorizontalOnly" [class.sel]="(t.scrollMode||'vertical')!=='horizontal'" (click)="t.scrollMode='vertical'">Vertical</button>
-            <button class="tile" [class.sel]="intScrollHorizontalOnly || t.scrollMode==='horizontal'" (click)="t.scrollMode='horizontal'">Horizontal</button>
+            <button class="tile" *ngIf="!intScrollHorizontalOnly" [class.sel]="t.intermediate.scrollMode==='vertical'" (click)="t.intermediate.scrollMode='vertical'">Vertical</button>
+            <button class="tile" [class.sel]="intScrollHorizontalOnly || (t.intermediate.scrollMode||'horizontal')==='horizontal'" (click)="t.intermediate.scrollMode='horizontal'">Horizontal</button>
           </div>
         </ng-container>
 
@@ -542,6 +542,11 @@
         <ng-container *ngIf="intTextPosMatters && (t.intermediate.content||'image-text')!=='image-only'">
           <div class="step-title sm">Text vertical position</div>
           <div class="seg"><button class="tile" *ngFor="let p of interTextPositions" [class.sel]="(t.intermediate.textPos||'below')===p.id" (click)="t.intermediate.textPos=p.id">{{ p.label }}</button></div>
+        </ng-container>
+
+        <ng-container *ngIf="(t.intermediate.content||'image-text')!=='image-only'">
+          <div class="step-title sm">Text horizontal alignment</div>
+          <div class="seg"><button class="tile" *ngFor="let a of cardAligns" [class.sel]="(t.intermediate.textAlign||'center')===a.id" (click)="t.intermediate.textAlign=a.id">{{ a.label }}</button></div>
         </ng-container>
 
         <ng-container *ngIf="interOverlayRelevant">
