@@ -2336,7 +2336,7 @@
 /* A single column should remain card-sized instead of stretching edge to edge. */
 .nt-inter .body.int-columns.int-single-col .item { flex-basis:calc(var(--nt-vw)*40); width:calc(var(--nt-vw)*40); max-width:calc(var(--nt-vw)*40); }
 /* rect cards: 1/cols of the row width, tall enough to read; one row fills, extras overflow */
-.nt-inter .body.int-columns .item { flex:0 0 calc((100% - (var(--int-cols,3) - 1) * var(--nt-vw)*1.4) / var(--int-cols,3)); height:calc(var(--nt-vh)*60 * var(--nt-int-scale,1)); position:relative; display:flex; flex-direction:column; min-height:0; background:var(--nt-int-card, rgba(255,255,255,.12)); border-radius:10px; overflow:hidden; cursor:pointer; box-sizing:border-box; }
+.nt-inter .body.int-columns .item { flex:0 0 calc((100% - (var(--int-cols,3) - 1) * var(--nt-vw)*1.4) / var(--int-cols,3)); width:100%; max-width:calc(var(--nt-vw)*40); height:calc(var(--nt-vh)*60 * var(--nt-int-scale,1)); position:relative; display:flex; flex-direction:column; min-height:0; background:var(--nt-int-card, rgba(255,255,255,.12)); border-radius:10px; overflow:hidden; cursor:pointer; box-sizing:border-box; }
 .nt-inter .body.int-columns .item .img { flex:1; min-height:0; background-size:cover; background-position:center; }
 .nt-inter .body.int-columns.int-content-text-only .item .img, .nt-inter .body.int-columns.int-content-image-only .item .name { display:none; }
 .nt-inter .body.int-columns .item .name { padding:calc(var(--nt-vh)*0.8) calc(var(--nt-vw)*0.6); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw)*0.9); font-weight:700; text-align:center; color:var(--nt-int-text,#fff); }
@@ -2352,6 +2352,8 @@
 .nt-inter .body.int-columns.int-shape-circle .item, .nt-inter .body.int-columns.int-shape-hexagon .item { flex:0 0 auto; width:calc(var(--nt-vh)*48 * var(--nt-int-scale,1)); height:calc(var(--nt-vh)*48 * var(--nt-int-scale,1)); }
 .nt-inter .body.int-columns.int-shape-circle .item { border-radius:50%; }
 .nt-inter .body.int-columns.int-shape-hexagon .item { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+.nt-inter .body.int-columns.scroll-vertical:is(.int-shape-circle,.int-shape-hexagon) { justify-items:center; align-items:center; }
+.nt-inter .body.int-columns.scroll-vertical:is(.int-shape-circle,.int-shape-hexagon) .item { justify-self:center; align-self:center; }
 .nt-inter .body.int-columns.int-shape-circle .item .img, .nt-inter .body.int-columns.int-shape-hexagon .item .img { position:absolute; inset:0; }
 .nt-inter .body.int-columns.int-shape-circle .item .name, .nt-inter .body.int-columns.int-shape-hexagon .item .name { position:absolute; left:0; right:0; bottom:12%; z-index:1; text-shadow:0 1px 3px rgba(0,0,0,.8); }
 /* Circle/hexagon: preserve the selected inner overlay position instead of
@@ -2421,6 +2423,17 @@
   box-shadow:0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0,0,0,.24) !important;
 }
 
+/* Horizontal columns keep the four-column card size. The configured count
+   controls how many cards exist; cards after the fourth overflow into scroll. */
+.nt-inter .body.int-columns.scroll-horizontal .item {
+  flex:0 0 calc(25% - var(--nt-vw)*1.05) !important;
+  width:calc(25% - var(--nt-vw)*1.05) !important;
+  max-width:calc(25% - var(--nt-vw)*1.05) !important;
+}
+.nt-inter .body.int-columns.scroll-horizontal:is(.int-shape-circle,.int-shape-hexagon) .item {
+  height:calc(var(--nt-vw)*22.7) !important;
+}
+
 /* ---- card-strip restyled like Home 'image-strip' (full-bleed, image behind name) ---- */
 .nt-inter .body.int-card-strip { display:flex; flex-wrap:nowrap; padding:0 !important; gap:0; overflow-x:auto; overflow-y:hidden; }
 .nt-inter .body.int-card-strip .item { flex:0 0 calc(100% / var(--int-cols,3)) !important; height:100% !important; margin:0 !important; position:relative; display:flex; align-items:center; justify-content:center; border-radius:0 !important; clip-path:none !important; border:0; border-right:calc(var(--nt-vw)*0.08) solid rgba(255,255,255,.15) !important; }
@@ -2478,7 +2491,6 @@
 .nt-inter .body.int-fullscreen.int-align-right .item .name { text-align:right; }
 .nt-inter .body.int-fullscreen.int-align-center .item .name { text-align:center; }
 /* #3 overflow peek: show a sliver of the next card so scrollability is obvious */
-.nt-inter .body.int-columns.scroll-horizontal .item { flex:0 0 calc(100% / (var(--int-cols,3) + 0.4)) !important; }
 .nt-inter .body.int-card-strip .item { flex:0 0 calc(100% / (var(--int-cols,3) + 0.4)) !important; }
 .nt-inter .body.int-columns.scroll-horizontal, .nt-inter .body.int-card-strip { scroll-padding-inline-end:calc(var(--nt-vw)*4); }
 

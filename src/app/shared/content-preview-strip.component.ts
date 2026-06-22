@@ -177,7 +177,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </ng-container>
           <ng-template #flatInter>
             <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediateStyle==='side-rail' ? 'left' : (theme?.intermediate?.align||'center')}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-valign-{{theme?.intermediate?.valign||'middle'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}}"
-                 [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && (theme?.intermediate?.columns || 3)===1" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [style.--int-cols]="theme?.intermediate?.columns || 3" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
+                 [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && interScrollMode==='vertical' && (theme?.intermediate?.columns || 3)===1" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [style.--int-cols]="interVisibleColumns" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0">
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                 <span class="name">{{ it.name }}</span>
@@ -656,6 +656,10 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get cardAlignCss(): string { return this.theme?.cardTextAlign === 'left' ? 'left' : this.theme?.cardTextAlign === 'right' ? 'right' : 'center'; }
   get interCardAlignCss(): string { return this.theme?.intermediate?.textAlign === 'left' ? 'left' : this.theme?.intermediate?.textAlign === 'right' ? 'right' : 'center'; }
   get interScrollMode(): 'vertical' | 'horizontal' { return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal'; }
+  get interVisibleColumns(): number {
+    return this.theme?.intermediateStyle === 'columns' && this.interScrollMode === 'horizontal'
+      ? 4 : (this.theme?.intermediate?.columns || 3);
+  }
   get cardGapPx(): string | null {
     const n = this.theme?.cardGapNum;
     return typeof n === 'number' ? n + 'px' : null;
@@ -781,7 +785,16 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       } as CardItem));
       return [...real, ...dummy];
     }
-    const n = (this.theme?.intermediateStyle === 'columns' || this.theme?.intermediateStyle === 'card-strip') && cols
+    if (this.theme?.intermediateStyle === 'columns') {
+      const cardCount = Math.max(8, Math.min(source.length, 12));
+      const real = source.slice(0, cardCount).map(c => ({ ...c, name: c.name || 'Item' }));
+      const dummy = Array.from({ length: cardCount - real.length }, (_, i) => ({
+        id: 'inter-scroll-ph' + i,
+        name: this.placeholderLabels[(real.length + i) % this.placeholderLabels.length]
+      } as CardItem));
+      return [...real, ...dummy];
+    }
+    const n = this.theme?.intermediateStyle === 'card-strip' && cols
       ? cols : 6;
     const real = source.slice(0, n);
     if (real.length) return real.map(c => ({ ...c, name: c.name || 'Item' }));
