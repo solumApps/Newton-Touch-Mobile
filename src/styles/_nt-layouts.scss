@@ -1889,11 +1889,38 @@
 }
 
 /* ====== FINAL: home-page option corrections ================================ */
+/* Protect text from corner clipping in curved shapes when aligned left/right */
+.nt-home .card.shape-circle .meta,
+.nt-home .card.shape-hexagon .meta,
+.nt-home .card.shape-pill .meta {
+  box-sizing: border-box;
+}
+.nt-home .card.shape-circle.pos-overlay-top .meta,
+.nt-home .card.shape-hexagon.pos-overlay-top .meta,
+.nt-home .card.shape-pill.pos-overlay-top .meta,
+.nt-home .card.shape-circle.pos-above .meta,
+.nt-home .card.shape-hexagon.pos-above .meta,
+.nt-home .card.shape-pill.pos-above .meta,
+.nt-home .card.shape-circle.pos-overlay-bottom .meta,
+.nt-home .card.shape-hexagon.pos-overlay-bottom .meta,
+.nt-home .card.shape-pill.pos-overlay-bottom .meta,
+.nt-home .card.shape-circle.pos-below .meta,
+.nt-home .card.shape-hexagon.pos-below .meta,
+.nt-home .card.shape-pill.pos-below .meta {
+  padding-left: 20% !important; padding-right: 20% !important;
+}
+.nt-home .card.shape-circle.pos-center .meta,
+.nt-home .card.shape-hexagon.pos-center .meta,
+.nt-home .card.shape-pill.pos-center .meta {
+  padding-left: 10% !important; padding-right: 10% !important;
+}
+
 /* hero-list: card gap works */
 .nt-home .layout-hero-list.gap-tight .card { margin:calc(var(--nt-vh)*0.3) calc(var(--nt-vw)*0.25); }
 .nt-home .layout-hero-list.gap-loose .card { margin:calc(var(--nt-vh)*1.3) calc(var(--nt-vw)*1.1); }
-/* color-block stays visually distinct from text-only under EVERY surface */
+/* color-block and gradient stay visually distinct from text-only under EVERY surface */
 .nt-home .card.content-color-block { background:var(--nt-accent,#FFCD00) !important; }
+.nt-home .card.content-gradient { background:linear-gradient(160deg,var(--nt-accent,#FFCD00),var(--nt-card,rgba(255,255,255,.15))) !important; }
 .nt-home .card.content-color-block .name { color:#111 !important; }
 /* h-scroll hexagons: proper hexagon proportions (square clip looked squat/broken) */
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon { flex:0 0 calc(var(--nt-vh)*55); width:calc(var(--nt-vh)*55); height:calc(var(--nt-vh)*63); }
