@@ -2328,7 +2328,7 @@
 .nt-inter .body.int-columns { display:flex; flex-wrap:wrap; align-items:flex-start; align-content:flex-start; justify-content:center; gap:calc(var(--nt-vh)*1.4) calc(var(--nt-vw)*1.4); padding:calc(var(--nt-vh)*2) calc(var(--nt-vw)*2); overflow-y:auto; overflow-x:hidden; box-sizing:border-box; }
 .nt-inter .body.int-columns.scroll-horizontal { flex-wrap:nowrap; justify-content:flex-start; overflow-x:auto; overflow-y:hidden; }
 /* rect cards: 1/cols of the row width, tall enough to read; one row fills, extras overflow */
-.nt-inter .body.int-columns .item { flex:0 0 calc((100% - (var(--int-cols,3) - 1) * var(--nt-vw)*1.4) / var(--int-cols,3)); height:calc(var(--nt-vh)*42 * var(--nt-int-scale,1)); position:relative; display:flex; flex-direction:column; min-height:0; background:var(--nt-int-card, rgba(255,255,255,.12)); border-radius:10px; overflow:hidden; cursor:pointer; box-sizing:border-box; }
+.nt-inter .body.int-columns .item { flex:0 0 calc((100% - (var(--int-cols,3) - 1) * var(--nt-vw)*1.4) / var(--int-cols,3)); height:calc(var(--nt-vh)*60 * var(--nt-int-scale,1)); position:relative; display:flex; flex-direction:column; min-height:0; background:var(--nt-int-card, rgba(255,255,255,.12)); border-radius:10px; overflow:hidden; cursor:pointer; box-sizing:border-box; }
 .nt-inter .body.int-columns .item .img { flex:1; min-height:0; background-size:cover; background-position:center; }
 .nt-inter .body.int-columns.int-content-text-only .item .img, .nt-inter .body.int-columns.int-content-image-only .item .name { display:none; }
 .nt-inter .body.int-columns .item .name { padding:calc(var(--nt-vh)*0.8) calc(var(--nt-vw)*0.6); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw)*0.9); font-weight:700; text-align:center; color:var(--nt-int-text,#fff); }
@@ -2347,6 +2347,28 @@
 .nt-inter .body.int-columns.int-shape-circle .item .img, .nt-inter .body.int-columns.int-shape-hexagon .item .img { position:absolute; inset:0; }
 .nt-inter .body.int-columns.int-shape-circle .item .name, .nt-inter .body.int-columns.int-shape-hexagon .item .name { position:absolute; left:0; right:0; bottom:12%; z-index:1; text-shadow:0 1px 3px rgba(0,0,0,.8); }
 
+/* Columns: Center overlays the label at the card midpoint for every shape. */
+.nt-inter .body.int-columns.int-textpos-center .item .img {
+  position:absolute !important; inset:0 !important; width:100% !important; height:100% !important; flex:none !important;
+}
+.nt-inter .body.int-columns.int-textpos-center .item .name {
+  position:absolute !important; left:8%; right:8%; top:50% !important; bottom:auto !important;
+  transform:translateY(-50%); z-index:1; margin:0; display:flex; align-items:center;
+  background:var(--nt-overlay,rgba(0,0,0,.5)); border-radius:999px; color:#fff;
+  padding:calc(var(--nt-vh)*0.6) calc(var(--nt-vw)*0.8); box-sizing:border-box;
+}
+/* Columns: Top (above) keeps the label in normal flow above the image. */
+.nt-inter .body.int-columns.int-textpos-above .item { flex-direction:column-reverse; }
+.nt-inter .body.int-columns.int-textpos-above .item .img {
+  position:static !important; inset:auto !important; width:100% !important; height:auto !important;
+  flex:1 1 auto !important; min-height:0;
+}
+.nt-inter .body.int-columns.int-textpos-above .item .name {
+  position:static !important; inset:auto !important; transform:none; flex:0 0 auto; width:100%;
+  margin:0; background:transparent !important; color:var(--nt-int-text,#fff); text-shadow:none;
+  padding:calc(var(--nt-vh)*0.8) calc(var(--nt-vw)*0.7); box-sizing:border-box;
+}
+
 /* ---- card-strip restyled like Home 'image-strip' (full-bleed, image behind name) ---- */
 .nt-inter .body.int-card-strip { display:flex; flex-wrap:nowrap; padding:0 !important; gap:0; overflow-x:auto; overflow-y:hidden; }
 .nt-inter .body.int-card-strip .item { flex:0 0 calc(100% / var(--int-cols,3)) !important; height:100% !important; margin:0 !important; position:relative; display:flex; align-items:center; justify-content:center; border-radius:0 !important; clip-path:none !important; border:0; border-right:calc(var(--nt-vw)*0.08) solid rgba(255,255,255,.15) !important; }
@@ -2361,6 +2383,14 @@
   padding-right:calc(var(--nt-vw)*2.5) !important;
   align-items:center;
 }
+/* Circle/hexagon column cards can be narrower than the viewport, so their
+   explicit card alignment remains useful during horizontal scrolling. */
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-circle.int-align-center,
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-center { justify-content:center !important; }
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-circle.int-align-right,
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-right { justify-content:flex-end !important; }
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-circle.int-align-left,
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-left { justify-content:flex-start !important; }
 .nt-home .cards.scroll-vertical, .nt-inter .body.scroll-vertical { align-content:flex-start !important; padding-top:calc(var(--nt-vh)*2.5) !important; padding-bottom:calc(var(--nt-vh)*2.5) !important; }
 .nt-inter .body.int-card-strip.scroll-horizontal { padding-left:0 !important; }
 /* card-strip: zero padding/gaps all around (no stray space at the end/below) */
