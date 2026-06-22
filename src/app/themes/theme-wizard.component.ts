@@ -155,7 +155,9 @@ export class ThemeWizardComponent implements OnInit {
   pickContent(c: CardContent): void { this.t.cardContent = c; if (c === 'image-only') this.t.cardShape = 'none'; this.coerceTextPos(); }
   pickInterContent(c: CardContent): void {
     this.t.intermediate.content = c;
+    // image-only → no shape; leaving image-only restores a valid shape.
     if (c === 'image-only') this.t.intermediate.cardShape = 'none';
+    else if (this.t.intermediate.cardShape === 'none') this.t.intermediate.cardShape = 'rect';
     if (this.t.intermediateStyle === 'columns' && (c === 'text-only' || c === 'icon-text')) {
       this.t.intermediate.cardShape = 'rect';
     }
@@ -166,7 +168,6 @@ export class ThemeWizardComponent implements OnInit {
     if (s === 'columns' && (this.t.intermediate.content === 'text-only' || this.t.intermediate.content === 'icon-text')) {
       this.t.intermediate.cardShape = 'rect';
     }
-    if (s === 'side-rail') this.t.intermediate.align = 'left';
     // Fullscreen is a one-card-at-a-time carousel; default to horizontal so the
     // Carousel-scrolling toggle reflects a real direction and switching to
     // vertical actually changes the scroll. Use the per-intermediate scroll field
@@ -277,13 +278,13 @@ export class ThemeWizardComponent implements OnInit {
   get interShapesFor(): { id: CardShape; label: string }[] {
     return (this.t.intermediate.content === 'image-only') ? [{ id: 'none', label: 'None' }, ...this.cardShapes] : this.cardShapes;
   }
-  /** Card / text alignment — for the 'columns' grid, 'brand-grid' and 'fullscreen'. */
+  /** Card / text alignment — for the 'columns' grid and 'fullscreen'. */
   get intAlignMatters(): boolean {
     const shape = this.t.intermediate.cardShape || 'rect';
     if (this.t.intermediateStyle === 'columns' &&
         (this.t.intermediate.scrollMode || 'horizontal') === 'horizontal' &&
         !['circle', 'hexagon'].includes(shape)) return false;
-    return ['columns', 'brand-grid', 'fullscreen'].includes(this.t.intermediateStyle);
+    return ['columns', 'fullscreen'].includes(this.t.intermediateStyle);
   }
   /** Text vertical position applies to image card styles. */
   get intTextPosMatters(): boolean {
@@ -453,18 +454,18 @@ export class ThemeWizardComponent implements OnInit {
   // choosing a base style (e.g. Image grid) and selecting the Circle/Hexagon
   // Card shape, instead of being separate layout styles. Enums + CSS retained so
   // existing themes that use them still render.
-  intStyles: IntermediateStyle[] = ['columns', 'card-strip', 'fullscreen', 'side-rail', 'brand-grid', 'brand-rail', 'drill-stair', 'finder-select'];
+  intStyles: IntermediateStyle[] = ['columns', 'card-strip', 'fullscreen', 'brand-rail', 'drill-stair', 'finder-select'];
   intStyleLabels: Partial<Record<IntermediateStyle, string>> = {
     'columns': 'Columns', 'hex-grid': 'Hex grid', 'circular': 'Circular',
     'card-strip': 'Card strip',
-    'side-rail': 'Side rail', 'brand-grid': 'Brand grid', 'brand-rail': 'Brand rail', 'drill-stair': 'Drill stair',
+    'brand-rail': 'Brand rail', 'drill-stair': 'Drill stair',
     'finder-select': 'Finder select',
   };
   intStyleLabel(s: IntermediateStyle): string { return this.intStyleLabels[s] || s; }
   /** Card shape only affects intermediate styles that show a per-item image. */
   get intShapeMatters(): boolean {
     // card-strip is a full-bleed image strip — no per-card shape control.
-    return ['columns', 'side-rail', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle);
+    return ['columns', 'brand-rail'].includes(this.t.intermediateStyle);
   }
   /** finder-select index-strip modes + step-label CSV binding. */
   indexModes = ['auto', 'alpha', 'values', 'off'];
@@ -483,9 +484,21 @@ export class ThemeWizardComponent implements OnInit {
   stepIntColumns(delta: number): void { this.setIntColumns(this.intColumnsValue + delta); }
   setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(1, Math.min(this.maxVisibleCards, Math.round(n))); }
   /** Cap visible cards if a shape change lowered the dynamic max. */
-  setInterShape(s: CardShape): void { this.t.intermediate.cardShape = s; if ((this.t.intermediate.columns || 3) > this.maxVisibleCards) this.setIntColumns(this.maxVisibleCards); }
+  setInterShape(s: CardShape): void {
+    this.t.intermediate.cardShape = s;
+    if ((this.t.intermediate.columns || 3) > this.maxVisibleCards) this.setIntColumns(this.maxVisibleCards);
+    if (!this.interTextAlignMatters) this.t.intermediate.textAlign = 'center'; // #7 pill forces center
+  }
   /** Overflow scrolling matters for the columns grid + brand grid/rail. */
-  get intScrollMatters(): boolean { return ['columns', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle); }
+  get intScrollMatters(): boolean { return ['columns', 'brand-rail'].includes(this.t.intermediateStyle); }
+  /** #7 Text horizontal alignment is hidden for brand-rail pill (image/icon text)
+   *  because left/right text distorts the pill — value forced to center. */
+  get interTextAlignMatters(): boolean {
+    const c = this.t.intermediate.content || 'image-text';
+    const distortsPill = this.t.intermediateStyle === 'brand-rail'
+      && this.t.intermediate.cardShape === 'pill' && (c === 'image-text' || c === 'icon-text');
+    return (this.t.intermediate.content || 'image-text') !== 'image-only' && !distortsPill;
+  }
   /** brand-rail is a single horizontal row — only horizontal scroll allowed. */
   get intScrollHorizontalOnly(): boolean { return this.t.intermediateStyle === 'brand-rail'; }
   /** #4 Card content applies to image-showing styles incl. card-strip + fullscreen. */

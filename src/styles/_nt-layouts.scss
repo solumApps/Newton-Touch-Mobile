@@ -10659,14 +10659,29 @@
   height: calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
 }
 
+/* card-strip: dynamic per-card width (team) + flex-grow so cards fill leftover (#1) */
 .nt-inter .body.int-card-strip .item {
-  flex-basis: var(--int-strip-card-width, 33.333%) !important;
+  flex: 1 0 var(--int-strip-card-width, 33.333%) !important;
 }
 
 .nt-inter .body.int-columns.scroll-horizontal,
 .nt-inter .body.int-card-strip {
   scroll-padding-inline-end: calc(var(--nt-vw)*4);
 }
+/* ---- brand-rail message position + vertical alignment (#5) ---- */
+.nt-inter .int-brand-rail.int-brm-left::after { order:-1; margin-left:0; margin-right:auto; text-align:left; padding:0 calc(var(--nt-vw)*6) 0 calc(var(--nt-vw)*3); background:linear-gradient(270deg, rgba(8,4,32,0) 0%, rgba(8,4,32,.55) 40%, rgba(8,4,32,.88) 100%); }
+.nt-inter .int-brand-rail.int-brmv-top::after { align-items:flex-start; }
+.nt-inter .int-brand-rail.int-brmv-center::after { align-items:center; }
+.nt-inter .int-brand-rail.int-brmv-bottom::after { align-items:flex-end; }
+/* ---- brand-rail image-only: raw image, no card chrome (#4) ---- */
+.nt-inter .int-brand-rail.int-content-image-only .item { background:transparent !important; border:0 !important; box-shadow:none !important; padding:0 !important; }
+.nt-inter .int-brand-rail.int-content-image-only .item .img { background-color:transparent !important; }
+/* ---- brand-rail gradient card (#6) ---- */
+.nt-inter .int-brand-rail.int-content-gradient .item { background:linear-gradient(135deg, var(--nt-int-accent,#2F006D), var(--nt-int-card,#06b6d4)) !important; }
+.nt-inter .int-brand-rail.int-content-gradient .item .img { display:none !important; }
+.nt-inter .int-brand-rail.int-content-gradient .item .name { color:#fff; }
+/* ---- brand-rail icon+text: smaller contained icon, not a full image (#8) ---- */
+.nt-inter .int-brand-rail.int-content-icon-text .item .img { background-size:contain !important; width:44% !important; height:42% !important; background-color:transparent !important; }
 
 /* ---- #16 brand-grid overflow: horizontal (nowrap, scroll-x) or vertical (wrap, scroll-y) ---- */
 .nt-inter .body.int-brand-grid.scroll-horizontal {

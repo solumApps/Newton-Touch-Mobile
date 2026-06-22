@@ -97,10 +97,10 @@
         </div>
 
         <!-- INTERMEDIATE -->
-        <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}} int-size-{{t.intermediate.itemSize||'medium'}} int-shape-{{t.intermediate.cardShape||'rect'}} int-align-{{t.intermediateStyle==='side-rail' ? 'left' : (t.intermediate.align||'center')}} int-gap-{{t.intermediate.gap||'normal'}} int-content-{{t.intermediate.content||'image-text'}} int-textpos-{{t.intermediate.textPos||'below'}}"
+        <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}} int-size-{{t.intermediate.itemSize||'medium'}} int-shape-{{t.intermediate.cardShape||'rect'}} int-align-{{t.intermediate.align||'center'}} int-gap-{{t.intermediate.gap||'normal'}} int-content-{{t.intermediate.content||'image-text'}} int-textpos-{{t.intermediate.textPos||'below'}}"
              [class.scroll-vertical]="t.scrollMode==='vertical'" [class.scroll-horizontal]="t.scrollMode==='horizontal'"
              [style.--int-card]="t.intermediate.cardBackground" [style.--int-accent]="t.intermediate.accent" [style.--int-text]="t.intermediate.cardText">
-          <div class="rail" *ngIf="t.intermediateStyle==='side-rail'">
+          <div class="rail" *ngIf="$any(t.intermediateStyle)==='side-rail'">
             <b>Finder</b><span>Category</span><span>Model</span><span>Year</span>
           </div>
           <div class="item" *ngFor="let n of slots; let i = index" [class.open]="i===0">
@@ -495,6 +495,19 @@
           </div>
         </ng-container>
 
+        <ng-container *ngIf="t.intermediateStyle==='brand-rail'">
+          <div class="step-title sm">Message position</div>
+          <p class="hint">Where the headline message sits relative to the card rail.</p>
+          <div class="seg">
+            <button class="tile" [class.sel]="(t.intermediate.brandRailMessagePos||'right')==='left'" (click)="t.intermediate.brandRailMessagePos='left'">Left</button>
+            <button class="tile" [class.sel]="(t.intermediate.brandRailMessagePos||'right')==='right'" (click)="t.intermediate.brandRailMessagePos='right'">Right</button>
+          </div>
+          <div class="step-title sm">Message alignment</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let v of valigns" [class.sel]="(t.intermediate.brandRailMessageAlign||'center')===v.id" (click)="t.intermediate.brandRailMessageAlign=v.id">{{ v.label }}</button>
+          </div>
+        </ng-container>
+
         <ng-container *ngIf="t.intermediateStyle==='finder-select'">
           <div class="step-title sm">Finder options</div>
           <p class="hint">Prompt text and step labels are entered in Content creation.</p>
@@ -544,7 +557,7 @@
           <div class="seg"><button class="tile" *ngFor="let p of interTextPositions" [class.sel]="(t.intermediate.textPos||'below')===p.id" (click)="t.intermediate.textPos=p.id">{{ p.label }}</button></div>
         </ng-container>
 
-        <ng-container *ngIf="(t.intermediate.content||'image-text')!=='image-only'">
+        <ng-container *ngIf="interTextAlignMatters">
           <div class="step-title sm">Text horizontal alignment</div>
           <div class="seg"><button class="tile" *ngFor="let a of cardAligns" [class.sel]="(t.intermediate.textAlign||'center')===a.id" (click)="t.intermediate.textAlign=a.id">{{ a.label }}</button></div>
         </ng-container>
