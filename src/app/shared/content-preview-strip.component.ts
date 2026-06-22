@@ -38,6 +38,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-nav-btn-size]="navBtnSize"
            [style.--nt-card-scale]="cardSizeScaleNum"
            [style.--nt-card-align]="cardAlignCss"
+           [style.--nt-int-card-align]="interCardAlignCss"
            [style.--nt-font]="theme?.typography?.fontFamily"
            [style.--nt-base-text]="theme?.typography?.baseTextColor"
            [style.--nt-accent]="theme?.accent"
@@ -175,8 +176,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           </ng-container>
           <ng-template #flatInter>
-            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediateStyle==='side-rail' ? 'left' : (theme?.intermediate?.align||'center')}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}} int-valign-{{theme?.intermediate?.valign||'middle'}}"
-                 [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [style.--int-cols]="theme?.intermediate?.columns || 3" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
+            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediateStyle==='side-rail' ? 'left' : (theme?.intermediate?.align||'center')}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}}"
+                 [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [style.--int-cols]="theme?.intermediate?.columns || 3" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0">
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                 <span class="name">{{ it.name }}</span>
@@ -653,6 +654,8 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   get cardSizeScaleNum(): number { const n = this.theme?.cardSizeScale; return typeof n === 'number' && n > 0 ? n : 1; }
   get cardAlignCss(): string { return this.theme?.cardTextAlign === 'left' ? 'left' : this.theme?.cardTextAlign === 'right' ? 'right' : 'center'; }
+  get interCardAlignCss(): string { return this.theme?.intermediate?.textAlign === 'left' ? 'left' : this.theme?.intermediate?.textAlign === 'right' ? 'right' : 'center'; }
+  get interScrollMode(): 'vertical' | 'horizontal' { return this.theme?.intermediate?.scrollMode === 'vertical' ? 'vertical' : 'horizontal'; }
   get cardGapPx(): string | null {
     const n = this.theme?.cardGapNum;
     return typeof n === 'number' ? n + 'px' : null;
