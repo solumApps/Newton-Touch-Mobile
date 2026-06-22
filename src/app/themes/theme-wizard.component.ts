@@ -128,7 +128,8 @@ export class ThemeWizardComponent implements OnInit {
     // Card-strip & fullscreen are full-bleed image cards — only the inner (overlay)
     // positions make sense; Top (above) / Below would push text off the card.
     const innerOnly = ['card-strip', 'fullscreen'].includes(this.t.intermediateStyle);
-    if (innerOnly || (this.t.intermediate.content || 'image-text') === 'text-only') {
+    const iconColumns = this.t.intermediateStyle === 'columns' && this.t.intermediate.content === 'icon-text';
+    if (innerOnly || iconColumns || (this.t.intermediate.content || 'image-text') === 'text-only') {
       return this.cardTextPositions.filter((p) => p.id !== 'below' && p.id !== 'above');
     }
     return this.cardTextPositions;
@@ -137,7 +138,9 @@ export class ThemeWizardComponent implements OnInit {
    *  (edit-time only — deployed themes keep rendering via CSS fallbacks). */
   private coerceTextPos(): void {
     if ((this.t.cardTextPos === 'below' || this.t.cardTextPos === 'above') && this.homeBelowHidden) this.t.cardTextPos = 'center';
-    if ((this.t.intermediate.content || 'image-text') === 'text-only' && (this.t.intermediate.textPos === 'below' || this.t.intermediate.textPos === 'above')) this.t.intermediate.textPos = 'center';
+    const hideInterOuter = (this.t.intermediate.content || 'image-text') === 'text-only'
+      || (this.t.intermediateStyle === 'columns' && this.t.intermediate.content === 'icon-text');
+    if (hideInterOuter && (this.t.intermediate.textPos === 'below' || this.t.intermediate.textPos === 'above')) this.t.intermediate.textPos = 'center';
   }
   /** Pick card shape; clamp columns if the new shape has a tighter max. */
   pickShape(s: CardShape): void {
@@ -150,9 +153,19 @@ export class ThemeWizardComponent implements OnInit {
     }
   }
   pickContent(c: CardContent): void { this.t.cardContent = c; if (c === 'image-only') this.t.cardShape = 'none'; this.coerceTextPos(); }
-  pickInterContent(c: CardContent): void { this.t.intermediate.content = c; if (c === 'image-only') this.t.intermediate.cardShape = 'none'; this.coerceTextPos(); }
+  pickInterContent(c: CardContent): void {
+    this.t.intermediate.content = c;
+    if (c === 'image-only') this.t.intermediate.cardShape = 'none';
+    if (this.t.intermediateStyle === 'columns' && (c === 'text-only' || c === 'icon-text')) {
+      this.t.intermediate.cardShape = 'rect';
+    }
+    this.coerceTextPos();
+  }
   pickInterStyle(s: IntermediateStyle): void {
     this.t.intermediateStyle = s;
+    if (s === 'columns' && (this.t.intermediate.content === 'text-only' || this.t.intermediate.content === 'icon-text')) {
+      this.t.intermediate.cardShape = 'rect';
+    }
     if (s === 'side-rail') this.t.intermediate.align = 'left';
     // Fullscreen is a one-card-at-a-time carousel; default to horizontal so the
     // Carousel-scrolling toggle reflects a real direction and switching to
@@ -166,6 +179,7 @@ export class ThemeWizardComponent implements OnInit {
       this.coerceInnerTextPos();
       if (!this.t.intermediate.content) this.t.intermediate.content = 'image-text';
     }
+    this.coerceTextPos();
   }
 
   /** Layouts where circle/hexagon shapes don't render well and are hidden.

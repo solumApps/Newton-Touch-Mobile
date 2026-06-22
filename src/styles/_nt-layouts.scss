@@ -8891,6 +8891,125 @@
   box-shadow: 0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0, 0, 0, .24) !important;
 }
 
+/* Intermediate Columns: Icon + Text mirrors Home. Use the uploaded icon when
+   present; otherwise show the built-in accent star above the label. */
+.nt-inter .body.int-columns.int-content-icon-text .item {
+  position: relative;
+  background: var(--nt-int-card, rgba(255, 255, 255, .12)) !important;
+  background-color: var(--nt-int-card, rgba(255, 255, 255, .12)) !important;
+  isolation: isolate;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text .item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  // background: var(--nt-int-card, var(--nt-card, rgba(255, 255, 255, .12)));
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-shape-rect .item {
+  border-radius: 10px !important;
+  clip-path: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-shape-pill .item {
+  border-radius: 999px !important;
+  clip-path: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-shape-circle .item {
+  border-radius: 50% !important;
+  clip-path: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-shape-hexagon .item {
+  border-radius: 0 !important;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%) !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text .item .img {
+  display: none;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text .item::before {
+  content: '\2605';
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  color: var(--nt-int-accent, #FFCD00);
+  font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw)*3);
+  line-height: 1;
+  z-index: 1;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text .item.has-img::before {
+  display: none;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text .item.has-img .img {
+  display: block;
+  position: absolute !important;
+  left: 50% !important;
+  top: 38% !important;
+  width: 34% !important;
+  height: 34% !important;
+  transform: translate(-50%, -50%);
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  z-index: 1;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text .item .name {
+  position: absolute !important;
+  left: 8% !important;
+  right: 8% !important;
+  top: 60% !important;
+  bottom: auto !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  text-align: center;
+  z-index: 1;
+}
+
+/* Icon + Text vertical positions mirror Home: the icon moves away from the
+   selected label edge, while Center keeps the icon/label pair grouped. */
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-overlay-top .item::before,
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-overlay-top .item.has-img .img {
+  top: 58% !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-overlay-top .item .name {
+  top: 9% !important;
+  bottom: auto !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-overlay-bottom .item::before,
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-overlay-bottom .item.has-img .img {
+  top: 40% !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-overlay-bottom .item .name {
+  top: auto !important;
+  bottom: 9% !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-center .item::before,
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-center .item.has-img .img {
+  top: 36% !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-center .item .name {
+  top: 58% !important;
+  bottom: auto !important;
+}
+
 /* ---- card-strip restyled like Home 'image-strip' (full-bleed, image behind name) ---- */
 .nt-inter .body.int-card-strip {
   display: flex;
