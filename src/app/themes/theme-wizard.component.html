@@ -480,8 +480,8 @@
           <div class="step-title sm">{{ t.intermediateStyle==='card-strip' ? 'Visible cards' : 'Columns' }}</div>
           <p class="hint">{{ t.intermediateStyle==='card-strip' ? 'How many cards are visible at once in the strip.' : 'How many sub-category cards per row.' }}</p>
           <div class="seg cols-stepper">
-            <button class="tile" (click)="stepIntColumns(-1)" [disabled]="intColumnsValue<=2" aria-label="Fewer">−</button>
-            <input class="inp cols-inp" type="number" min="2" max="6" [value]="intColumnsValue" (input)="setIntColumns(+$any($event.target).value)" aria-label="Columns" />
+            <button class="tile" (click)="stepIntColumns(-1)" [disabled]="intColumnsValue<=1" aria-label="Fewer">−</button>
+            <input class="inp cols-inp" type="number" min="1" max="6" [value]="intColumnsValue" (input)="setIntColumns(+$any($event.target).value)" aria-label="Columns" />
             <button class="tile" (click)="stepIntColumns(1)" [disabled]="intColumnsValue>=6" aria-label="More">+</button>
           </div>
         </ng-container>
@@ -490,8 +490,8 @@
           <div class="step-title sm">Overflow scrolling</div>
           <p class="hint">How extra cards scroll when they don't fit one screen.</p>
           <div class="seg">
-            <button class="tile" [class.sel]="(t.scrollMode||'vertical')!=='horizontal'" (click)="t.scrollMode='vertical'">Vertical</button>
-            <button class="tile" [class.sel]="t.scrollMode==='horizontal'" (click)="t.scrollMode='horizontal'">Horizontal</button>
+            <button class="tile" *ngIf="!intScrollHorizontalOnly" [class.sel]="(t.scrollMode||'vertical')!=='horizontal'" (click)="t.scrollMode='vertical'">Vertical</button>
+            <button class="tile" [class.sel]="intScrollHorizontalOnly || t.scrollMode==='horizontal'" (click)="t.scrollMode='horizontal'">Horizontal</button>
           </div>
         </ng-container>
 
@@ -518,7 +518,7 @@
           </div>
         </ng-container>
 
-        <ng-container *ngIf="t.intermediateStyle !== 'drill-stair'">
+        <ng-container *ngIf="t.intermediateStyle !== 'drill-stair' && t.intermediateStyle !== 'card-strip'">
         <div class="step-title sm">Item size</div>
         <p class="hint">Drag to set the physical size of each sub-category tile/row.</p>
         <div class="slider-row">
@@ -531,12 +531,12 @@
         <ng-container *ngIf="intShapeMatters">
           <div class="step-title sm">Card shape</div>
           <p class="hint">Shape of each sub-category image (this layout shows images).</p>
-          <div class="tiles"><button class="tile" *ngFor="let s of cardShapes" [class.sel]="(t.intermediate.cardShape||'rect')===s.id" (click)="t.intermediate.cardShape=s.id">{{ s.label }}</button></div>
+          <div class="tiles"><button class="tile" *ngFor="let s of interShapesFor" [class.sel]="(t.intermediate.cardShape||'rect')===s.id" (click)="t.intermediate.cardShape=s.id">{{ s.label }}</button></div>
         </ng-container>
 
         <ng-container *ngIf="intContentMatters">
           <div class="step-title sm">Card content</div>
-          <div class="seg"><button class="tile" *ngFor="let c of interContents" [class.sel]="(t.intermediate.content||'image-text')===c.id" (click)="pickInterContent(c.id)">{{ c.label }}</button></div>
+          <div class="seg"><button class="tile" *ngFor="let c of interContentsFor" [class.sel]="(t.intermediate.content||'image-text')===c.id" (click)="pickInterContent(c.id)">{{ c.label }}</button></div>
         </ng-container>
 
         <ng-container *ngIf="intTextPosMatters && (t.intermediate.content||'image-text')!=='image-only'">
@@ -545,11 +545,11 @@
         </ng-container>
 
         <ng-container *ngIf="intAlignMatters">
-          <div class="step-title sm">Text horizontal alignment</div>
+          <div class="step-title sm">Card alignment</div>
           <div class="seg"><button class="tile" *ngFor="let a of aligns" [class.sel]="(t.intermediate.align||'center')===a.id" (click)="t.intermediate.align=a.id">{{ a.label }}</button></div>
         </ng-container>
 
-        <ng-container *ngIf="t.intermediateStyle !== 'drill-stair'">
+        <ng-container *ngIf="t.intermediateStyle !== 'drill-stair' && t.intermediateStyle !== 'card-strip'">
         <div class="step-title sm">Card gap</div>
         <div class="slider-row">
           <input type="range" class="nt-slider" min="0" max="20" step="1" [value]="intCardGapValue"
@@ -739,7 +739,7 @@
 
         <div class="step-title sm">Card content</div>
         <p class="hint">Whether product cards show their image.</p>
-        <div class="seg"><button class="tile" *ngFor="let c of interContents" [class.sel]="(t.result.content||'image-text')===c.id" (click)="t.result.content=c.id">{{ c.label }}</button></div>
+        <div class="seg"><button class="tile" *ngFor="let c of resultContents" [class.sel]="(t.result.content||'image-text')===c.id" (click)="t.result.content=c.id">{{ c.label }}</button></div>
 
         <ng-container *ngIf="resShapeMatters && (t.result.content||'image-text')==='image-text'">
           <div class="step-title sm">Card shape</div>

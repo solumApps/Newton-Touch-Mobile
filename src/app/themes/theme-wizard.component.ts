@@ -138,7 +138,7 @@ export class ThemeWizardComponent implements OnInit {
     }
   }
   pickContent(c: CardContent): void { this.t.cardContent = c; this.coerceTextPos(); }
-  pickInterContent(c: 'image-text' | 'image-only' | 'text-only'): void { this.t.intermediate.content = c; this.coerceTextPos(); }
+  pickInterContent(c: CardContent): void { this.t.intermediate.content = c; this.coerceTextPos(); }
   pickInterStyle(s: IntermediateStyle): void {
     this.t.intermediateStyle = s;
     if (s === 'side-rail') this.t.intermediate.align = 'left';
@@ -219,12 +219,27 @@ export class ThemeWizardComponent implements OnInit {
     return this.t.homeLayout === 'hero-list' ? this.scrollModes.filter(m => m.id !== 'horizontal') : this.scrollModes;
   }
   /** Intermediate content options (image layouts only). */
-  interContents: { id: 'image-text' | 'image-only' | 'text-only'; label: string }[] = [
+  interContents: { id: CardContent; label: string }[] = [
     { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' }, { id: 'text-only', label: 'Text only' },
+    { id: 'icon-text', label: 'Icon + Text' }, { id: 'gradient', label: 'Gradient' },
   ];
-  /** Card/text horizontal alignment — only for the 'columns' grid. */
+  /** Result page card content is limited to image/text (its own narrower type). */
+  resultContents: { id: 'image-text' | 'text-only'; label: string }[] = [
+    { id: 'image-text', label: 'Image + Text' }, { id: 'text-only', label: 'Text only' },
+  ];
+  /** Card-strip only supports image content; other styles get the full set. */
+  get interContentsFor(): { id: CardContent; label: string }[] {
+    return this.t.intermediateStyle === 'card-strip'
+      ? this.interContents.filter((c) => c.id === 'image-text' || c.id === 'image-only')
+      : this.interContents;
+  }
+  /** Shape options: prepend 'None' when content is image-only (mirrors Home). */
+  get interShapesFor(): { id: CardShape; label: string }[] {
+    return (this.t.intermediate.content === 'image-only') ? [{ id: 'none', label: 'None' }, ...this.cardShapes] : this.cardShapes;
+  }
+  /** Card / text alignment — for the 'columns' grid, 'brand-grid' and 'fullscreen'. */
   get intAlignMatters(): boolean {
-    return this.t.intermediateStyle === 'columns';
+    return ['columns', 'brand-grid', 'fullscreen'].includes(this.t.intermediateStyle);
   }
   /** Text vertical position applies to image card styles. */
   get intTextPosMatters(): boolean {
@@ -416,9 +431,11 @@ export class ThemeWizardComponent implements OnInit {
   get intColumnsValue(): number { return this.t.intermediate.columns || 3; }
   /** Stepper used like Home: +/- buttons. */
   stepIntColumns(delta: number): void { this.setIntColumns(this.intColumnsValue + delta); }
-  setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(2, Math.min(6, Math.round(n))); }
-  /** Overflow scrolling matters for the columns grid. */
-  get intScrollMatters(): boolean { return this.t.intermediateStyle === 'columns'; }
+  setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(1, Math.min(6, Math.round(n))); }
+  /** Overflow scrolling matters for the columns grid + brand grid/rail. */
+  get intScrollMatters(): boolean { return ['columns', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle); }
+  /** brand-rail is a single horizontal row — only horizontal scroll allowed. */
+  get intScrollHorizontalOnly(): boolean { return this.t.intermediateStyle === 'brand-rail'; }
   /** Card content (image/text) applies to every image-showing style incl. card-strip. */
   get intContentMatters(): boolean { return this.intShapeMatters || this.t.intermediateStyle === 'card-strip'; }
   /** Selectable templates — split-panel / esl-focus (map-width variants of

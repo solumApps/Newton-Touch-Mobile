@@ -2000,7 +2000,15 @@
 }
 .nt-inter .int-fullscreen.int-textpos-below .item .name {
   position:static !important; left:auto; right:auto; top:auto; bottom:auto; transform:none; flex:0 0 auto;
-  background:transparent; color:var(--nt-int-text,#fff); text-align:center;
+  background:transparent !important; color:var(--nt-int-text,#fff); text-align:center;
+  padding:calc(var(--nt-vh)*1.4) calc(var(--nt-vw)*2);
+}
+/* Full Screen + Text Above: text sits ABOVE the card, no background (mirror of Below). */
+.nt-inter .int-fullscreen.int-textpos-above .item { display:flex; flex-direction:column-reverse; box-sizing:border-box; }
+.nt-inter .int-fullscreen.int-textpos-above .item .img { position:static !important; flex:1 1 auto !important; width:100% !important; height:auto !important; min-height:0; }
+.nt-inter .int-fullscreen.int-textpos-above .item .name {
+  position:static !important; left:auto; right:auto; top:auto; bottom:auto; transform:none; flex:0 0 auto;
+  background:transparent !important; color:var(--nt-int-text,#fff); text-align:center;
   padding:calc(var(--nt-vh)*1.4) calc(var(--nt-vw)*2);
 }
 /* Full Screen carousel: when a scroll direction is chosen, show every item as a
@@ -2286,20 +2294,29 @@
 .nt-inter .fs-letter.active, .nt-inter .fs-val.active { color:var(--prm-accent,#185fa5); font-weight:900; }
 
 /* ---- intermediate 'columns' grid (column count from --int-cols, like Home) ---- */
-.nt-inter .body.int-columns { display:grid; grid-template-columns:repeat(var(--int-cols,3), 1fr); gap:calc(var(--nt-vh)*1.6) calc(var(--nt-vw)*1.4); align-content:start; justify-items:center; padding:calc(var(--nt-vh)*2) calc(var(--nt-vw)*2); overflow-y:auto; overflow-x:hidden; box-sizing:border-box; }
-.nt-inter .body.int-columns.scroll-horizontal { grid-auto-flow:column; grid-template-columns:none; grid-auto-columns:calc((100% - (var(--int-cols,3) - 1) * var(--nt-vw)*1.4) / var(--int-cols,3)); overflow-x:auto; overflow-y:hidden; }
-.nt-inter .body.int-columns .item { width:100%; display:flex; flex-direction:column; min-height:0; height:calc(var(--nt-vh)*34 * var(--nt-int-scale,1)); background:var(--nt-int-card, rgba(255,255,255,.12)); border-radius:10px; overflow:hidden; cursor:pointer; box-sizing:border-box; }
+.nt-inter .body.int-columns { display:flex; flex-wrap:wrap; align-items:flex-start; align-content:flex-start; justify-content:center; gap:calc(var(--nt-vh)*1.4) calc(var(--nt-vw)*1.4); padding:calc(var(--nt-vh)*2) calc(var(--nt-vw)*2); overflow-y:auto; overflow-x:hidden; box-sizing:border-box; }
+.nt-inter .body.int-columns.scroll-horizontal { flex-wrap:nowrap; justify-content:flex-start; overflow-x:auto; overflow-y:hidden; }
+/* rect cards: 1/cols of the row width, tall enough to read; one row fills, extras overflow */
+.nt-inter .body.int-columns .item { flex:0 0 calc((100% - (var(--int-cols,3) - 1) * var(--nt-vw)*1.4) / var(--int-cols,3)); height:calc(var(--nt-vh)*42 * var(--nt-int-scale,1)); position:relative; display:flex; flex-direction:column; min-height:0; background:var(--nt-int-card, rgba(255,255,255,.12)); border-radius:10px; overflow:hidden; cursor:pointer; box-sizing:border-box; }
 .nt-inter .body.int-columns .item .img { flex:1; min-height:0; background-size:cover; background-position:center; }
 .nt-inter .body.int-columns.int-content-text-only .item .img, .nt-inter .body.int-columns.int-content-image-only .item .name { display:none; }
-.nt-inter .body.int-columns .item .name { padding:calc(var(--nt-vh)*0.8) calc(var(--nt-vw)*0.6); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw)*0.9); font-weight:700; text-align:var(--nt-card-align,center); color:var(--nt-int-text,#fff); }
-.nt-inter .body.int-columns.int-textpos-overlay-bottom .item, .nt-inter .body.int-columns.int-textpos-overlay-top .item { position:relative; }
+.nt-inter .body.int-columns .item .name { padding:calc(var(--nt-vh)*0.8) calc(var(--nt-vw)*0.6); font-size:calc(var(--nt-text-scale,1) * var(--nt-vw)*0.9); font-weight:700; text-align:center; color:var(--nt-int-text,#fff); }
+/* card alignment (where cards sit in the row) + text alignment — both follow int-align-* */
+.nt-inter .body.int-columns.int-align-left { justify-content:flex-start; }
+.nt-inter .body.int-columns.int-align-right { justify-content:flex-end; }
+.nt-inter .body.int-columns.int-align-left .item .name { text-align:left; }
+.nt-inter .body.int-columns.int-align-right .item .name { text-align:right; }
+/* text vertical position (overlay = text over image; no bg for below/above handled per-style) */
 .nt-inter .body.int-columns[class*="int-textpos-overlay"] .item .img { position:absolute; inset:0; }
 .nt-inter .body.int-columns[class*="int-textpos-overlay"] .item .name { position:relative; z-index:1; margin-top:auto; background:var(--nt-overlay,rgba(0,0,0,.5)); }
 .nt-inter .body.int-columns.int-textpos-overlay-top .item .name { margin-top:0; margin-bottom:auto; }
+/* shapes — circle/hexagon are SQUARE (narrower than rect), image fills, name overlaid */
 .nt-inter .body.int-columns.int-shape-pill .item { border-radius:999px; }
-.nt-inter .body.int-columns.int-shape-circle .item, .nt-inter .body.int-columns.int-shape-hexagon .item { aspect-ratio:1; height:auto; width:calc(var(--nt-vh)*30 * var(--nt-int-scale,1)); }
+.nt-inter .body.int-columns.int-shape-circle .item, .nt-inter .body.int-columns.int-shape-hexagon .item { flex:0 0 auto; width:calc(var(--nt-vh)*42 * var(--nt-int-scale,1)); height:calc(var(--nt-vh)*42 * var(--nt-int-scale,1)); }
 .nt-inter .body.int-columns.int-shape-circle .item { border-radius:50%; }
-.nt-inter .body.int-columns.int-shape-hexagon .item { clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+.nt-inter .body.int-columns.int-shape-hexagon .item { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+.nt-inter .body.int-columns.int-shape-circle .item .img, .nt-inter .body.int-columns.int-shape-hexagon .item .img { position:absolute; inset:0; }
+.nt-inter .body.int-columns.int-shape-circle .item .name, .nt-inter .body.int-columns.int-shape-hexagon .item .name { position:absolute; left:0; right:0; bottom:12%; z-index:1; text-shadow:0 1px 3px rgba(0,0,0,.8); }
 
 /* ---- card-strip restyled like Home 'image-strip' (full-bleed, image behind name) ---- */
 .nt-inter .body.int-card-strip { display:flex; flex-wrap:nowrap; padding:0 !important; gap:0; overflow-x:auto; overflow-y:hidden; }
@@ -2312,3 +2329,22 @@
 .nt-home .cards.scroll-horizontal, .nt-inter .body.scroll-horizontal { justify-content:flex-start !important; padding-left:calc(var(--nt-vw)*2.5) !important; padding-right:calc(var(--nt-vw)*2.5) !important; }
 .nt-home .cards.scroll-vertical, .nt-inter .body.scroll-vertical { align-content:flex-start !important; padding-top:calc(var(--nt-vh)*2.5) !important; padding-bottom:calc(var(--nt-vh)*2.5) !important; }
 .nt-inter .body.int-card-strip.scroll-horizontal { padding-left:0 !important; }
+/* card-strip: zero padding/gaps all around (no stray space at the end/below) */
+.nt-inter .body.int-card-strip { padding:0 !important; gap:0 !important; height:100%; }
+.nt-inter .body.int-card-strip.scroll-horizontal { padding-left:0 !important; padding-right:0 !important; padding-top:0 !important; padding-bottom:0 !important; }
+/* image-only content: hide the card name across every intermediate style */
+.nt-inter .body[class*="int-content-image-only"] .item .name { display:none !important; }
+
+/* ---- #16 brand-grid overflow: horizontal (nowrap, scroll-x) or vertical (wrap, scroll-y) ---- */
+.nt-inter .body.int-brand-grid.scroll-horizontal { flex-wrap:nowrap; justify-content:flex-start; overflow-x:auto; overflow-y:hidden; }
+.nt-inter .body.int-brand-grid.scroll-vertical { flex-wrap:wrap; align-content:flex-start; justify-content:center; overflow-y:auto; overflow-x:hidden; }
+.nt-inter .body.int-brand-grid.scroll-horizontal .item:first-child, .nt-inter .body.int-brand-grid.scroll-vertical .item:first-child { margin-left:calc(var(--nt-vw)*0.9); }
+.nt-inter .body.int-brand-grid.scroll-horizontal .item:last-child, .nt-inter .body.int-brand-grid.scroll-vertical .item:last-child { margin-right:calc(var(--nt-vw)*0.9); }
+.nt-inter .body.int-brand-grid.scroll-horizontal::after, .nt-inter .body.int-brand-grid.scroll-vertical::after { content:none; }
+
+/* ---- #17 brand-rail: ALWAYS one horizontal row, scroll-x only; headline centered vertically ---- */
+.nt-inter .body.int-brand-rail, .nt-inter .body.int-brand-rail.scroll-vertical, .nt-inter .body.int-brand-rail.scroll-horizontal {
+  flex-wrap:nowrap !important; align-items:center !important; align-content:center !important; overflow-x:auto !important; overflow-y:hidden !important;
+}
+.nt-inter .body.int-brand-rail .item { margin-bottom:0 !important; }
+.nt-inter .int-brand-rail::after { align-self:center; display:flex; align-items:center; }
