@@ -6831,8 +6831,10 @@
   color: #111 !important;
 }
 
+/* Re-assert the selected card shape on the card itself. */
+
 /* Gradient cards have no image layer, so the late background override must
-   re-assert the selected card shape on the card itself. */
+   preserve the selected shape on the card itself. */
 .nt-home .card.shape-pill.content-gradient { border-radius:999px !important; clip-path:none !important; }
 .nt-home .card.shape-circle.content-gradient { border-radius:50% !important; clip-path:none !important; }
 .nt-home .card.shape-hexagon.content-gradient {
@@ -8747,6 +8749,1323 @@
   text-shadow: 0 1px 3px rgba(0, 0, 0, .8);
 }
 
+}
+
+.nt-result.res-shelf .sprod {
+  flex: 0 0 19%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: calc(var(--nt-vh)*1.5) calc(var(--nt-vw)*0.8);
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.nt-result.res-shelf .sprod .s-img {
+  width: 72%;
+  height: 50%;
+  flex: 0 0 auto;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+}
+
+.nt-result.res-shelf .sprod .s-img.no-img {
+  background: var(--nt-res-card, rgba(255, 255, 255, .08));
+  border-radius: 8px;
+}
+
+.nt-result.res-shelf .sprod .s-nm {
+  margin-top: calc(var(--nt-vh)*1.5);
+  font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw) * 0.85);
+  font-weight: 800;
+  color: var(--nt-res-text, #fff);
+  line-height: 1.25;
+  max-width: 100%;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.nt-result.res-shelf .sprod .s-price {
+  margin-top: calc(var(--nt-vh)*0.8);
+  font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw) * 1);
+  font-weight: 900;
+  color: var(--nt-res-text, #fff);
+}
+
+.nt-result.res-shelf .sprod .s-meta {
+  margin-top: calc(var(--nt-vh)*0.4);
+  font-size: calc(var(--nt-vw)*0.7);
+  opacity: .65;
+  text-transform: uppercase;
+}
+
+.nt-result.res-shelf .sprod.found .s-nm,
+.nt-result.res-shelf .sprod.found .s-price {
+  color: var(--nt-res-accent, #FFCD00);
+}
+
+/* shelf + vertical scroll mode: products wrap into rows and scroll down */
+.nt-result.scroll-vertical.res-shelf .shelf-prods {
+  flex-wrap: wrap;
+  align-content: flex-start;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.nt-result.scroll-vertical.res-shelf .sprod {
+  height: 64%;
+}
+
+/* ---- result card shape (res-shape-*, optional — default keeps each template's look) ---- */
+/* row templates: pill rounds the row, circle/hexagon shape the thumbnail */
+.nt-result.res-shape-pill .prod {
+  border-radius: 999px;
+  padding-left: calc(var(--nt-vw)*1.4);
+}
+
+.nt-result.res-shape-pill .fitem {
+  border-radius: 999px;
+}
+
+.nt-result.res-shape-pill.res-card-grid .prod,
+.nt-result.res-shape-pill.res-cards-map .prod,
+.nt-result.res-shape-pill.res-catalog-grid .prod {
+  border-radius: 6px;
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1);
+}
+
+.nt-result.res-shape-rect .prod,
+.nt-result.res-shape-rect .fitem {
+  border-radius: 6px;
+}
+
+/* QA fix: circle/hexagon shape the PRODUCT CARD itself (like home cards) —
+   previously they only reshaped the inner thumbnail. Grid/shelf templates keep
+   their own dedicated shape rules below. */
+.nt-result.res-shape-circle:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only) .prod {
+  border-radius: 999px;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*2.2);
+}
+
+.nt-result.res-shape-hexagon:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only) .prod {
+  border-radius: 0;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  justify-content: center;
+  text-align: center;
+  box-shadow: none;
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*2.6);
+}
+
+/* row-list templates (map-list, list-only) only offer circle/hexagon in the
+   shape picker, and these must shape the PRODUCT-CARD THUMBNAIL image — not clip
+   the whole row (which previously read as the card/background changing shape). */
+.nt-result.res-shape-circle.res-map-list .prod .img,
+.nt-result.res-shape-circle.res-list-only .prod .img {
+  border-radius: 50%;
+  background-size: cover;
+}
+
+.nt-result.res-shape-hexagon.res-map-list .prod .img,
+.nt-result.res-shape-hexagon.res-list-only .prod .img {
+  border-radius: 0;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background-size: cover;
+}
+
+/* thumbnails keep their default small rounded look inside shaped cards */
+/* card templates: circle/hexagon turn the card image into a centred square shape */
+.nt-result.res-shape-circle.res-card-grid .prod .img,
+.nt-result.res-shape-circle.res-cards-map .prod .img,
+.nt-result.res-shape-circle.res-catalog-grid .prod .img,
+.nt-result.res-shape-hexagon.res-card-grid .prod .img,
+.nt-result.res-shape-hexagon.res-cards-map .prod .img,
+.nt-result.res-shape-hexagon.res-catalog-grid .prod .img {
+  width: 46%;
+  height: 0;
+  flex: none;
+  padding-top: 46%;
+  align-self: center;
+  margin: calc(var(--nt-vh)*0.6) 0;
+  background-size: cover;
+}
+
+.nt-result.res-shape-pill.res-card-grid .prod .img,
+.nt-result.res-shape-pill.res-cards-map .prod .img,
+.nt-result.res-shape-pill.res-catalog-grid .prod .img {
+  border-radius: 999px;
+  background-size: cover;
+}
+
+/* shelf: shape applies to the product image (cover-fit inside the shape) */
+.nt-result.res-shape-rect.res-shelf .sprod .s-img {
+  border-radius: 8px;
+  background-size: cover;
+  background-color: var(--nt-res-card, rgba(255, 255, 255, .08));
+}
+
+.nt-result.res-shape-pill.res-shelf .sprod .s-img {
+  border-radius: 999px;
+  background-size: cover;
+  width: 86%;
+  height: 36%;
+  background-color: var(--nt-res-card, rgba(255, 255, 255, .08));
+}
+
+.nt-result.res-shape-circle.res-shelf .sprod .s-img,
+.nt-result.res-shape-hexagon.res-shelf .sprod .s-img {
+  width: 62%;
+  height: 0;
+  padding-top: 62%;
+  background-size: cover;
+  background-color: var(--nt-res-card, rgba(255, 255, 255, .08));
+}
+
+.nt-result.res-shape-circle.res-shelf .sprod .s-img {
+  border-radius: 50%;
+}
+
+.nt-result.res-shape-hexagon.res-shelf .sprod .s-img,
+.nt-result.res-shape-hexagon.res-shelf .sprod .s-img.no-img {
+  border-radius: 0;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* result: card content + text position (card-style templates) */
+.nt-result.res-content-text-only .prod .img {
+  display: none !important;
+}
+
+.nt-result.res-cards-map .prod,
+.nt-result.res-card-grid .prod,
+.nt-result.res-catalog-grid .prod {
+  position: relative;
+}
+
+.nt-result[class*="res-textpos-overlay"].res-card-grid .prod .img,
+.nt-result[class*="res-textpos-overlay"].res-cards-map .prod .img,
+.nt-result[class*="res-textpos-overlay"].res-catalog-grid .prod .img {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background-size: cover;
+}
+
+.nt-result[class*="res-textpos-overlay"].res-card-grid .prod .info,
+.nt-result[class*="res-textpos-overlay"].res-cards-map .prod .info,
+.nt-result[class*="res-textpos-overlay"].res-catalog-grid .prod .info {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  z-index: 1;
+  background: var(--nt-overlay, rgba(0, 0, 0, .55));
+  border-radius: 8px;
+  padding: calc(var(--nt-vh)*0.6) calc(var(--nt-vw)*0.6);
+  color: #fff;
+}
+
+.nt-result.res-textpos-overlay-bottom.res-card-grid .prod .info,
+.nt-result.res-textpos-overlay-bottom.res-cards-map .prod .info,
+.nt-result.res-textpos-overlay-bottom.res-catalog-grid .prod .info {
+  bottom: 6%;
+}
+
+.nt-result.res-textpos-overlay-top.res-card-grid .prod .info,
+.nt-result.res-textpos-overlay-top.res-cards-map .prod .info,
+.nt-result.res-textpos-overlay-top.res-catalog-grid .prod .info {
+  top: 6%;
+}
+
+/* ============================================================================
+   PER-ELEMENT TYPOGRAPHY + NAV BUTTON OPTIONS (additive — all vars default to
+   values that keep the pre-existing look when the theme lacks the new tokens).
+   Vars: --nt-gscale (mirror of the global --nt-text-scale, set wherever
+   --nt-text-scale is set), --nt-card-text-scale / --nt-header-text-scale
+   (multipliers, default 1), --nt-card-text-case / --nt-header-text-case
+   (text-transform, default none), --nt-nav-btn-size (multiplier, default 1).
+   ========================================================================== */
+/* card/item text scale: names re-derive their scale as global × card multiplier */
+.nt-home .card,
+.nt-home .hero-copy,
+.nt-home .promo-copy,
+.nt-inter .body .item {
+  --nt-text-scale: calc(var(--nt-gscale, 1) * var(--nt-card-text-scale, 1));
+}
+
+/* card/item text case (color-block keeps its decorative uppercase by default) */
+.nt-home .card .name,
+.nt-inter .body .item .name {
+  text-transform: var(--nt-card-text-case, none);
+}
+
+.nt-home .card.content-color-block .name {
+  text-transform: var(--nt-card-text-case, uppercase);
+}
+
+/* header title/caption scale + case (header text never followed the global scale) */
+.nt-stage .hdr .title {
+  font-size: calc(var(--nt-header-text-scale, 1) * var(--nt-vw) * 1.4);
+}
+
+.nt-stage .hdr .caption {
+  font-size: calc(var(--nt-header-text-scale, 1) * var(--nt-vw) * 0.95);
+}
+
+.nt-stage .hdr.hdr-custom .title {
+  font-size: calc(var(--nt-header-text-scale, 1) * var(--nt-vw) * 1.4);
+}
+
+.nt-stage .hdr.hdr-custom .caption {
+  font-size: calc(var(--nt-header-text-scale, 1) * var(--nt-vw) * 0.95);
+}
+
+.nt-stage .hdr .title,
+.nt-stage .hdr .caption {
+  text-transform: var(--nt-header-text-case, none);
+}
+
+/* ---- nav button size (multiplies the legacy fixed sizes) ---- */
+.nt-inter .fb,
+.nt-result .fb {
+  width: calc(var(--nt-nav-btn-size, 1) * var(--nt-vw) * 2.6);
+  height: calc(var(--nt-nav-btn-size, 1) * var(--nt-vw) * 2.6);
+}
+
+.nt-inter .fb {
+  font-size: calc(var(--nt-nav-btn-size, 1) * var(--nt-vw) * 1.1);
+}
+
+.nt-result .fb {
+  font-size: calc(var(--nt-nav-btn-size, 1) * var(--nt-vw) * 1);
+}
+
+/* ---- nav button icons: built-in inline SVG (.fb-ic) / custom image (.fb-img) ---- */
+.nt-inter .fb .fb-ic,
+.nt-result .fb .fb-ic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58%;
+  height: 58%;
+}
+
+.nt-inter .fb .fb-ic svg,
+.nt-result .fb .fb-ic svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  fill: currentColor;
+}
+
+.nt-inter .fb img.fb-img,
+.nt-result .fb img.fb-img {
+  width: 62%;
+  height: 62%;
+  object-fit: contain;
+  display: block;
+}
+
+/* ---- text / icon+text modes: pill-shaped label buttons ---- */
+.nt-inter .fb.fb-text,
+.nt-result .fb.fb-text,
+.nt-inter .fb.fb-icon-text,
+.nt-result .fb.fb-icon-text {
+  width: auto;
+  min-width: calc(var(--nt-nav-btn-size, 1) * var(--nt-vw) * 4.6);
+  border-radius: 999px;
+  padding: 0 calc(var(--nt-nav-btn-size, 1) * var(--nt-vw) * 1.1);
+  box-sizing: border-box;
+}
+
+.nt-inter .fb .fb-lbl,
+.nt-result .fb .fb-lbl {
+  font-weight: 800;
+  white-space: nowrap;
+  font-size: calc(var(--nt-nav-btn-size, 1) * var(--nt-vw) * 0.85);
+}
+
+.nt-inter .fb.fb-icon-text .fb-ic,
+.nt-result .fb.fb-icon-text .fb-ic {
+  width: auto;
+  height: 58%;
+  margin-right: calc(var(--nt-vw)*0.4);
+}
+
+.nt-inter .fb.fb-icon-text .fb-ic svg,
+.nt-result .fb.fb-icon-text .fb-ic svg {
+  width: calc(var(--nt-nav-btn-size, 1) * var(--nt-vw) * 1.2);
+}
+
+.nt-inter .fb.fb-icon-text img.fb-img,
+.nt-result .fb.fb-icon-text img.fb-img {
+  margin-right: calc(var(--nt-vw)*0.4);
+}
+
+/* ---- header-anchored nav positions: buttons render inside the top header
+   strip (flex 15% — also matches the absolute hdr-transparent overlay) ---- */
+.nt-inter .nav.nav-pos-header-left,
+.nt-result .nav.nav-pos-header-left,
+.nt-inter .nav.nav-single.nav-pos-header-left,
+.nt-result .nav.nav-single.nav-pos-header-left {
+  top: 0;
+  bottom: auto;
+  left: calc(var(--nt-vw)*2);
+  right: auto;
+  height: 15%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  transform: none;
+  width: auto;
+  z-index: 12;
+}
+
+.nt-inter .nav.nav-pos-header-right,
+.nt-result .nav.nav-pos-header-right,
+.nt-inter .nav.nav-single.nav-pos-header-right,
+.nt-result .nav.nav-single.nav-pos-header-right {
+  top: 0;
+  bottom: auto;
+  right: calc(var(--nt-vw)*2);
+  left: auto;
+  height: 15%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  transform: none;
+  width: auto;
+  z-index: 12;
+}
+
+.nt-inter .nav.nav-pos-header-left .fb+.fb,
+.nt-result .nav.nav-pos-header-left .fb+.fb,
+.nt-inter .nav.nav-pos-header-right .fb+.fb,
+.nt-result .nav.nav-pos-header-right .fb+.fb {
+  margin-left: calc(var(--nt-vw)*1);
+  margin-top: 0;
+}
+
+/* ============================================================================
+   promo-map-rank — store wayfinding (floor map + dark promotion panel)
+   ========================================================================== */
+.nt-result.res-promo-map-rank .body.promo-rank-body {
+  display: flex;
+  padding: 0;
+  height: 100%;
+  min-height: 0;
+}
+
+.nt-result.res-promo-map-rank .prm-map {
+  flex: 0 0 46%;
+  position: relative;
+  background: var(--prm-map, #ecebe4);
+  background-size: cover;
+  background-position: center;
+}
+
+.nt-result.res-promo-map-rank .prm-shelf {
+  position: absolute;
+  background: #e2e0d8;
+  border: 1px solid #d2d0c7;
+  border-radius: 2px;
+}
+
+.nt-result.res-promo-map-rank .prm-dot {
+  position: absolute;
+  width: calc(var(--nt-vw)*0.9);
+  height: calc(var(--nt-vw)*0.9);
+  border-radius: 50%;
+  background: #e24b4a;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 calc(var(--nt-vw)*0.22) rgba(226, 75, 74, .22);
+}
+
+.nt-result.res-promo-map-rank .prm-pin {
+  position: absolute;
+  width: calc(var(--nt-vw)*2);
+  height: calc(var(--nt-vw)*2);
+  border-radius: 50%;
+  background: var(--prm-pin, #6c63ff);
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 calc(var(--nt-vh)*0.3) calc(var(--nt-vh)*0.8) rgba(0, 0, 0, .3);
+}
+
+.nt-result.res-promo-map-rank .prm-pin-lbl {
+  position: absolute;
+  top: 118%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background: #fff;
+  color: #534ab7;
+  font-size: calc(var(--nt-vw)*0.62);
+  font-weight: 800;
+  padding: calc(var(--nt-vh)*0.3) calc(var(--nt-vw)*0.6);
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+  border: 1px solid #cfcbf0;
+}
+
+.nt-result.res-promo-map-rank .prm-floors {
+  position: absolute;
+  right: calc(var(--nt-vw)*1);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--nt-vh)*0.8);
+}
+
+.nt-result.res-promo-map-rank .prm-floor {
+  min-width: calc(var(--nt-vw)*2.6);
+  text-align: center;
+  padding: calc(var(--nt-vh)*0.6) calc(var(--nt-vw)*0.8);
+  background: #fff;
+  border: 1px solid #d6d6cf;
+  border-radius: 6px;
+  font-weight: 800;
+  color: #5f5e5a;
+  cursor: pointer;
+  font-size: calc(var(--nt-vw)*0.85);
+}
+
+.nt-result.res-promo-map-rank .prm-floor.active {
+  background: #2c2c2a;
+  color: #fff;
+  border-color: #2c2c2a;
+}
+
+.nt-result.res-promo-map-rank .prm-panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.nt-result.res-promo-map-rank .prm-head {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--nt-vw)*0.8);
+  padding: calc(var(--nt-vh)*1.8) calc(var(--nt-vw)*1.8);
+  background: var(--prm-panel, #3a3a38);
+  color: #fff;
+}
+
+.nt-result.res-promo-map-rank .prm-title {
+  flex: 1;
+  font-size: calc(var(--nt-vw)*1.7);
+  font-weight: 900;
+  color: #fff;
+}
+
+.nt-result.res-promo-map-rank .prm-bell {
+  color: #e24b4a;
+  font-size: calc(var(--nt-vw)*1.1);
+}
+
+.nt-result.res-promo-map-rank .prm-timer {
+  font-size: calc(var(--nt-vw)*1.3);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+}
+
+.nt-result.res-promo-map-rank .prm-cols {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: calc(var(--nt-vw)*1);
+  padding: calc(var(--nt-vh)*1.4) calc(var(--nt-vw)*1.4);
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.nt-result.res-promo-map-rank .prm-primary {
+  flex: 0 0 28%;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--nt-vh)*0.7);
+  padding: calc(var(--nt-vh)*0.4) 0;
+  background: var(--prm-rail, transparent);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.nt-result.res-promo-map-rank .prm-primary::-webkit-scrollbar {
+  display: none;
+}
+
+.nt-result.res-promo-map-rank .prm-pill {
+  text-align: center;
+  padding: calc(var(--nt-vh)*0.85) calc(var(--nt-vw)*0.8);
+  background: #fff;
+  border: 1px solid #d6d6cf;
+  border-radius: 999px;
+  font-weight: 700;
+  color: #444441;
+  cursor: pointer;
+  font-size: calc(var(--nt-vw)*0.85);
+}
+
+.nt-result.res-promo-map-rank .prm-pill.active {
+  background: #2c2c2a;
+  color: #fff;
+  border-color: #2c2c2a;
+}
+
+.nt-result.res-promo-map-rank .prm-secondary {
+  flex: 0 0 30%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--nt-vh)*0.9);
+  padding: calc(var(--nt-vh)*1.2) calc(var(--nt-vw)*1.2);
+  background: var(--prm-subpanel, #5f5e5a);
+  border-radius: 8px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.nt-result.res-promo-map-rank .prm-secondary::-webkit-scrollbar {
+  display: none;
+}
+
+.nt-result.res-promo-map-rank .prm-sub {
+  color: #e2e2dd;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: calc(var(--nt-vw)*0.88);
+}
+
+.nt-result.res-promo-map-rank .prm-sub.active {
+  color: #fff;
+  font-weight: 800;
+}
+
+.nt-result.res-promo-map-rank .prm-listwrap {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.nt-result.res-promo-map-rank .prm-tabs {
+  display: flex;
+  gap: calc(var(--nt-vw)*0.5);
+  margin-bottom: calc(var(--nt-vh)*1);
+}
+
+.nt-result.res-promo-map-rank .prm-tabs .ftab {
+  padding: calc(var(--nt-vh)*0.45) calc(var(--nt-vw)*1.2);
+  border-radius: 999px;
+  font-size: calc(var(--nt-vw)*0.7);
+  font-weight: 700;
+  background: #fff;
+  border: 1px solid #d6d6cf;
+  color: #888780;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.nt-result.res-promo-map-rank .prm-tabs .ftab.active {
+  background: #888780;
+  color: #fff;
+  border-color: #888780;
+}
+
+.nt-result.res-promo-map-rank .prm-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.nt-result.res-promo-map-rank .prm-list::-webkit-scrollbar {
+  display: none;
+}
+
+.nt-result.res-promo-map-rank .prm-row {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--nt-vw)*1);
+  padding: calc(var(--nt-vh)*0.9) 0;
+  border-bottom: 1px solid #ececec;
+  cursor: pointer;
+}
+
+.nt-result.res-promo-map-rank .prm-rank {
+  font-size: calc(var(--nt-vw)*1.5);
+  font-weight: 900;
+  color: #b4b2a9;
+  min-width: calc(var(--nt-vw)*2.4);
+}
+
+.nt-result.res-promo-map-rank .prm-nm {
+  font-size: calc(var(--nt-vw)*0.98);
+  font-weight: 800;
+  color: #2c2c2a;
+}
+
+.nt-result.res-promo-map-rank .prm-meta {
+  font-size: calc(var(--nt-vw)*0.74);
+  color: #888780;
+  margin-top: calc(var(--nt-vh)*0.2);
+}
+
+.nt-result.res-promo-map-rank .prm-row.found .prm-nm {
+  color: #2c2c2a;
+}
+
+/* ============================================================================
+   finder-detail — product finder (hero breadcrumb + sortable list + detail)
+   ========================================================================== */
+.nt-result.res-finder-detail .body.finder-body {
+  display: flex;
+  padding: 0;
+  height: 100%;
+  min-height: 0;
+}
+
+.nt-result.res-finder-detail .fd-hero {
+  flex: 0 0 27%;
+  display: flex;
+  flex-direction: column;
+  background: var(--prm-panel, #23262b);
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  padding: calc(var(--nt-vh)*2.4) calc(var(--nt-vw)*1.6);
+  box-sizing: border-box;
+}
+
+.nt-result.res-finder-detail .fd-hero-title {
+  font-size: calc(var(--nt-vw)*1.9);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.nt-result.res-finder-detail .fd-home {
+  margin-top: calc(var(--nt-vh)*1.6);
+  align-self: stretch;
+  text-align: center;
+  padding: calc(var(--nt-vh)*0.75) calc(var(--nt-vw)*1.4);
+  background: rgba(255, 255, 255, .1);
+  border-radius: 999px;
+  font-weight: 700;
+  color: var(--prm-accent, #4ea1ff);
+  cursor: pointer;
+  font-size: calc(var(--nt-vw)*0.9);
+}
+
+.nt-result.res-finder-detail .fd-home-ic {
+  margin-right: calc(var(--nt-vw)*0.3);
+}
+
+.nt-result.res-finder-detail .fd-chips {
+  margin-top: calc(var(--nt-vh)*1.6);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--nt-vh)*1);
+}
+
+.nt-result.res-finder-detail .fd-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--nt-vw)*0.8);
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1.1);
+  background: rgba(255, 255, 255, .07);
+  border-radius: 8px;
+}
+
+.nt-result.res-finder-detail .fd-chip-lbl {
+  font-size: calc(var(--nt-vw)*0.62);
+  color: #9aa0a8;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.nt-result.res-finder-detail .fd-chip-val {
+  font-size: calc(var(--nt-vw)*0.85);
+  font-weight: 800;
+  color: var(--prm-accent, #4ea1ff);
+  text-align: right;
+}
+
+.nt-result.res-finder-detail .fd-list {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--prm-list, #ffffff);
+  padding: calc(var(--nt-vh)*1.6) calc(var(--nt-vw)*1.6);
+  box-sizing: border-box;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.nt-result.res-finder-detail .fd-list::-webkit-scrollbar {
+  display: none;
+}
+
+.nt-result.res-finder-detail .fd-sorts {
+  display: flex;
+  gap: calc(var(--nt-vw)*0.8);
+  margin-bottom: calc(var(--nt-vh)*1.4);
+}
+
+.nt-result.res-finder-detail .fd-sort {
+  padding: calc(var(--nt-vh)*0.5) calc(var(--nt-vw)*1);
+  border-radius: 5px;
+  font-size: calc(var(--nt-vw)*0.72);
+  font-weight: 700;
+  color: #9a9a93;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+.nt-result.res-finder-detail .fd-sort.active {
+  background: #23262b;
+  color: #fff;
+}
+
+.nt-result.res-finder-detail .fd-prod {
+  background: var(--prm-card, #fff);
+  border: 1px solid #e6e6df;
+  border-radius: 8px;
+  padding: calc(var(--nt-vh)*1.1) calc(var(--nt-vw)*1.3);
+  margin-bottom: calc(var(--nt-vh)*1);
+  cursor: pointer;
+}
+
+.nt-result.res-finder-detail .fd-prod.found {
+  border-color: #185fa5;
+  box-shadow: 0 0 0 1px #185fa5;
+}
+
+.nt-result.res-finder-detail .fd-prod-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: calc(var(--nt-vw)*1);
+}
+
+.nt-result.res-finder-detail .fd-prod-nm {
+  font-size: calc(var(--nt-vw)*1);
+  font-weight: 800;
+  color: var(--prm-cardtext, #1d2530);
+}
+
+.nt-result.res-finder-detail .fd-price {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--nt-vw)*0.5);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.nt-result.res-finder-detail .fd-sale-badge {
+  background: #185fa5;
+  color: #fff;
+  font-size: calc(var(--nt-vw)*0.6);
+  font-weight: 800;
+  padding: calc(var(--nt-vh)*0.25) calc(var(--nt-vw)*0.7);
+  border-radius: 999px;
+}
+
+.nt-result.res-finder-detail .fd-orig {
+  font-size: calc(var(--nt-vw)*0.72);
+  color: #b4b2a9;
+  text-decoration: line-through;
+}
+
+.nt-result.res-finder-detail .fd-now {
+  font-size: calc(var(--nt-vw)*1.05);
+  font-weight: 900;
+  color: var(--prm-cardtext, #1d2530);
+}
+
+.nt-result.res-finder-detail .fd-now.sale {
+  color: #e24b4a;
+}
+
+.nt-result.res-finder-detail .fd-specs {
+  margin-top: calc(var(--nt-vh)*0.6);
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--nt-vw)*0.8);
+}
+
+.nt-result.res-finder-detail .fd-spec {
+  font-size: calc(var(--nt-vw)*0.66);
+  color: #888780;
+}
+
+.nt-result.res-finder-detail .fd-detail {
+  flex: 0 0 34%;
+  display: flex;
+  flex-direction: column;
+  background: var(--prm-card, #fff);
+  padding: calc(var(--nt-vh)*1.8) calc(var(--nt-vw)*1.6);
+  box-sizing: border-box;
+  overflow-y: auto;
+  scrollbar-width: none;
+  border-left: 1px solid #ececec;
+}
+
+.nt-result.res-finder-detail .fd-detail::-webkit-scrollbar {
+  display: none;
+}
+
+.nt-result.res-finder-detail .fd-d-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--nt-vw)*1);
+}
+
+.nt-result.res-finder-detail .fd-d-title {
+  font-size: calc(var(--nt-vw)*1.2);
+  font-weight: 800;
+  color: var(--prm-cardtext, #1d2530);
+}
+
+.nt-result.res-finder-detail .fd-find-all,
+.nt-result.res-finder-detail .fd-find-it {
+  background: #1d3a66;
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.nt-result.res-finder-detail .fd-find-all {
+  padding: calc(var(--nt-vh)*0.7) calc(var(--nt-vw)*1.4);
+  font-size: calc(var(--nt-vw)*0.8);
+  flex: 0 0 auto;
+}
+
+.nt-result.res-finder-detail .fd-d-desc {
+  margin-top: calc(var(--nt-vh)*0.8);
+  font-size: calc(var(--nt-vw)*0.72);
+  color: #888780;
+  line-height: 1.4;
+}
+
+.nt-result.res-finder-detail .fd-fit {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--nt-vw)*1);
+  padding: calc(var(--nt-vh)*1.4) 0;
+  border-top: 1px solid #ececec;
+  margin-top: calc(var(--nt-vh)*1);
+}
+
+.nt-result.res-finder-detail .fd-fit-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.nt-result.res-finder-detail .fd-fit-nm {
+  font-size: calc(var(--nt-vw)*1);
+  font-weight: 800;
+  color: var(--prm-cardtext, #1d2530);
+}
+
+.nt-result.res-finder-detail .fd-fit-sub {
+  font-size: calc(var(--nt-vw)*0.64);
+  color: #888780;
+  margin-top: calc(var(--nt-vh)*0.3);
+}
+
+.nt-result.res-finder-detail .fd-fit-price {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--nt-vw)*0.5);
+  margin-top: calc(var(--nt-vh)*0.5);
+}
+
+.nt-result.res-finder-detail .fd-fit-price .fd-date {
+  font-size: calc(var(--nt-vw)*0.58);
+  color: #b4b2a9;
+}
+
+.nt-result.res-finder-detail .fd-find-it {
+  padding: calc(var(--nt-vh)*0.55) calc(var(--nt-vw)*1.2);
+  font-size: calc(var(--nt-vw)*0.74);
+  flex: 0 0 auto;
+  align-self: flex-start;
+}
+
+.nt-result.res-finder-detail .fd-fit-img {
+  flex: 0 0 24%;
+  height: calc(var(--nt-vh)*7);
+  background: #f4f4f1;
+  border: 1px solid #e8e8e2;
+  border-radius: 6px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* ============================================================================
+   finder-select — intermediate (progress rail + selection cards + index strip)
+   ========================================================================== */
+.nt-inter .body.fs-body {
+  display: flex;
+  padding: 0;
+  height: 100%;
+  min-height: 0;
+}
+
+.nt-inter .fs-hero {
+  flex: 0 0 27%;
+  display: flex;
+  flex-direction: column;
+  background: var(--prm-panel, #23262b);
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  padding: calc(var(--nt-vh)*2.4) calc(var(--nt-vw)*1.6);
+  box-sizing: border-box;
+}
+
+.nt-inter .fs-hero-title {
+  font-size: calc(var(--nt-vw)*1.9);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.nt-inter .fs-home {
+  margin-top: calc(var(--nt-vh)*1.6);
+  text-align: center;
+  padding: calc(var(--nt-vh)*0.75) calc(var(--nt-vw)*1.4);
+  background: rgba(255, 255, 255, .1);
+  border-radius: 999px;
+  font-weight: 700;
+  color: var(--prm-accent, #4ea1ff);
+  cursor: pointer;
+  font-size: calc(var(--nt-vw)*0.9);
+}
+
+.nt-inter .fs-home-ic {
+  margin-right: calc(var(--nt-vw)*0.3);
+}
+
+.nt-inter .fs-steps {
+  margin-top: calc(var(--nt-vh)*1.6);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--nt-vh)*0.9);
+}
+
+.nt-inter .fs-step {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--nt-vw)*0.8);
+  padding: calc(var(--nt-vh)*0.9) calc(var(--nt-vw)*1.1);
+  background: rgba(255, 255, 255, .07);
+  border-radius: 999px;
+}
+
+.nt-inter .fs-step-lbl {
+  flex: 1;
+  font-size: calc(var(--nt-vw)*0.72);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: #aab0b8;
+}
+
+.nt-inter .fs-step.current .fs-step-lbl,
+.nt-inter .fs-step.done .fs-step-lbl {
+  color: #fff;
+}
+
+.nt-inter .fs-step-ic {
+  color: var(--prm-accent, #4ea1ff);
+  font-weight: 900;
+  font-size: calc(var(--nt-vw)*0.95);
+}
+
+.nt-inter .fs-step-dot {
+  width: calc(var(--nt-vw)*0.7);
+  height: calc(var(--nt-vw)*0.7);
+  border-radius: 50%;
+  background: var(--prm-accent, #4ea1ff);
+}
+
+.nt-inter .fs-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--nt-int-bg, #fff);
+  padding: calc(var(--nt-vh)*1.8) calc(var(--nt-vw)*2);
+  box-sizing: border-box;
+}
+
+.nt-inter .fs-top {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--nt-vw)*1.2);
+  margin-bottom: calc(var(--nt-vh)*1.6);
+}
+
+.nt-inter .fs-back {
+  width: calc(var(--nt-vw)*2.4);
+  height: calc(var(--nt-vw)*2.4);
+  border-radius: 50%;
+  border: 0;
+  background: transparent;
+  color: #2c2c2a;
+  font-size: calc(var(--nt-vw)*1.4);
+  cursor: pointer;
+}
+
+.nt-inter .fs-prompt {
+  margin-left: auto;
+  font-size: calc(var(--nt-vw)*1);
+  font-weight: 800;
+  color: #1d2530;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.nt-inter .fs-cards {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--nt-vw)*1.4);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.nt-inter .fs-cards::-webkit-scrollbar {
+  display: none;
+}
+
+.nt-inter .fs-card {
+  flex: 0 0 auto;
+  width: 18%;
+  min-width: calc(var(--nt-vw)*9);
+  height: 82%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: calc(var(--nt-vw)*1);
+  background: var(--nt-int-card, #fff);
+  border: 1px solid #e6e6df;
+  border-radius: 14px;
+  box-shadow: 0 calc(var(--nt-vh)*0.6) calc(var(--nt-vh)*1.6) rgba(0, 0, 0, .08);
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.nt-inter .fs-card-nm {
+  font-size: calc(var(--nt-vw)*1.3);
+  font-weight: 800;
+  color: var(--nt-int-text, #2c2c2a);
+}
+
+.nt-inter .fs-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--nt-vw)*0.8);
+  justify-content: center;
+  margin-top: calc(var(--nt-vh)*1.4);
+}
+
+.nt-inter .fs-index-values {
+  gap: calc(var(--nt-vw)*1.2);
+}
+
+.nt-inter .fs-letter,
+.nt-inter .fs-val {
+  font-size: calc(var(--nt-vw)*0.85);
+  font-weight: 700;
+  color: #b4b2a9;
+  cursor: pointer;
+}
+
+.nt-inter .fs-letter.active,
+.nt-inter .fs-val.active {
+  color: var(--prm-accent, #185fa5);
+  font-weight: 900;
+}
+
+/* ---- intermediate 'columns' grid (column count from --int-cols, like Home) ---- */
+.nt-inter .body.int-columns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  align-content: flex-start;
+  justify-content: center;
+  gap: calc(var(--nt-vh)*1.4) calc(var(--nt-vw)*1.4);
+  padding: calc(var(--nt-vh)*2) calc(var(--nt-vw)*2);
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.nt-inter .body.int-columns.scroll-horizontal {
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.nt-inter .body.int-columns.scroll-vertical {
+  display: grid;
+  grid-template-columns: repeat(var(--int-cols, 3), minmax(0, 1fr));
+  grid-auto-rows: max-content;
+  align-items: start;
+}
+
+.nt-inter .body.int-columns.scroll-vertical .item {
+  width: 100%;
+  max-width: 100%;
+  justify-self: stretch;
+}
+
+.nt-inter .body.int-columns.scroll-vertical.int-align-left .item {
+  justify-self: start;
+}
+
+.nt-inter .body.int-columns.scroll-vertical.int-align-right .item {
+  justify-self: end;
+}
+
+/* A single column should remain card-sized instead of stretching edge to edge. */
+.nt-inter .body.int-columns.int-single-col .item {
+  flex-basis: calc(var(--nt-vw)*40);
+  width: calc(var(--nt-vw)*40);
+  max-width: calc(var(--nt-vw)*40);
+}
+
+/* rect cards: 1/cols of the row width, tall enough to read; one row fills, extras overflow */
+.nt-inter .body.int-columns .item {
+  flex: 0 0 calc((100% - (var(--int-cols, 3) - 1) * var(--nt-vw)*1.4) / var(--int-cols, 3));
+  height: calc(var(--nt-vh)*60 * var(--nt-int-scale, 1));
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--nt-int-card, rgba(255, 255, 255, .12));
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.nt-inter .body.int-columns .item .img {
+  flex: 1;
+  min-height: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.nt-inter .body.int-columns.int-content-text-only .item .img,
+.nt-inter .body.int-columns.int-content-image-only .item .name {
+  display: none;
+}
+
+.nt-inter .body.int-columns .item .name {
+  padding: calc(var(--nt-vh)*0.8) calc(var(--nt-vw)*0.6);
+  font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw)*0.9);
+  font-weight: 700;
+  text-align: center;
+  color: var(--nt-int-text, #fff);
+}
+
+/* Card alignment controls where cards sit in the row; text alignment is independent. */
+.nt-inter .body.int-columns.int-align-left {
+  justify-content: flex-start;
+}
+
+.nt-inter .body.int-columns.int-align-right {
+  justify-content: flex-end;
+}
+
+/* text vertical position (overlay = text over image; no bg for below/above handled per-style) */
+.nt-inter .body.int-columns[class*="int-textpos-overlay"] .item .img {
+  position: absolute;
+  inset: 0;
+}
+
+.nt-inter .body.int-columns[class*="int-textpos-overlay"] .item .name {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  background: var(--nt-overlay, rgba(0, 0, 0, .5));
+}
+
+.nt-inter .body.int-columns.int-textpos-overlay-top .item .name {
+  margin-top: 0;
+  margin-bottom: auto;
+}
+
+/* shapes — circle/hexagon are SQUARE (narrower than rect), image fills, name overlaid */
+.nt-inter .body.int-columns.int-shape-pill .item {
+  border-radius: 999px;
+}
+
+.nt-inter .body.int-columns.int-shape-circle .item,
+.nt-inter .body.int-columns.int-shape-hexagon .item {
+  flex: 0 0 auto;
+  width: calc(var(--nt-vh)*48 * var(--nt-int-scale, 1));
+  height: calc(var(--nt-vh)*48 * var(--nt-int-scale, 1));
+}
+
+.nt-inter .body.int-columns.int-shape-circle .item {
+  border-radius: 50%;
+}
+
+.nt-inter .body.int-columns.int-shape-hexagon .item {
+  border-radius: 0;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.nt-inter .body.int-columns.int-shape-circle .item .img,
+.nt-inter .body.int-columns.int-shape-hexagon .item .img {
+  position: absolute;
+  inset: 0;
+}
+
+.nt-inter .body.int-columns.int-shape-circle .item .name,
+.nt-inter .body.int-columns.int-shape-hexagon .item .name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12%;
+  z-index: 1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .8);
+}
+
 /* Circle/hexagon: preserve the selected inner overlay position instead of
    letting the shape's default bottom label placement override it. */
 .nt-inter .body.int-columns.int-shape-circle.int-textpos-overlay-top .item .name,
@@ -8856,6 +10175,224 @@
 /* Keep the selected card shape on the image only, never around the outside label. */
 .nt-inter .body.int-columns.int-shape-rect:is(.int-textpos-above, .int-textpos-below) .item .img {
   border-radius: 10px;
+}
+
+.nt-inter .body.int-columns.int-shape-pill:is(.int-textpos-above, .int-textpos-below) .item .img {
+  border-radius: 999px;
+}
+
+.nt-inter .body.int-columns.int-shape-circle:is(.int-textpos-above, .int-textpos-below) .item .img {
+  border-radius: 50%;
+}
+
+.nt-inter .body.int-columns.int-shape-hexagon:is(.int-textpos-above, .int-textpos-below) .item .img {
+  border-radius: 0;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* Surface decoration belongs to the image when its label is outside. */
+.nt-inter.surface-outlined .body.int-columns:is(.int-textpos-above, .int-textpos-below) .item .img,
+.nt-inter.surface-glow .body.int-columns:is(.int-textpos-above, .int-textpos-below) .item .img {
+  border: calc(var(--nt-vw)*0.14) solid var(--nt-int-accent, #FFCD00);
+  box-sizing: border-box;
+}
+
+.nt-inter.surface-glow .body.int-columns:is(.int-textpos-above, .int-textpos-below) .item .img {
+  box-shadow: 0 0 calc(var(--nt-vw)*1.4) var(--nt-int-accent, #FFCD00);
+}
+
+.nt-inter.surface-glass .body.int-columns:is(.int-textpos-above, .int-textpos-below) .item .img {
+  border: calc(var(--nt-vw)*0.12) solid rgba(255, 255, 255, .68);
+  box-sizing: border-box;
+}
+
+.nt-inter.surface-raised .body.int-columns:is(.int-textpos-above, .int-textpos-below) .item .img {
+  border: calc(var(--nt-vw)*0.16) solid rgba(255, 255, 255, .74);
+  box-sizing: border-box;
+  box-shadow: 0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0, 0, 0, .24) !important;
+}
+
+/* Intermediate Columns: Icon + Text mirrors Home. Use the uploaded icon when
+   present; otherwise show the built-in accent star above the label. */
+.nt-inter .body.int-columns.int-content-icon-text .item {
+  position: relative;
+  background: var(--nt-int-card, rgba(255, 255, 255, .12)) !important;
+  background-color: var(--nt-int-card, rgba(255, 255, 255, .12)) !important;
+  isolation: isolate;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text .item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  // background: var(--nt-int-card, var(--nt-card, rgba(255, 255, 255, .12)));
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-shape-rect .item {
+  border-radius: 10px !important;
+  clip-path: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-shape-pill .item {
+  border-radius: 999px !important;
+  clip-path: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-shape-circle .item {
+  border-radius: 50% !important;
+  clip-path: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-shape-hexagon .item {
+  border-radius: 0 !important;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%) !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text .item .img {
+  display: none;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text .item::before {
+  content: '\2605';
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  color: var(--nt-int-accent, #FFCD00);
+  font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw)*3);
+  line-height: 1;
+  z-index: 1;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text .item.has-img::before {
+  display: none;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text .item.has-img .img {
+  display: block;
+  position: absolute !important;
+  left: 50% !important;
+  top: 38% !important;
+  width: 34% !important;
+  height: 34% !important;
+  transform: translate(-50%, -50%);
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  z-index: 1;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text .item .name {
+  position: absolute !important;
+  left: 8% !important;
+  right: 8% !important;
+  top: 60% !important;
+  bottom: auto !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  text-align: center;
+  z-index: 1;
+}
+
+/* Icon + Text vertical positions mirror Home: the icon moves away from the
+   selected label edge, while Center keeps the icon/label pair grouped. */
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-overlay-top .item::before,
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-overlay-top .item.has-img .img {
+  top: 58% !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-overlay-top .item .name {
+  top: 9% !important;
+  bottom: auto !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-overlay-bottom .item::before,
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-overlay-bottom .item.has-img .img {
+  top: 40% !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-overlay-bottom .item .name {
+  top: auto !important;
+  bottom: 9% !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-center .item::before,
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-center .item.has-img .img {
+  top: 36% !important;
+}
+
+.nt-inter .body.int-columns.int-content-icon-text.int-textpos-center .item .name {
+  top: 58% !important;
+  bottom: auto !important;
+}
+
+/* Intermediate Columns: Gradient mirrors Home gradient cards. Keep the
+   gradient on the shaped card itself and hide the unused image layer. */
+.nt-inter .body.int-columns.int-content-gradient .item {
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, var(--nt-int-accent, #FFCD00), var(--nt-int-card, rgba(255, 255, 255, .15))) !important;
+  border: calc(var(--nt-vw)*0.12) solid rgba(255, 255, 255, .38) !important;
+  box-shadow: inset 0 0 calc(var(--nt-vw)*1.2) rgba(0, 0, 0, .16) !important;
+  overflow: hidden !important;
+}
+
+.nt-inter .body.int-columns.int-content-gradient .item .img {
+  display: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-gradient .item .name {
+  position: absolute !important;
+  left: 8% !important;
+  right: 8% !important;
+  top: 50% !important;
+  bottom: auto !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: calc(var(--nt-vh)*0.6) calc(var(--nt-vw)*0.8) !important;
+  transform: translateY(-50%) !important;
+  background: transparent !important;
+  color: var(--nt-int-text, #fff) !important;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .45);
+  box-sizing: border-box;
+}
+
+.nt-inter .body.int-columns.int-content-gradient:is(.int-textpos-above, .int-textpos-overlay-top) .item .name {
+  top: 7% !important;
+  transform: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-gradient:is(.int-textpos-below, .int-textpos-overlay-bottom) .item .name {
+  top: auto !important;
+  bottom: 7% !important;
+  transform: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-gradient.int-shape-rect .item {
+  border-radius: 10px !important;
+  clip-path: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-gradient.int-shape-pill .item {
+  border-radius: 999px !important;
+  clip-path: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-gradient.int-shape-circle .item {
+  border-radius: 50% !important;
+  clip-path: none !important;
+}
+
+.nt-inter .body.int-columns.int-content-gradient.int-shape-hexagon .item {
+  border-radius: 0 !important;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%) !important;
 }
 
 .nt-inter .body.int-columns.int-shape-pill:is(.int-textpos-above, .int-textpos-below) .item .img {
@@ -9011,18 +10548,6 @@
   padding-bottom: calc(var(--nt-vh)*2.5) !important;
 }
 
-/* Home columns + vertical scroll + pill: 3+ columns need an inset width so
-   neighbouring pill cards don't touch inside the CSS grid cells. */
-.nt-home .cards.scroll-vertical.has-cols.layout-col-3 .card.shape-pill,
-.nt-home .cards.scroll-vertical.has-cols.layout-col-4 .card.shape-pill {
-  justify-self: center !important;
-  width: calc(100% - (var(--card-gap, calc(var(--nt-vw)*1.5)) * 1.4)) !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-}
-
 .nt-inter .body.int-card-strip.scroll-horizontal {
   padding-left: 0 !important;
 }
@@ -9039,6 +10564,10 @@
   padding-right: 0 !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
+}
+
+.nt-inter .body.int-card-strip.int-strip-few {
+  justify-content: center !important;
 }
 
 /* image-only content: hide the card name across every intermediate style */
@@ -9124,8 +10653,14 @@
   flex: 0 0 calc(100% / (var(--int-cols, 3) + 0.4)) !important;
 }
 
+.nt-inter .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon) .item {
+  flex: 0 0 calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
+  width: calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
+  height: calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
+}
+
 .nt-inter .body.int-card-strip .item {
-  flex: 0 0 calc(100% / (var(--int-cols, 3) + 0.4)) !important;
+  flex-basis: var(--int-strip-card-width, 33.333%) !important;
 }
 
 .nt-inter .body.int-columns.scroll-horizontal,
