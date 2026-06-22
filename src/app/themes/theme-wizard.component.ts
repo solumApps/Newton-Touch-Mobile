@@ -162,7 +162,7 @@ export class ThemeWizardComponent implements OnInit {
   }
   pickInterStyle(s: IntermediateStyle): void {
     this.t.intermediateStyle = s;
-    if (s === 'side-rail') this.t.intermediate.align = 'left';
+    if ((s as string) === 'side-rail') this.t.intermediate.align = 'left';
     if (s === 'columns' && (this.t.intermediate.content === 'text-only' || this.t.intermediate.content === 'icon-text')) {
       this.t.intermediate.cardShape = 'rect';
     }
