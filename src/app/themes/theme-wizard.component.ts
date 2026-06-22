@@ -119,7 +119,13 @@ export class ThemeWizardComponent implements OnInit {
     return this.homeBelowHidden ? this.cardTextPositions.filter((p) => p.id !== 'below' && p.id !== 'above') : this.cardTextPositions;
   }
   get interTextPositions(): { id: CardTextPos; label: string }[] {
-    return (this.t.intermediate.content || 'image-text') === 'text-only' ? this.cardTextPositions.filter((p) => p.id !== 'below' && p.id !== 'above') : this.cardTextPositions;
+    // Card-strip & fullscreen are full-bleed image cards — only the inner (overlay)
+    // positions make sense; Top (above) / Below would push text off the card.
+    const innerOnly = ['card-strip', 'fullscreen'].includes(this.t.intermediateStyle);
+    if (innerOnly || (this.t.intermediate.content || 'image-text') === 'text-only') {
+      return this.cardTextPositions.filter((p) => p.id !== 'below' && p.id !== 'above');
+    }
+    return this.cardTextPositions;
   }
   /** When the current selection is a now-hidden 'below', coerce it to 'center'
    *  (edit-time only — deployed themes keep rendering via CSS fallbacks). */
@@ -137,11 +143,16 @@ export class ThemeWizardComponent implements OnInit {
       this.setCardSize(this.cardSizeMax);
     }
   }
-  pickContent(c: CardContent): void { this.t.cardContent = c; this.coerceTextPos(); }
-  pickInterContent(c: 'image-text' | 'image-only' | 'text-only'): void { this.t.intermediate.content = c; this.coerceTextPos(); }
+  pickContent(c: CardContent): void { this.t.cardContent = c; if (c === 'image-only') this.t.cardShape = 'none'; this.coerceTextPos(); }
+  pickInterContent(c: CardContent): void { this.t.intermediate.content = c; if (c === 'image-only') this.t.intermediate.cardShape = 'none'; this.coerceTextPos(); }
   pickInterStyle(s: IntermediateStyle): void {
     this.t.intermediateStyle = s;
     if (s === 'side-rail') this.t.intermediate.align = 'left';
+    // Fullscreen shows ONE card by default (carousel only when a scroll dir is set),
+    // so reset scroll to 'auto' to avoid a card-strip-like multi-card preview.
+    if (s === 'fullscreen') this.t.scrollMode = 'auto';
+    // brand-rail is a horizontal single-row rail.
+    if (s === 'brand-rail') this.t.scrollMode = 'horizontal';
   }
 
   /** Layouts where circle/hexagon shapes don't render well and are hidden.
@@ -219,12 +230,27 @@ export class ThemeWizardComponent implements OnInit {
     return this.t.homeLayout === 'hero-list' ? this.scrollModes.filter(m => m.id !== 'horizontal') : this.scrollModes;
   }
   /** Intermediate content options (image layouts only). */
-  interContents: { id: 'image-text' | 'image-only' | 'text-only'; label: string }[] = [
+  interContents: { id: CardContent; label: string }[] = [
     { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' }, { id: 'text-only', label: 'Text only' },
+    { id: 'icon-text', label: 'Icon + Text' }, { id: 'gradient', label: 'Gradient' },
   ];
-  /** Card/text horizontal alignment — only for the 'columns' grid. */
+  /** Result page card content is limited to image/text (its own narrower type). */
+  resultContents: { id: 'image-text' | 'text-only'; label: string }[] = [
+    { id: 'image-text', label: 'Image + Text' }, { id: 'text-only', label: 'Text only' },
+  ];
+  /** Card-strip only supports image content; other styles get the full set. */
+  get interContentsFor(): { id: CardContent; label: string }[] {
+    return this.t.intermediateStyle === 'card-strip'
+      ? this.interContents.filter((c) => c.id === 'image-text' || c.id === 'image-only')
+      : this.interContents;
+  }
+  /** Shape options: prepend 'None' when content is image-only (mirrors Home). */
+  get interShapesFor(): { id: CardShape; label: string }[] {
+    return (this.t.intermediate.content === 'image-only') ? [{ id: 'none', label: 'None' }, ...this.cardShapes] : this.cardShapes;
+  }
+  /** Card / text alignment — for the 'columns' grid, 'brand-grid' and 'fullscreen'. */
   get intAlignMatters(): boolean {
-    return this.t.intermediateStyle === 'columns';
+    return ['columns', 'brand-grid', 'fullscreen'].includes(this.t.intermediateStyle);
   }
   /** Text vertical position applies to image card styles. */
   get intTextPosMatters(): boolean {
@@ -416,9 +442,11 @@ export class ThemeWizardComponent implements OnInit {
   get intColumnsValue(): number { return this.t.intermediate.columns || 3; }
   /** Stepper used like Home: +/- buttons. */
   stepIntColumns(delta: number): void { this.setIntColumns(this.intColumnsValue + delta); }
-  setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(2, Math.min(6, Math.round(n))); }
-  /** Overflow scrolling matters for the columns grid. */
-  get intScrollMatters(): boolean { return this.t.intermediateStyle === 'columns'; }
+  setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(1, Math.min(4, Math.round(n))); }
+  /** Overflow scrolling matters for the columns grid + brand grid/rail. */
+  get intScrollMatters(): boolean { return ['columns', 'brand-grid', 'brand-rail'].includes(this.t.intermediateStyle); }
+  /** brand-rail is a single horizontal row — only horizontal scroll allowed. */
+  get intScrollHorizontalOnly(): boolean { return this.t.intermediateStyle === 'brand-rail'; }
   /** Card content (image/text) applies to every image-showing style incl. card-strip. */
   get intContentMatters(): boolean { return this.intShapeMatters || this.t.intermediateStyle === 'card-strip'; }
   /** Selectable templates — split-panel / esl-focus (map-width variants of
@@ -493,6 +521,9 @@ export class ThemeWizardComponent implements OnInit {
   cardSizeLabels: Record<'xs' | 'small' | 'normal' | 'large', string> = { xs: 'XS', small: 'Small', normal: 'Normal', large: 'Large' };
   aligns: { id: 'left' | 'center' | 'right'; label: string }[] = [
     { id: 'left', label: 'Left' }, { id: 'center', label: 'Center' }, { id: 'right', label: 'Right' },
+  ];
+  valigns: { id: 'top' | 'middle' | 'bottom'; label: string }[] = [
+    { id: 'top', label: 'Top' }, { id: 'middle', label: 'Middle' }, { id: 'bottom', label: 'Bottom' },
   ];
   gaps: { id: 'tight' | 'normal' | 'loose'; label: string }[] = [
     { id: 'tight', label: 'Tight' }, { id: 'normal', label: 'Normal' }, { id: 'loose', label: 'Loose' },

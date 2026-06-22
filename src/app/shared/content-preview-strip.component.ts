@@ -175,7 +175,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           </ng-container>
           <ng-template #flatInter>
-            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediateStyle==='side-rail' ? 'left' : (theme?.intermediate?.align||'center')}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}}"
+            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{theme?.intermediateStyle==='side-rail' ? 'left' : (theme?.intermediate?.align||'center')}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}} int-valign-{{theme?.intermediate?.valign||'middle'}}"
                  [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [style.--int-cols]="theme?.intermediate?.columns || 3" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0">
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
