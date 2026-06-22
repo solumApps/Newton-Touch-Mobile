@@ -1598,15 +1598,19 @@
 .nt-home .cards.has-cols.layout-col-3 .card.shape-pill,
 .nt-home .cards.has-cols.layout-col-4 .card.shape-pill {
   height: 52%;
-  width: 100%;
+  width: auto;
   align-self: center;
+  margin-left: calc(var(--card-gap, calc(var(--nt-vw)*1.5)) * 0.7);
+  margin-right: calc(var(--card-gap, calc(var(--nt-vw)*1.5)) * 0.7);
 }
 
 .nt-home .cards.has-cols.layout-grid-2x3 .card.shape-pill,
 .nt-home .cards.has-cols.layout-grid-2x2 .card.shape-pill {
   height: 80%;
-  width: 100%;
+  width: auto;
   align-self: center;
+  margin-left: calc(var(--card-gap, calc(var(--nt-vw)*1.5)) * 0.7);
+  margin-right: calc(var(--card-gap, calc(var(--nt-vw)*1.5)) * 0.7);
 }
 
 .nt-home .layout-hero-list .card.shape-pill.featured {
@@ -6827,9 +6831,8 @@
   color: #111 !important;
 }
 
-re-assert the selected card shape on the card itself. */
-
 /* Gradient cards have no image layer, so the late background override must
+   re-assert the selected card shape on the card itself. */
 .nt-home .card.shape-pill.content-gradient { border-radius:999px !important; clip-path:none !important; }
 .nt-home .card.shape-circle.content-gradient { border-radius:50% !important; clip-path:none !important; }
 .nt-home .card.shape-hexagon.content-gradient {
@@ -9006,6 +9009,18 @@ re-assert the selected card shape on the card itself. */
   align-content: flex-start !important;
   padding-top: calc(var(--nt-vh)*2.5) !important;
   padding-bottom: calc(var(--nt-vh)*2.5) !important;
+}
+
+/* Home columns + vertical scroll + pill: 3+ columns need an inset width so
+   neighbouring pill cards don't touch inside the CSS grid cells. */
+.nt-home .cards.scroll-vertical.has-cols.layout-col-3 .card.shape-pill,
+.nt-home .cards.scroll-vertical.has-cols.layout-col-4 .card.shape-pill {
+  justify-self: center !important;
+  width: calc(100% - (var(--card-gap, calc(var(--nt-vw)*1.5)) * 1.4)) !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
 .nt-inter .body.int-card-strip.scroll-horizontal {
