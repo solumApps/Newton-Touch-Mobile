@@ -9233,6 +9233,12 @@
   flex: 0 0 calc(100% / (var(--int-cols, 3) + 0.4)) !important;
 }
 
+.nt-inter .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon) .item {
+  flex: 0 0 calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
+  width: calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
+  height: calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
+}
+
 .nt-inter .body.int-card-strip .item {
   flex-basis: var(--int-strip-card-width, 33.333%) !important;
 }
