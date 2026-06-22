@@ -441,7 +441,7 @@
         <tr><td>Home cards</td><td>{{ d.home.length }}</td></tr>
         <tr *ngIf="d.themeTokens.includeIntermediate !== false"><td>Intermediate items</td><td>{{ d.intermediate.length || 'per-card children' }}</td></tr>
         <tr><td>Result products</td><td>{{ d.result.products.length }}</td></tr>
-        <tr><td>Screensaver media</td><td>{{ d.screensaver.media?.length || 0 }}</td></tr>
+        <tr><td>Screensaver media</td><td>{{ d.screensaver.media.length || 0 }}</td></tr>
       </table>
       <p class="note">Swipe the preview to check each page with your real content. Tap Save &amp; Deploy when ready.</p>
     </div>

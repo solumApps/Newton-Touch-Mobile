@@ -504,7 +504,7 @@
           </div>
           <div class="step-title sm">Message alignment</div>
           <div class="seg">
-            <button class="tile" *ngFor="let v of valigns" [class.sel]="(t.intermediate.brandRailMessageAlign||'center')===v.id" (click)="t.intermediate.brandRailMessageAlign=v.id">{{ v.label }}</button>
+            <button class="tile" *ngFor="let v of brandRailValigns" [class.sel]="(t.intermediate.brandRailMessageAlign||'center')===v.id" (click)="t.intermediate.brandRailMessageAlign=v.id">{{ v.label }}</button>
           </div>
         </ng-container>
 

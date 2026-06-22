@@ -327,7 +327,7 @@
    the chosen text position — overlay text on these big shapes looked broken. */
 .prev .stage.layout-promo-categories .promo-rail .card { flex-direction: column; clip-path: none; background: transparent; border: 0; }
 .prev .stage.layout-promo-categories .promo-rail .card .img {
-  position: static !important; inset: auto !important; flex: 0 0 auto;
+  display: block !important; position: static !important; inset: auto !important; flex: 0 0 auto;
   height: 56%; width: auto; aspect-ratio: 1; margin: 0 auto 3px; border-radius: 50%; opacity: .92;
 }
 .prev .stage.layout-promo-categories .promo-rail .card.shape-hexagon .img { border-radius: 0; clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
@@ -345,6 +345,21 @@
    (with shape=circle this rendered as a "circle inside a circle"). */
 .prev[class*="surface-"] .stage.layout-promo-categories .card {
   background: transparent !important; border: 0 !important; box-shadow: none !important; filter: none !important;
+}
+.prev .stage.layout-promo-categories .promo-rail .card.content-color-block,
+.prev .stage.layout-promo-categories .promo-rail .card.content-gradient {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.prev .stage.layout-promo-categories .promo-rail .card.content-color-block .img,
+.prev .stage.layout-promo-categories .promo-rail .card.content-gradient .img,
+.prev .stage.layout-promo-categories .promo-rail .card.content-icon-text .img {
+  display: block !important;
+}
+.prev .stage.layout-promo-categories .promo-rail .card.content-icon-text .meta::before {
+  display: none !important;
+  content: none !important;
 }
 .prev .stage.layout-promo-categories .card.shape-circle .img { background-size: cover; }
 
