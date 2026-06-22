@@ -183,7 +183,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   get intermediateNeedsImage(): boolean {
     const s = this.draft?.themeTokens.intermediateStyle;
     return s === 'image-grid' || s === 'circular' || s === 'card-strip' || s === 'fullscreen'
-      || s === 'side-rail' || s === 'brand-grid' || s === 'brand-rail';
+      || s === 'brand-rail';
   }
 
   /** Show the flat intermediate editor only when the theme includes an intermediate page

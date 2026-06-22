@@ -55,12 +55,8 @@ export type CardTextPos = 'overlay-top' | 'overlay-bottom' | 'below' | 'center' 
 export type IntermediateStyle =
   | 'accordion' | 'pill-tabs' | 'image-grid' | 'hex-grid'
   | 'circular' | 'scroll-list' | 'card-strip' | 'fullscreen' | 'columns'
-  /** side-rail: persistent left rail/sidebar + large selectable cards/grid. */
-  | 'side-rail'
   /** center-tiles: centered large tiles with explicit back/home navigation affordance. */
   | 'center-tiles'
-  /** brand-grid: logo/product-brand tiles with optional alphabet-style footer. */
-  | 'brand-grid'
   /** drill-stair: side-by-side columns showing every visited level at once,
    *  with the picked option per column highlighted. Right-most column reveals
    *  the result. Inspired by retail kiosk drill-down UIs (Staples-style). */
@@ -235,7 +231,7 @@ export interface ThemeTokens {
   includeIntermediate: boolean;
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
-  intermediate: { headerColor: string; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; textAlign?: 'left' | 'center' | 'right'; scrollMode?: ScrollMode; valign?: 'top' | 'middle' | 'bottom'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: CardContent; textPos?: CardTextPos; textOverlay?: boolean;
+  intermediate: { headerColor: string; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; textAlign?: 'left' | 'center' | 'right'; scrollMode?: ScrollMode; valign?: 'top' | 'middle' | 'bottom'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: CardContent; textPos?: CardTextPos; textOverlay?: boolean; brandRailMessagePos?: 'left' | 'right'; brandRailMessageAlign?: 'top' | 'center' | 'bottom';
     /** finder-select template: dark hero rail + selection cards + index strip. */
     heroColor?: string; heroImage?: string; promptPrefix?: string; showPrompt?: boolean;
     showBack?: boolean; indexStrip?: 'auto' | 'alpha' | 'values' | 'off'; stepLabels?: string[]; columns?: number; };
@@ -392,7 +388,7 @@ export const THEME_ENUM_VALUES = {
   valign: ['top', 'middle', 'bottom'],
   gap: ['tight', 'normal', 'loose'],
   scrollMode: ['auto', 'vertical', 'horizontal'],
-  intermediateStyle: ['accordion', 'pill-tabs', 'image-grid', 'hex-grid', 'circular', 'scroll-list', 'card-strip', 'fullscreen', 'columns', 'side-rail', 'center-tiles', 'brand-grid', 'drill-stair', 'brand-rail', 'finder-select'],
+  intermediateStyle: ['accordion', 'pill-tabs', 'image-grid', 'hex-grid', 'circular', 'scroll-list', 'card-strip', 'fullscreen', 'columns', 'center-tiles', 'drill-stair', 'brand-rail', 'finder-select'],
   resultTemplate: ['map-list', 'cards-map', 'dual-list', 'split-panel', 'list-only', 'map-full', 'card-grid', 'minimal', 'esl-focus', 'drill-stair', 'filter-list', 'map-filter-list', 'promo-list', 'catalog-grid', 'product-focus', 'hero-product', 'drill-filter', 'shelf', 'promo-map-rank', 'finder-detail'],
   itemSize: ['small', 'medium', 'large'],
   pathStyle: ['dashed', 'solid', 'dotted', 'animated'],

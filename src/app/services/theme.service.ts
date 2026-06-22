@@ -166,8 +166,7 @@ export class ThemeService {
     nav.homeIcon = coerceNavIcon(nav.homeIcon);
     out.intermediate.itemSize = coerceEnum(out.intermediate.itemSize, E.itemSize, d.intermediate.itemSize, 'intermediate.itemSize');
     out.intermediate.cardShape = coerceEnum(out.intermediate.cardShape, E.cardShape, 'rect', 'intermediate.cardShape');
-    out.intermediate.align = coerceEnum(out.intermediate.align, E.align, out.intermediateStyle === 'side-rail' ? 'left' : 'center', 'intermediate.align');
-    if (out.intermediateStyle === 'side-rail') out.intermediate.align = 'left';
+    out.intermediate.align = coerceEnum(out.intermediate.align, E.align, 'center', 'intermediate.align');
     out.intermediate.textAlign = coerceEnum(out.intermediate.textAlign, E.align, 'center', 'intermediate.textAlign');
     out.intermediate.scrollMode = coerceEnum(out.intermediate.scrollMode, E.scrollMode, 'horizontal', 'intermediate.scrollMode');
     out.intermediate.valign = coerceEnum(out.intermediate.valign, E.valign, 'middle', 'intermediate.valign');
@@ -240,7 +239,7 @@ export class ThemeService {
         logoPosition: 'left', homeLayout: 'bento', maxHomeItems: 6, cardShape: 'rect', cardContent: 'gradient', cardTextPos: 'center',
         cardSize: 'normal', cardAlign: 'center', cardGap: 'tight', cardSurface: 'glow',
         showHeader: true, headerStyle: 'logo+title+caption',
-        includeIntermediate: true, intermediateStyle: 'side-rail', resultTemplate: 'card-grid',
+        includeIntermediate: true, intermediateStyle: 'columns', resultTemplate: 'card-grid',
         intermediate: { headerColor: '#0B1220', background: '#050B14', cardBackground: 'rgba(34,211,238,0.07)', cardText: '#E6FBFF', accent: '#22D3EE', itemSize: 'large', showHeader: true, cardShape: 'rect', align: 'left', gap: 'tight' },
         result: { headerColor: '#0B1220', background: '#070F1A', cardBackground: 'rgba(255,255,255,0.06)', cardText: '#E6FBFF', accent: '#22D3EE', pathColor: '#22D3EE', pathStyle: 'animated', showHeader: true },
         animation: { transition: 'slide-left', speed: 'fast', applyToAll: true },
