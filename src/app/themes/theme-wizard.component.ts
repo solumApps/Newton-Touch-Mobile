@@ -525,8 +525,15 @@ export class ThemeWizardComponent implements OnInit {
 
   /** #1 Scroll-direction helpers (Home uses global scrollMode; Intermediate its own). */
   private readonly innerTextPositions: CardTextPos[] = ['overlay-top', 'overlay-bottom', 'center'];
-  get isHomeVerticalScroll(): boolean { return this.t.scrollMode === 'vertical'; }
-  get isHomeHorizontalScroll(): boolean { return this.t.scrollMode === 'horizontal' || this.t.homeLayout === 'h-scroll'; }
+  get effectiveScrollMode(): ScrollMode {
+    const m = this.t.scrollMode || 'auto';
+    if (m === 'auto') {
+      return this.columnLayouts.includes(this.t.homeLayout) ? 'vertical' : 'horizontal';
+    }
+    return m;
+  }
+  get isHomeVerticalScroll(): boolean { return this.effectiveScrollMode === 'vertical'; }
+  get isHomeHorizontalScroll(): boolean { return this.effectiveScrollMode === 'horizontal' || this.t.homeLayout === 'h-scroll'; }
   get isInterVerticalScroll(): boolean { return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'vertical'; }
   get isInterHorizontalScroll(): boolean { return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'horizontal' || this.t.intermediateStyle === 'brand-rail' || this.t.intermediateStyle === 'card-strip'; }
   /** Set Home scroll + coerce alignment to a safe, non-clipping default. */

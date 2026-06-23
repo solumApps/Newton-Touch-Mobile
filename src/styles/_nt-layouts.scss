@@ -2668,6 +2668,11 @@
   width: calc(var(--nt-vw)*45);
 }
 
+.nt-home .cards.has-cols.cols-1.scroll-horizontal:not(.shape) .card {
+  flex: 0 0 calc(var(--nt-vw)*45) !important;
+  width: calc(var(--nt-vw)*45) !important;
+}
+
 .nt-home .cards.has-cols.shape .card {
   max-width: none;
 }
@@ -2683,6 +2688,27 @@
 
 .nt-home .cards.has-cols.cols-1.align-right {
   justify-items: end !important;
+}
+
+.nt-home .cards.has-cols.cols-1.scroll-horizontal.align-left {
+  justify-content: flex-start !important;
+}
+
+.nt-home .cards.has-cols.cols-1.scroll-horizontal.align-center {
+  justify-content: flex-start !important;
+}
+.nt-home .cards.has-cols.cols-1.scroll-horizontal.align-center .card:first-child {
+  margin-left: auto !important;
+}
+.nt-home .cards.has-cols.cols-1.scroll-horizontal.align-center .card:last-child {
+  margin-right: auto !important;
+}
+
+.nt-home .cards.has-cols.cols-1.scroll-horizontal.align-right {
+  justify-content: flex-start !important;
+}
+.nt-home .cards.has-cols.cols-1.scroll-horizontal.align-right .card:first-child {
+  margin-left: auto !important;
 }
 
 /* shape has-cols gap: apply --card-gap to circle/hex grid */
