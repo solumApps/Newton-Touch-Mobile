@@ -39,18 +39,56 @@ export class ColorPickerComponent {
   // ---- Gradient builder state ----
   gradientOpen = false;
   g1 = '#2F006D'; g2 = '#001973'; gAngle = 135;
+  g1H = 270; g1S = 65; g1L = 45;
+  g2H = 220; g2S = 100; g2L = 23;
+
   get isGradient(): boolean { return /gradient/i.test(this.value || ''); }
   get gradientCss(): string { return `linear-gradient(${this.gAngle}deg, ${this.g1}, ${this.g2})`; }
+  
   openGradient(): void {
     this.customOpen = false;
     const m = /linear-gradient\(\s*(-?[0-9.]+)deg\s*,\s*(#[0-9a-fA-F]{3,8})\s*,\s*(#[0-9a-fA-F]{3,8})\s*\)/i.exec(this.value || '');
     if (m) { this.gAngle = parseFloat(m[1]); this.g1 = m[2]; this.g2 = m[3]; }
+    this.syncG1Hsl();
+    this.syncG2Hsl();
     this.gradientOpen = true;
   }
   closeGradient(): void { this.gradientOpen = false; }
   applyGradient(): void { this.pick(this.gradientCss); }
-  onG1(h: string): void { if (/^[0-9a-fA-F]{6}$/.test(h)) { this.g1 = '#' + h; this.applyGradient(); } }
-  onG2(h: string): void { if (/^[0-9a-fA-F]{6}$/.test(h)) { this.g2 = '#' + h; this.applyGradient(); } }
+  
+  syncG1Hsl(): void {
+    const { h, s, l } = this.hexToHsl(this.toHex(this.g1));
+    this.g1H = Math.round(h); this.g1S = Math.round(s); this.g1L = Math.round(l);
+  }
+  syncG2Hsl(): void {
+    const { h, s, l } = this.hexToHsl(this.toHex(this.g2));
+    this.g2H = Math.round(h); this.g2S = Math.round(s); this.g2L = Math.round(l);
+  }
+
+  applyG1Hsl(): void {
+    this.g1 = this.hslToHex(this.g1H, this.g1S, this.g1L);
+    this.applyGradient();
+  }
+  applyG2Hsl(): void {
+    this.g2 = this.hslToHex(this.g2H, this.g2S, this.g2L);
+    this.applyGradient();
+  }
+
+  get g1SatTrack(): string {
+    return `linear-gradient(90deg, ${this.hslToHex(this.g1H, 0, this.g1L)}, ${this.hslToHex(this.g1H, 100, this.g1L)})`;
+  }
+  get g1LightTrack(): string {
+    return `linear-gradient(90deg, #000, ${this.hslToHex(this.g1H, this.g1S, 50)}, #fff)`;
+  }
+  get g2SatTrack(): string {
+    return `linear-gradient(90deg, ${this.hslToHex(this.g2H, 0, this.g2L)}, ${this.hslToHex(this.g2H, 100, this.g2L)})`;
+  }
+  get g2LightTrack(): string {
+    return `linear-gradient(90deg, #000, ${this.hslToHex(this.g2H, this.g2S, 50)}, #fff)`;
+  }
+
+  onG1(h: string): void { if (/^[0-9a-fA-F]{6}$/.test(h)) { this.g1 = '#' + h; this.syncG1Hsl(); this.applyGradient(); } }
+  onG2(h: string): void { if (/^[0-9a-fA-F]{6}$/.test(h)) { this.g2 = '#' + h; this.syncG2Hsl(); this.applyGradient(); } }
 
   pick(c: string): void { this.value = c; this.valueChange.emit(c); }
   doReset(): void { this.customOpen = false; this.reset.emit(); }
