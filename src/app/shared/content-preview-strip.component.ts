@@ -58,7 +58,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-res-accent]="theme?.result?.accent"
            [style.--nt-res-text]="theme?.result?.cardText"
            [style.--nt-res-header]="theme?.result?.headerColor"
-           [style.--prm-panel]="theme?.result?.panelColor"
+           [style.--prm-panel]="resTpl==='promo-map-rank' ? theme?.result?.panelColor : 'transparent'"
            [style.--prm-subpanel]="theme?.result?.subPanelColor"
            [style.--prm-accent]="theme?.result?.accent"
            [style.--prm-map]="theme?.result?.mapBg"
@@ -103,7 +103,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
         <!-- HOME (LCD markup: .cards.layout-*) -->
         <div *ngSwitchCase="'home'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} valign-{{theme?.cardVAlign||'middle'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
-             [class.has-cols]="cols !== undefined" [style.--cols]="cols" [style.--card-gap]="cardGapPx"
+             [class.has-cols]="cols !== undefined" [style.--cols]="cols" [style.--card-gap]="cardGapPx" [class.cols-1]="cols === 1"
              [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [class.no-overlay]="theme?.cardTextOverlay === false">
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
             <span>{{ titleText || 'Product Finder' }}</span>
@@ -562,12 +562,17 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       if (this.theme?.result?.textPos) cls.push('res-textpos-' + this.theme.result.textPos);
       if (this.theme?.result?.cardShape) cls.push('res-shape-' + this.theme.result.cardShape);
       if (this.resTpl === 'map-filter-list' && this.theme?.result?.filterPos) cls.push('res-filter-pos-' + this.theme.result.filterPos);
-      if (this.theme?.scrollMode === 'vertical') cls.push('scroll-vertical');
-      if (this.theme?.scrollMode === 'horizontal') cls.push('scroll-horizontal');
+      if (!this.fixedResultTemplate) {
+        if (this.theme?.scrollMode === 'vertical') cls.push('scroll-vertical');
+        if (this.theme?.scrollMode === 'horizontal') cls.push('scroll-horizontal');
+      }
     } else if (this.page === 'home') cls.push('nt-home');
     return cls;
   }
   get resTpl(): string { return this.theme?.resultTemplate || 'map-list'; }
+  get fixedResultTemplate(): boolean {
+    return this.resTpl === 'promo-map-rank' || this.resTpl === 'finder-detail';
+  }
   get specialResult(): boolean {
     return ['drill-stair', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'product-focus', 'hero-product', 'shelf', 'promo-map-rank', 'finder-detail'].includes(this.resTpl);
   }

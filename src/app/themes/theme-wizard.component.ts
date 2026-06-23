@@ -313,6 +313,14 @@ export class ThemeWizardComponent implements OnInit {
   get resTextPosMatters(): boolean {
     return ['card-grid', 'cards-map', 'catalog-grid'].includes(this.t.resultTemplate);
   }
+  /** Result: custom full-page templates own their product/detail presentation. */
+  get resCardContentMatters(): boolean {
+    return !['promo-map-rank', 'finder-detail'].includes(this.t.resultTemplate);
+  }
+  /** Result: custom templates have fixed internal panels, not global list scrolling. */
+  get resOverflowMatters(): boolean {
+    return !['drill-stair', 'promo-map-rank', 'finder-detail'].includes(this.t.resultTemplate);
+  }
   /** Result: card shape applies to templates with product cards/thumbnails. */
   get resShapeMatters(): boolean {
     return ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'catalog-grid', 'filter-list', 'map-filter-list', 'shelf'].includes(this.t.resultTemplate);
@@ -517,8 +525,15 @@ export class ThemeWizardComponent implements OnInit {
 
   /** #1 Scroll-direction helpers (Home uses global scrollMode; Intermediate its own). */
   private readonly innerTextPositions: CardTextPos[] = ['overlay-top', 'overlay-bottom', 'center'];
-  get isHomeVerticalScroll(): boolean { return this.t.scrollMode === 'vertical'; }
-  get isHomeHorizontalScroll(): boolean { return this.t.scrollMode === 'horizontal' || this.t.homeLayout === 'h-scroll'; }
+  get effectiveScrollMode(): ScrollMode {
+    const m = this.t.scrollMode || 'auto';
+    if (m === 'auto') {
+      return this.columnLayouts.includes(this.t.homeLayout) ? 'vertical' : 'horizontal';
+    }
+    return m;
+  }
+  get isHomeVerticalScroll(): boolean { return this.effectiveScrollMode === 'vertical'; }
+  get isHomeHorizontalScroll(): boolean { return this.effectiveScrollMode === 'horizontal' || this.t.homeLayout === 'h-scroll'; }
   get isInterVerticalScroll(): boolean { return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'vertical'; }
   get isInterHorizontalScroll(): boolean { return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'horizontal' || this.t.intermediateStyle === 'brand-rail' || this.t.intermediateStyle === 'card-strip'; }
   /** Set Home scroll + coerce alignment to a safe, non-clipping default. */
@@ -629,7 +644,7 @@ export class ThemeWizardComponent implements OnInit {
   ];
   /** Alignment only changes layouts that don't already fill the row. */
   get alignMatters(): boolean {
-    return ['h-scroll', 'promo-categories', 'col-2', 'col-3', 'col-4', 'hero-list'].includes(this.t.homeLayout) || this.shapeCard;
+    return ['h-scroll', 'promo-categories', 'col-2', 'col-3', 'col-4', 'hero-list'].includes(this.t.homeLayout) || this.shapeCard || (this.columnLayouts.includes(this.t.homeLayout) && this.effectiveColumns === 1);
   }
   navButtonPositions: { id: NavButtonPosition; label: string }[] = [
     { id: 'bottom-left',   label: 'Bottom left' },
