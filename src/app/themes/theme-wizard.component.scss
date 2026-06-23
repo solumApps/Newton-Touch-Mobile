@@ -1100,6 +1100,32 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 .prev .stage.shape.align-left   { justify-items: start; }
 .prev .stage.shape.align-center { justify-items: center; }
 .prev .stage.shape.align-right  { justify-items: end; }
+
+/* Horizontal scroll shape card alignment overrides (auto margins for alignment) */
+.prev .stage.shape.scroll-horizontal.align-left,
+.prev .cards.shape.scroll-horizontal.align-left {
+  justify-content: flex-start !important;
+}
+.prev .stage.shape.scroll-horizontal.align-center,
+.prev .cards.shape.scroll-horizontal.align-center {
+  justify-content: flex-start !important;
+}
+.prev .stage.shape.scroll-horizontal.align-center .card:first-child,
+.prev .cards.shape.scroll-horizontal.align-center .card:first-child {
+  margin-left: auto !important;
+}
+.prev .stage.shape.scroll-horizontal.align-center .card:last-child,
+.prev .cards.shape.scroll-horizontal.align-center .card:last-child {
+  margin-right: auto !important;
+}
+.prev .stage.shape.scroll-horizontal.align-right,
+.prev .cards.shape.scroll-horizontal.align-right {
+  justify-content: flex-start !important;
+}
+.prev .stage.shape.scroll-horizontal.align-right .card:first-child,
+.prev .cards.shape.scroll-horizontal.align-right .card:first-child {
+  margin-left: auto !important;
+}
 /* vertical alignment */
 .prev .stage.valign-top    { align-content: flex-start; align-items: flex-start; }
 .prev .stage.valign-middle { align-content: center; align-items: center; }

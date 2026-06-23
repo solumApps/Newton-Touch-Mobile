@@ -2748,6 +2748,26 @@
   align-self: center !important;
 }
 
+/* Horizontal scroll shape card alignment overrides (auto margins for alignment) */
+.nt-home .cards.shape.scroll-horizontal.align-left {
+  justify-content: flex-start !important;
+}
+.nt-home .cards.shape.scroll-horizontal.align-center {
+  justify-content: flex-start !important;
+}
+.nt-home .cards.shape.scroll-horizontal.align-center .card:first-child {
+  margin-left: auto !important;
+}
+.nt-home .cards.shape.scroll-horizontal.align-center .card:last-child {
+  margin-right: auto !important;
+}
+.nt-home .cards.shape.scroll-horizontal.align-right {
+  justify-content: flex-start !important;
+}
+.nt-home .cards.shape.scroll-horizontal.align-right .card:first-child {
+  margin-left: auto !important;
+}
+
 .nt-home .cards.shape.scroll-horizontal .card.shape-hexagon {
   flex: 0 0 calc(var(--nt-vh)*55) !important;
   width: calc(var(--nt-vh)*55) !important;
