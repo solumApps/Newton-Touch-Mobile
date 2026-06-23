@@ -1182,6 +1182,12 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
   width: calc(var(--nt-vw)*45) !important;
 }
 
+.prev .stage.has-cols.cols-1.scroll-horizontal:not(.shape) .card,
+.prev .cards.has-cols.cols-1.scroll-horizontal:not(.shape) .card {
+  flex: 0 0 calc(var(--nt-vw)*45) !important;
+  width: calc(var(--nt-vw)*45) !important;
+}
+
 .prev .stage.has-cols.cols-1.align-left,
 .prev .cards.has-cols.cols-1.align-left {
   justify-items: start !important;
@@ -1195,6 +1201,33 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 .prev .stage.has-cols.cols-1.align-right,
 .prev .cards.has-cols.cols-1.align-right {
   justify-items: end !important;
+}
+
+.prev .stage.has-cols.cols-1.scroll-horizontal.align-left,
+.prev .cards.has-cols.cols-1.scroll-horizontal.align-left {
+  justify-content: flex-start !important;
+}
+
+.prev .stage.has-cols.cols-1.scroll-horizontal.align-center,
+.prev .cards.has-cols.cols-1.scroll-horizontal.align-center {
+  justify-content: flex-start !important;
+}
+.prev .stage.has-cols.cols-1.scroll-horizontal.align-center .card:first-child,
+.prev .cards.has-cols.cols-1.scroll-horizontal.align-center .card:first-child {
+  margin-left: auto !important;
+}
+.prev .stage.has-cols.cols-1.scroll-horizontal.align-center .card:last-child,
+.prev .cards.has-cols.cols-1.scroll-horizontal.align-center .card:last-child {
+  margin-right: auto !important;
+}
+
+.prev .stage.has-cols.cols-1.scroll-horizontal.align-right,
+.prev .cards.has-cols.cols-1.scroll-horizontal.align-right {
+  justify-content: flex-start !important;
+}
+.prev .stage.has-cols.cols-1.scroll-horizontal.align-right .card:first-child,
+.prev .cards.has-cols.cols-1.scroll-horizontal.align-right .card:first-child {
+  margin-left: auto !important;
 }
 
 /* ===== Overflow scrolling (theme.scrollMode override) — mirrors the LCD ===== */
