@@ -203,7 +203,10 @@ export class DeployComponent implements OnInit, OnDestroy {
   private async sendMediaChunks(media: { id: string; data: string; ext: string }): Promise<void> {
     const comma = media.data.indexOf(',');
     const b64 = comma >= 0 ? media.data.slice(comma + 1) : media.data;
-    const CHUNK = 256 * 1024;                               // 262144 — multiple of 4
+    // 1 MB slices (multiple of 4). A 1 MB string is trivial for V8 — the OOM was
+    // the WHOLE multi-MB blob, not a slice — so larger chunks + a small fixed
+    // gap (appendFile is fast) make a 9 MB video deploy in ~9 quick writes.
+    const CHUNK = 1024 * 1024;                              // 1048576 — multiple of 4
     const total = Math.max(1, Math.ceil(b64.length / CHUNK));
     const kb = Math.round((b64.length * 0.75) / 1024);
     this.pushStep(`▸ media ${media.id}.${media.ext} — ${total} chunk(s), ${kb} KB`);
@@ -213,7 +216,7 @@ export class DeployComponent implements OnInit, OnDestroy {
       await this.transfer.send(this.targetHost, this.targetPort,
         JSON.stringify({ kind: 'imageChunk', id: media.id, ext: media.ext, seq, total, last, data: slice, bytes: last ? this.decodedBytes(media.data) : undefined }), () => {});
       this.percent = Math.min(89, Math.round(((seq + 1) / total) * 88));
-      await this.sleep(this.delayFor(slice.length));
+      await this.sleep(120);                                // small flush gap; append is cheap
     }
     this.pushStep(`  ✓ media sent (${total} chunk(s))`);
   }
