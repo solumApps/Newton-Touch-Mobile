@@ -2664,8 +2664,25 @@
   max-width: calc(var(--nt-vw)*45);
 }
 
+.nt-home .cards.has-cols.cols-1:not(.shape) .card {
+  width: calc(var(--nt-vw)*45);
+}
+
 .nt-home .cards.has-cols.shape .card {
   max-width: none;
+}
+
+/* 1-column alignment overrides (apply to rectangle, pill, circle, hexagon when columns count is 1) */
+.nt-home .cards.has-cols.cols-1.align-left {
+  justify-items: start !important;
+}
+
+.nt-home .cards.has-cols.cols-1.align-center {
+  justify-items: center !important;
+}
+
+.nt-home .cards.has-cols.cols-1.align-right {
+  justify-items: end !important;
 }
 
 /* shape has-cols gap: apply --card-gap to circle/hex grid */

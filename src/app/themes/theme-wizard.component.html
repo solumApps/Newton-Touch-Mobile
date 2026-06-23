@@ -62,7 +62,7 @@
 
         <!-- HOME -->
         <div *ngSwitchCase="'home'" class="stage layout-{{t.homeLayout}} card-size-{{t.cardSize||'normal'}} align-{{t.cardAlign||'center'}} gap-{{t.cardGap||'normal'}}" [class.shape]="shapeCard"
-             [class.has-cols]="t.columns !== undefined" [style.--cols]="t.columns"
+             [class.has-cols]="t.columns !== undefined" [style.--cols]="t.columns" [class.cols-1]="effectiveColumns === 1"
              [class.scroll-vertical]="t.scrollMode==='vertical'" [class.scroll-horizontal]="t.scrollMode==='horizontal'">
           <div class="hero-copy" *ngIf="t.homeLayout==='hero-start'">
             <span>Product Finder</span>
