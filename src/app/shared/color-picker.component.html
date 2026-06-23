@@ -21,16 +21,57 @@
   <!-- Two-stop linear-gradient builder -->
   <div class="cp-gradient" *ngIf="gradientOpen">
     <div class="cg-preview" [style.background]="gradientCss"></div>
-    <label class="cg-row">
-      <span>Color 1</span>
-      <span class="cg-sw" [style.background]="g1"></span>
-      <span class="cg-hex">#<input [ngModel]="strip(g1)" (ngModelChange)="onG1($event)" maxlength="6" placeholder="hex" /></span>
-    </label>
-    <label class="cg-row">
-      <span>Color 2</span>
-      <span class="cg-sw" [style.background]="g2"></span>
-      <span class="cg-hex">#<input [ngModel]="strip(g2)" (ngModelChange)="onG2($event)" maxlength="6" placeholder="hex" /></span>
-    </label>
+    
+    <div class="cg-group">
+      <label class="cg-row">
+        <span>Color 1</span>
+        <span class="cg-sw" [style.background]="g1"></span>
+        <span class="cg-hex">#<input [ngModel]="strip(g1)" (ngModelChange)="onG1($event)" maxlength="6" placeholder="hex" /></span>
+      </label>
+      <div class="cg-hsl">
+        <label class="cc-row">
+          <span>Hue</span>
+          <input type="range" min="0" max="360" [value]="g1H" class="cc-slider hue"
+                 (input)="g1H = +$any($event.target).value; applyG1Hsl()" />
+        </label>
+        <label class="cc-row">
+          <span>Saturation</span>
+          <input type="range" min="0" max="100" [value]="g1S" class="cc-slider" [style.background]="g1SatTrack"
+                 (input)="g1S = +$any($event.target).value; applyG1Hsl()" />
+        </label>
+        <label class="cc-row">
+          <span>Lightness</span>
+          <input type="range" min="0" max="100" [value]="g1L" class="cc-slider" [style.background]="g1LightTrack"
+                 (input)="g1L = +$any($event.target).value; applyG1Hsl()" />
+        </label>
+      </div>
+    </div>
+
+    <div class="cg-group">
+      <label class="cg-row">
+        <span>Color 2</span>
+        <span class="cg-sw" [style.background]="g2"></span>
+        <span class="cg-hex">#<input [ngModel]="strip(g2)" (ngModelChange)="onG2($event)" maxlength="6" placeholder="hex" /></span>
+      </label>
+      <div class="cg-hsl">
+        <label class="cc-row">
+          <span>Hue</span>
+          <input type="range" min="0" max="360" [value]="g2H" class="cc-slider hue"
+                 (input)="g2H = +$any($event.target).value; applyG2Hsl()" />
+        </label>
+        <label class="cc-row">
+          <span>Saturation</span>
+          <input type="range" min="0" max="100" [value]="g2S" class="cc-slider" [style.background]="g2SatTrack"
+                 (input)="g2S = +$any($event.target).value; applyG2Hsl()" />
+        </label>
+        <label class="cc-row">
+          <span>Lightness</span>
+          <input type="range" min="0" max="100" [value]="g2L" class="cc-slider" [style.background]="g2LightTrack"
+                 (input)="g2L = +$any($event.target).value; applyG2Hsl()" />
+        </label>
+      </div>
+    </div>
+
     <label class="cg-row">
       <span>Angle</span>
       <input type="range" min="0" max="360" [value]="gAngle" class="cc-slider"

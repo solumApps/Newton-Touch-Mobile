@@ -54,6 +54,10 @@
   margin-top: 10px; padding: 12px; border: 1.5px solid var(--nt-border); border-radius: 12px; background: var(--nt-card);
 }
 .cp-gradient .cg-preview { height: 40px; border-radius: 8px; border: 1px solid var(--nt-border); margin-bottom: 10px; }
+.cg-group { margin-bottom: 8px; }
+.cg-hsl { margin-left: 12px; padding-left: 12px; border-left: 1.5px solid var(--nt-border); }
+.cg-hsl .cc-row { margin: 6px 0; }
+.cg-hsl .cc-row > span { flex: 0 0 78px; font-size: 11px; font-weight: 700; color: var(--nt-text-2); text-transform: uppercase; letter-spacing: 0.3px; }
 .cg-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
 .cg-row > span:first-child { flex: 0 0 64px; font-size: 12px; font-weight: 700; color: var(--nt-text-2); }
 .cg-sw { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--nt-border); flex: 0 0 auto; }

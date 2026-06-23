@@ -79,11 +79,11 @@ export class ThemeWizardComponent implements OnInit {
   cardShapes: { id: CardShape; label: string }[] = [
     { id: 'rect', label: 'Rectangle' }, { id: 'pill', label: 'Pill' }, { id: 'circle', label: 'Circle' }, { id: 'hexagon', label: 'Hexagon' },
   ];
-  // 'color-block' removed from the picker — it looked identical to 'text-only'
-  // (both are text on a coloured card). Enum + CSS kept so older themes render.
+  // 'color-block' and 'gradient' removed from the picker — both are now superseded.
+  // Enum + CSS kept so older themes render.
   cardContents: { id: CardContent; label: string }[] = [
     { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' }, { id: 'text-only', label: 'Text only' },
-    { id: 'icon-text', label: 'Icon + Text' }, { id: 'gradient', label: 'Gradient' },
+    { id: 'icon-text', label: 'Icon + Text' },
   ];
   /** Card-content options for the current layout. Image-based layouts (image-strip)
    *  only offer image content types so the configuration can't contradict itself. */
@@ -128,8 +128,7 @@ export class ThemeWizardComponent implements OnInit {
     // Card-strip & fullscreen are full-bleed image cards — only the inner (overlay)
     // positions make sense; Top (above) / Below would push text off the card.
     const innerOnly = ['card-strip', 'fullscreen'].includes(this.t.intermediateStyle);
-    const iconColumns = this.t.intermediateStyle === 'columns' && this.t.intermediate.content === 'icon-text';
-    if (innerOnly || iconColumns || (this.t.intermediate.content || 'image-text') === 'text-only') {
+    if (innerOnly || (this.t.intermediate.content || 'image-text') === 'text-only') {
       return this.cardTextPositions.filter((p) => p.id !== 'below' && p.id !== 'above');
     }
     return this.cardTextPositions;
@@ -138,9 +137,7 @@ export class ThemeWizardComponent implements OnInit {
    *  (edit-time only — deployed themes keep rendering via CSS fallbacks). */
   private coerceTextPos(): void {
     if ((this.t.cardTextPos === 'below' || this.t.cardTextPos === 'above') && this.homeBelowHidden) this.t.cardTextPos = 'center';
-    const hideInterOuter = (this.t.intermediate.content || 'image-text') === 'text-only'
-      || (this.t.intermediateStyle === 'columns' && this.t.intermediate.content === 'icon-text');
-    if (hideInterOuter && (this.t.intermediate.textPos === 'below' || this.t.intermediate.textPos === 'above')) this.t.intermediate.textPos = 'center';
+    if ((this.t.intermediate.content || 'image-text') === 'text-only' && (this.t.intermediate.textPos === 'below' || this.t.intermediate.textPos === 'above')) this.t.intermediate.textPos = 'center';
   }
   /** Pick card shape; clamp columns if the new shape has a tighter max. */
   pickShape(s: CardShape): void {
@@ -165,6 +162,8 @@ export class ThemeWizardComponent implements OnInit {
   }
   pickInterStyle(s: IntermediateStyle): void {
     this.t.intermediateStyle = s;
+    if (s === 'columns') this.t.intermediate.align = 'center';
+    if ((s as string) === 'side-rail') this.t.intermediate.align = 'left';
     if (s === 'columns' && (this.t.intermediate.content === 'text-only' || this.t.intermediate.content === 'icon-text')) {
       this.t.intermediate.cardShape = 'rect';
     }
@@ -180,7 +179,6 @@ export class ThemeWizardComponent implements OnInit {
       this.coerceInnerTextPos();
       if (!this.t.intermediate.content) this.t.intermediate.content = 'image-text';
     }
-    this.coerceTextPos();
   }
 
   /** Layouts where circle/hexagon shapes don't render well and are hidden.
@@ -262,7 +260,7 @@ export class ThemeWizardComponent implements OnInit {
   /** Intermediate content options (image layouts only). */
   interContents: { id: CardContent; label: string }[] = [
     { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' }, { id: 'text-only', label: 'Text only' },
-    { id: 'icon-text', label: 'Icon + Text' }, { id: 'gradient', label: 'Gradient' },
+    { id: 'icon-text', label: 'Icon + Text' },
   ];
   /** Result page card content is limited to image/text (its own narrower type). */
   resultContents: { id: 'image-text' | 'text-only'; label: string }[] = [
@@ -278,13 +276,9 @@ export class ThemeWizardComponent implements OnInit {
   get interShapesFor(): { id: CardShape; label: string }[] {
     return (this.t.intermediate.content === 'image-only') ? [{ id: 'none', label: 'None' }, ...this.cardShapes] : this.cardShapes;
   }
-  /** Card / text alignment — for the 'columns' grid and 'fullscreen'. */
+  /** Card / text alignment — columns keep their default centered card group. */
   get intAlignMatters(): boolean {
-    const shape = this.t.intermediate.cardShape || 'rect';
-    if (this.t.intermediateStyle === 'columns' &&
-        (this.t.intermediate.scrollMode || 'horizontal') === 'horizontal' &&
-        !['circle', 'hexagon'].includes(shape)) return false;
-    return ['columns', 'fullscreen'].includes(this.t.intermediateStyle);
+    return ['brand-grid', 'fullscreen'].includes(this.t.intermediateStyle);
   }
   /** Text vertical position applies to image card styles. */
   get intTextPosMatters(): boolean {
@@ -476,7 +470,7 @@ export class ThemeWizardComponent implements OnInit {
   get intColumnsValue(): number { return this.t.intermediate.columns || 3; }
   /** #6 Dynamic max "visible cards": shaped cards (circle/hex) distort sooner. */
   get maxVisibleCards(): number {
-    if (this.t.intermediateStyle === 'columns') return 4;
+    if (this.t.intermediateStyle === 'columns') return 8;
     const sh = this.t.intermediate.cardShape;
     return (sh === 'circle' || sh === 'hexagon') ? 5 : 8;
   }
@@ -519,6 +513,11 @@ export class ThemeWizardComponent implements OnInit {
   /** Set Intermediate scroll + coerce alignment to a safe, non-clipping default. */
   setInterScroll(m: ScrollMode): void {
     this.t.intermediate.scrollMode = m;
+    if (this.t.intermediateStyle === 'columns') {
+      this.t.intermediate.align = 'center';
+      this.t.intermediate.valign = m === 'vertical' ? 'top' : 'middle';
+      return;
+    }
     if (m === 'vertical') { this.t.intermediate.valign = 'top'; this.t.intermediate.align = 'left'; }
     else if (m === 'horizontal') { this.t.intermediate.align = 'left'; this.t.intermediate.valign = 'middle'; }
   }
@@ -867,6 +866,7 @@ export class ThemeWizardComponent implements OnInit {
     // selected and its preview shows.
     if (this.visibleSteps[this.stepIndex]?.key === 'intStyle' && !this.intStyles.includes(this.t.intermediateStyle)) {
       this.t.intermediateStyle = 'columns';
+      this.t.intermediate.align = 'center';
     }
     setTimeout(() => {
       void this.content?.scrollToTop(0);
