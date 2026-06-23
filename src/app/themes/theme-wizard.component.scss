@@ -1100,6 +1100,32 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 .prev .stage.shape.align-left   { justify-items: start; }
 .prev .stage.shape.align-center { justify-items: center; }
 .prev .stage.shape.align-right  { justify-items: end; }
+
+/* Horizontal scroll shape card alignment overrides (auto margins for alignment) */
+.prev .stage.shape.scroll-horizontal.align-left,
+.prev .cards.shape.scroll-horizontal.align-left {
+  justify-content: flex-start !important;
+}
+.prev .stage.shape.scroll-horizontal.align-center,
+.prev .cards.shape.scroll-horizontal.align-center {
+  justify-content: flex-start !important;
+}
+.prev .stage.shape.scroll-horizontal.align-center .card:first-child,
+.prev .cards.shape.scroll-horizontal.align-center .card:first-child {
+  margin-left: auto !important;
+}
+.prev .stage.shape.scroll-horizontal.align-center .card:last-child,
+.prev .cards.shape.scroll-horizontal.align-center .card:last-child {
+  margin-right: auto !important;
+}
+.prev .stage.shape.scroll-horizontal.align-right,
+.prev .cards.shape.scroll-horizontal.align-right {
+  justify-content: flex-start !important;
+}
+.prev .stage.shape.scroll-horizontal.align-right .card:first-child,
+.prev .cards.shape.scroll-horizontal.align-right .card:first-child {
+  margin-left: auto !important;
+}
 /* vertical alignment */
 .prev .stage.valign-top    { align-content: flex-start; align-items: flex-start; }
 .prev .stage.valign-middle { align-content: center; align-items: center; }
@@ -1150,6 +1176,26 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 .prev .stage.shape.has-cols.layout-grid-2x3 .card, .prev .stage.shape.has-cols.layout-grid-2x2 .card,
 .prev .stage.shape.has-cols.layout-col-2 .card, .prev .stage.shape.has-cols.layout-col-3 .card,
 .prev .stage.shape.has-cols.layout-col-4 .card { width: auto !important; height: 88% !important; aspect-ratio: 1; margin: 0; }
+
+.prev .stage.has-cols.cols-1:not(.shape) .card,
+.prev .cards.has-cols.cols-1:not(.shape) .card {
+  width: calc(var(--nt-vw)*45) !important;
+}
+
+.prev .stage.has-cols.cols-1.align-left,
+.prev .cards.has-cols.cols-1.align-left {
+  justify-items: start !important;
+}
+
+.prev .stage.has-cols.cols-1.align-center,
+.prev .cards.has-cols.cols-1.align-center {
+  justify-items: center !important;
+}
+
+.prev .stage.has-cols.cols-1.align-right,
+.prev .cards.has-cols.cols-1.align-right {
+  justify-items: end !important;
+}
 
 /* ===== Overflow scrolling (theme.scrollMode override) — mirrors the LCD ===== */
 .prev .stage.scroll-vertical { overflow-y: auto !important; overflow-x: hidden !important; scrollbar-width: none; }
