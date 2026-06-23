@@ -162,6 +162,7 @@ export class ThemeWizardComponent implements OnInit {
   }
   pickInterStyle(s: IntermediateStyle): void {
     this.t.intermediateStyle = s;
+    if (s === 'columns') this.t.intermediate.align = 'center';
     if ((s as string) === 'side-rail') this.t.intermediate.align = 'left';
     if (s === 'columns' && (this.t.intermediate.content === 'text-only' || this.t.intermediate.content === 'icon-text')) {
       this.t.intermediate.cardShape = 'rect';
@@ -275,13 +276,9 @@ export class ThemeWizardComponent implements OnInit {
   get interShapesFor(): { id: CardShape; label: string }[] {
     return (this.t.intermediate.content === 'image-only') ? [{ id: 'none', label: 'None' }, ...this.cardShapes] : this.cardShapes;
   }
-  /** Card / text alignment — for the 'columns' grid and 'fullscreen'. */
+  /** Card / text alignment — columns keep their default centered card group. */
   get intAlignMatters(): boolean {
-    const shape = this.t.intermediate.cardShape || 'rect';
-    if (this.t.intermediateStyle === 'columns' &&
-        (this.t.intermediate.scrollMode || 'horizontal') === 'horizontal' &&
-        !['circle', 'hexagon'].includes(shape)) return false;
-    return ['columns', 'fullscreen'].includes(this.t.intermediateStyle);
+    return ['brand-grid', 'fullscreen'].includes(this.t.intermediateStyle);
   }
   /** Text vertical position applies to image card styles. */
   get intTextPosMatters(): boolean {
@@ -473,7 +470,7 @@ export class ThemeWizardComponent implements OnInit {
   get intColumnsValue(): number { return this.t.intermediate.columns || 3; }
   /** #6 Dynamic max "visible cards": shaped cards (circle/hex) distort sooner. */
   get maxVisibleCards(): number {
-    if (this.t.intermediateStyle === 'columns') return 4;
+    if (this.t.intermediateStyle === 'columns') return 8;
     const sh = this.t.intermediate.cardShape;
     return (sh === 'circle' || sh === 'hexagon') ? 5 : 8;
   }
@@ -516,6 +513,11 @@ export class ThemeWizardComponent implements OnInit {
   /** Set Intermediate scroll + coerce alignment to a safe, non-clipping default. */
   setInterScroll(m: ScrollMode): void {
     this.t.intermediate.scrollMode = m;
+    if (this.t.intermediateStyle === 'columns') {
+      this.t.intermediate.align = 'center';
+      this.t.intermediate.valign = m === 'vertical' ? 'top' : 'middle';
+      return;
+    }
     if (m === 'vertical') { this.t.intermediate.valign = 'top'; this.t.intermediate.align = 'left'; }
     else if (m === 'horizontal') { this.t.intermediate.align = 'left'; this.t.intermediate.valign = 'middle'; }
   }
@@ -864,6 +866,7 @@ export class ThemeWizardComponent implements OnInit {
     // selected and its preview shows.
     if (this.visibleSteps[this.stepIndex]?.key === 'intStyle' && !this.intStyles.includes(this.t.intermediateStyle)) {
       this.t.intermediateStyle = 'columns';
+      this.t.intermediate.align = 'center';
     }
     setTimeout(() => {
       void this.content?.scrollToTop(0);

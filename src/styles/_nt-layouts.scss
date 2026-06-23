@@ -8664,6 +8664,10 @@
   justify-self: end;
 }
 
+.nt-inter .body.int-columns.scroll-vertical:is(.int-shape-circle, .int-shape-hexagon).int-align-center .item {
+  justify-self: center;
+}
+
 /* A single column should remain card-sized instead of stretching edge to edge. */
 .nt-inter .body.int-columns.int-single-col .item {
   flex-basis: calc(var(--nt-vw)*40);
@@ -9979,6 +9983,10 @@
   justify-self: end;
 }
 
+.nt-inter .body.int-columns.scroll-vertical:is(.int-shape-circle, .int-shape-hexagon).int-align-center .item {
+  justify-self: center;
+}
+
 /* A single column should remain card-sized instead of stretching edge to edge. */
 .nt-inter .body.int-columns.int-single-col .item {
   flex-basis: calc(var(--nt-vw)*40);
@@ -10543,8 +10551,10 @@
   align-items: center;
 }
 
-/* Circle/hexagon column cards can be narrower than the viewport, so their
+/* Column cards can be narrower than the viewport, so their
    explicit card alignment remains useful during horizontal scrolling. */
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-rect.int-align-center,
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-pill.int-align-center,
 .nt-inter .body.int-columns.scroll-horizontal.int-shape-circle.int-align-center,
 .nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-center {
   justify-content: safe center !important;
