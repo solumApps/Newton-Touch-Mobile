@@ -79,11 +79,11 @@ export class ThemeWizardComponent implements OnInit {
   cardShapes: { id: CardShape; label: string }[] = [
     { id: 'rect', label: 'Rectangle' }, { id: 'pill', label: 'Pill' }, { id: 'circle', label: 'Circle' }, { id: 'hexagon', label: 'Hexagon' },
   ];
-  // 'color-block' removed from the picker — it looked identical to 'text-only'
-  // (both are text on a coloured card). Enum + CSS kept so older themes render.
+  // 'color-block' and 'gradient' removed from the picker — both are now superseded.
+  // Enum + CSS kept so older themes render.
   cardContents: { id: CardContent; label: string }[] = [
     { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' }, { id: 'text-only', label: 'Text only' },
-    { id: 'icon-text', label: 'Icon + Text' }, { id: 'gradient', label: 'Gradient' },
+    { id: 'icon-text', label: 'Icon + Text' },
   ];
   /** Card-content options for the current layout. Image-based layouts (image-strip)
    *  only offer image content types so the configuration can't contradict itself. */
@@ -260,7 +260,7 @@ export class ThemeWizardComponent implements OnInit {
   /** Intermediate content options (image layouts only). */
   interContents: { id: CardContent; label: string }[] = [
     { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' }, { id: 'text-only', label: 'Text only' },
-    { id: 'icon-text', label: 'Icon + Text' }, { id: 'gradient', label: 'Gradient' },
+    { id: 'icon-text', label: 'Icon + Text' },
   ];
   /** Result page card content is limited to image/text (its own narrower type). */
   resultContents: { id: 'image-text' | 'text-only'; label: string }[] = [
