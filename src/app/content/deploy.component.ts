@@ -343,11 +343,20 @@ export class DeployComponent implements OnInit, OnDestroy {
           // larger payloads are dropped with a transfer error.
           await this.sleep(this.delayFor(img.data.length));
         }
-        // Media (image/video) is streamed in CHUNKS so the LCD never holds the
-        // whole multi-MB base64 string in its V8 heap (that's the OOM crash on
-        // low-end Android). The receiver appends each chunk to ntimg/<id>.<ext>.
+        // Media (image/video) is sent as RAW BINARY: a small JSON 'mediaMeta'
+        // announces the id/ext, then the bytes go via sendBinary (the plugin
+        // decodes base64 → streams binary → the LCD writes byte-exact to disk).
+        // This avoids base64 reassembly on the receiver (which corrupted the MP4)
+        // AND the V8 OOM (the LCD never holds the blob in JS). Layout is sent LAST.
         if (media) {
-          await this.sendMediaChunks(media);
+          const comma = media.data.indexOf(',');
+          const b64 = comma >= 0 ? media.data.slice(comma + 1) : media.data;
+          this.pushStep(`▸ media ${media.id}.${media.ext} (${Math.round((b64.length * 0.75) / 1024)} KB)…`);
+          await this.transfer.send(this.targetHost, this.targetPort,
+            JSON.stringify({ kind: 'mediaMeta', id: media.id, ext: media.ext, bytes: this.decodedBytes(media.data) }), () => {});
+          await this.sleep(this.SEND_DELAY_MS);
+          await this.transfer.sendBinary(this.targetHost, this.targetPort, b64, (p) => (this.percent = Math.min(89, p)));
+          this.pushStep('  ✓ media sent');
           await this.sleep(1500);
         }
         layoutJson = JSON.stringify(layout);

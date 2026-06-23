@@ -151,6 +151,43 @@ export class TransferService {
     });
   }
 
+  /** Send raw bytes (decoded from base64) as a BINARY payload — used for media
+   *  (image/video). The plugin streams the bytes and the LCD writes them straight
+   *  to a file, so the assembled file is byte-exact (no base64 reassembly on the
+   *  receiver → no MP4 corruption) and the LCD never holds it in its JS heap.
+   *  Native-only; retries up to 3× with backoff. */
+  async sendBinary(host: string, port: number, base64: string, onPercent: (p: number) => void): Promise<void> {
+    if (!this.isNative) throw new Error('binary send is native-only');
+    const MAX_ATTEMPTS = 3;
+    let lastErr: any;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      try { await this.sendBinaryOnce(host, port, base64, onPercent); return; }
+      catch (e: any) { lastErr = e; if (attempt < MAX_ATTEMPTS) await new Promise((r) => setTimeout(r, 800 * attempt)); }
+    }
+    throw lastErr instanceof Error ? lastErr : new Error(String(lastErr?.message || lastErr || 'binary transfer failed'));
+  }
+
+  private async sendBinaryOnce(host: string, port: number, base64: string, onPercent: (p: number) => void): Promise<void> {
+    const { LanTransfer } = await import('capacitor-lan-transfer');
+    const idleTimeoutMs = 15000 + Math.ceil(base64.length / 102400) * 1000;
+    return new Promise<void>(async (resolve, reject) => {
+      const subs: Array<{ remove: () => Promise<void> }> = [];
+      let settled = false; let watchdog: any;
+      const cleanup = async () => { clearTimeout(watchdog); for (const s of subs) { try { await s.remove(); } catch { /* */ } } };
+      const fail = async (err: Error) => { if (settled) return; settled = true; await cleanup(); reject(err); };
+      const ok = async () => { if (settled) return; settled = true; await cleanup(); resolve(); };
+      const armWatchdog = () => { clearTimeout(watchdog); watchdog = setTimeout(() => fail(new Error(`Media transfer stalled — no data for ${Math.round(idleTimeoutMs / 1000)}s`)), idleTimeoutMs); };
+      armWatchdog();
+      try {
+        subs.push(await LanTransfer.addListener('progress', (e: any) => { if (e.direction === 'send') { armWatchdog(); onPercent(Math.round(e.percent)); } }));
+        subs.push(await LanTransfer.addListener('status', (e: any) => { if (e.status === 'send_complete') ok(); }));
+        subs.push(await LanTransfer.addListener('error', (e: any) => fail(new Error(e.message || 'transfer error'))));
+        await LanTransfer.connect({ host, port });
+        await LanTransfer.sendBase64({ base64 });            // decoded to binary by the plugin
+      } catch (e: any) { fail(e instanceof Error ? e : new Error(String(e?.message || e))); }
+    });
+  }
+
   /**
    * Post-failure diagnosis. Distinguishes:
    *  - peer reachable (transient error) · port closed (LCD app not running)
