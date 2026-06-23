@@ -106,7 +106,7 @@ export class DeployComponent implements OnInit, OnDestroy {
   /** Pull every data-URI image out of the layout into a separate list, replacing it
    *  with a small `ntimg:<id>` reference — so layout.json stays tiny and images are
    *  sent + stored as files (no base64 bloat → no renderer OOM on the LCD). */
-  private externalizeImages(src: LayoutJson, opts: { media?: boolean } = {}): { layout: LayoutJson; images: { id: string; data: string; ext: string }[] } {
+  private externalizeImages(src: LayoutJson, opts: { media?: boolean } = {}): { layout: LayoutJson; images: { id: string; data: string; ext: string }[]; media?: { id: string; data: string; ext: string } } {
     const layout: LayoutJson = JSON.parse(JSON.stringify(src));
     const images: { id: string; data: string; ext: string }[] = [];
     let n = 0;
@@ -169,13 +169,18 @@ export class DeployComponent implements OnInit, OnDestroy {
     if (layout.screensaver?.media) layout.screensaver.media = layout.screensaver.media.map((m) => take(m) || m);
     // Externalize the header logo if it's a data URI.
     if (layout.header?.logo) layout.header.logo = take(layout.header.logo);
-    // Media mode (appMode 'media'): externalize the image/video to a streamed
-    // file so layout.json stays tiny. CRITICAL for video — keeping a multi-MB
-    // base64 data URI inline makes the LCD WebView load + decode the whole blob
-    // in memory (endless loading → OOM crash on low-end Android). Streamed to
-    // disk, the LCD plays it from a file URL (fast, smooth, no decode spike).
-    if (opts.media && layout.media?.url) layout.media = { ...layout.media, url: take(layout.media.url)! };
-    return { layout, images };
+    // Media mode (appMode 'media'): externalize the image/video to a SEPARATE
+    // streamed blob (not the images[] array — that one ships each file in a
+    // single message, and a multi-MB video as one base64 string OOM-crashes the
+    // low-end LCD's V8 heap on receive). The native deploy path sends this blob
+    // in small chunks instead. layout.json keeps only a tiny ntimg: ref.
+    let media: { id: string; data: string; ext: string } | undefined;
+    if (opts.media && layout.media?.url && layout.media.url.startsWith('data:')) {
+      const id = 'img_' + (n++);
+      media = { id, data: toBase64DataUri(layout.media.url), ext: extFrom(layout.media.url) };
+      layout.media = { ...layout.media, url: 'ntimg:' + id };
+    }
+    return { layout, images, media };
   }
 
   /** Pause between sends so the LCD's LAN-transfer plugin can flush each file
@@ -188,6 +193,29 @@ export class DeployComponent implements OnInit, OnDestroy {
    *  opens, otherwise the larger payload is dropped with a transfer error. */
   private delayFor(charLen: number): number {
     return Math.min(2000, this.SEND_DELAY_MS + Math.round(charLen / 350));
+  }
+
+  /** Stream a media blob (image/video) to the LCD in small base64 chunks so its
+   *  V8 heap never holds the whole multi-MB string (the OOM crash). Each chunk's
+   *  base64 length is a multiple of 4, so the receiver can decode + append it to
+   *  ntimg/<id>.<ext> standalone. Native LAN path only (browser keeps media
+   *  inline → Blob URL). */
+  private async sendMediaChunks(media: { id: string; data: string; ext: string }): Promise<void> {
+    const comma = media.data.indexOf(',');
+    const b64 = comma >= 0 ? media.data.slice(comma + 1) : media.data;
+    const CHUNK = 256 * 1024;                               // 262144 — multiple of 4
+    const total = Math.max(1, Math.ceil(b64.length / CHUNK));
+    const kb = Math.round((b64.length * 0.75) / 1024);
+    this.pushStep(`▸ media ${media.id}.${media.ext} — ${total} chunk(s), ${kb} KB`);
+    for (let seq = 0; seq < total; seq++) {
+      const slice = b64.slice(seq * CHUNK, (seq + 1) * CHUNK);
+      const last = seq === total - 1;
+      await this.transfer.send(this.targetHost, this.targetPort,
+        JSON.stringify({ kind: 'imageChunk', id: media.id, ext: media.ext, seq, total, last, data: slice, bytes: last ? this.decodedBytes(media.data) : undefined }), () => {});
+      this.percent = Math.min(89, Math.round(((seq + 1) / total) * 88));
+      await this.sleep(this.delayFor(slice.length));
+    }
+    this.pushStep(`  ✓ media sent (${total} chunk(s))`);
   }
 
   /** Decoded (binary) size of a base64 data URI — sent alongside each image and in
@@ -287,11 +315,11 @@ export class DeployComponent implements OnInit, OnDestroy {
         // Device: send each image as its own file payload first, then the tiny layout.
         // media:true → video/image streamed to disk (keeps layout.json small; the
         // LCD plays video from a file URL, not an in-memory base64 blob).
-        const { layout, images } = this.externalizeImages(this.payload, { media: true });
+        const { layout, images, media } = this.externalizeImages(this.payload, { media: true });
         // Attach a manifest of expected image ids + decoded sizes so the LCD can
         // verify completeness AND integrity (size match) after the deploy.
-        layout.imageManifest = images.map((im) => im.id);
-        layout.imageSizes = Object.fromEntries(images.map((im) => [im.id, this.decodedBytes(im.data)]));
+        layout.imageManifest = [...images.map((im) => im.id), ...(media ? [media.id] : [])];
+        layout.imageSizes = Object.fromEntries([...images, ...(media ? [media] : [])].map((im) => [im.id, this.decodedBytes(im.data)]));
         // NOTE: do NOT embed imageFallbacks on native — the LCD resolves images from
         // the ntimg/ files on disk, so the inline fallbacks only bloat layout.json
         // (up to ~1MB) and that oversized payload fails to transfer over real LAN
@@ -312,6 +340,10 @@ export class DeployComponent implements OnInit, OnDestroy {
           // larger payloads are dropped with a transfer error.
           await this.sleep(this.delayFor(img.data.length));
         }
+        // Media (image/video) is streamed in CHUNKS so the LCD never holds the
+        // whole multi-MB base64 string in its V8 heap (that's the OOM crash on
+        // low-end Android). The receiver appends each chunk to ntimg/<id>.<ext>.
+        if (media) await this.sendMediaChunks(media);
         layoutJson = JSON.stringify(layout);
       }
       // Send serverConfig FIRST (it's only present for Category / +ESL), THEN the
