@@ -106,7 +106,7 @@ export class DeployComponent implements OnInit, OnDestroy {
   /** Pull every data-URI image out of the layout into a separate list, replacing it
    *  with a small `ntimg:<id>` reference — so layout.json stays tiny and images are
    *  sent + stored as files (no base64 bloat → no renderer OOM on the LCD). */
-  private externalizeImages(src: LayoutJson): { layout: LayoutJson; images: { id: string; data: string; ext: string }[] } {
+  private externalizeImages(src: LayoutJson, opts: { media?: boolean } = {}): { layout: LayoutJson; images: { id: string; data: string; ext: string }[] } {
     const layout: LayoutJson = JSON.parse(JSON.stringify(src));
     const images: { id: string; data: string; ext: string }[] = [];
     let n = 0;
@@ -114,10 +114,11 @@ export class DeployComponent implements OnInit, OnDestroy {
      *  Default to "png" if MIME is missing/unknown — the LCD WebView refuses to
      *  serve files without an extension under the `_capacitor_file_` scheme. */
     const extFrom = (uri: string): string => {
-      const m = /^data:image\/([a-zA-Z0-9.+-]+)/.exec(uri);
+      const m = /^data:(?:image|video)\/([a-zA-Z0-9.+-]+)/.exec(uri);
       let raw = (m && m[1] ? m[1] : 'png').toLowerCase();
       if (raw === 'jpeg') raw = 'jpg';
       if (raw === 'svg+xml') raw = 'svg';
+      if (raw === 'quicktime') raw = 'mov';
       return raw;
     };
     /** The LCD receiver decodes the payload after the comma as BASE64 binary.
@@ -168,6 +169,12 @@ export class DeployComponent implements OnInit, OnDestroy {
     if (layout.screensaver?.media) layout.screensaver.media = layout.screensaver.media.map((m) => take(m) || m);
     // Externalize the header logo if it's a data URI.
     if (layout.header?.logo) layout.header.logo = take(layout.header.logo);
+    // Media mode (appMode 'media'): externalize the image/video to a streamed
+    // file so layout.json stays tiny. CRITICAL for video — keeping a multi-MB
+    // base64 data URI inline makes the LCD WebView load + decode the whole blob
+    // in memory (endless loading → OOM crash on low-end Android). Streamed to
+    // disk, the LCD plays it from a file URL (fast, smooth, no decode spike).
+    if (opts.media && layout.media?.url) layout.media = { ...layout.media, url: take(layout.media.url)! };
     return { layout, images };
   }
 
@@ -278,7 +285,9 @@ export class DeployComponent implements OnInit, OnDestroy {
         layoutJson = JSON.stringify(layout);
       } else {
         // Device: send each image as its own file payload first, then the tiny layout.
-        const { layout, images } = this.externalizeImages(this.payload);
+        // media:true → video/image streamed to disk (keeps layout.json small; the
+        // LCD plays video from a file URL, not an in-memory base64 blob).
+        const { layout, images } = this.externalizeImages(this.payload, { media: true });
         // Attach a manifest of expected image ids + decoded sizes so the LCD can
         // verify completeness AND integrity (size match) after the deploy.
         layout.imageManifest = images.map((im) => im.id);
