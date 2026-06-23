@@ -270,7 +270,7 @@
           <div class="step-title sm">Overflow scrolling</div>
           <p class="hint">When items don't fit: Auto picks the layout's natural direction (grids vertical, rails horizontal).</p>
           <div class="seg">
-            <button class="tile" *ngFor="let m of scrollModesFor" [class.sel]="(t.scrollMode||'auto')===m.id" (click)="setHomeScroll(m.id)">{{ m.label }}</button>
+            <button class="tile" *ngFor="let m of scrollModesFor" [class.sel]="effectiveScrollMode===m.id" (click)="setHomeScroll(m.id)">{{ m.label }}</button>
           </div>
         </ng-container>
 
