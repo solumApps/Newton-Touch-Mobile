@@ -152,6 +152,10 @@ export class ContentService {
       itemResults,
       screensaver: { ...d.screensaver, media: await Promise.all((d.screensaver?.media || []).map((m) => fn(m))) },
       header: d.header ? { ...d.header, logo: await val(d.header.logo) } : d.header,
+      // Media mode (appMode 'media'): the single image/video data URI is large
+      // (esp. video) — externalize it to IndexedDB so it never bloats the
+      // Preferences-backed drafts blob and blows the storage quota.
+      media: d.media && d.media.url ? { ...d.media, url: await fn(d.media.url) } : d.media,
     };
   }
 
