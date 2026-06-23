@@ -562,12 +562,17 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       if (this.theme?.result?.textPos) cls.push('res-textpos-' + this.theme.result.textPos);
       if (this.theme?.result?.cardShape) cls.push('res-shape-' + this.theme.result.cardShape);
       if (this.resTpl === 'map-filter-list' && this.theme?.result?.filterPos) cls.push('res-filter-pos-' + this.theme.result.filterPos);
-      if (this.theme?.scrollMode === 'vertical') cls.push('scroll-vertical');
-      if (this.theme?.scrollMode === 'horizontal') cls.push('scroll-horizontal');
+      if (!this.fixedResultTemplate) {
+        if (this.theme?.scrollMode === 'vertical') cls.push('scroll-vertical');
+        if (this.theme?.scrollMode === 'horizontal') cls.push('scroll-horizontal');
+      }
     } else if (this.page === 'home') cls.push('nt-home');
     return cls;
   }
   get resTpl(): string { return this.theme?.resultTemplate || 'map-list'; }
+  get fixedResultTemplate(): boolean {
+    return this.resTpl === 'promo-map-rank' || this.resTpl === 'finder-detail';
+  }
   get specialResult(): boolean {
     return ['drill-stair', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'product-focus', 'hero-product', 'shelf', 'promo-map-rank', 'finder-detail'].includes(this.resTpl);
   }

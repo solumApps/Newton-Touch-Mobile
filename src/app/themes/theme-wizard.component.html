@@ -111,7 +111,7 @@
 
         <!-- RESULT -->
         <div *ngSwitchCase="'result'" class="stage result res-{{t.resultTemplate}}"
-             [class.scroll-vertical]="t.scrollMode==='vertical'" [class.scroll-horizontal]="t.scrollMode==='horizontal'">
+             [class.scroll-vertical]="resOverflowMatters && t.scrollMode==='vertical'" [class.scroll-horizontal]="resOverflowMatters && t.scrollMode==='horizontal'">
           <div class="map"></div>
           <div class="filters" *ngIf="t.resultTemplate==='filter-list'">
             <span class="filter on" [style.background]="t.result.accent">Popular</span>
@@ -789,9 +789,11 @@
           </div>
         </ng-container>
 
-        <div class="step-title sm">Card content</div>
-        <p class="hint">Whether product cards show their image.</p>
-        <div class="seg"><button class="tile" *ngFor="let c of resultContents" [class.sel]="(t.result.content||'image-text')===c.id" (click)="t.result.content=c.id">{{ c.label }}</button></div>
+        <ng-container *ngIf="resCardContentMatters">
+          <div class="step-title sm">Card content</div>
+          <p class="hint">Whether product cards show their image.</p>
+          <div class="seg"><button class="tile" *ngFor="let c of resultContents" [class.sel]="(t.result.content||'image-text')===c.id" (click)="t.result.content=c.id">{{ c.label }}</button></div>
+        </ng-container>
 
         <ng-container *ngIf="resShapeMatters && (t.result.content||'image-text')==='image-text'">
           <div class="step-title sm">Card shape</div>
@@ -808,7 +810,7 @@
           <div class="seg"><button class="tile" *ngFor="let p of cardTextPositions" [class.sel]="(t.result.textPos||'below')===p.id" (click)="t.result.textPos=p.id">{{ p.label }}</button></div>
         </ng-container>
 
-        <ng-container *ngIf="t.resultTemplate !== 'drill-stair'">
+        <ng-container *ngIf="resOverflowMatters">
           <div class="step-title sm">Overflow scrolling</div>
           <p class="hint">How the product list scrolls when items don't fit. Auto uses the template's natural direction.</p>
           <div class="seg">

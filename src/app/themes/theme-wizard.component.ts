@@ -313,6 +313,14 @@ export class ThemeWizardComponent implements OnInit {
   get resTextPosMatters(): boolean {
     return ['card-grid', 'cards-map', 'catalog-grid'].includes(this.t.resultTemplate);
   }
+  /** Result: custom full-page templates own their product/detail presentation. */
+  get resCardContentMatters(): boolean {
+    return !['promo-map-rank', 'finder-detail'].includes(this.t.resultTemplate);
+  }
+  /** Result: custom templates have fixed internal panels, not global list scrolling. */
+  get resOverflowMatters(): boolean {
+    return !['drill-stair', 'promo-map-rank', 'finder-detail'].includes(this.t.resultTemplate);
+  }
   /** Result: card shape applies to templates with product cards/thumbnails. */
   get resShapeMatters(): boolean {
     return ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'catalog-grid', 'filter-list', 'map-filter-list', 'shelf'].includes(this.t.resultTemplate);
