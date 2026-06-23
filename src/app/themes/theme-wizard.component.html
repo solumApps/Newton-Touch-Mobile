@@ -497,19 +497,39 @@
           <div class="seg">
             <button class="tile" *ngFor="let v of brandRailValigns" [class.sel]="(t.intermediate.brandRailMessageAlign||'center')===v.id" (click)="t.intermediate.brandRailMessageAlign=v.id">{{ v.label }}</button>
           </div>
+          <app-color-picker label="Message background" hint="blur panel" [value]="t.intermediate.brandRailMessageBgColor || 'rgba(0,0,0,0.35)'" (valueChange)="t.intermediate.brandRailMessageBgColor=$event"></app-color-picker>
+          <app-color-picker label="Message text" [value]="t.intermediate.brandRailMessageTextColor || '#ffffff'" (valueChange)="t.intermediate.brandRailMessageTextColor=$event"></app-color-picker>
         </ng-container>
 
         <ng-container *ngIf="t.intermediateStyle==='finder-select'">
-          <div class="step-title sm">Finder options</div>
+          <div class="step-title sm">Finder Select Top Bar</div>
           <p class="hint">Prompt text and step labels are entered in Content creation.</p>
-          <div class="step-title sm">Index strip</div>
           <div class="seg">
-            <button class="tile" *ngFor="let m of indexModes" [class.sel]="(t.intermediate.indexStrip||'auto')===m" (click)="t.intermediate.indexStrip=$any(m)">{{ m }}</button>
+            <button class="tile" [class.sel]="t.intermediate.fsShowBack!==false" (click)="t.intermediate.fsShowBack=true">Show back</button>
+            <button class="tile" [class.sel]="t.intermediate.fsShowBack===false" (click)="t.intermediate.fsShowBack=false">Hide back</button>
+          </div>
+          <div class="seg" *ngIf="t.intermediate.fsShowBack!==false">
+            <button class="tile" *ngFor="let p of fsPositions" [class.sel]="(t.intermediate.fsBackPos||'left')===p" (click)="t.intermediate.fsBackPos=p">{{ p }}</button>
           </div>
           <div class="seg">
-            <button class="tile" [class.sel]="t.intermediate.showBack!==false" (click)="t.intermediate.showBack=!(t.intermediate.showBack!==false)">Back arrow</button>
-            <button class="tile" [class.sel]="t.intermediate.showPrompt!==false" (click)="t.intermediate.showPrompt=!(t.intermediate.showPrompt!==false)">Prompt</button>
+            <button class="tile" [class.sel]="t.intermediate.fsShowPrompt!==false" (click)="t.intermediate.fsShowPrompt=true">Show prompt</button>
+            <button class="tile" [class.sel]="t.intermediate.fsShowPrompt===false" (click)="t.intermediate.fsShowPrompt=false">Hide prompt</button>
           </div>
+          <div class="seg" *ngIf="t.intermediate.fsShowPrompt!==false">
+            <button class="tile" *ngFor="let p of fsPositions" [class.sel]="(t.intermediate.fsPromptPos||'center')===p" (click)="t.intermediate.fsPromptPos=p">{{ p }}</button>
+          </div>
+
+          <div class="step-title sm">Fast lookup index</div>
+          <div class="seg">
+            <button class="tile" [class.sel]="(t.intermediate.indexMode||'alpha')==='alpha'" (click)="t.intermediate.indexMode='alpha'">A–Z</button>
+            <button class="tile" [class.sel]="t.intermediate.indexMode==='number'" (click)="t.intermediate.indexMode='number'">Number</button>
+          </div>
+          <div class="num-row" *ngIf="t.intermediate.indexMode==='number'">
+            <label class="num-fld">Min<input class="inp" type="number" [value]="t.intermediate.indexNumberMin ?? 0" (input)="t.intermediate.indexNumberMin=+$any($event.target).value" /></label>
+            <label class="num-fld">Max<input class="inp" type="number" [value]="t.intermediate.indexNumberMax ?? 100" (input)="t.intermediate.indexNumberMax=+$any($event.target).value" /></label>
+            <label class="num-fld">Interval<input class="inp" type="number" min="1" [value]="t.intermediate.indexNumberInterval ?? 10" (input)="t.intermediate.indexNumberInterval=+$any($event.target).value" /></label>
+          </div>
+
           <app-color-picker label="Hero panel" [value]="t.intermediate.heroColor || '#23262b'" (valueChange)="t.intermediate.heroColor=$event"></app-color-picker>
         </ng-container>
 
@@ -600,12 +620,14 @@
         <div class="seg"><button class="tile" *ngFor="let s of cardSurfaces" [class.sel]="(t.cardSurface||'flat')===s.id" (click)="t.cardSurface=s.id">{{ s.label }}</button></div>
         </ng-container>
 
-        <div class="step-title sm">Header bar</div>
-        <div class="seg">
-          <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
-          <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
-        </div>
-        <p class="hint">Header background (solid/transparent), colours, sub-item details and navigation buttons are set on the next step.</p>
+        <ng-container *ngIf="t.intermediateStyle !== 'finder-select'">
+          <div class="step-title sm">Header bar</div>
+          <div class="seg">
+            <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
+            <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
+          </div>
+          <p class="hint">Header background (solid/transparent), colours, sub-item details and navigation buttons are set on the next step.</p>
+        </ng-container>
       </div>
 
       <div *ngSwitchCase="'intColors'">

@@ -311,7 +311,7 @@ export class DeployComponent implements OnInit, OnDestroy {
       // were dropping layout.json while plain Prototype, which sends no serverConfig,
       // worked). Throttle between each so the receiver flushes one before the next.
       await this.sleep(this.SEND_DELAY_MS);
-      if (this.draft.appMode !== 'prototype') {
+      if (this.draft.appMode !== 'prototype' && this.draft.appMode !== 'media') {
         const creds = await this.workspace.creds();
         const w = await this.workspace.get();
         if (creds) {

@@ -23,6 +23,12 @@ export class ImagePickerService {
     catch { return raw; }   // fallback: original (rare)
   }
 
+  /** Pick a file and return its data-URL UNCHANGED (no downscale) — used for video
+   *  where re-encoding isn't possible in the WebView. Returns the MIME-typed data URI. */
+  async pickRaw(accept: string): Promise<string | null> {
+    return this.readFile(accept);
+  }
+
   private readFile(accept: string): Promise<string | null> {
     return new Promise((resolve) => {
       const input = document.createElement('input');

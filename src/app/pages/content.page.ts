@@ -103,7 +103,7 @@ export class ContentPage implements OnInit, OnDestroy {
   }
 
   modeLabel(m: ContentDraft['appMode']): string {
-    return m === 'category' ? 'Category' : m === 'prototype' ? 'Prototype' : 'Prototype + ESL';
+    return m === 'category' ? 'Category' : m === 'prototype' ? 'Prototype' : m === 'media' ? 'Media' : 'Prototype + ESL';
   }
 
   /** Human-readable "deployed N ago". */
@@ -133,5 +133,5 @@ export class ContentPage implements OnInit, OnDestroy {
   }
 
   create(): void { this.router.navigateByUrl('/content-create'); }
-  open(c: ContentDraft): void { this.router.navigateByUrl('/content-builder/' + c.id); }
+  open(c: ContentDraft): void { this.router.navigateByUrl((c.appMode === 'media' ? '/content-media/' : '/content-builder/') + c.id); }
 }

@@ -18,6 +18,8 @@ import type { AppMode } from '@contract/layout';
   styleUrls: ['./content-create.component.scss'],
 })
 export class ContentCreateComponent implements OnInit {
+  /** Sentinel theme id for the media-only flow (single image/video, no app type). */
+  static readonly MEDIA_THEME_ID = '__media__';
   name = '';
   nameError = '';
   themeId = '';
@@ -49,11 +51,15 @@ export class ContentCreateComponent implements OnInit {
     this.themes = [...ThemeService.predefined(), ...(await this.themeSvc.list())];
   }
 
+  /** True when the media-only theme is selected — hides the app-type step. */
+  get isMedia(): boolean { return this.themeId === ContentCreateComponent.MEDIA_THEME_ID; }
+
   get themeOpts(): SelectOption[] {
-    return this.themes.map((t) => {
+    const media: SelectOption = { value: ContentCreateComponent.MEDIA_THEME_ID, label: 'Upload Media (Image/Video)', sub: 'Play a single image or video full-screen — no app type needed' };
+    return [media, ...this.themes.map((t) => {
       const badge = t.predefined ? '★ Predefined' : '✎ My theme';
       return { value: t.id, label: t.name, sub: `${badge} · ${t.tokens.homeLayout} · ${t.tokens.cardShape} ${t.tokens.cardContent}` };
-    });
+    })];
   }
   get modeOpts(): SelectOption[] { return this.modes.map((m) => ({ value: m.id, label: m.nm, sub: m.ds })); }
   get selectedTheme(): SavedTheme | undefined { return this.themes.find((t) => t.id === this.themeId); }
@@ -63,6 +69,33 @@ export class ContentCreateComponent implements OnInit {
   get backLabel(): string { return this.themeLockedFromPreview ? 'Back' : 'Cancel'; }
 
   async next(): Promise<void> {
+    // Media-only flow: skip app-type selection, create a minimal draft, go straight
+    // to the media editor (upload + fill/fit/cover + preview + deploy).
+    if (this.isMedia) {
+      const name = this.name.trim() || 'Media content';
+      if (await this.content.nameExists(name)) {
+        this.nameError = `Content named “${name}” already exists. Please choose a different name.`;
+        return;
+      }
+      this.nameError = '';
+      const draft: ContentDraft = {
+        id: 'cnt_' + Date.now(),
+        name,
+        themeId: ContentCreateComponent.MEDIA_THEME_ID,
+        themeName: 'Upload Media',
+        themeTokens: ThemeService.defaultTokens(),
+        appMode: 'media',
+        home: [],
+        intermediate: [],
+        result: { products: [] },
+        screensaver: { mode: 'slideshow', media: [], secondsPerSlide: 5, loop: true, idleTimeoutSec: 60, ctaText: 'Touch screen to begin' },
+        status: 'draft',
+        updatedAt: Date.now(),
+      };
+      await this.content.save(draft);
+      this.router.navigateByUrl('/content-media/' + draft.id);
+      return;
+    }
     const theme = this.selectedTheme;
     if (!theme || !this.mode) return;
     const name = this.name.trim() || `${theme.name} content`;

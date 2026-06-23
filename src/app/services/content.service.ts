@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Preferences } from '@capacitor/preferences';
-import type { LayoutJson, AppMode, ThemeTokens, CardItem, ResultProduct, EslLink, EslBlinkBy, Screensaver, FieldSource, ResultContent } from '@contract/layout';
+import type { LayoutJson, AppMode, ThemeTokens, CardItem, ResultProduct, EslLink, EslBlinkBy, Screensaver, FieldSource, ResultContent, MediaContent } from '@contract/layout';
 import { ThemeService } from './theme.service';
 import { ImageStoreService } from './image-store.service';
 import { freshMarketSampleDraft, FRESH_MARKET_SAMPLE_ID } from './sample-content';
@@ -47,6 +47,8 @@ export interface ContentDraft {
     promptPrefix?: string; stepLabels?: string[];                              // finder-select
   };
   screensaver: Screensaver;
+  /** Media mode only (appMode 'media'): the single image/video to play full-screen. */
+  media?: MediaContent;
   /** Per-deploy header content — fields shown depend on theme.headerStyle. */
   header?: { title?: string; caption?: string; logo?: string };
   status: 'draft' | 'complete';
@@ -276,6 +278,7 @@ export class ContentService {
       payload.eslBlinkBy = d.eslBlinkBy ?? 'article';
     }
     if (d.appMode === 'category' && d.fieldSource) payload.fieldSource = d.fieldSource;
+    if (d.appMode === 'media' && d.media) payload.media = d.media;
     return payload;
   }
 

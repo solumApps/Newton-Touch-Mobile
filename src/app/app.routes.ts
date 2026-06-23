@@ -14,6 +14,7 @@ export const routes: Routes = [
   // Content create flow (CC-1 theme → CC-2 mode → per-mode data → deploy)
   { path: 'content-create', loadComponent: () => import('./content/content-create.component').then((m) => m.ContentCreateComponent) },
   { path: 'content-builder/:id', loadComponent: () => import('./content/content-builder.component').then((m) => m.ContentBuilderComponent) },
+  { path: 'content-media/:id', loadComponent: () => import('./content/content-media.component').then((m) => m.ContentMediaComponent) },
   { path: 'deploy/:id', loadComponent: () => import('./content/deploy.component').then((m) => m.DeployComponent) },
   { path: 'server-config', loadComponent: () => import('./settings/server-config.component').then((m) => m.ServerConfigComponent) },
 

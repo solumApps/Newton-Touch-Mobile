@@ -4,7 +4,15 @@
  * Single source of truth — import into both apps.
  */
 
-export type AppMode = 'category' | 'prototype' | 'prototype-esl';
+export type AppMode = 'category' | 'prototype' | 'prototype-esl' | 'media';
+
+/** Media-only content: a single full-screen image or video. `fit` maps to CSS
+ *  object-fit — fill (stretch), fit (contain, letterboxed), cover (crop). */
+export interface MediaContent {
+  type: 'image' | 'video';
+  url: string;
+  fit: 'fill' | 'fit' | 'cover';
+}
 export type LogoPosition = 'left' | 'center' | 'right';
 
 /** Arrangement only — the SHAPE/look of each card is set by CardStyle. */
@@ -232,9 +240,15 @@ export interface ThemeTokens {
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
   intermediate: { headerColor: string; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; textAlign?: 'left' | 'center' | 'right'; scrollMode?: ScrollMode; valign?: 'top' | 'middle' | 'bottom'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: CardContent; textPos?: CardTextPos; textOverlay?: boolean; brandRailMessagePos?: 'left' | 'right'; brandRailMessageAlign?: 'top' | 'center' | 'bottom';
+    /** brand-rail: blur message container background + text colour. */
+    brandRailMessageBgColor?: string; brandRailMessageTextColor?: string;
     /** finder-select template: dark hero rail + selection cards + index strip. */
     heroColor?: string; heroImage?: string; promptPrefix?: string; showPrompt?: boolean;
-    showBack?: boolean; indexStrip?: 'auto' | 'alpha' | 'values' | 'off'; stepLabels?: string[]; columns?: number; };
+    showBack?: boolean; indexStrip?: 'auto' | 'alpha' | 'values' | 'off'; stepLabels?: string[]; columns?: number;
+    /** finder-select top bar: back button + prompt toggles and positions. */
+    fsShowBack?: boolean; fsBackPos?: 'left' | 'right' | 'center'; fsShowPrompt?: boolean; fsPromptPos?: 'left' | 'right' | 'center';
+    /** finder-select fast-lookup index: alphabetic A–Z or numeric ranges. */
+    indexMode?: 'alpha' | 'number'; indexNumberMin?: number; indexNumberMax?: number; indexNumberInterval?: number; };
   result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; transparentHeader?: boolean; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; cardShape?: CardShape;
     /** Position of the filter section in Map-Filter-List (G-2). Default 'top'. */
     filterPos?: 'top' | 'bottom' | 'left' | 'right';
@@ -524,4 +538,6 @@ export interface LayoutJson {
    *  when an externalized image file is missing/unresolvable (lost transfer,
    *  browser-relay context, wiped cache) so every deploy still shows pictures. */
   imageFallbacks?: Record<string, string>;
+  /** Media mode only (appMode 'media'): the single image/video to play full-screen. */
+  media?: MediaContent;
 }

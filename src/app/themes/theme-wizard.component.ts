@@ -149,7 +149,13 @@ export class ThemeWizardComponent implements OnInit {
       this.setCardSize(this.cardSizeMax);
     }
   }
-  pickContent(c: CardContent): void { this.t.cardContent = c; if (c === 'image-only') this.t.cardShape = 'none'; this.coerceTextPos(); }
+  pickContent(c: CardContent): void {
+    this.t.cardContent = c;
+    // image-only → no shape; leaving image-only restores a valid default shape.
+    if (c === 'image-only') this.t.cardShape = 'none';
+    else if (this.t.cardShape === 'none') this.t.cardShape = 'rect';
+    this.coerceTextPos();
+  }
   pickInterContent(c: CardContent): void {
     this.t.intermediate.content = c;
     // image-only → no shape; leaving image-only restores a valid shape.
@@ -174,10 +180,18 @@ export class ThemeWizardComponent implements OnInit {
     if (s === 'fullscreen') this.setInterScroll('horizontal');
     // brand-rail is a horizontal single-row rail.
     if (s === 'brand-rail') this.setInterScroll('horizontal');
+    // finder-select replaces the global header/nav with its own fs-top + fs-hero
+    // bars, so the standard intermediate header is force-hidden (#5a).
+    if (s === 'finder-select') this.t.intermediate.showHeader = false;
     // #2/#5 full-bleed styles must use an inner text position; #4 ensure content set.
     if (s === 'fullscreen' || s === 'card-strip') {
       this.coerceInnerTextPos();
-      if (!this.t.intermediate.content) this.t.intermediate.content = 'image-text';
+      // Card-strip / fullscreen only support image content — coerce anything
+      // invalid (text-only / icon-text / undefined) to image-text so the UI is
+      // never left on an unselectable option.
+      if (!['image-text', 'image-only'].includes(this.t.intermediate.content || '')) {
+        this.t.intermediate.content = 'image-text';
+      }
     }
   }
 
@@ -276,9 +290,10 @@ export class ThemeWizardComponent implements OnInit {
   get interShapesFor(): { id: CardShape; label: string }[] {
     return (this.t.intermediate.content === 'image-only') ? [{ id: 'none', label: 'None' }, ...this.cardShapes] : this.cardShapes;
   }
-  /** Card / text alignment — columns keep their default centered card group. */
+  /** Card / text alignment — columns keep their default centered card group.
+   *  Fullscreen fills the whole screen, so alignment is meaningless and hidden (#3). */
   get intAlignMatters(): boolean {
-    return ['brand-grid', 'fullscreen'].includes(this.t.intermediateStyle);
+    return ['brand-grid'].includes(this.t.intermediateStyle);
   }
   /** Text vertical position applies to image card styles. */
   get intTextPosMatters(): boolean {
@@ -456,6 +471,8 @@ export class ThemeWizardComponent implements OnInit {
     'finder-select': 'Finder select',
   };
   intStyleLabel(s: IntermediateStyle): string { return this.intStyleLabels[s] || s; }
+  /** finder-select: shared left/center/right position options for back + prompt. */
+  fsPositions: ('left' | 'center' | 'right')[] = ['left', 'center', 'right'];
   /** Card shape only affects intermediate styles that show a per-item image. */
   get intShapeMatters(): boolean {
     // card-strip is a full-bleed image strip — no per-card shape control.

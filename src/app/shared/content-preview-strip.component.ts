@@ -54,6 +54,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-int-accent]="theme?.intermediate?.accent"
            [style.--nt-int-text]="theme?.intermediate?.cardText"
            [style.--nt-res-card]="theme?.result?.cardBackground"
+           [style.--nt-res-bg]="theme?.result?.background"
            [style.--nt-res-accent]="theme?.result?.accent"
            [style.--nt-res-text]="theme?.result?.cardText"
            [style.--nt-res-header]="theme?.result?.headerColor"
@@ -141,7 +142,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         <!-- INTERMEDIATE (LCD markup: .body.int-*) -->
         <ng-container *ngSwitchCase="'inter'">
           <!-- finder-select: hero progress rail + selection cards + index strip -->
-          <div class="body fs-body" *ngIf="theme?.intermediateStyle==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || null" [style.--prm-accent]="theme?.intermediate?.accent || null">
+          <div class="body fs-body" *ngIf="theme?.intermediateStyle==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || null" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--int-gap]="theme?.intermediate?.gapNum != null ? theme?.intermediate?.gapNum + 'px' : null" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
             <div class="fs-hero">
               <div class="fs-hero-title">{{ titleText || 'Product Finder' }}</div>
               <div class="fs-home"><span class="fs-home-ic">&#8962;</span> Home</div>
@@ -152,7 +153,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               </div>
             </div>
             <div class="fs-main">
-              <div class="fs-top"><button type="button" class="fs-back">&#8592;</button><div class="fs-prompt">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div></div>
+              <div class="fs-top fs-back-{{theme?.intermediate?.fsBackPos||'left'}} fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}"><button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">&#8592;</button><div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div></div>
               <div class="fs-cards"><div class="fs-card" *ngFor="let it of interCells.slice(0,5)"><span class="fs-card-nm">{{ it.name }}</span></div></div>
               <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let it of interCells.slice(0,6); let i=index" [class.active]="i===0">{{ it.name }}</span></div>
             </div>
@@ -177,7 +178,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </ng-container>
           <ng-template #flatInter>
             <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{$any(theme?.intermediateStyle)==='side-rail' ? 'left' : (theme?.intermediateStyle==='columns' ? 'center' : (theme?.intermediate?.align||'center'))}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-valign-{{theme?.intermediate?.valign||'middle'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}} int-brm-{{theme?.intermediate?.brandRailMessagePos||'right'}} int-brmv-{{theme?.intermediate?.brandRailMessageAlign||'center'}}"
-                 [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && interScrollMode==='vertical' && (theme?.intermediate?.columns || 3)===1" [class.int-strip-few]="theme?.intermediateStyle==='card-strip' && interStripRenderedCount<=2" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [style.--int-cols]="interVisibleColumns" [style.--int-strip-card-width]="interStripCardWidth" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
+                 [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && interScrollMode==='vertical' && (theme?.intermediate?.columns || 3)===1" [class.int-strip-few]="theme?.intermediateStyle==='card-strip' && interStripRenderedCount<=2" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [style.--int-cols]="interVisibleColumns" [style.--int-strip-card-width]="interStripCardWidth" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1" [style.--int-brm-bg]="theme?.intermediate?.brandRailMessageBgColor || null" [style.--int-brm-text]="theme?.intermediate?.brandRailMessageTextColor || null">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0" [class.has-img]="!!it.image">
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                 <span class="name">{{ it.name }}</span>
