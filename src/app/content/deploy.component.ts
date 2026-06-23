@@ -346,7 +346,10 @@ export class DeployComponent implements OnInit, OnDestroy {
         // Media (image/video) is streamed in CHUNKS so the LCD never holds the
         // whole multi-MB base64 string in its V8 heap (that's the OOM crash on
         // low-end Android). The receiver appends each chunk to ntimg/<id>.<ext>.
-        if (media) await this.sendMediaChunks(media);
+        if (media) {
+          await this.sendMediaChunks(media);
+          await this.sleep(1500);
+        }
         layoutJson = JSON.stringify(layout);
       }
       // Send serverConfig FIRST (it's only present for Category / +ESL), THEN the
