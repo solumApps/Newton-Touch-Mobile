@@ -58,7 +58,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-res-accent]="theme?.result?.accent"
            [style.--nt-res-text]="theme?.result?.cardText"
            [style.--nt-res-header]="theme?.result?.headerColor"
-           [style.--prm-panel]="theme?.result?.panelColor"
+           [style.--prm-panel]="resTpl==='promo-map-rank' ? theme?.result?.panelColor : 'transparent'"
            [style.--prm-subpanel]="theme?.result?.subPanelColor"
            [style.--prm-accent]="theme?.result?.accent"
            [style.--prm-map]="theme?.result?.mapBg"
