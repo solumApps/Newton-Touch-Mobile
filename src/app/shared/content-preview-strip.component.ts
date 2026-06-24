@@ -116,7 +116,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- promo-categories: scrollable rail, copy pinned left (mirrors LCD) -->
           <div class="promo-rail" *ngIf="theme?.homeLayout==='promo-categories'">
             <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                 [class.has-img]="!!c.image || usePh" *ngFor="let c of homeCells; let i = index">
+                 [class.has-img]="!!c.image || (usePh && theme?.cardContent !== 'icon-text')" *ngFor="let c of homeCells; let i = index">
               <div class="img" *ngIf="theme?.cardContent !== 'text-only'" [class.placeholder]="!c.image && !usePh" [style.background-image]="c.image ? 'url('+c.image+')' : (usePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="(!c.image && !usePh) ? theme?.accent : null"></div>
               <div class="meta" *ngIf="theme?.cardContent !== 'image-only'"><span class="name">{{ c.name }}</span><span class="price" *ngIf="c.price">{{ c.price }}<span class="unit" *ngIf="c.unit"> / {{ c.unit }}</span></span></div>
             </div>
@@ -124,7 +124,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- h-scroll: single horizontally-scrolling rail -->
           <div class="h-scroll-rail" *ngIf="theme?.homeLayout==='h-scroll'">
             <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                 [class.has-img]="!!c.image || usePh" *ngFor="let c of homeCells; let i = index">
+                 [class.has-img]="!!c.image || (usePh && theme?.cardContent !== 'icon-text')" *ngFor="let c of homeCells; let i = index">
               <div class="img" [class.placeholder]="!c.image && !usePh" [style.background-image]="c.image ? 'url('+c.image+')' : (usePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="(!c.image && !usePh) ? theme?.accent : null"></div>
               <div class="meta"><span class="name">{{ c.name }}</span><span class="price" *ngIf="c.price">{{ c.price }}<span class="unit" *ngIf="c.unit"> / {{ c.unit }}</span></span></div>
             </div>
@@ -132,7 +132,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- all other layouts -->
           <ng-container *ngIf="theme?.homeLayout!=='h-scroll' && theme?.homeLayout!=='promo-categories'">
             <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                 [class.featured]="i===0" [class.has-img]="!!c.image || usePh" *ngFor="let c of homeCells; let i = index">
+                 [class.featured]="i===0" [class.has-img]="!!c.image || (usePh && theme?.cardContent !== 'icon-text')" *ngFor="let c of homeCells; let i = index">
               <div class="img" [class.placeholder]="!c.image && !usePh" [style.background-image]="c.image ? 'url('+c.image+')' : (usePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="(!c.image && !usePh) ? theme?.accent : null"></div>
               <div class="meta"><span class="name">{{ c.name }}</span><span class="price" *ngIf="c.price">{{ c.price }}<span class="unit" *ngIf="c.unit"> / {{ c.unit }}</span></span></div>
             </div>

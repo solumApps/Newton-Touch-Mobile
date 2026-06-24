@@ -326,7 +326,7 @@
 /* Promo tiles always render as icon/image on top + label below (clean), regardless of
    the chosen text position — overlay text on these big shapes looked broken. */
 .prev .stage.layout-promo-categories .promo-rail .card { flex-direction: column; clip-path: none; background: transparent; border: 0; }
-.prev .stage.layout-promo-categories .promo-rail .card .img {
+.prev .stage.layout-promo-categories .promo-rail .card:not(.content-icon-text) .img {
   display: block !important; position: static !important; inset: auto !important; flex: 0 0 auto;
   height: 56%; width: auto; aspect-ratio: 1; margin: 0 auto 3px; border-radius: 50%; opacity: .92;
 }
@@ -353,13 +353,8 @@
   box-shadow: none !important;
 }
 .prev .stage.layout-promo-categories .promo-rail .card.content-color-block .img,
-.prev .stage.layout-promo-categories .promo-rail .card.content-gradient .img,
-.prev .stage.layout-promo-categories .promo-rail .card.content-icon-text .img {
+.prev .stage.layout-promo-categories .promo-rail .card.content-gradient .img {
   display: block !important;
-}
-.prev .stage.layout-promo-categories .promo-rail .card.content-icon-text .meta::before {
-  display: none !important;
-  content: none !important;
 }
 .prev .stage.layout-promo-categories .card.shape-circle .img { background-size: cover; }
 
