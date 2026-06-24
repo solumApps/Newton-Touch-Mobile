@@ -117,13 +117,19 @@ export class ThemeWizardComponent implements OnInit {
    *  (image-strip, hero-start). Centralized so every QA scenario goes through
    *  one rule (B6, C2, C3, D3, E3). */
   private readonly noBelowContents: CardContent[] = ['text-only', 'icon-text', 'color-block', 'gradient'];
-  private readonly noBelowLayouts: HomeLayout[] = ['image-strip', 'hero-start'];
+  private readonly noBelowLayouts: HomeLayout[] = ['image-strip', 'hero-start', 'bento'];
   private get homeBelowHidden(): boolean {
     return this.noBelowContents.includes(this.t.cardContent) || this.noBelowLayouts.includes(this.t.homeLayout);
   }
   get textPositionsFor(): { id: CardTextPos; label: string }[] {
     let list = this.homeBelowHidden ? this.cardTextPositions.filter((p) => p.id !== 'below' && p.id !== 'above') : this.cardTextPositions;
     if (this.t.cardShape === 'hexagon') {
+      list = list.filter((p) => p.id !== 'above');
+    }
+    const isColumns = this.columnLayouts.includes(this.t.homeLayout);
+    const isImageText = this.t.cardContent === 'image-text';
+    const isPillOrCircle = this.t.cardShape === 'pill' || this.t.cardShape === 'circle';
+    if (isColumns && isImageText && isPillOrCircle) {
       list = list.filter((p) => p.id !== 'above');
     }
     return list;
@@ -142,6 +148,14 @@ export class ThemeWizardComponent implements OnInit {
   private coerceTextPos(): void {
     if ((this.t.cardTextPos === 'below' || this.t.cardTextPos === 'above') && this.homeBelowHidden) this.t.cardTextPos = 'center';
     if (this.t.cardShape === 'hexagon' && this.t.cardTextPos === 'above') this.t.cardTextPos = 'center';
+    
+    const isColumns = this.columnLayouts.includes(this.t.homeLayout);
+    const isImageText = this.t.cardContent === 'image-text';
+    const isPillOrCircle = this.t.cardShape === 'pill' || this.t.cardShape === 'circle';
+    if (isColumns && isImageText && isPillOrCircle && this.t.cardTextPos === 'above') {
+      this.t.cardTextPos = 'center';
+    }
+
     if ((this.t.intermediate.content || 'image-text') === 'text-only' && (this.t.intermediate.textPos === 'below' || this.t.intermediate.textPos === 'above')) this.t.intermediate.textPos = 'center';
   }
   /** Pick card shape; clamp columns if the new shape has a tighter max. */
