@@ -631,9 +631,10 @@ export class ThemeWizardComponent implements OnInit {
   pickResultTemplate(o: ResultTemplate): void {
     const changed = this.t.resultTemplate !== o;
     this.t.resultTemplate = o;
-    if (changed && o === 'map-list') this.applyMapListDefaults();
-    if (changed && o === 'promo-map-rank') this.applyPromoMapRankDefaults();
-    if (changed && o === 'finder-detail') this.applyFinderDetailDefaults();
+    if (!changed) return;
+    if (o === 'promo-map-rank') this.applyPromoMapRankDefaults();
+    else if (o === 'finder-detail') this.applyFinderDetailDefaults();
+    else this.applyMapListDefaults();
   }
   private applyMapListDefaults(): void {
     Object.assign(this.t.result, {
