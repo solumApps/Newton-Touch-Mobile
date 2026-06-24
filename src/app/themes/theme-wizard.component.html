@@ -858,11 +858,12 @@
         </ng-container>
         <ng-container *ngIf="t.resultTemplate==='promo-map-rank'">
           <app-color-picker label="Promo panel" [value]="t.result.panelColor || '#3a3a38'" (valueChange)="t.result.panelColor=$event"></app-color-picker>
+          <app-color-picker label="Category rail" [value]="t.result.railBg || '#f3f3ef'" (valueChange)="t.result.railBg=$event"></app-color-picker>
           <app-color-picker label="Sub-category panel" [value]="t.result.subPanelColor || '#5f5e5a'" (valueChange)="t.result.subPanelColor=$event"></app-color-picker>
+          <app-color-picker label="Sub-category text" [value]="t.result.secondaryTextColor || t.result.cardText || '#ffffff'" (valueChange)="t.result.secondaryTextColor=$event"></app-color-picker>
           <app-color-picker label="Map pin" [value]="t.result.pinColor || '#7f77dd'" (valueChange)="t.result.pinColor=$event"></app-color-picker>
           <app-color-picker label="Location dots" [value]="t.result.dotColor || '#e24b4a'" (valueChange)="t.result.dotColor=$event"></app-color-picker>
           <app-color-picker label="Map area" [value]="t.result.mapBg || '#f3f3ef'" (valueChange)="t.result.mapBg=$event"></app-color-picker>
-          <app-color-picker label="Category rail" [value]="t.result.railBg || '#f3f3ef'" (valueChange)="t.result.railBg=$event"></app-color-picker>
         </ng-container>
         <div class="step-title sm">Header bar</div>
         <div class="seg">

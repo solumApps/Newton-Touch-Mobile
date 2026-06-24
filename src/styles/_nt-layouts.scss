@@ -8118,14 +8118,14 @@
 }
 
 .nt-result.res-promo-map-rank .prm-sub {
-  color: inherit;
+  color: var(--prm-secondary-text, inherit);
   font-weight: 600;
   cursor: pointer;
   font-size: calc(var(--nt-vw)*0.88);
 }
 
 .nt-result.res-promo-map-rank .prm-sub.active {
-  color: inherit;
+  color: var(--prm-secondary-text, inherit);
   font-weight: 800;
 }
 
@@ -9449,14 +9449,14 @@
 }
 
 .nt-result.res-promo-map-rank .prm-sub {
-  color: inherit;
+  color: var(--prm-secondary-text, inherit);
   font-weight: 600;
   cursor: pointer;
   font-size: calc(var(--nt-vw)*0.88);
 }
 
 .nt-result.res-promo-map-rank .prm-sub.active {
-  color: inherit;
+  color: var(--prm-secondary-text, inherit);
   font-weight: 800;
 }
 

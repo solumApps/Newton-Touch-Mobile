@@ -60,6 +60,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-res-header]="theme?.result?.headerColor"
            [style.--prm-panel]="resTpl==='promo-map-rank' ? theme?.result?.panelColor : 'transparent'"
            [style.--prm-subpanel]="theme?.result?.subPanelColor"
+           [style.--prm-secondary-text]="theme?.result?.secondaryTextColor"
            [style.--prm-accent]="theme?.result?.accent"
            [style.--prm-map]="theme?.result?.mapBg"
            [style.--prm-rail]="theme?.result?.railBg"
