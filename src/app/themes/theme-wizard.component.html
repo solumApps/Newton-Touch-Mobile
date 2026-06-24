@@ -346,10 +346,12 @@
           <div class="seg">
             <button class="tile" *ngFor="let p of textPositionsFor" [class.sel]="t.cardTextPos===p.id" (click)="t.cardTextPos=p.id">{{ p.label }}</button>
           </div>
-          <div class="step-title sm">Text horizontal alignment</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let a of cardAligns" [class.sel]="(t.cardTextAlign||'center')===a.id" (click)="t.cardTextAlign=a.id">{{ a.label }}</button>
-          </div>
+          <ng-container *ngIf="t.cardContent !== 'icon-text'">
+            <div class="step-title sm">Text horizontal alignment</div>
+            <div class="seg">
+              <button class="tile" *ngFor="let a of cardAligns" [class.sel]="(t.cardTextAlign||'center')===a.id" (click)="t.cardTextAlign=a.id">{{ a.label }}</button>
+            </div>
+          </ng-container>
           <ng-container *ngIf="overlayRelevant">
             <div class="step-title sm">Text Overlay</div>
             <div class="seg">
