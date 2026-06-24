@@ -126,6 +126,12 @@ export class ThemeWizardComponent implements OnInit {
     if (this.t.cardShape === 'hexagon') {
       list = list.filter((p) => p.id !== 'above');
     }
+    const isColumns = this.columnLayouts.includes(this.t.homeLayout);
+    const isImageText = this.t.cardContent === 'image-text';
+    const isPillOrCircle = this.t.cardShape === 'pill' || this.t.cardShape === 'circle';
+    if (isColumns && isImageText && isPillOrCircle) {
+      list = list.filter((p) => p.id !== 'above');
+    }
     return list;
   }
   get interTextPositions(): { id: CardTextPos; label: string }[] {
@@ -142,6 +148,14 @@ export class ThemeWizardComponent implements OnInit {
   private coerceTextPos(): void {
     if ((this.t.cardTextPos === 'below' || this.t.cardTextPos === 'above') && this.homeBelowHidden) this.t.cardTextPos = 'center';
     if (this.t.cardShape === 'hexagon' && this.t.cardTextPos === 'above') this.t.cardTextPos = 'center';
+    
+    const isColumns = this.columnLayouts.includes(this.t.homeLayout);
+    const isImageText = this.t.cardContent === 'image-text';
+    const isPillOrCircle = this.t.cardShape === 'pill' || this.t.cardShape === 'circle';
+    if (isColumns && isImageText && isPillOrCircle && this.t.cardTextPos === 'above') {
+      this.t.cardTextPos = 'center';
+    }
+
     if ((this.t.intermediate.content || 'image-text') === 'text-only' && (this.t.intermediate.textPos === 'below' || this.t.intermediate.textPos === 'above')) this.t.intermediate.textPos = 'center';
   }
   /** Pick card shape; clamp columns if the new shape has a tighter max. */
