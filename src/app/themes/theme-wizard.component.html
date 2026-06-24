@@ -31,7 +31,7 @@
       <div class="prev" [ngClass]="['fit-'+t.typography.textFit, 'surface-'+(t.cardSurface || 'flat'), 'nav-'+(t.navStyle || 'floating')]"
            [style.background]="backgroundForPage(page)"
            [style.fontFamily]="t.typography.fontFamily" [style.--prev-scale]="scaleNum"
-           [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [style.--prev-overlay]="t.overlayColor || 'rgba(0,0,0,0.6)'" [ngSwitch]="page">
+           [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [style.--prev-res-card]="t.result.cardBackground" [style.--prev-res-text]="t.result.cardText" [style.--prev-res-popular-text]="t.result.popularText || t.result.cardText" [style.--prev-overlay]="t.overlayColor || 'rgba(0,0,0,0.6)'" [ngSwitch]="page">
         <div class="hdr" *ngIf="headerVisibleFor(page)"
              [ngClass]="isCustomHeader ? 'hdr-custom' : ['logo-'+t.logoPosition, 'hdr-style-'+(t.headerStyle || 'logo-only')]"
              [class.hdr-transparent]="transparentFor(page)"
@@ -114,7 +114,7 @@
              [class.scroll-vertical]="resOverflowMatters && t.scrollMode==='vertical'" [class.scroll-horizontal]="resOverflowMatters && t.scrollMode==='horizontal'">
           <div class="result-tools" *ngIf="t.resultTemplate==='map-list'">
             <span class="res-search">Search products...</span>
-            <span class="res-sort">Popular</span>
+            <span class="res-sort"><span class="active">Popular</span><span>A-Z</span><span>Z-A</span></span>
           </div>
           <div class="map"></div>
           <div class="filters" *ngIf="t.resultTemplate==='filter-list'">
@@ -867,6 +867,7 @@
         <p class="hint" *ngIf="t.result.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
         <app-color-picker *ngIf="t.resultTemplate!=='finder-detail' && t.resultTemplate!=='hero-product'" label="Product card background" [value]="t.result.cardBackground" (valueChange)="t.result.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker *ngIf="t.resultTemplate!=='hero-product' && t.resultTemplate!=='finder-detail'" label="Card text" [value]="t.result.cardText" (valueChange)="t.result.cardText=$event" [presets]="textPresets"></app-color-picker>
+        <app-color-picker *ngIf="t.resultTemplate==='map-list'" label="Popular button text" [value]="t.result.popularText || t.result.cardText" (valueChange)="t.result.popularText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='hero-product'" label="Accent / highlight" [value]="t.result.accent" (valueChange)="t.result.accent=$event"></app-color-picker>
         <ng-container *ngIf="t.resultTemplate==='finder-detail'">
           <app-color-picker label="Find button" [value]="t.result.findColor || '#2f006d'" (valueChange)="t.result.findColor=$event"></app-color-picker>

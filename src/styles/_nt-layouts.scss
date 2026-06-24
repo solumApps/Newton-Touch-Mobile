@@ -4567,16 +4567,18 @@
 .nt-result .result-tools .res-sort {
   display: flex;
   gap: calc(var(--nt-vw)*0.5);
+  flex: 0 0 auto;
+  align-items: center;
 }
 
 .nt-result .result-tools .res-sort button {
-  min-width: calc(var(--nt-vw)*9);
+  min-width: calc(var(--nt-vw)*6.5);
   height: calc(var(--nt-vh)*7.7);
-  border: 0;
-  background: var(--nt-res-accent, #ffcd00);
-  color: #0f172a;
+  border: calc(var(--nt-vw)*0.12) solid var(--nt-res-card, rgba(255,255,255,0.15));
+  background: transparent;
+  color: var(--nt-res-popular-text, var(--nt-res-text, #fff));
   border-radius: 999px;
-  padding: 0 calc(var(--nt-vw)*1.8);
+  padding: 0 calc(var(--nt-vw)*1.4);
   font-weight: 800;
   font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw)*0.95);
   font-family: inherit;
@@ -4585,8 +4587,8 @@
 
 .nt-result .result-tools .res-sort button.active {
   background: var(--nt-res-accent, #ffcd00);
-  color: #0f172a;
-  border-color: transparent;
+  color: var(--nt-res-popular-text, var(--nt-res-text, #fff));
+  border-color: var(--nt-res-accent, #ffcd00);
 }
 
 .nt-result.res-content-text-only .prod .info {

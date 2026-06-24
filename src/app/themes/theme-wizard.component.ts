@@ -642,6 +642,7 @@ export class ThemeWizardComponent implements OnInit {
       background: '#1a0036',
       cardBackground: 'RGBA(255,255,255,0.15)',
       accent: '#ffcd00',
+      popularText: '#ffffff',
       pathColor: '#ffcd00',
       cardText: '#ffffff',
     });

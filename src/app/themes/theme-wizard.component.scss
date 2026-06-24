@@ -740,22 +740,33 @@
   height: 10px;
   border-radius: 999px;
   padding: 0 8px;
-  background: var(--prev-card, rgba(255,255,255,0.15));
+  background: var(--prev-res-card, rgba(255,255,255,0.15));
   color: rgba(255, 255, 255, .5);
   font-size: 5px;
   line-height: 10px;
 }
 .prev .stage.result.res-map-list .res-sort {
   flex: 0 0 auto;
-  min-width: 30px;
-  height: 9px;
-  border-radius: 999px;
-  background: var(--prev-accent, #ffcd00);
-  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 3px;
   font-size: 5px;
   font-weight: 800;
-  line-height: 9px;
   text-align: center;
+}
+.prev .stage.result.res-map-list .res-sort span {
+  min-width: 18px;
+  height: 9px;
+  border: 1px solid var(--prev-res-card, rgba(255,255,255,0.15));
+  border-radius: 999px;
+  color: var(--prev-res-popular-text, var(--prev-res-text, #fff));
+  line-height: 8px;
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+.prev .stage.result.res-map-list .res-sort span.active {
+  min-width: 30px;
+  background: var(--prev-accent, #ffcd00);
 }
 .prev .stage.result.res-map-list .map,
 .prev .stage.result.res-map-list .list {

@@ -56,6 +56,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-res-card]="theme?.result?.cardBackground"
            [style.--nt-res-bg]="theme?.result?.background"
            [style.--nt-res-accent]="theme?.result?.accent"
+           [style.--nt-res-popular-text]="theme?.result?.popularText"
            [style.--nt-res-text]="theme?.result?.cardText"
            [style.--nt-res-header]="theme?.result?.headerColor"
            [style.--prm-panel]="resTpl==='promo-map-rank' ? theme?.result?.panelColor : 'transparent'"
@@ -396,7 +397,11 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <div class="body" *ngIf="!specialResult">
             <div class="result-tools" *ngIf="resTpl==='map-list'">
               <input class="res-search" type="text" value="" placeholder="Search products..." readonly />
-              <div class="res-sort"><button type="button" class="active">Popular</button></div>
+              <div class="res-sort">
+                <button type="button" class="active">Popular</button>
+                <button type="button">A-Z</button>
+                <button type="button">Z-A</button>
+              </div>
             </div>
             <div class="map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
               <div class="marker" *ngIf="markerVisible" [style.top]="markerTop" [style.left]="markerLeft" [style.background]="markerColor"></div>
