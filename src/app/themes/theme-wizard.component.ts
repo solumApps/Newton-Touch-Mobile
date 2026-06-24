@@ -117,7 +117,7 @@ export class ThemeWizardComponent implements OnInit {
    *  (image-strip, hero-start). Centralized so every QA scenario goes through
    *  one rule (B6, C2, C3, D3, E3). */
   private readonly noBelowContents: CardContent[] = ['text-only', 'icon-text', 'color-block', 'gradient'];
-  private readonly noBelowLayouts: HomeLayout[] = ['image-strip', 'hero-start'];
+  private readonly noBelowLayouts: HomeLayout[] = ['image-strip', 'hero-start', 'bento'];
   private get homeBelowHidden(): boolean {
     return this.noBelowContents.includes(this.t.cardContent) || this.noBelowLayouts.includes(this.t.homeLayout);
   }
