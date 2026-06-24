@@ -112,6 +112,10 @@
         <!-- RESULT -->
         <div *ngSwitchCase="'result'" class="stage result res-{{t.resultTemplate}}"
              [class.scroll-vertical]="resOverflowMatters && t.scrollMode==='vertical'" [class.scroll-horizontal]="resOverflowMatters && t.scrollMode==='horizontal'">
+          <div class="result-tools" *ngIf="t.resultTemplate==='map-list'">
+            <span class="res-search">Search products...</span>
+            <span class="res-sort">Popular</span>
+          </div>
           <div class="map"></div>
           <div class="filters" *ngIf="t.resultTemplate==='filter-list'">
             <span class="filter on" [style.background]="t.result.accent">Popular</span>

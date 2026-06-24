@@ -394,6 +394,10 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
           <!-- default: map + list -->
           <div class="body" *ngIf="!specialResult">
+            <div class="result-tools" *ngIf="resTpl==='map-list'">
+              <input class="res-search" type="text" value="" placeholder="Search products..." readonly />
+              <div class="res-sort"><button type="button" class="active">Popular</button></div>
+            </div>
             <div class="map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
               <div class="marker" *ngIf="markerVisible" [style.top]="markerTop" [style.left]="markerLeft" [style.background]="markerColor"></div>
             </div>
