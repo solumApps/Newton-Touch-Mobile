@@ -248,7 +248,9 @@ export interface ThemeTokens {
     /** finder-select top bar: back button + prompt toggles and positions. */
     fsShowBack?: boolean; fsBackPos?: 'left' | 'right' | 'center'; fsShowPrompt?: boolean; fsPromptPos?: 'left' | 'right' | 'center';
     /** finder-select fast-lookup index: alphabetic A–Z or numeric ranges. */
-    indexMode?: 'alpha' | 'number'; indexNumberMin?: number; indexNumberMax?: number; indexNumberInterval?: number; };
+    indexMode?: 'alpha' | 'number'; indexNumberMin?: number; indexNumberMax?: number; indexNumberInterval?: number;
+    /** finder-select fs-card appearance (independent of the brand-rail/columns card controls). */
+    fsCardContent?: CardContent; fsCardShape?: CardShape; fsTextPos?: CardTextPos; fsTextAlign?: 'left' | 'center' | 'right'; };
   result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; transparentHeader?: boolean; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; cardShape?: CardShape;
     /** Position of the filter section in Map-Filter-List (G-2). Default 'top'. */
     filterPos?: 'top' | 'bottom' | 'left' | 'right';
@@ -261,7 +263,7 @@ export interface ThemeTokens {
     /** promo-map-rank: "you are here" pin label + colour, map dot colour. */
     youAreHereLabel?: string; pinColor?: string; dotColor?: string;
     /** promo-map-rank/finder: dark panel + secondary panel colours. */
-    panelColor?: string; subPanelColor?: string;
+    panelColor?: string; subPanelColor?: string; secondaryTextColor?: string;
     /** finder-detail: which sort tabs to show. */
     sortTabs?: ('recommend' | 'alpha' | 'low-price' | 'on-sale')[];
     /** finder-detail: SALE badge on/off; Find It / Find All button colour + labels. */

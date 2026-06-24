@@ -60,6 +60,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-res-header]="theme?.result?.headerColor"
            [style.--prm-panel]="resTpl==='promo-map-rank' ? theme?.result?.panelColor : 'transparent'"
            [style.--prm-subpanel]="theme?.result?.subPanelColor"
+           [style.--prm-secondary-text]="theme?.result?.secondaryTextColor"
            [style.--prm-accent]="theme?.result?.accent"
            [style.--prm-map]="theme?.result?.mapBg"
            [style.--prm-rail]="theme?.result?.railBg"
@@ -339,7 +340,6 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- promo-map-rank -->
           <div class="body promo-rank-body" *ngIf="resTpl==='promo-map-rank'">
             <div class="prm-map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
-              <div class="prm-shelf" *ngFor="let s of shelfRects" [style.top]="s.t" [style.left]="s.l" [style.width]="s.w" [style.height]="s.h"></div>
               <div class="prm-dot" *ngFor="let p of resultCells.slice(0,3); let i=index" [style.top]="(40+i*16)+'%'" [style.left]="(30+i*16)+'%'" [style.background]="theme?.result?.dotColor || null"></div>
               <div class="prm-pin" style="top:32%;left:34%;" [style.background]="theme?.result?.pinColor || null"><span class="prm-pin-lbl" *ngIf="theme?.result?.youAreHereLabel !== ''">{{ theme?.result?.youAreHereLabel || 'YOU ARE HERE' }}</span></div>
               <div class="prm-floors">
@@ -405,7 +405,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         <ng-container *ngIf="page !== 'home' && page !== 'saver' && (theme?.navStyle || 'floating') !== 'hidden'">
           <ng-template #backBtn>
             <div class="fb" [class.fb-text]="navMode === 'text'" [class.fb-icon-text]="navMode === 'icon-text'"
-                 [style.color]="theme?.nav?.backColor || '#fff'" [style.background]="theme?.nav?.backBg || 'rgba(0,0,0,.35)'">
+                 [style.color]="theme?.nav?.backColor || '#fff'" [style.background]="theme?.nav?.backBg || '#0f172a'">
               <ng-container *ngIf="navMode !== 'text'">
                 <span class="fb-ic" *ngIf="backIconHtml" [innerHTML]="backIconHtml"></span>
                 <img class="fb-img" *ngIf="backIconCustom" [src]="backIconCustom" alt="" />
@@ -416,7 +416,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </ng-template>
           <ng-template #homeBtn>
             <div class="fb" [class.fb-text]="navMode === 'text'" [class.fb-icon-text]="navMode === 'icon-text'"
-                 [style.color]="theme?.nav?.homeColor || '#fff'" [style.background]="theme?.nav?.homeBg || 'rgba(0,0,0,.35)'">
+                 [style.color]="theme?.nav?.homeColor || '#fff'" [style.background]="theme?.nav?.homeBg || '#0f172a'">
               <ng-container *ngIf="navMode !== 'text'">
                 <span class="fb-ic" *ngIf="homeIconHtml" [innerHTML]="homeIconHtml"></span>
                 <img class="fb-img" *ngIf="homeIconCustom" [src]="homeIconCustom" alt="" />

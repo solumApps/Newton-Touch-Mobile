@@ -170,6 +170,11 @@ export class ThemeWizardComponent implements OnInit {
     if (this.t.intermediateStyle === 'columns' && (c === 'text-only' || c === 'icon-text')) {
       this.t.intermediate.cardShape = 'rect';
     }
+    // brand-rail text-only: default to centered vertical + horizontal text (#2).
+    if (this.t.intermediateStyle === 'brand-rail' && c === 'text-only') {
+      this.t.intermediate.textPos = 'center';
+      this.t.intermediate.textAlign = 'center';
+    }
     this.coerceTextPos();
   }
   pickInterStyle(s: IntermediateStyle): void {
@@ -301,9 +306,18 @@ export class ThemeWizardComponent implements OnInit {
   get intAlignMatters(): boolean {
     return ['brand-grid'].includes(this.t.intermediateStyle);
   }
-  /** Text vertical position applies to image card styles. */
+  /** Text vertical position applies to image card styles. For brand-rail it's
+   *  shown ONLY for text-only content (image/icon cards hide it — #2). */
   get intTextPosMatters(): boolean {
+    if (this.t.intermediateStyle === 'brand-rail') return (this.t.intermediate.content || 'image-text') === 'text-only';
     return ['columns', 'card-strip', 'circular', 'hex-grid', 'fullscreen'].includes(this.t.intermediateStyle);
+  }
+  /** Vertical-position options: brand-rail text-only uses Top/Center/Bottom (#2). */
+  get interTextPositionsFor(): { id: CardTextPos; label: string }[] {
+    if (this.t.intermediateStyle === 'brand-rail' && (this.t.intermediate.content || 'image-text') === 'text-only') {
+      return [{ id: 'overlay-top', label: 'Top' }, { id: 'center', label: 'Center' }, { id: 'overlay-bottom', label: 'Bottom' }];
+    }
+    return this.interTextPositions;
   }
   get isImageStrip(): boolean { return this.t.homeLayout === 'image-strip'; }
   /** Card size: hidden where cards always fill the screen (fullscreen, strips). */
@@ -487,6 +501,23 @@ export class ThemeWizardComponent implements OnInit {
   intStyleLabel(s: IntermediateStyle): string { return this.intStyleLabels[s] || s; }
   /** finder-select: shared left/center/right position options for back + prompt. */
   fsPositions: ('left' | 'center' | 'right')[] = ['left', 'center', 'right'];
+  /** finder-select top bar: which element's alignment is being edited (#3). */
+  fsEditTarget: 'prompt' | 'back' = 'prompt';
+  /** finder-select fs-card vertical text positions (#5). */
+  fsTextVPositions: { id: CardTextPos; label: string }[] = [
+    { id: 'overlay-top', label: 'Top' }, { id: 'center', label: 'Center' }, { id: 'overlay-bottom', label: 'Bottom' },
+  ];
+  /** finder-select fs-card content options (#5). */
+  fsCardContents: { id: CardContent; label: string }[] = [
+    { id: 'image-text', label: 'Image + text' }, { id: 'image-only', label: 'Image only' },
+    { id: 'icon-text', label: 'Icon + text' }, { id: 'text-only', label: 'Text only' },
+  ];
+  /** Pick fs-card content; image-only clears shape, leaving it restores 'rect' (#5). */
+  pickFsContent(c: CardContent): void {
+    this.t.intermediate.fsCardContent = c;
+    if (c === 'image-only') this.t.intermediate.fsCardShape = 'none';
+    else if (this.t.intermediate.fsCardShape === 'none') this.t.intermediate.fsCardShape = 'rect';
+  }
   /** Card shape only affects intermediate styles that show a per-item image. */
   get intShapeMatters(): boolean {
     // card-strip is a full-bleed image strip — no per-card shape control.
@@ -520,9 +551,9 @@ export class ThemeWizardComponent implements OnInit {
    *  because left/right text distorts the pill — value forced to center. */
   get interTextAlignMatters(): boolean {
     const c = this.t.intermediate.content || 'image-text';
-    const distortsPill = this.t.intermediateStyle === 'brand-rail'
-      && this.t.intermediate.cardShape === 'pill' && (c === 'image-text' || c === 'icon-text');
-    return (this.t.intermediate.content || 'image-text') !== 'image-only' && !distortsPill;
+    // brand-rail: only text-only cards expose horizontal alignment (#2).
+    if (this.t.intermediateStyle === 'brand-rail') return c === 'text-only';
+    return c !== 'image-only';
   }
   /** brand-rail is a single horizontal row — only horizontal scroll allowed. */
   get intScrollHorizontalOnly(): boolean { return this.t.intermediateStyle === 'brand-rail'; }
@@ -582,6 +613,34 @@ export class ThemeWizardComponent implements OnInit {
     'promo-map-rank': 'Promo Map + Ranks', 'finder-detail': 'Finder + Detail',
   };
   tplLabel(o: string): string { return this.tplLabels[o] || o; }
+  pickResultTemplate(o: ResultTemplate): void {
+    const changed = this.t.resultTemplate !== o;
+    this.t.resultTemplate = o;
+    if (changed && o === 'promo-map-rank') this.applyPromoMapRankDefaults();
+    if (changed && o === 'finder-detail') this.applyFinderDetailDefaults();
+  }
+  private applyPromoMapRankDefaults(): void {
+    Object.assign(this.t.result, {
+      cardBackground: '#ffffff',
+      cardText: '#0f172a',
+      panelColor: '#001973',
+      railBg: 'transparent',
+      subPanelColor: '#001973',
+      secondaryTextColor: '#ffffff',
+      mapBg: '#ffffff',
+    });
+  }
+  private applyFinderDetailDefaults(): void {
+    Object.assign(this.t.result, {
+      background: '#1a0036',
+      cardText: '#0F172A',
+      accent: '#ffffff',
+      findColor: '#2f006d',
+      listBg: '#ffffff',
+      cardBg: '#ffffff',
+      cardTextColor: '#0F172A',
+    });
+  }
 
   /** finder-detail sort-tab options + toggle helpers. */
   finderSortOpts = [
