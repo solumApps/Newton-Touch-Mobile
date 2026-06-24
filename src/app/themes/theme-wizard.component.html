@@ -76,7 +76,7 @@
             <div class="card shape-{{t.cardShape}} content-{{t.cardContent}} pos-{{t.cardTextPos}}" *ngFor="let n of slots; let i = index"
                  [style.color]="t.cardText" [style.borderColor]="t.accent">
               <div class="img placeholder" [style.background]="t.accent"></div>
-              <div class="meta"><span class="name">{{ labels[i] }}</span></div>
+              <div class="meta" *ngIf="t.cardContent !== 'image-only'"><span class="name">{{ labels[i] }}</span></div>
             </div>
           </div>
           <div class="h-scroll-rail" *ngIf="t.homeLayout==='h-scroll'">
