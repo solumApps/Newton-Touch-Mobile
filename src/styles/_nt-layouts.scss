@@ -4552,7 +4552,7 @@
   padding: 0 calc(var(--nt-vw)*1.6);
   border-radius: 999px;
   border: 0;
-  background: rgba(255,255,255,0.15);
+  background: var(--nt-res-card, rgba(255,255,255,0.15));
   color: #ffff;
   font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw)*1);
   font-family: inherit;
@@ -4573,7 +4573,7 @@
   min-width: calc(var(--nt-vw)*9);
   height: calc(var(--nt-vh)*7.7);
   border: 0;
-  background: #ffcd00;
+  background: var(--nt-res-accent, #ffcd00);
   color: #0f172a;
   border-radius: 999px;
   padding: 0 calc(var(--nt-vw)*1.8);
@@ -4584,7 +4584,7 @@
 }
 
 .nt-result .result-tools .res-sort button.active {
-  background: #ffcd00;
+  background: var(--nt-res-accent, #ffcd00);
   color: #0f172a;
   border-color: transparent;
 }

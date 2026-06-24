@@ -740,7 +740,7 @@
   height: 10px;
   border-radius: 999px;
   padding: 0 8px;
-  background: rgba(255,255,255,0.15);
+  background: var(--prev-card, rgba(255,255,255,0.15));
   color: rgba(255, 255, 255, .5);
   font-size: 5px;
   line-height: 10px;
@@ -750,7 +750,7 @@
   min-width: 30px;
   height: 9px;
   border-radius: 999px;
-  background: #ffcd00;
+  background: var(--prev-accent, #ffcd00);
   color: #0f172a;
   font-size: 5px;
   font-weight: 800;
