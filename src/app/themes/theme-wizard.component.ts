@@ -122,7 +122,11 @@ export class ThemeWizardComponent implements OnInit {
     return this.noBelowContents.includes(this.t.cardContent) || this.noBelowLayouts.includes(this.t.homeLayout);
   }
   get textPositionsFor(): { id: CardTextPos; label: string }[] {
-    return this.homeBelowHidden ? this.cardTextPositions.filter((p) => p.id !== 'below' && p.id !== 'above') : this.cardTextPositions;
+    let list = this.homeBelowHidden ? this.cardTextPositions.filter((p) => p.id !== 'below' && p.id !== 'above') : this.cardTextPositions;
+    if (this.t.cardShape === 'hexagon') {
+      list = list.filter((p) => p.id !== 'above');
+    }
+    return list;
   }
   get interTextPositions(): { id: CardTextPos; label: string }[] {
     // Card-strip & fullscreen are full-bleed image cards — only the inner (overlay)
@@ -137,6 +141,7 @@ export class ThemeWizardComponent implements OnInit {
    *  (edit-time only — deployed themes keep rendering via CSS fallbacks). */
   private coerceTextPos(): void {
     if ((this.t.cardTextPos === 'below' || this.t.cardTextPos === 'above') && this.homeBelowHidden) this.t.cardTextPos = 'center';
+    if (this.t.cardShape === 'hexagon' && this.t.cardTextPos === 'above') this.t.cardTextPos = 'center';
     if ((this.t.intermediate.content || 'image-text') === 'text-only' && (this.t.intermediate.textPos === 'below' || this.t.intermediate.textPos === 'above')) this.t.intermediate.textPos = 'center';
   }
   /** Pick card shape; clamp columns if the new shape has a tighter max. */
@@ -148,6 +153,7 @@ export class ThemeWizardComponent implements OnInit {
     if (typeof this.t.cardSizeScale === 'number' && this.t.cardSizeScale > this.cardSizeMax) {
       this.setCardSize(this.cardSizeMax);
     }
+    this.coerceTextPos();
   }
   pickContent(c: CardContent): void {
     this.t.cardContent = c;
