@@ -218,7 +218,7 @@ export class ThemeWizardComponent implements OnInit {
     // don't bleed into the new one (e.g. 'loose' gap on a tight layout).
     this.t.cardGap = 'normal';
     this.t.cardGapNum = undefined;
-    this.t.cardAlign = 'center';
+    this.t.cardAlign = l === 'promo-categories' ? 'left' : 'center';
     this.t.cardVAlign = 'middle';
     this.t.cardSize = 'normal';
     this.t.cardSizeScale = undefined;

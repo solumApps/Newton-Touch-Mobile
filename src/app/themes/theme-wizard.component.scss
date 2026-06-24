@@ -1096,7 +1096,10 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 .prev .stage.layout-h-scroll.align-center .h-scroll-rail .card:last-child { margin-right: auto; }
 .prev .stage.layout-promo-categories.align-left   .promo-rail { justify-content: flex-start; }
 .prev .stage.layout-promo-categories.align-center .promo-rail { justify-content: center; }
-.prev .stage.layout-promo-categories.align-right  .promo-rail { justify-content: flex-end; }
+.prev .stage.layout-promo-categories.align-right  .promo-rail { justify-content: flex-start; }
+/* Flip promo-categories: align-right puts copy on the right, rail on the left */
+.prev .stage.layout-promo-categories.align-right .promo-copy { left: auto; right: 10px; text-align: right; }
+.prev .stage.layout-promo-categories.align-right .promo-rail { left: 0; right: 40%; padding: 7px 8px 7px 8px; }
 .prev .stage.shape.align-left   { justify-items: start; }
 .prev .stage.shape.align-center { justify-items: center; }
 .prev .stage.shape.align-right  { justify-items: end; }

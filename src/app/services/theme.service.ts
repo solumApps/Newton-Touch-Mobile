@@ -46,7 +46,7 @@ export class ThemeService {
       // pre-selected "Columns" tile in the wizard exactly.
       homeLayout: 'col-3',
       columns: 3,
-      scrollMode: 'auto',
+      scrollMode: 'vertical',
       cardSize: 'normal',
       cardAlign: 'center',
       cardGap: 'normal',
@@ -141,8 +141,16 @@ export class ThemeService {
     out.homeLayout = coerceEnum(out.homeLayout, E.homeLayout, d.homeLayout, 'homeLayout');
     out.cardSize = coerceEnum(out.cardSize, E.cardSize, 'normal', 'cardSize');
     out.columns = coerceColumns(t?.columns);
-    out.scrollMode = coerceEnum(t?.scrollMode, E.scrollMode, 'auto', 'scrollMode');
+    let sm = t?.scrollMode;
+    if (!sm || sm === 'auto') {
+      const columnLayouts = ['grid-2x3', 'grid-2x2', 'col-2', 'col-3', 'col-4', 'hero-list'];
+      sm = columnLayouts.includes(out.homeLayout) ? 'vertical' : 'horizontal';
+    }
+    out.scrollMode = coerceEnum(sm, E.scrollMode, 'vertical', 'scrollMode');
     out.cardAlign = coerceEnum(out.cardAlign, E.align, 'center', 'cardAlign');
+    if (out.homeLayout === 'promo-categories' && out.cardAlign === 'center') {
+      out.cardAlign = 'left';
+    }
     out.cardGap = coerceEnum(out.cardGap, E.gap, 'normal', 'cardGap');
     out.cardShape = coerceEnum(out.cardShape, E.cardShape, d.cardShape, 'cardShape');
     out.cardContent = coerceEnum(out.cardContent, E.cardContent, d.cardContent, 'cardContent');
