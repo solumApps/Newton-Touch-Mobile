@@ -631,8 +631,19 @@ export class ThemeWizardComponent implements OnInit {
   pickResultTemplate(o: ResultTemplate): void {
     const changed = this.t.resultTemplate !== o;
     this.t.resultTemplate = o;
+    if (changed && o === 'map-list') this.applyMapListDefaults();
     if (changed && o === 'promo-map-rank') this.applyPromoMapRankDefaults();
     if (changed && o === 'finder-detail') this.applyFinderDetailDefaults();
+  }
+  private applyMapListDefaults(): void {
+    Object.assign(this.t.result, {
+      headerColor: 'transparent',
+      background: '#1a0036',
+      cardBackground: 'RGBA(255,255,255,0.15)',
+      accent: '#ffcd00',
+      pathColor: '#ffcd00',
+      cardText: '#ffffff',
+    });
   }
   private applyPromoMapRankDefaults(): void {
     Object.assign(this.t.result, {
@@ -937,6 +948,11 @@ export class ThemeWizardComponent implements OnInit {
    */
   private syncResultFromHome(): void {
     if (this.resultSynced) return;
+    if (this.t.resultTemplate === 'map-list') {
+      this.applyMapListDefaults();
+      this.resultSynced = true;
+      return;
+    }
     const d = ThemeService.defaultTokens().result;
     const r = this.t.result;
     const atDefault = (val: string, def: string) => val === def;
@@ -979,6 +995,10 @@ export class ThemeWizardComponent implements OnInit {
     if (this.visibleSteps[this.stepIndex]?.key === 'intStyle' && !this.intStyles.includes(this.t.intermediateStyle)) {
       this.t.intermediateStyle = 'columns';
       this.t.intermediate.align = 'center';
+    }
+    if (this.visibleSteps[this.stepIndex]?.page === 'result' && this.t.resultTemplate === 'map-list') {
+      this.applyMapListDefaults();
+      this.resultSynced = true;
     }
     setTimeout(() => {
       void this.content?.scrollToTop(0);
