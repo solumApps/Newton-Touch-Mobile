@@ -505,45 +505,26 @@
 
         <ng-container *ngIf="t.intermediateStyle==='finder-select'">
           <div class="step-title sm">Finder Select Top Bar</div>
-          <p class="hint">Choose which top-bar element to edit. Prompt text and step labels are entered in Content creation.</p>
+          <p class="hint">Prompt text and step labels are entered in Content creation. The fast-lookup index is configured there too.</p>
+
+          <div class="step-title sm">Prompt visibility</div>
           <div class="seg">
-            <button class="tile" [class.sel]="fsEditTarget==='prompt'" (click)="fsEditTarget='prompt'">Prompt</button>
-            <button class="tile" [class.sel]="fsEditTarget==='back'" (click)="fsEditTarget='back'">Back</button>
+            <button class="tile" [class.sel]="t.intermediate.fsShowPrompt!==false" (click)="t.intermediate.fsShowPrompt=true">Show prompt</button>
+            <button class="tile" [class.sel]="t.intermediate.fsShowPrompt===false" (click)="t.intermediate.fsShowPrompt=false">Hide prompt</button>
+          </div>
+          <div class="step-title sm" *ngIf="t.intermediate.fsShowPrompt!==false">Prompt alignment</div>
+          <div class="seg" *ngIf="t.intermediate.fsShowPrompt!==false">
+            <button class="tile" *ngFor="let p of fsPositions" [class.sel]="(t.intermediate.fsPromptPos||'center')===p" (click)="t.intermediate.fsPromptPos=p">{{ p }}</button>
           </div>
 
-          <ng-container *ngIf="fsEditTarget==='prompt'">
-            <div class="step-title sm">Prompt — visibility</div>
-            <div class="seg">
-              <button class="tile" [class.sel]="t.intermediate.fsShowPrompt!==false" (click)="t.intermediate.fsShowPrompt=true">Show prompt</button>
-              <button class="tile" [class.sel]="t.intermediate.fsShowPrompt===false" (click)="t.intermediate.fsShowPrompt=false">Hide prompt</button>
-            </div>
-            <div class="step-title sm" *ngIf="t.intermediate.fsShowPrompt!==false">Prompt — alignment</div>
-            <div class="seg" *ngIf="t.intermediate.fsShowPrompt!==false">
-              <button class="tile" *ngFor="let p of fsPositions" [class.sel]="(t.intermediate.fsPromptPos||'center')===p" (click)="t.intermediate.fsPromptPos=p">{{ p }}</button>
-            </div>
-          </ng-container>
-
-          <ng-container *ngIf="fsEditTarget==='back'">
-            <div class="step-title sm">Back — visibility</div>
-            <div class="seg">
-              <button class="tile" [class.sel]="t.intermediate.fsShowBack!==false" (click)="t.intermediate.fsShowBack=true">Show back</button>
-              <button class="tile" [class.sel]="t.intermediate.fsShowBack===false" (click)="t.intermediate.fsShowBack=false">Hide back</button>
-            </div>
-            <div class="step-title sm" *ngIf="t.intermediate.fsShowBack!==false">Back — alignment</div>
-            <div class="seg" *ngIf="t.intermediate.fsShowBack!==false">
-              <button class="tile" *ngFor="let p of fsPositions" [class.sel]="(t.intermediate.fsBackPos||'left')===p" (click)="t.intermediate.fsBackPos=p">{{ p }}</button>
-            </div>
-          </ng-container>
-
-          <div class="step-title sm">Fast lookup index</div>
+          <div class="step-title sm">Back visibility</div>
           <div class="seg">
-            <button class="tile" [class.sel]="(t.intermediate.indexMode||'alpha')==='alpha'" (click)="t.intermediate.indexMode='alpha'">A–Z</button>
-            <button class="tile" [class.sel]="t.intermediate.indexMode==='number'" (click)="t.intermediate.indexMode='number'">Number</button>
+            <button class="tile" [class.sel]="t.intermediate.fsShowBack!==false" (click)="t.intermediate.fsShowBack=true">Show back</button>
+            <button class="tile" [class.sel]="t.intermediate.fsShowBack===false" (click)="t.intermediate.fsShowBack=false">Hide back</button>
           </div>
-          <div class="num-row" *ngIf="t.intermediate.indexMode==='number'">
-            <label class="num-fld">Min<input class="inp" type="number" [value]="t.intermediate.indexNumberMin ?? 0" (input)="t.intermediate.indexNumberMin=+$any($event.target).value" /></label>
-            <label class="num-fld">Max<input class="inp" type="number" [value]="t.intermediate.indexNumberMax ?? 100" (input)="t.intermediate.indexNumberMax=+$any($event.target).value" /></label>
-            <label class="num-fld">Interval<input class="inp" type="number" min="1" [value]="t.intermediate.indexNumberInterval ?? 10" (input)="t.intermediate.indexNumberInterval=+$any($event.target).value" /></label>
+          <div class="step-title sm" *ngIf="t.intermediate.fsShowBack!==false">Back alignment</div>
+          <div class="seg" *ngIf="t.intermediate.fsShowBack!==false">
+            <button class="tile" *ngFor="let p of fsPositions" [class.sel]="(t.intermediate.fsBackPos||'left')===p" (click)="t.intermediate.fsBackPos=p">{{ p }}</button>
           </div>
 
           <!-- fs-cards container controls (#5) — affect the fs-card preview only -->

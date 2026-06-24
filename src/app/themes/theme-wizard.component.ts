@@ -501,8 +501,6 @@ export class ThemeWizardComponent implements OnInit {
   intStyleLabel(s: IntermediateStyle): string { return this.intStyleLabels[s] || s; }
   /** finder-select: shared left/center/right position options for back + prompt. */
   fsPositions: ('left' | 'center' | 'right')[] = ['left', 'center', 'right'];
-  /** finder-select top bar: which element's alignment is being edited (#3). */
-  fsEditTarget: 'prompt' | 'back' = 'prompt';
   /** finder-select fs-card vertical text positions (#5). */
   fsTextVPositions: { id: CardTextPos; label: string }[] = [
     { id: 'overlay-top', label: 'Top' }, { id: 'center', label: 'Center' }, { id: 'overlay-bottom', label: 'Bottom' },
@@ -551,7 +549,10 @@ export class ThemeWizardComponent implements OnInit {
    *  because left/right text distorts the pill — value forced to center. */
   get interTextAlignMatters(): boolean {
     const c = this.t.intermediate.content || 'image-text';
-    // brand-rail: only text-only cards expose horizontal alignment (#2).
+    // finder-select has its own fs-card horizontal-align control — the generic
+    // one must NOT also appear (avoids the duplicate Text H-align section).
+    if (this.t.intermediateStyle === 'finder-select') return false;
+    // brand-rail: only text-only cards expose horizontal alignment.
     if (this.t.intermediateStyle === 'brand-rail') return c === 'text-only';
     return c !== 'image-only';
   }
