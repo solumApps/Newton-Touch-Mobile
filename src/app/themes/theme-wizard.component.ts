@@ -576,6 +576,34 @@ export class ThemeWizardComponent implements OnInit {
     'promo-map-rank': 'Promo Map + Ranks', 'finder-detail': 'Finder + Detail',
   };
   tplLabel(o: string): string { return this.tplLabels[o] || o; }
+  pickResultTemplate(o: ResultTemplate): void {
+    const changed = this.t.resultTemplate !== o;
+    this.t.resultTemplate = o;
+    if (changed && o === 'promo-map-rank') this.applyPromoMapRankDefaults();
+    if (changed && o === 'finder-detail') this.applyFinderDetailDefaults();
+  }
+  private applyPromoMapRankDefaults(): void {
+    Object.assign(this.t.result, {
+      cardBackground: '#ffffff',
+      cardText: '#0f172a',
+      panelColor: '#001973',
+      railBg: 'transparent',
+      subPanelColor: '#001973',
+      secondaryTextColor: '#ffffff',
+      mapBg: '#ffffff',
+    });
+  }
+  private applyFinderDetailDefaults(): void {
+    Object.assign(this.t.result, {
+      background: '#1a0036',
+      cardText: '#0F172A',
+      accent: '#ffffff',
+      findColor: '#2f006d',
+      listBg: '#ffffff',
+      cardBg: '#ffffff',
+      cardTextColor: '#0F172A',
+    });
+  }
 
   /** finder-detail sort-tab options + toggle helpers. */
   finderSortOpts = [

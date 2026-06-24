@@ -405,7 +405,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         <ng-container *ngIf="page !== 'home' && page !== 'saver' && (theme?.navStyle || 'floating') !== 'hidden'">
           <ng-template #backBtn>
             <div class="fb" [class.fb-text]="navMode === 'text'" [class.fb-icon-text]="navMode === 'icon-text'"
-                 [style.color]="theme?.nav?.backColor || '#fff'" [style.background]="theme?.nav?.backBg || 'rgba(0,0,0,.35)'">
+                 [style.color]="theme?.nav?.backColor || '#fff'" [style.background]="theme?.nav?.backBg || '#0f172a'">
               <ng-container *ngIf="navMode !== 'text'">
                 <span class="fb-ic" *ngIf="backIconHtml" [innerHTML]="backIconHtml"></span>
                 <img class="fb-img" *ngIf="backIconCustom" [src]="backIconCustom" alt="" />
@@ -416,7 +416,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </ng-template>
           <ng-template #homeBtn>
             <div class="fb" [class.fb-text]="navMode === 'text'" [class.fb-icon-text]="navMode === 'icon-text'"
-                 [style.color]="theme?.nav?.homeColor || '#fff'" [style.background]="theme?.nav?.homeBg || 'rgba(0,0,0,.35)'">
+                 [style.color]="theme?.nav?.homeColor || '#fff'" [style.background]="theme?.nav?.homeBg || '#0f172a'">
               <ng-container *ngIf="navMode !== 'text'">
                 <span class="fb-ic" *ngIf="homeIconHtml" [innerHTML]="homeIconHtml"></span>
                 <img class="fb-img" *ngIf="homeIconCustom" [src]="homeIconCustom" alt="" />

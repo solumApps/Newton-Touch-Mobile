@@ -95,6 +95,12 @@ export class ColorPickerComponent {
   onHex(h: string): void { if (/^[0-9a-fA-F]{6}$/.test(h)) this.pick('#' + h); }
   strip(v: string): string { return v?.startsWith('#') ? v.slice(1) : ''; }
   toHex(v: string): string { return /^#[0-9a-fA-F]{6}$/.test(v) ? v : '#2F006D'; }
+  sameColor(a: string, b: string): boolean {
+    return this.normColor(a) === this.normColor(b);
+  }
+  private normColor(v: string): string {
+    return (v || '').trim().toLowerCase();
+  }
 
   /** Open the in-app picker, seeding the sliders from the current colour. */
   openCustom(): void {

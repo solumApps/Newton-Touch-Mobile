@@ -40,7 +40,7 @@ export class ThemeService {
       overlayColor: 'rgba(0,0,0,0.6)',
       cardSurface: 'flat',
       navStyle: 'floating',
-      nav: { backColor: '#FFFFFF', backBg: 'rgba(0,0,0,0.35)', homeColor: '#FFFFFF', homeBg: 'rgba(0,0,0,0.35)', position: 'bottom-left' },
+      nav: { backColor: '#FFFFFF', backBg: '#0f172a', homeColor: '#FFFFFF', homeBg: '#0f172a', position: 'bottom-left' },
       logoPosition: 'left',
       // 'col-3' (not legacy 'grid-2x3') so a NEW theme's preview matches the
       // pre-selected "Columns" tile in the wizard exactly.
