@@ -5482,6 +5482,7 @@
   min-width: 0;
   padding: calc(var(--nt-vh)*2) calc(var(--nt-vw)*2);
   box-sizing: border-box;
+  background: var(--nt-res-card, transparent);
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;

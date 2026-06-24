@@ -847,9 +847,9 @@
           <button class="btn-o media-clear" *ngIf="t.result.backgroundImage" (click)="clearBackground('result')">Clear</button>
         </div>
         <p class="hint" *ngIf="t.result.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
-        <app-color-picker *ngIf="t.resultTemplate!=='finder-detail'" label="Product card background" [value]="t.result.cardBackground" (valueChange)="t.result.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
-        <app-color-picker label="Card text" [value]="t.result.cardText" (valueChange)="t.result.cardText=$event" [presets]="textPresets"></app-color-picker>
-        <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank'" label="Accent / highlight" [value]="t.result.accent" (valueChange)="t.result.accent=$event"></app-color-picker>
+        <app-color-picker *ngIf="t.resultTemplate!=='finder-detail' && t.resultTemplate!=='hero-product'" label="Product card background" [value]="t.result.cardBackground" (valueChange)="t.result.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
+        <app-color-picker *ngIf="t.resultTemplate!=='hero-product'" label="Card text" [value]="t.result.cardText" (valueChange)="t.result.cardText=$event" [presets]="textPresets"></app-color-picker>
+        <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='hero-product'" label="Accent / highlight" [value]="t.result.accent" (valueChange)="t.result.accent=$event"></app-color-picker>
         <ng-container *ngIf="t.resultTemplate==='finder-detail'">
           <app-color-picker label="Find button" [value]="t.result.findColor || '#1d3a66'" (valueChange)="t.result.findColor=$event"></app-color-picker>
           <app-color-picker label="List background" [value]="t.result.listBg || '#f3f3ef'" (valueChange)="t.result.listBg=$event"></app-color-picker>
