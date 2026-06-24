@@ -1047,7 +1047,7 @@
   border: 0;
 }
 
-.nt-home .layout-promo-categories .promo-rail .card .img {
+.nt-home .layout-promo-categories .promo-rail .card:not(.content-icon-text) .img {
   display: block !important;
   position: static !important;
   flex: 0 0 auto;
@@ -1060,49 +1060,49 @@
   background-position: center;
 }
 
-.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon .img {
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon:not(.content-icon-text) .img {
   border-radius: 0;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
 
-.nt-home .layout-promo-categories .promo-rail .card .img {
+.nt-home .layout-promo-categories .promo-rail .card:not(.content-icon-text) .img {
   background-color: transparent;
 }
 
-.nt-home .layout-promo-categories .promo-rail .card.shape-circle .img {
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle:not(.content-icon-text) .img {
   background-size: cover;
 }
 
 /* promo tiles: the icon stays a fixed square disc for EVERY text position — the
    overlay-* rules otherwise stretch it to fill the card and it renders as an ellipse */
-.nt-home .layout-promo-categories .promo-rail .card .img {
+.nt-home .layout-promo-categories .promo-rail .card:not(.content-icon-text) .img {
   width: calc(var(--nt-vh)*33) !important;
   height: calc(var(--nt-vh)*33) !important;
   flex: 0 0 auto !important;
 }
 
-.nt-home .layout-promo-categories.card-size-xs .promo-rail .card .img {
+.nt-home .layout-promo-categories.card-size-xs .promo-rail .card:not(.content-icon-text) .img {
   width: calc(var(--nt-vh)*25) !important;
   height: calc(var(--nt-vh)*25) !important;
 }
 
-.nt-home .layout-promo-categories.card-size-small .promo-rail .card .img {
+.nt-home .layout-promo-categories.card-size-small .promo-rail .card:not(.content-icon-text) .img {
   width: calc(var(--nt-vh)*29) !important;
   height: calc(var(--nt-vh)*29) !important;
 }
 
-.nt-home .layout-promo-categories.card-size-large .promo-rail .card .img {
+.nt-home .layout-promo-categories.card-size-large .promo-rail .card:not(.content-icon-text) .img {
   width: calc(var(--nt-vh)*38) !important;
   height: calc(var(--nt-vh)*38) !important;
 }
 
 /* promo tile shape follows the card-shape option */
-.nt-home .layout-promo-categories .promo-rail .card.shape-rect .img {
+.nt-home .layout-promo-categories .promo-rail .card.shape-rect:not(.content-icon-text) .img {
   border-radius: calc(var(--nt-vw)*0.7);
   background-size: cover;
 }
 
-.nt-home .layout-promo-categories .promo-rail .card.shape-pill .img {
+.nt-home .layout-promo-categories .promo-rail .card.shape-pill:not(.content-icon-text) .img {
   border-radius: 999px;
   width: calc(var(--nt-vh)*48) !important;
   height: calc(var(--nt-vh)*27) !important;
@@ -1861,10 +1861,12 @@
   width: auto;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: var(--nt-card-align, center);
   text-align: var(--nt-card-align, center);
   color: var(--nt-text, #fff);
   text-shadow: 0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0, 0, 0, .6);
+  padding: 0 calc(var(--nt-vw)*1.2);
+  box-sizing: border-box;
 }
 
 .nt-home .card.content-image-text.pos-center .name {
@@ -6920,14 +6922,8 @@
 }
 
 .nt-home .layout-promo-categories .promo-rail .card.content-color-block .img,
-.nt-home .layout-promo-categories .promo-rail .card.content-gradient .img,
-.nt-home .layout-promo-categories .promo-rail .card.content-icon-text .img {
+.nt-home .layout-promo-categories .promo-rail .card.content-gradient .img {
   display: block !important;
-}
-
-.nt-home .layout-promo-categories .promo-rail .card.content-icon-text .meta::before {
-  display: none !important;
-  content: none !important;
 }
 
 /* Re-assert the selected card shape on the card itself. */
