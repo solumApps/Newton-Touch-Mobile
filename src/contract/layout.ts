@@ -261,7 +261,7 @@ export interface ThemeTokens {
     /** promo-map-rank: "you are here" pin label + colour, map dot colour. */
     youAreHereLabel?: string; pinColor?: string; dotColor?: string;
     /** promo-map-rank/finder: dark panel + secondary panel colours. */
-    panelColor?: string; subPanelColor?: string;
+    panelColor?: string; subPanelColor?: string; secondaryTextColor?: string;
     /** finder-detail: which sort tabs to show. */
     sortTabs?: ('recommend' | 'alpha' | 'low-price' | 'on-sale')[];
     /** finder-detail: SALE badge on/off; Find It / Find All button colour + labels. */

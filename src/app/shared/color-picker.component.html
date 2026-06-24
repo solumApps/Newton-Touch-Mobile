@@ -3,11 +3,12 @@
 
   <!-- Tap a swatch to pick. "+" opens an in-app custom picker (no OS dialog). -->
   <div class="cp-grid">
-    <button *ngFor="let c of presets" class="sw" [class.sel]="c===value" [style.background]="c" (click)="pick(c)">
-      <span class="tick" *ngIf="c===value">✓</span>
+    <button *ngFor="let c of presets" class="sw" [class.sel]="sameColor(c, value)" [style.background]="c" (click)="pick(c)">
+      <span class="tick" *ngIf="sameColor(c, value)">✓</span>
     </button>
-    <button *ngIf="allowTransparent" class="sw transparent-sw" [class.sel]="value===transparentValue" (click)="pick(transparentValue)" title="Transparent">
+    <button *ngIf="allowTransparent" class="sw transparent-sw" [class.sel]="sameColor(value, transparentValue)" (click)="pick(transparentValue)" title="Transparent">
       <span class="checker"></span>
+      <span class="tick" *ngIf="sameColor(value, transparentValue)">✓</span>
     </button>
     <button type="button" class="sw custom" [class.sel]="customOpen" (click)="customOpen ? closeCustom() : openCustom()" title="Custom colour">
       <span class="plus">{{ customOpen ? '×' : '+' }}</span>

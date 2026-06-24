@@ -734,7 +734,22 @@
 }
 
 .nt-home .layout-promo-categories.align-right .promo-rail {
-  justify-content: flex-end;
+  justify-content: flex-start;
+}
+
+/* Flip promo-categories: align-right puts copy on the right, rail on the left */
+.nt-home .layout-promo-categories.align-right .promo-copy {
+  left: auto;
+  right: calc(var(--nt-vw)*3);
+  text-align: right;
+}
+
+.nt-home .layout-promo-categories.align-right .promo-rail {
+  padding-left: calc(var(--nt-vw)*2);
+  padding-right: calc(var(--nt-vw)*37);
+  scroll-padding-left: calc(var(--nt-vw)*2);
+  -webkit-mask-image: linear-gradient(270deg, transparent calc(var(--nt-vw)*29), #000 calc(var(--nt-vw)*37));
+  mask-image: linear-gradient(270deg, transparent calc(var(--nt-vw)*29), #000 calc(var(--nt-vw)*37));
 }
 
 .nt-home .cards.shape.align-left {
@@ -3010,15 +3025,13 @@
   border-radius: 999px !important;
 }
 
-/* D1: promo rail always starts beside the promo copy (centered/right alignment
-   used to slide the first card behind the copy block) */
-.nt-home .layout-promo-categories.align-center .promo-rail,
-.nt-home .layout-promo-categories.align-right .promo-rail {
+/* D1: promo rail always starts beside the promo copy (centered alignment
+   uses auto margins to center cards within the rail area) */
+.nt-home .layout-promo-categories.align-center .promo-rail {
   justify-content: flex-start;
 }
 
-.nt-home .layout-promo-categories.align-center .promo-rail .card:first-child,
-.nt-home .layout-promo-categories.align-right .promo-rail .card:first-child {
+.nt-home .layout-promo-categories.align-center .promo-rail .card:first-child {
   margin-left: auto;
 }
 
@@ -5482,6 +5495,7 @@
   min-width: 0;
   padding: calc(var(--nt-vh)*2) calc(var(--nt-vw)*2);
   box-sizing: border-box;
+  background: var(--nt-res-card, transparent);
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -8117,14 +8131,14 @@
 }
 
 .nt-result.res-promo-map-rank .prm-sub {
-  color: inherit;
+  color: var(--prm-secondary-text, inherit);
   font-weight: 600;
   cursor: pointer;
   font-size: calc(var(--nt-vw)*0.88);
 }
 
 .nt-result.res-promo-map-rank .prm-sub.active {
-  color: inherit;
+  color: var(--prm-secondary-text, inherit);
   font-weight: 800;
 }
 
@@ -9448,14 +9462,14 @@
 }
 
 .nt-result.res-promo-map-rank .prm-sub {
-  color: inherit;
+  color: var(--prm-secondary-text, inherit);
   font-weight: 600;
   cursor: pointer;
   font-size: calc(var(--nt-vw)*0.88);
 }
 
 .nt-result.res-promo-map-rank .prm-sub.active {
-  color: inherit;
+  color: var(--prm-secondary-text, inherit);
   font-weight: 800;
 }
 
