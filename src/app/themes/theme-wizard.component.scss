@@ -409,7 +409,7 @@
 .prev .stage .card.content-image-text.pos-center .img { position: absolute; inset: 0; flex: none; width: 100%; height: 100%; }
 .prev .stage .card.content-image-text.pos-overlay-bottom .meta { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(transparent, var(--prev-overlay, rgba(0,0,0,.6))); color: var(--prev-text, #fff); }
 .prev .stage .card.content-image-text.pos-overlay-top .meta { position: absolute; left: 0; right: 0; top: 0; background: linear-gradient(var(--prev-overlay, rgba(0,0,0,.6)), transparent); color: var(--prev-text, #fff); }
-.prev .stage .card.content-image-text.pos-center .meta { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--prev-text, #fff); text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.prev .stage .card.content-image-text.pos-center .meta { position: absolute; inset: 0; display: flex; align-items: center; justify-content: var(--nt-card-align, center); padding: 0 6%; box-sizing: border-box; color: var(--prev-text, #fff); text-shadow: 0 1px 2px rgba(0,0,0,.6); }
 .prev .stage .card.content-image-text.pos-center .name {
   background: var(--prev-overlay, rgba(0,0,0,.52));
   padding: 1px 6px;
@@ -526,7 +526,7 @@
   border-radius: 999px; background: var(--prev-overlay, rgba(0,0,0,.52)); padding: 1px 4px;
 }
 .prev .stage.shape .card.content-image-text.pos-center .meta {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: var(--nt-card-align, center); padding: 0 12%; box-sizing: border-box;
 }
 /* Pill is wider than tall — same single-line rule with slightly larger font. */
 .prev .stage .layout-pill-row .card .name,

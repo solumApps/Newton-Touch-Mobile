@@ -1861,10 +1861,12 @@
   width: auto;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: var(--nt-card-align, center);
   text-align: var(--nt-card-align, center);
   color: var(--nt-text, #fff);
   text-shadow: 0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0, 0, 0, .6);
+  padding: 0 calc(var(--nt-vw)*1.2);
+  box-sizing: border-box;
 }
 
 .nt-home .card.content-image-text.pos-center .name {
