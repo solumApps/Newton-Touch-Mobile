@@ -168,6 +168,7 @@ export class ThemeWizardComponent implements OnInit {
       this.setCardSize(this.cardSizeMax);
     }
     this.coerceTextPos();
+    this.clampCardGap();
   }
   pickContent(c: CardContent): void {
     this.t.cardContent = c;
@@ -260,6 +261,7 @@ export class ThemeWizardComponent implements OnInit {
       this.t.scrollMode = 'vertical';
     }
     this.coerceTextPos();
+    this.clampCardGap();
   }
 
   /** Only show circle/hexagon shapes for layouts where they make visual sense. */
@@ -380,8 +382,12 @@ export class ThemeWizardComponent implements OnInit {
     if (typeof this.t.cardSizeScale === 'number' && this.t.cardSizeScale > this.cardSizeMax) {
       this.setCardSize(this.cardSizeMax);
     }
+    this.clampCardGap();
   }
-  setColumns(v: string): void { this.t.columns = coerceColumns(v); }
+  setColumns(v: string): void {
+    this.t.columns = coerceColumns(v);
+    this.clampCardGap();
+  }
 
   /** Fine-grained global text size (slider). Seeds from the legacy bucket when the
    *  numeric override isn't set yet; keeps the bucket loosely in sync for any
@@ -419,15 +425,34 @@ export class ThemeWizardComponent implements OnInit {
     this.t.cardSize = n <= 0.85 ? 'xs' : n < 0.97 ? 'small' : n > 1.1 ? 'large' : 'normal';
   }
 
+  get cardGapMax(): number {
+    const isColumns = this.columnLayouts.includes(this.t.homeLayout);
+    const isHorizontal = this.effectiveScrollMode === 'horizontal';
+    const isShape = this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon';
+    const isColsLess4 = this.effectiveColumns < 4;
+
+    if (isColumns && isHorizontal && isShape && isColsLess4) {
+      return 165;
+    }
+    return 20;
+  }
+
+  clampCardGap(): void {
+    const maxGap = this.cardGapMax;
+    if (typeof this.t.cardGapNum === 'number' && this.t.cardGapNum > maxGap) {
+      this.setCardGap(maxGap);
+    }
+  }
+
   /** Fine-grained card gap (slider). Seeds from the legacy bucket. */
   get cardGapValue(): number {
     const n = this.t.cardGapNum;
-    if (typeof n === 'number') return n;
+    if (typeof n === 'number') return Math.min(this.cardGapMax, n);
     const g = this.t.cardGap || 'normal';
     return g === 'tight' ? 2 : g === 'loose' ? 10 : 5;
   }
   setCardGap(v: string | number): void {
-    const n = Math.min(20, Math.max(0, Number(v)));
+    const n = Math.min(this.cardGapMax, Math.max(0, Number(v)));
     this.t.cardGapNum = n;
     this.t.cardGap = n <= 3 ? 'tight' : n >= 8 ? 'loose' : 'normal';
   }
@@ -593,6 +618,7 @@ export class ThemeWizardComponent implements OnInit {
     this.t.scrollMode = m;
     if (m === 'vertical') { this.t.cardVAlign = 'top'; this.t.cardAlign = 'left'; }
     else if (m === 'horizontal') { this.t.cardAlign = 'left'; this.t.cardVAlign = 'middle'; }
+    this.clampCardGap();
   }
   /** Set Intermediate scroll + coerce alignment to a safe, non-clipping default. */
   setInterScroll(m: ScrollMode): void {
