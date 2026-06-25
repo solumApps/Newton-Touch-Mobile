@@ -305,7 +305,7 @@
           <div class="step-title sm">Card gap</div>
           <p class="hint">Spacing between cards. Drag to fine-tune.</p>
           <div class="slider-row">
-            <input type="range" class="nt-slider" min="0" max="20" step="1" [value]="cardGapValue"
+            <input type="range" class="nt-slider" min="0" [max]="cardGapMax" step="1" [value]="cardGapValue"
                    (input)="setCardGap($any($event.target).value)" aria-label="Card gap" />
             <span class="slider-val">{{ cardGapValue }}px</span>
           </div>
