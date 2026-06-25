@@ -787,7 +787,12 @@ export class ThemeWizardComponent implements OnInit {
   ];
   /** Alignment only changes layouts that don't already fill the row. */
   get alignMatters(): boolean {
-    return ['h-scroll', 'promo-categories', 'col-2', 'col-3', 'col-4', 'hero-list'].includes(this.t.homeLayout) || this.shapeCard || (this.columnLayouts.includes(this.t.homeLayout) && this.effectiveColumns === 1);
+    const isColumns = this.columnLayouts.includes(this.t.homeLayout);
+    const isHorizontal = this.effectiveScrollMode === 'horizontal';
+    if (isColumns && isHorizontal) {
+      return false;
+    }
+    return ['h-scroll', 'promo-categories', 'col-2', 'col-3', 'col-4', 'hero-list'].includes(this.t.homeLayout) || this.shapeCard || (isColumns && this.effectiveColumns === 1);
   }
   navButtonPositions: { id: NavButtonPosition; label: string }[] = [
     { id: 'bottom-left',   label: 'Bottom left' },
