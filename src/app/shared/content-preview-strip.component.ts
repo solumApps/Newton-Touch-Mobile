@@ -495,6 +495,8 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   @Input() page: PreviewPage = 'home';
   @Input() home: CardItem[] = [];
   @Input() intermediate: CardItem[] = [];
+  @Input() forceSharedIntermediate = false;
+  @Input() intermediateCreatePreview = false;
   @Input() result?: { mapImage?: string; promoImage?: string; products: ResultProduct[]; route?: { kind?: 'line' | 'dot' | 'none'; x?: number; y?: number; w?: number; color?: string } };
   @Input() screensaver?: Screensaver;
   @Input() header?: { title?: string; caption?: string };
@@ -581,7 +583,13 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       'surface-' + (this.theme?.cardSurface || 'flat'),
       'nav-' + (this.theme?.navStyle || 'floating'),
     ];
-    if (this.page === 'inter') cls.push('nt-inter');
+    if (this.page === 'inter') {
+      cls.push('nt-inter');
+      if (this.intermediateCreatePreview) {
+        cls.push('force-shared-intermediate');
+        cls.push(this.intermediateSource.length > 3 ? 'shared-intermediate-scroll' : 'shared-intermediate-few');
+      }
+    }
     else if (this.page === 'result') {
       cls.push('nt-result', 'res-' + this.resTpl);
       const rk = this.result?.route?.kind;
@@ -798,10 +806,8 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get cellCount(): number {
     const l = this.theme?.homeLayout, c = this.theme?.columns;
     if (c && (l === 'image-strip' || l === 'bento' || l === 'hero-list')) return c;
-    // Horizontal scroll: show exactly as many cards as columns
-    if (this.theme?.scrollMode === 'horizontal' && c) return c;
-    // Vertical scroll: show more cards so user can test scrolling in preview.
-    if (this.theme?.scrollMode === 'vertical') return c ? c * 4 : 12;
+    // Horizontal and vertical scroll: show more cards so user can test scrolling in preview.
+    if (this.theme?.scrollMode === 'horizontal' || this.theme?.scrollMode === 'vertical') return c ? c * 4 : 12;
     // Grid layouts: show full rows that match the chosen column count.
     if (c) return Math.min(12, c * 2);
     return l === 'hero-list' ? 4 : 6;
@@ -813,6 +819,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: this.placeholderLabels[i % this.placeholderLabels.length] } as CardItem));
   }
   get intermediateSource(): CardItem[] {
+    if (this.forceSharedIntermediate) return this.intermediate || [];
     // Mirror the LCD runtime (IntermediateComponent.load): the intermediate page
     // shows the *opened* node's OWN children first, and only falls back to the
     // SHARED default intermediate list when that node has no custom subtree.
@@ -848,10 +855,22 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return this.interCells.slice(0, 6).map((it) => it.name);
   }
   get interCells(): CardItem[] {
-    // 'columns' shows ONE row matching the chosen column count (extra items
-    // overflow via scroll). card-strip shows the visible-count too.
+    // Builder shared-intermediate previews render every item, with a 3-card
+    // viewport; items after the third are available by horizontal scroll.
     const cols = this.theme?.intermediate?.columns;
     const source = this.intermediateSource;
+    if (this.intermediateCreatePreview) {
+      const real = source.map(c => ({ ...c, name: c.name || 'Item' }));
+      if (real.length) return real;
+      const minCount = this.interScrollMode === 'vertical' ? (cols || 3) : 3;
+      const dummy = Array.from({ length: Math.max(0, minCount - real.length) }, (_, i) => ({
+        id: 'inter-shared-ph' + i,
+        name: this.placeholderLabels[(real.length + i) % this.placeholderLabels.length]
+      } as CardItem));
+      return [...real, ...dummy];
+    }
+    // 'columns' shows ONE row matching the chosen column count (extra items
+    // overflow via scroll). card-strip shows the visible-count too.
     if (this.interScrollMode === 'vertical') {
       const cardCount = cols ? cols * 4 : 12;
       const real = source.slice(0, cardCount).map(c => ({ ...c, name: c.name || 'Item' }));

@@ -112,6 +112,7 @@ export class ContentCreateComponent implements OnInit {
       themeName: theme.name,
       themeTokens: theme.tokens,
       appMode: this.mode,
+      drillMode: theme.tokens.resultTemplate === 'drill-filter' ? 'individual' : undefined,
       home: [],
       intermediate: [],
       result: { products: [] },
