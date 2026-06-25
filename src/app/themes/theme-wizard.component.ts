@@ -138,7 +138,8 @@ export class ThemeWizardComponent implements OnInit {
     // Card-strip & fullscreen are full-bleed image cards — only the inner (overlay)
     // positions make sense; Top (above) / Below would push text off the card.
     const innerOnly = ['card-strip', 'fullscreen'].includes(this.t.intermediateStyle);
-    if (innerOnly || (this.t.intermediate.content || 'image-text') === 'text-only') {
+    const interContent = (this.t.intermediate.content || 'image-text');
+    if (innerOnly || interContent === 'text-only' || interContent === 'icon-text') {
       return this.cardTextPositions.filter((p) => p.id !== 'below' && p.id !== 'above');
     }
     return this.cardTextPositions;
@@ -175,6 +176,14 @@ export class ThemeWizardComponent implements OnInit {
     if (c === 'image-only') this.t.cardShape = 'none';
     else if (this.t.cardShape === 'none') this.t.cardShape = 'rect';
     this.coerceTextPos();
+    // Auto-select a valid text vertical position when switching to text-only/icon-text
+    if (c === 'text-only' || c === 'icon-text') {
+      const opts = this.textPositionsFor;
+      if (opts && opts.length) {
+        const center = opts.find((p) => p.id === 'center');
+        this.t.cardTextPos = center ? center.id : opts[0].id;
+      }
+    }
   }
   pickInterContent(c: CardContent): void {
     this.t.intermediate.content = c;
@@ -190,6 +199,14 @@ export class ThemeWizardComponent implements OnInit {
       this.t.intermediate.textAlign = 'center';
     }
     this.coerceTextPos();
+    // Auto-select a valid intermediate text vertical position when switching to text-only/icon-text
+    if (c === 'text-only' || c === 'icon-text') {
+      const opts = this.interTextPositionsFor;
+      if (opts && opts.length) {
+        const center = opts.find((p) => p.id === 'center');
+        this.t.intermediate.textPos = center ? center.id : opts[0].id;
+      }
+    }
   }
   pickInterStyle(s: IntermediateStyle): void {
     this.t.intermediateStyle = s;
