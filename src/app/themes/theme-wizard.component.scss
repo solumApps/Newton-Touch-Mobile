@@ -292,7 +292,7 @@
 
 .prev .stage.layout-image-strip { display: flex; padding: 0; }
 .prev .stage.layout-image-strip .card { flex: 1 1 0; height: 100%; border-radius: 0 !important; clip-path: none !important; border-width: 0 1px 0 0; }
-.prev .stage.layout-image-strip .card .img { position: absolute; inset: 0; opacity: .5; }
+.prev .stage.layout-image-strip .card .img { position: absolute; inset: 0; }
 .prev .stage.layout-image-strip .card .meta { position: relative; z-index: 1; margin: auto; text-align: center; }
 .prev .stage.layout-image-strip .card .name { color: #fff; font-size: calc(var(--prev-scale, 1) * 9px); text-shadow: 0 1px 2px rgba(0,0,0,.7); }
 
