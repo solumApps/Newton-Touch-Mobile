@@ -8797,13 +8797,33 @@
 }
 
 .nt-inter .body.int-columns.scroll-vertical {
+  --int-col-gap-h: var(--int-col-gap-x);
+  --int-col-gap-x: 20px;
+  --int-col-gap-y: 20px;
   display: grid;
   row-gap: 0;
-  column-gap: var(--int-col-gap-x);
+  column-gap: var(--int-col-gap-h);
   /* compute column width from the same math used by the flex layout, then apply the int scale so size changes affect both axes */
-  grid-template-columns: repeat(var(--int-cols, 3), minmax(0, calc(((100% - (var(--int-cols, 3) - 1) * var(--int-col-gap-x)) / var(--int-cols, 3)) * var(--nt-int-scale, 1))));
+  grid-template-columns: repeat(var(--int-cols, 3), minmax(0, calc(((100% - (var(--int-cols, 3) - 1) * var(--int-col-gap-h)) / var(--int-cols, 3)) * var(--nt-int-scale, 1))));
   grid-auto-rows: calc(var(--nt-vh)*60 * var(--nt-int-scale, 1));
   align-items: start;
+}
+
+.nt-inter .body.int-columns.scroll-vertical.int-gap-tight {
+  --int-col-gap-x: 10px;
+  --int-col-gap-y: 10px;
+}
+
+.nt-inter .body.int-columns.scroll-vertical.int-gap-loose {
+  --int-col-gap-x: 40px;
+  --int-col-gap-y: 40px;
+}
+
+/* Reduced horizontal gap for 2-3 columns with 1:1 aspect shapes (circle/hexagon) */
+.nt-inter .body.int-columns.scroll-vertical:is(.int-shape-circle, .int-shape-hexagon):is(.cols-2, .cols-3, [style*="--int-cols: 2"], [style*="--int-cols: 3"]) {
+  --int-col-gap-h: calc(var(--int-col-gap-x) * 0.2);
+  grid-template-columns: repeat(var(--int-cols, 3), calc(var(--nt-vh)*54 * var(--nt-int-scale, 1)));
+  grid-auto-rows: calc(var(--nt-vh)*60 * var(--nt-int-scale, 1));
 }
 
 .nt-inter .body.int-columns.scroll-vertical .item {
@@ -8821,7 +8841,7 @@
   justify-self: end;
 }
 
-.nt-inter .body.int-columns.scroll-vertical:is(.int-shape-circle, .int-shape-hexagon).int-align-center .item {
+.nt-inter .body.int-columns.scroll-vertical.int-align-center .item {
   justify-self: center;
 }
 
@@ -8830,6 +8850,8 @@
   flex-basis: calc(var(--nt-vw)*40);
   width: calc(var(--nt-vw)*40);
   max-width: calc(var(--nt-vw)*40);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* rect cards: 1/cols of the row width, tall enough to read; one row fills, extras overflow */
@@ -8920,8 +8942,6 @@
   border-radius: 0;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
-
-.nt-inter .body.int-columns.int-shape-circle .item .img,
 .nt-inter .body.int-columns.int-shape-hexagon .item .img {
   position: absolute;
   inset: 0;
@@ -10751,20 +10771,15 @@
 
 /* Column cards can be narrower than the viewport, so their
    explicit card alignment remains useful during horizontal scrolling. */
-.nt-inter .body.int-columns.scroll-horizontal.int-shape-rect.int-align-center,
-.nt-inter .body.int-columns.scroll-horizontal.int-shape-pill.int-align-center,
-.nt-inter .body.int-columns.scroll-horizontal.int-shape-circle.int-align-center,
-.nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-center {
+.nt-inter .body.int-columns.scroll-horizontal.int-align-center {
   justify-content: safe center !important;
 }
 
-.nt-inter .body.int-columns.scroll-horizontal.int-shape-circle.int-align-right,
-.nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-right {
+.nt-inter .body.int-columns.scroll-horizontal.int-align-right {
   justify-content: safe flex-end !important;
 }
 
-.nt-inter .body.int-columns.scroll-horizontal.int-shape-circle.int-align-left,
-.nt-inter .body.int-columns.scroll-horizontal.int-shape-hexagon.int-align-left {
+.nt-inter .body.int-columns.scroll-horizontal.int-align-left {
   justify-content: flex-start !important;
 }
 
