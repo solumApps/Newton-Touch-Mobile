@@ -188,7 +188,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </ng-container>
           <ng-template #flatInter>
             <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{$any(theme?.intermediateStyle)==='side-rail' ? 'left' : (theme?.intermediateStyle==='columns' ? 'center' : (theme?.intermediate?.align||'center'))}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-valign-{{theme?.intermediate?.valign||'middle'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}} int-brm-{{theme?.intermediate?.brandRailMessagePos||'right'}} int-brmv-{{theme?.intermediate?.brandRailMessageAlign||'center'}}"
-                 [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && interScrollMode==='vertical' && (theme?.intermediate?.columns || 3)===1" [class.int-strip-few]="theme?.intermediateStyle==='card-strip' && interStripRenderedCount<=2" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [style.--int-cols]="interVisibleColumns" [style.--int-strip-card-width]="interStripCardWidth" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1" [style.--int-brm-bg]="theme?.intermediate?.brandRailMessageBgColor || null" [style.--int-brm-text]="theme?.intermediate?.brandRailMessageTextColor || null">
+                 [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && (theme?.intermediate?.columns || 3)===1" [class.int-scroll-peek]="interColumnsScrollPeek" [class.int-strip-few]="theme?.intermediateStyle==='card-strip' && interStripRenderedCount<=2" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [style.--int-cols]="interVisibleColumns" [style.--int-strip-card-width]="interStripCardWidth" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1" [style.--int-brm-bg]="theme?.intermediate?.brandRailMessageBgColor || null" [style.--int-brm-text]="theme?.intermediate?.brandRailMessageTextColor || null">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0" [class.has-img]="!!it.image || interUsePh">
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                 <span class="name">{{ it.name }}</span>
@@ -695,8 +695,13 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal';
   }
   get interVisibleColumns(): number {
-    return this.theme?.intermediateStyle === 'columns' && this.interScrollMode === 'horizontal'
-      ? 4 : (this.theme?.intermediate?.columns || 3);
+    return this.theme?.intermediate?.columns || 3;
+  }
+  get interColumnsScrollPeek(): boolean {
+    if (this.theme?.intermediateStyle !== 'columns' || this.interScrollMode !== 'horizontal') return false;
+    const cols = this.interVisibleColumns;
+    const shape = this.theme?.intermediate?.cardShape || 'rect';
+    return (shape === 'circle' || shape === 'hexagon') ? cols >= 6 : cols >= 3;
   }
   get interStripRenderedCount(): number {
     return Math.max(1, this.theme?.intermediate?.columns || 3);
@@ -857,7 +862,8 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       return [...real, ...dummy];
     }
     if (this.theme?.intermediateStyle === 'columns') {
-      const cardCount = cols || 3;
+      const baseCount = cols || 3;
+      const cardCount = this.interColumnsScrollPeek ? baseCount + 3 : baseCount;
       const real = source.slice(0, cardCount).map(c => ({ ...c, name: c.name || 'Item' }));
       const dummy = Array.from({ length: cardCount - real.length }, (_, i) => ({
         id: 'inter-scroll-ph' + i,
