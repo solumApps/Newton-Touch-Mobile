@@ -689,18 +689,20 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get cardSizeScaleNum(): number { const n = this.theme?.cardSizeScale; return typeof n === 'number' && n > 0 ? n : 1; }
   get cardAlignCss(): string { return this.theme?.cardTextAlign === 'left' ? 'left' : this.theme?.cardTextAlign === 'right' ? 'right' : 'center'; }
   get interCardAlignCss(): string { return this.theme?.intermediate?.textAlign === 'left' ? 'left' : this.theme?.intermediate?.textAlign === 'right' ? 'right' : 'center'; }
-  get interScrollMode(): 'vertical' | 'horizontal' { return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal'; }
+  get interScrollMode(): 'vertical' | 'horizontal' {
+    const style = this.theme?.intermediateStyle;
+    if (style === 'card-strip' || style === 'brand-rail') return 'horizontal';
+    return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal';
+  }
   get interVisibleColumns(): number {
     return this.theme?.intermediateStyle === 'columns' && this.interScrollMode === 'horizontal'
       ? 4 : (this.theme?.intermediate?.columns || 3);
   }
   get interStripRenderedCount(): number {
-    const configured = this.theme?.intermediate?.columns || 3;
-    const sourceCount = this.intermediateSource.length;
-    return Math.max(1, sourceCount ? Math.min(sourceCount, configured) : configured);
+    return Math.max(1, this.theme?.intermediate?.columns || 3);
   }
   get interStripCardWidth(): string {
-    return this.interStripRenderedCount <= 2 ? '33.333%' : `${100 / this.interStripRenderedCount}%`;
+    return `${100 / this.interStripRenderedCount}%`;
   }
   get cardGapPx(): string | null {
     const n = this.theme?.cardGapNum;
@@ -863,8 +865,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       } as CardItem));
       return [...real, ...dummy];
     }
-    const n = this.theme?.intermediateStyle === 'card-strip' && cols
-      ? cols : 6;
+    const n = this.theme?.intermediateStyle === 'card-strip'
+      ? Math.max((cols || 3) + 3, 6)
+      : 6;
     const real = source.slice(0, n);
     if (real.length) return real.map(c => ({ ...c, name: c.name || 'Item' }));
     return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: this.placeholderLabels[i % this.placeholderLabels.length] } as CardItem));

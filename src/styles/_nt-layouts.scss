@@ -10603,8 +10603,11 @@
   flex-wrap: nowrap;
   padding: 0 !important;
   gap: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
 }
 
 .nt-inter .body.int-card-strip .item {
@@ -10619,6 +10622,7 @@
   clip-path: none !important;
   border: 0;
   border-right: calc(var(--nt-vw)*0.08) solid rgba(255, 255, 255, .15) !important;
+  scroll-snap-align: start;
 }
 
 .nt-inter .body.int-card-strip .item .img {
@@ -10823,9 +10827,11 @@
   height: calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
 }
 
-/* card-strip: dynamic per-card width (team) + flex-grow so cards fill leftover (#1) */
+/* card-strip: dynamic visible-card width; no grow, so extra preview cards overflow horizontally. */
 .nt-inter .body.int-card-strip .item {
-  flex: 1 0 var(--int-strip-card-width, 33.333%) !important;
+  flex: 0 0 var(--int-strip-card-width, 33.333%) !important;
+  width: var(--int-strip-card-width, 33.333%) !important;
+  min-width: var(--int-strip-card-width, 33.333%) !important;
 }
 
 .nt-inter .body.int-columns.scroll-horizontal,

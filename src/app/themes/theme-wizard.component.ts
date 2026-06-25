@@ -221,7 +221,7 @@ export class ThemeWizardComponent implements OnInit {
     // (the renderers prefer it over the global one).
     if (s === 'fullscreen') this.setInterScroll('horizontal');
     // brand-rail is a horizontal single-row rail.
-    if (s === 'brand-rail') this.setInterScroll('horizontal');
+    if (s === 'brand-rail' || s === 'card-strip') this.setInterScroll('horizontal');
     // finder-select replaces the global header/nav with its own fs-top + fs-hero
     // bars, so the standard intermediate header is force-hidden (#5a).
     if (s === 'finder-select') this.t.intermediate.showHeader = false;
@@ -575,7 +575,7 @@ export class ThemeWizardComponent implements OnInit {
     if (!this.interTextAlignMatters) this.t.intermediate.textAlign = 'center'; // #7 pill forces center
   }
   /** Overflow scrolling matters for the columns grid + brand grid/rail. */
-  get intScrollMatters(): boolean { return ['columns', 'brand-rail'].includes(this.t.intermediateStyle); }
+  get intScrollMatters(): boolean { return ['columns', 'brand-rail', 'card-strip'].includes(this.t.intermediateStyle); }
   /** #7 Text horizontal alignment is hidden for brand-rail pill (image/icon text)
    *  because left/right text distorts the pill — value forced to center. */
   get interTextAlignMatters(): boolean {
@@ -588,7 +588,7 @@ export class ThemeWizardComponent implements OnInit {
     return c !== 'image-only';
   }
   /** brand-rail is a single horizontal row — only horizontal scroll allowed. */
-  get intScrollHorizontalOnly(): boolean { return this.t.intermediateStyle === 'brand-rail'; }
+  get intScrollHorizontalOnly(): boolean { return this.t.intermediateStyle === 'brand-rail' || this.t.intermediateStyle === 'card-strip'; }
   /** #4 Card content applies to image-showing styles incl. card-strip + fullscreen. */
   get intContentMatters(): boolean { return this.intShapeMatters || this.t.intermediateStyle === 'card-strip' || this.t.intermediateStyle === 'fullscreen'; }
 
