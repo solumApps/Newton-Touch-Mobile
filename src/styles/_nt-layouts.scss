@@ -2782,7 +2782,7 @@
   align-content: center !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal .card {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols) .card {
   flex: 0 0 calc(var(--nt-vh)*63) !important;
   width: calc(var(--nt-vh)*63) !important;
   height: calc(var(--nt-vh)*63) !important;
@@ -2811,43 +2811,43 @@
   margin-left: auto !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal .card.shape-hexagon {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols) .card.shape-hexagon {
   flex: 0 0 calc(var(--nt-vh)*55) !important;
   width: calc(var(--nt-vh)*55) !important;
   height: calc(var(--nt-vh)*63) !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal.card-size-xs .card {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols).card-size-xs .card {
   flex-basis: calc(var(--nt-vh)*48) !important;
   width: calc(var(--nt-vh)*48) !important;
   height: calc(var(--nt-vh)*48) !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal.card-size-xs .card.shape-hexagon {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols).card-size-xs .card.shape-hexagon {
   flex-basis: calc(var(--nt-vh)*42) !important;
   width: calc(var(--nt-vh)*42) !important;
   height: calc(var(--nt-vh)*48) !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal.card-size-small .card {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols).card-size-small .card {
   flex-basis: calc(var(--nt-vh)*55) !important;
   width: calc(var(--nt-vh)*55) !important;
   height: calc(var(--nt-vh)*55) !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal.card-size-small .card.shape-hexagon {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols).card-size-small .card.shape-hexagon {
   flex-basis: calc(var(--nt-vh)*48) !important;
   width: calc(var(--nt-vh)*48) !important;
   height: calc(var(--nt-vh)*55) !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal.card-size-large .card {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols).card-size-large .card {
   flex-basis: calc(var(--nt-vh)*70) !important;
   width: calc(var(--nt-vh)*70) !important;
   height: calc(var(--nt-vh)*70) !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal.card-size-large .card.shape-hexagon {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols).card-size-large .card.shape-hexagon {
   flex-basis: calc(var(--nt-vh)*62) !important;
   width: calc(var(--nt-vh)*62) !important;
   height: calc(var(--nt-vh)*70) !important;
@@ -2984,30 +2984,43 @@
   justify-content: flex-start;
 }
 
-.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"] .card,
-.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"] .card {
+/* B2a: shape + horizontal scroll + has-cols — card size is the SMALLER of
+   (screen-width / cols) and (available height), ensuring the card stays square
+   via aspect-ratio. Exactly --cols cards fit on screen; extra ones scroll. */
+.nt-home .cards.shape.scroll-horizontal.has-cols[class*="layout-col-"] .card,
+.nt-home .cards.shape.scroll-horizontal.has-cols[class*="layout-grid-"] .card {
+  flex: 0 0 min(calc((100% - var(--cols, 3) * var(--card-gap, calc(var(--nt-vw)*1.5))) / var(--cols, 3)), calc(var(--nt-vh) * 85));
+  width:  min(calc((100% - var(--cols, 3) * var(--card-gap, calc(var(--nt-vw)*1.5))) / var(--cols, 3)), calc(var(--nt-vh) * 85));
+  height: auto;
+  aspect-ratio: 1;
+  margin: 0 calc(var(--card-gap, calc(var(--nt-vw)*1.5)) * 0.5);
+}
+
+/* B2b: fallback fixed sizes when no column count is set */
+.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"]:not(.has-cols) .card,
+.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"]:not(.has-cols) .card {
   flex: 0 0 calc(var(--nt-vh)*56);
   width: calc(var(--nt-vh)*56);
   height: calc(var(--nt-vh)*56);
   margin: 0 calc(var(--card-gap, calc(var(--nt-vw)*1.5)) * 0.5);
 }
 
-.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"].card-size-xs .card,
-.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"].card-size-xs .card {
+.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"]:not(.has-cols).card-size-xs .card,
+.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"]:not(.has-cols).card-size-xs .card {
   flex-basis: calc(var(--nt-vh)*36);
   width: calc(var(--nt-vh)*36);
   height: calc(var(--nt-vh)*36);
 }
 
-.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"].card-size-small .card,
-.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"].card-size-small .card {
+.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"]:not(.has-cols).card-size-small .card,
+.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"]:not(.has-cols).card-size-small .card {
   flex-basis: calc(var(--nt-vh)*46);
   width: calc(var(--nt-vh)*46);
   height: calc(var(--nt-vh)*46);
 }
 
-.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"].card-size-large .card,
-.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"].card-size-large .card {
+.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"]:not(.has-cols).card-size-large .card,
+.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"]:not(.has-cols).card-size-large .card {
   flex-basis: calc(var(--nt-vh)*66);
   width: calc(var(--nt-vh)*66);
   height: calc(var(--nt-vh)*66);
