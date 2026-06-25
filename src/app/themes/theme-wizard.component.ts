@@ -315,10 +315,11 @@ export class ThemeWizardComponent implements OnInit {
   get interShapesFor(): { id: CardShape; label: string }[] {
     return (this.t.intermediate.content === 'image-only') ? [{ id: 'none', label: 'None' }, ...this.cardShapes] : this.cardShapes;
   }
-  /** Card / text alignment — columns keep their default centered card group.
-   *  Fullscreen fills the whole screen, so alignment is meaningless and hidden (#3). */
+  /** Card / text alignment. Columns expose card alignment when vertical because
+   *  the grid has usable free space; horizontal scroll keeps its safe start flow. */
   get intAlignMatters(): boolean {
-    return ['brand-grid'].includes(this.t.intermediateStyle);
+    return (['brand-grid'] as string[]).includes(this.t.intermediateStyle)
+      || (this.t.intermediateStyle === 'columns' && this.isInterVerticalScroll);
   }
   /** Text vertical position applies to image card styles. For brand-rail it's
    *  shown ONLY for text-only content (image/icon cards hide it — #2). */
