@@ -168,6 +168,8 @@ export class ThemeWizardComponent implements OnInit {
       this.setCardSize(this.cardSizeMax);
     }
     this.coerceTextPos();
+    this.checkDefaultCardGap();
+    this.clampCardGap();
   }
   pickContent(c: CardContent): void {
     this.t.cardContent = c;
@@ -260,6 +262,8 @@ export class ThemeWizardComponent implements OnInit {
       this.t.scrollMode = 'vertical';
     }
     this.coerceTextPos();
+    this.checkDefaultCardGap();
+    this.clampCardGap();
   }
 
   /** Only show circle/hexagon shapes for layouts where they make visual sense. */
@@ -315,10 +319,11 @@ export class ThemeWizardComponent implements OnInit {
   get interShapesFor(): { id: CardShape; label: string }[] {
     return (this.t.intermediate.content === 'image-only') ? [{ id: 'none', label: 'None' }, ...this.cardShapes] : this.cardShapes;
   }
-  /** Card / text alignment — columns keep their default centered card group.
-   *  Fullscreen fills the whole screen, so alignment is meaningless and hidden (#3). */
+  /** Card / text alignment. Columns expose card alignment when vertical because
+   *  the grid has usable free space; horizontal scroll keeps its safe start flow. */
   get intAlignMatters(): boolean {
-    return ['brand-grid'].includes(this.t.intermediateStyle);
+    return (['brand-grid'] as string[]).includes(this.t.intermediateStyle)
+      || (this.t.intermediateStyle === 'columns' && this.isInterVerticalScroll);
   }
   /** Text vertical position applies to image card styles. For brand-rail it's
    *  shown ONLY for text-only content (image/icon cards hide it — #2). */
@@ -380,8 +385,14 @@ export class ThemeWizardComponent implements OnInit {
     if (typeof this.t.cardSizeScale === 'number' && this.t.cardSizeScale > this.cardSizeMax) {
       this.setCardSize(this.cardSizeMax);
     }
+    this.checkDefaultCardGap();
+    this.clampCardGap();
   }
-  setColumns(v: string): void { this.t.columns = coerceColumns(v); }
+  setColumns(v: string): void {
+    this.t.columns = coerceColumns(v);
+    this.checkDefaultCardGap();
+    this.clampCardGap();
+  }
 
   /** Fine-grained global text size (slider). Seeds from the legacy bucket when the
    *  numeric override isn't set yet; keeps the bucket loosely in sync for any
@@ -419,15 +430,52 @@ export class ThemeWizardComponent implements OnInit {
     this.t.cardSize = n <= 0.85 ? 'xs' : n < 0.97 ? 'small' : n > 1.1 ? 'large' : 'normal';
   }
 
+  get cardGapMax(): number {
+    const isColumns = this.columnLayouts.includes(this.t.homeLayout);
+    const isHorizontal = this.effectiveScrollMode === 'horizontal';
+    const isShape = this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon';
+    const isRectOrPill = this.t.cardShape === 'rect' || this.t.cardShape === 'pill';
+    const isColsLess4 = this.effectiveColumns < 4;
+    const isColsOne = this.effectiveColumns === 1;
+
+    if (isColumns && isHorizontal) {
+      if (isShape && isColsLess4) {
+        return 165;
+      }
+      if (isRectOrPill && isColsOne) {
+        return 150;
+      }
+    }
+    return 20;
+  }
+
+  checkDefaultCardGap(): void {
+    const isColumns = this.columnLayouts.includes(this.t.homeLayout);
+    const isHorizontal = this.effectiveScrollMode === 'horizontal';
+    const isRectOrPill = this.t.cardShape === 'rect' || this.t.cardShape === 'pill';
+    const isColsOne = this.effectiveColumns === 1;
+
+    if (isColumns && isHorizontal && isRectOrPill && isColsOne) {
+      this.setCardGap(100);
+    }
+  }
+
+  clampCardGap(): void {
+    const maxGap = this.cardGapMax;
+    if (typeof this.t.cardGapNum === 'number' && this.t.cardGapNum > maxGap) {
+      this.setCardGap(maxGap);
+    }
+  }
+
   /** Fine-grained card gap (slider). Seeds from the legacy bucket. */
   get cardGapValue(): number {
     const n = this.t.cardGapNum;
-    if (typeof n === 'number') return n;
+    if (typeof n === 'number') return Math.min(this.cardGapMax, n);
     const g = this.t.cardGap || 'normal';
     return g === 'tight' ? 2 : g === 'loose' ? 10 : 5;
   }
   setCardGap(v: string | number): void {
-    const n = Math.min(20, Math.max(0, Number(v)));
+    const n = Math.min(this.cardGapMax, Math.max(0, Number(v)));
     this.t.cardGapNum = n;
     this.t.cardGap = n <= 3 ? 'tight' : n >= 8 ? 'loose' : 'normal';
   }
@@ -593,6 +641,8 @@ export class ThemeWizardComponent implements OnInit {
     this.t.scrollMode = m;
     if (m === 'vertical') { this.t.cardVAlign = 'top'; this.t.cardAlign = 'left'; }
     else if (m === 'horizontal') { this.t.cardAlign = 'left'; this.t.cardVAlign = 'middle'; }
+    this.checkDefaultCardGap();
+    this.clampCardGap();
   }
   /** Set Intermediate scroll + coerce alignment to a safe, non-clipping default. */
   setInterScroll(m: ScrollMode): void {
@@ -642,6 +692,7 @@ export class ThemeWizardComponent implements OnInit {
       background: '#1a0036',
       cardBackground: 'RGBA(255,255,255,0.15)',
       accent: '#ffcd00',
+      popularText: '#ffffff',
       pathColor: '#ffcd00',
       cardText: '#ffffff',
     });
@@ -736,7 +787,12 @@ export class ThemeWizardComponent implements OnInit {
   ];
   /** Alignment only changes layouts that don't already fill the row. */
   get alignMatters(): boolean {
-    return ['h-scroll', 'promo-categories', 'col-2', 'col-3', 'col-4', 'hero-list'].includes(this.t.homeLayout) || this.shapeCard || (this.columnLayouts.includes(this.t.homeLayout) && this.effectiveColumns === 1);
+    const isColumns = this.columnLayouts.includes(this.t.homeLayout);
+    const isHorizontal = this.effectiveScrollMode === 'horizontal';
+    if (isColumns && isHorizontal) {
+      return false;
+    }
+    return ['h-scroll', 'promo-categories', 'col-2', 'col-3', 'col-4', 'hero-list'].includes(this.t.homeLayout) || this.shapeCard || (isColumns && this.effectiveColumns === 1);
   }
   navButtonPositions: { id: NavButtonPosition; label: string }[] = [
     { id: 'bottom-left',   label: 'Bottom left' },

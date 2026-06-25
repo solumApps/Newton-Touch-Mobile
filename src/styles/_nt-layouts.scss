@@ -2686,8 +2686,8 @@
 }
 
 .nt-home .cards.has-cols.cols-1.scroll-horizontal:not(.shape) .card {
-  flex: 0 0 calc(var(--nt-vw)*45) !important;
-  width: calc(var(--nt-vw)*45) !important;
+  flex: 0 0 calc(var(--nt-vw)*85) !important;
+  width: calc(var(--nt-vw)*85) !important;
 }
 
 .nt-home .cards.has-cols.shape .card {
@@ -2782,7 +2782,7 @@
   align-content: center !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal .card {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols) .card {
   flex: 0 0 calc(var(--nt-vh)*63) !important;
   width: calc(var(--nt-vh)*63) !important;
   height: calc(var(--nt-vh)*63) !important;
@@ -2811,43 +2811,43 @@
   margin-left: auto !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal .card.shape-hexagon {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols) .card.shape-hexagon {
   flex: 0 0 calc(var(--nt-vh)*55) !important;
   width: calc(var(--nt-vh)*55) !important;
   height: calc(var(--nt-vh)*63) !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal.card-size-xs .card {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols).card-size-xs .card {
   flex-basis: calc(var(--nt-vh)*48) !important;
   width: calc(var(--nt-vh)*48) !important;
   height: calc(var(--nt-vh)*48) !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal.card-size-xs .card.shape-hexagon {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols).card-size-xs .card.shape-hexagon {
   flex-basis: calc(var(--nt-vh)*42) !important;
   width: calc(var(--nt-vh)*42) !important;
   height: calc(var(--nt-vh)*48) !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal.card-size-small .card {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols).card-size-small .card {
   flex-basis: calc(var(--nt-vh)*55) !important;
   width: calc(var(--nt-vh)*55) !important;
   height: calc(var(--nt-vh)*55) !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal.card-size-small .card.shape-hexagon {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols).card-size-small .card.shape-hexagon {
   flex-basis: calc(var(--nt-vh)*48) !important;
   width: calc(var(--nt-vh)*48) !important;
   height: calc(var(--nt-vh)*55) !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal.card-size-large .card {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols).card-size-large .card {
   flex-basis: calc(var(--nt-vh)*70) !important;
   width: calc(var(--nt-vh)*70) !important;
   height: calc(var(--nt-vh)*70) !important;
 }
 
-.nt-home .cards.shape.scroll-horizontal.card-size-large .card.shape-hexagon {
+.nt-home .cards.shape.scroll-horizontal:not(.has-cols).card-size-large .card.shape-hexagon {
   flex-basis: calc(var(--nt-vh)*62) !important;
   width: calc(var(--nt-vh)*62) !important;
   height: calc(var(--nt-vh)*70) !important;
@@ -2984,30 +2984,43 @@
   justify-content: flex-start;
 }
 
-.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"] .card,
-.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"] .card {
+/* B2a: shape + horizontal scroll + has-cols — card size is the SMALLER of
+   (screen-width / cols) and (available height), ensuring the card stays square
+   via aspect-ratio. Exactly --cols cards fit on screen; extra ones scroll. */
+.nt-home .cards.shape.scroll-horizontal.has-cols[class*="layout-col-"] .card,
+.nt-home .cards.shape.scroll-horizontal.has-cols[class*="layout-grid-"] .card {
+  flex: 0 0 min(calc((100% - var(--cols, 3) * var(--card-gap, calc(var(--nt-vw)*1.5))) / var(--cols, 3)), calc(var(--nt-vh) * 85));
+  width:  min(calc((100% - var(--cols, 3) * var(--card-gap, calc(var(--nt-vw)*1.5))) / var(--cols, 3)), calc(var(--nt-vh) * 85));
+  height: auto;
+  aspect-ratio: 1;
+  margin: 0 calc(var(--card-gap, calc(var(--nt-vw)*1.5)) * 0.5);
+}
+
+/* B2b: fallback fixed sizes when no column count is set */
+.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"]:not(.has-cols) .card,
+.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"]:not(.has-cols) .card {
   flex: 0 0 calc(var(--nt-vh)*56);
   width: calc(var(--nt-vh)*56);
   height: calc(var(--nt-vh)*56);
   margin: 0 calc(var(--card-gap, calc(var(--nt-vw)*1.5)) * 0.5);
 }
 
-.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"].card-size-xs .card,
-.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"].card-size-xs .card {
+.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"]:not(.has-cols).card-size-xs .card,
+.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"]:not(.has-cols).card-size-xs .card {
   flex-basis: calc(var(--nt-vh)*36);
   width: calc(var(--nt-vh)*36);
   height: calc(var(--nt-vh)*36);
 }
 
-.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"].card-size-small .card,
-.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"].card-size-small .card {
+.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"]:not(.has-cols).card-size-small .card,
+.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"]:not(.has-cols).card-size-small .card {
   flex-basis: calc(var(--nt-vh)*46);
   width: calc(var(--nt-vh)*46);
   height: calc(var(--nt-vh)*46);
 }
 
-.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"].card-size-large .card,
-.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"].card-size-large .card {
+.nt-home .cards.shape.scroll-horizontal[class*="layout-col-"]:not(.has-cols).card-size-large .card,
+.nt-home .cards.shape.scroll-horizontal[class*="layout-grid-"]:not(.has-cols).card-size-large .card {
   flex-basis: calc(var(--nt-vh)*66);
   width: calc(var(--nt-vh)*66);
   height: calc(var(--nt-vh)*66);
@@ -4515,48 +4528,80 @@
 }
 
 /* G-3: Map-List search + sort bar */
+.nt-result.res-map-list .body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: calc(var(--nt-vh)*1.2) calc(var(--nt-vw)*1);
+}
+
+.nt-result.res-map-list .body > .map {
+  grid-column: 1;
+  grid-row: 2;
+  margin-right: 0;
+}
+
+.nt-result.res-map-list .body > .list {
+  grid-column: 2;
+  grid-row: 2;
+}
+
 .nt-result .result-tools {
+  grid-column: 1 / -1;
+  grid-row: 1;
   display: flex;
   align-items: center;
   gap: calc(var(--nt-vw)*1);
-  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*2);
+  padding: 0;
   flex: 0 0 auto;
+  min-width: 0;
+  margin-bottom: 4px;
 }
 
 .nt-result .result-tools .res-search {
   flex: 1;
   min-width: 0;
-  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1.5);
-  border-radius: calc(var(--nt-vw)*1);
-  border: 1px solid rgba(255, 255, 255, .25);
-  background: var(--nt-res-card, rgba(255, 255, 255, .08));
-  color: var(--nt-res-text, #fff);
-  font-size: calc(var(--nt-vw)*1.1);
+  height: calc(var(--nt-vh)*8.4);
+  padding: 0 calc(var(--nt-vw)*1.6);
+  border-radius: 999px;
+  border: 0;
+  background: var(--nt-res-card, rgba(255,255,255,0.15));
+  color: #ffff;
+  font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw)*1);
   font-family: inherit;
   outline: none;
+  box-sizing: border-box;
+}
+
+.nt-result .result-tools .res-search::placeholder {
+  color: rgba(255, 255, 255, .5);
 }
 
 .nt-result .result-tools .res-sort {
   display: flex;
   gap: calc(var(--nt-vw)*0.5);
+  flex: 0 0 auto;
+  align-items: center;
 }
 
 .nt-result .result-tools .res-sort button {
-  border: 1px solid rgba(255, 255, 255, .25);
+  min-width: calc(var(--nt-vw)*6.5);
+  height: calc(var(--nt-vh)*7.7);
+  border: calc(var(--nt-vw)*0.12) solid var(--nt-res-card, rgba(255,255,255,0.15));
   background: transparent;
-  color: var(--nt-res-text, #fff);
-  border-radius: calc(var(--nt-vw)*0.8);
-  padding: calc(var(--nt-vh)*0.8) calc(var(--nt-vw)*1.4);
+  color: var(--nt-res-popular-text, var(--nt-res-text, #fff));
+  border-radius: 999px;
+  padding: 0 calc(var(--nt-vw)*1.4);
   font-weight: 800;
-  font-size: calc(var(--nt-vw)*1);
+  font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw)*0.95);
   font-family: inherit;
   cursor: pointer;
 }
 
 .nt-result .result-tools .res-sort button.active {
-  background: var(--nt-res-accent, #FFCD00);
-  color: #000;
-  border-color: transparent;
+  background: var(--nt-res-accent, #ffcd00);
+  color: var(--nt-res-popular-text, var(--nt-res-text, #fff));
+  border-color: var(--nt-res-accent, #ffcd00);
 }
 
 .nt-result.res-content-text-only .prod .info {

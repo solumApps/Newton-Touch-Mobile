@@ -251,7 +251,7 @@ export interface ThemeTokens {
     indexMode?: 'alpha' | 'number'; indexNumberMin?: number; indexNumberMax?: number; indexNumberInterval?: number;
     /** finder-select fs-card appearance (independent of the brand-rail/columns card controls). */
     fsCardContent?: CardContent; fsCardShape?: CardShape; fsTextPos?: CardTextPos; fsTextAlign?: 'left' | 'center' | 'right'; };
-  result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; transparentHeader?: boolean; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; cardShape?: CardShape;
+  result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; transparentHeader?: boolean; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; cardShape?: CardShape; popularText?: string;
     /** Position of the filter section in Map-Filter-List (G-2). Default 'top'. */
     filterPos?: 'top' | 'bottom' | 'left' | 'right';
     /** promo-map-rank: header countdown timer (mm:ss start) + alert bell. */

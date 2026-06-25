@@ -31,7 +31,7 @@
       <div class="prev" [ngClass]="['fit-'+t.typography.textFit, 'surface-'+(t.cardSurface || 'flat'), 'nav-'+(t.navStyle || 'floating')]"
            [style.background]="backgroundForPage(page)"
            [style.fontFamily]="t.typography.fontFamily" [style.--prev-scale]="scaleNum"
-           [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [style.--prev-overlay]="t.overlayColor || 'rgba(0,0,0,0.6)'" [ngSwitch]="page">
+           [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [style.--prev-res-card]="t.result.cardBackground" [style.--prev-res-text]="t.result.cardText" [style.--prev-res-popular-text]="t.result.popularText || t.result.cardText" [style.--prev-overlay]="t.overlayColor || 'rgba(0,0,0,0.6)'" [ngSwitch]="page">
         <div class="hdr" *ngIf="headerVisibleFor(page)"
              [ngClass]="isCustomHeader ? 'hdr-custom' : ['logo-'+t.logoPosition, 'hdr-style-'+(t.headerStyle || 'logo-only')]"
              [class.hdr-transparent]="transparentFor(page)"
@@ -97,7 +97,7 @@
         </div>
 
         <!-- INTERMEDIATE -->
-        <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}} int-size-{{t.intermediate.itemSize||'medium'}} int-shape-{{t.intermediate.cardShape||'rect'}} int-align-{{$any(t.intermediateStyle)==='side-rail' ? 'left' : (t.intermediateStyle==='columns' ? 'center' : (t.intermediate.align||'center'))}} int-gap-{{t.intermediate.gap||'normal'}} int-content-{{t.intermediate.content||'image-text'}} int-textpos-{{t.intermediate.textPos||'below'}}"
+        <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}} int-size-{{t.intermediate.itemSize||'medium'}} int-shape-{{t.intermediate.cardShape||'rect'}} int-align-{{$any(t.intermediateStyle)==='side-rail' ? 'left' : (t.intermediateStyle==='columns' && (t.intermediate.scrollMode || t.scrollMode) === 'horizontal' ? 'center' : (t.intermediate.align||'center'))}} int-gap-{{t.intermediate.gap||'normal'}} int-content-{{t.intermediate.content||'image-text'}} int-textpos-{{t.intermediate.textPos||'below'}}"
              [class.scroll-vertical]="t.scrollMode==='vertical'" [class.scroll-horizontal]="t.scrollMode==='horizontal'"
              [style.--int-card]="t.intermediate.cardBackground" [style.--int-accent]="t.intermediate.accent" [style.--int-text]="t.intermediate.cardText">
           <div class="rail" *ngIf="$any(t.intermediateStyle)==='side-rail'">
@@ -112,6 +112,10 @@
         <!-- RESULT -->
         <div *ngSwitchCase="'result'" class="stage result res-{{t.resultTemplate}}"
              [class.scroll-vertical]="resOverflowMatters && t.scrollMode==='vertical'" [class.scroll-horizontal]="resOverflowMatters && t.scrollMode==='horizontal'">
+          <div class="result-tools" *ngIf="t.resultTemplate==='map-list'">
+            <span class="res-search">Search products...</span>
+            <span class="res-sort"><span class="active">Popular</span><span>A-Z</span><span>Z-A</span></span>
+          </div>
           <div class="map"></div>
           <div class="filters" *ngIf="t.resultTemplate==='filter-list'">
             <span class="filter on" [style.background]="t.result.accent">Popular</span>
@@ -301,7 +305,7 @@
           <div class="step-title sm">Card gap</div>
           <p class="hint">Spacing between cards. Drag to fine-tune.</p>
           <div class="slider-row">
-            <input type="range" class="nt-slider" min="0" max="20" step="1" [value]="cardGapValue"
+            <input type="range" class="nt-slider" min="0" [max]="cardGapMax" step="1" [value]="cardGapValue"
                    (input)="setCardGap($any($event.target).value)" aria-label="Card gap" />
             <span class="slider-val">{{ cardGapValue }}px</span>
           </div>
@@ -597,7 +601,7 @@
 
         <ng-container *ngIf="intAlignMatters">
           <div class="step-title sm">Card alignment</div>
-          <p class="hint">Horizontal and vertical alignment of cards in the available space.</p>
+          <p class="hint">{{ t.intermediateStyle === 'columns' ? 'Horizontal alignment of cards in the available space.' : 'Horizontal and vertical alignment of cards in the available space.' }}</p>
           <div class="align-grid">
             <button class="align-btn" [class.sel]="(t.intermediate.align||'center')==='left'" (click)="t.intermediate.align='left'" title="Left">
               <svg viewBox="0 0 20 20" width="20" height="20"><rect x="2" y="4" width="5" height="12" rx="1" fill="currentColor"/><rect x="9" y="4" width="5" height="12" rx="1" fill="currentColor" opacity=".35"/></svg>
@@ -608,13 +612,13 @@
             <button class="align-btn" [class.sel]="(t.intermediate.align||'center')==='right'" (click)="t.intermediate.align='right'" title="Right">
               <svg viewBox="0 0 20 20" width="20" height="20"><rect x="6" y="4" width="5" height="12" rx="1" fill="currentColor" opacity=".35"/><rect x="13" y="4" width="5" height="12" rx="1" fill="currentColor"/></svg>
             </button>
-            <button class="align-btn" [class.sel]="(t.intermediate.valign||'middle')==='top'" (click)="t.intermediate.valign='top'" title="Top">
+            <button *ngIf="t.intermediateStyle !== 'columns'" class="align-btn" [class.sel]="(t.intermediate.valign||'middle')==='top'" (click)="t.intermediate.valign='top'" title="Top">
               <svg viewBox="0 0 20 20" width="20" height="20"><rect x="4" y="2" width="12" height="5" rx="1" fill="currentColor"/><rect x="4" y="9" width="12" height="5" rx="1" fill="currentColor" opacity=".35"/></svg>
             </button>
-            <button class="align-btn" [class.sel]="(t.intermediate.valign||'middle')==='middle'" [disabled]="isInterVerticalScroll" (click)="t.intermediate.valign='middle'" title="Middle">
+            <button *ngIf="t.intermediateStyle !== 'columns'" class="align-btn" [class.sel]="(t.intermediate.valign||'middle')==='middle'" [disabled]="isInterVerticalScroll" (click)="t.intermediate.valign='middle'" title="Middle">
               <svg viewBox="0 0 20 20" width="20" height="20"><rect x="4" y="3" width="12" height="5" rx="1" fill="currentColor" opacity=".35"/><rect x="4" y="12" width="12" height="5" rx="1" fill="currentColor" opacity=".35"/><line x1="2" y1="10" x2="18" y2="10" stroke="currentColor" stroke-width="1" stroke-dasharray="2"/></svg>
             </button>
-            <button class="align-btn" [class.sel]="(t.intermediate.valign||'middle')==='bottom'" (click)="t.intermediate.valign='bottom'" title="Bottom">
+            <button *ngIf="t.intermediateStyle !== 'columns'" class="align-btn" [class.sel]="(t.intermediate.valign||'middle')==='bottom'" (click)="t.intermediate.valign='bottom'" title="Bottom">
               <svg viewBox="0 0 20 20" width="20" height="20"><rect x="4" y="6" width="12" height="5" rx="1" fill="currentColor" opacity=".35"/><rect x="4" y="13" width="12" height="5" rx="1" fill="currentColor"/></svg>
             </button>
           </div>
@@ -863,6 +867,7 @@
         <p class="hint" *ngIf="t.result.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
         <app-color-picker *ngIf="t.resultTemplate!=='finder-detail' && t.resultTemplate!=='hero-product'" label="Product card background" [value]="t.result.cardBackground" (valueChange)="t.result.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker *ngIf="t.resultTemplate!=='hero-product' && t.resultTemplate!=='finder-detail'" label="Card text" [value]="t.result.cardText" (valueChange)="t.result.cardText=$event" [presets]="textPresets"></app-color-picker>
+        <app-color-picker *ngIf="t.resultTemplate==='map-list'" label="Popular button text" [value]="t.result.popularText || t.result.cardText" (valueChange)="t.result.popularText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='hero-product'" label="Accent / highlight" [value]="t.result.accent" (valueChange)="t.result.accent=$event"></app-color-picker>
         <ng-container *ngIf="t.resultTemplate==='finder-detail'">
           <app-color-picker label="Find button" [value]="t.result.findColor || '#2f006d'" (valueChange)="t.result.findColor=$event"></app-color-picker>

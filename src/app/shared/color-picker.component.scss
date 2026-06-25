@@ -12,7 +12,13 @@
 }
 .sw:hover { transform: scale(1.06); }
 .sw.sel { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
-.sw .tick { color: #fff; font-size: 15px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,.55); }
+.sw .tick {
+  position: absolute;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 900;
+  text-shadow: 0 1px 2px rgba(0,0,0,.55);
+}
 
 /* Custom = rainbow tile with a +/× toggle */
 .custom { background: conic-gradient(from 90deg, #ef4444, #f59e0b, #fde047, #22c55e, #06b6d4, #3b82f6, #a855f7, #ef4444); }
@@ -78,7 +84,7 @@
 
 /* checkerboard for transparent (swatch + chip) */
 .checker {
-  display: block; width: 100%; height: 100%; border-radius: inherit;
+  display: block; width: 100%; height: 100%; border-radius: inherit; position: relative;
   background-image:
     linear-gradient(45deg, #ccc 25%, transparent 25%),
     linear-gradient(-45deg, #ccc 25%, transparent 25%),
