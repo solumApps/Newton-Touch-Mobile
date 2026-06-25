@@ -899,6 +899,21 @@
   text-shadow: 0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.6) rgba(0, 0, 0, .7);
 }
 
+/* image-strip horizontal scrolling — cards become fixed-width strips */
+.nt-home .layout-image-strip.scroll-horizontal {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  flex-wrap: nowrap !important;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nt-home .layout-image-strip.scroll-horizontal .card {
+  flex: 0 0 calc(var(--nt-vw) * 25);
+  width: calc(var(--nt-vw) * 25);
+  scroll-snap-align: start;
+}
+
 .nt-home .layout-hero-start {
   display: block;
   padding: 0;

@@ -271,12 +271,15 @@ export class ThemeWizardComponent implements OnInit {
         (this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon')) {
       this.t.cardShape = 'rect';
     }
+    if (l === 'image-strip') {
+      this.t.scrollMode = 'horizontal';
+    }
     // Auto-reset overflow scrolling if the new layout doesn't offer the current
     // mode (e.g. Column+Horizontal → Hero+List, which has no Horizontal option):
     // leaving a stale 'horizontal' applied the scroll-horizontal class to a
     // layout that can't lay out as a row and broke the preview/render.
     if (!this.scrollModesFor.some((m) => m.id === this.t.scrollMode)) {
-      this.t.scrollMode = 'vertical';
+      this.t.scrollMode = this.scrollModesFor[0]?.id || 'vertical';
     }
     this.coerceTextPos();
     this.checkDefaultCardGap();
@@ -311,11 +314,17 @@ export class ThemeWizardComponent implements OnInit {
   /** Layouts with a free ITEM count (same stepper, different meaning). */
   get itemCountMatters(): boolean { return ['image-strip', 'bento', 'hero-list'].includes(this.t.homeLayout); }
   /** Overflow-scrolling control: hidden where it breaks the layout or is moot. */
-  get scrollMatters(): boolean { return !['image-strip', 'hero-start', 'bento', 'fullscreen', 'promo-categories'].includes(this.t.homeLayout); }
+  get scrollMatters(): boolean { return !['hero-start', 'bento', 'fullscreen', 'promo-categories'].includes(this.t.homeLayout); }
   /** Card gap: hidden where cards always fill the screen. */
   get gapMatters(): boolean { return !['image-strip', 'fullscreen'].includes(this.t.homeLayout); }
   get scrollModesFor(): { id: ScrollMode; label: string }[] {
-    return this.t.homeLayout === 'hero-list' ? this.scrollModes.filter(m => m.id !== 'horizontal') : this.scrollModes;
+    if (this.t.homeLayout === 'hero-list') {
+      return this.scrollModes.filter(m => m.id !== 'horizontal');
+    }
+    if (this.t.homeLayout === 'image-strip') {
+      return this.scrollModes.filter(m => m.id !== 'vertical');
+    }
+    return this.scrollModes;
   }
   /** Intermediate content options (image layouts only). */
   interContents: { id: CardContent; label: string }[] = [
