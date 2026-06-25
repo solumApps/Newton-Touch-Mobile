@@ -8747,14 +8747,14 @@
 
 /* ---- intermediate 'columns' grid (column count from --int-cols, like Home) ---- */
 .nt-inter .body.int-columns {
-  --int-col-gap-x: calc(var(--nt-vw)*1);
-  --int-col-gap-y: calc(var(--nt-vh)*1);
+  --int-col-gap-x: var(--card-gap, calc(var(--nt-vw)*1));
+  --int-col-gap-y: var(--card-gap, calc(var(--nt-vh)*1));
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   align-content: flex-start;
   justify-content: center;
-  gap: var(--int-col-gap-y) var(--int-col-gap-x);
+  gap: 0;
   padding: calc(var(--nt-vh)*2) calc(var(--nt-vw)*2);
   overflow-y: auto;
   overflow-x: hidden;
@@ -8762,18 +8762,18 @@
 }
 
 .nt-inter .body.int-columns.int-gap-tight {
-  --int-col-gap-x: calc(var(--nt-vw)*0.6);
-  --int-col-gap-y: calc(var(--nt-vh)*0.6);
+  --int-col-gap-x: var(--card-gap, calc(var(--nt-vw)*0.6));
+  --int-col-gap-y: var(--card-gap, calc(var(--nt-vh)*0.6));
 }
 
 .nt-inter .body.int-columns.int-gap-normal {
-  --int-col-gap-x: calc(var(--nt-vw)*1);
-  --int-col-gap-y: calc(var(--nt-vh)*1);
+  --int-col-gap-x: var(--card-gap, calc(var(--nt-vw)*1));
+  --int-col-gap-y: var(--card-gap, calc(var(--nt-vh)*1));
 }
 
 .nt-inter .body.int-columns.int-gap-loose {
-  --int-col-gap-x: calc(var(--nt-vw)*2);
-  --int-col-gap-y: calc(var(--nt-vh)*2);
+  --int-col-gap-x: var(--card-gap, calc(var(--nt-vw)*2));
+  --int-col-gap-y: var(--card-gap, calc(var(--nt-vh)*2));
 }
 
 .nt-inter .body.int-columns.scroll-horizontal {
@@ -8785,7 +8785,8 @@
 
 .nt-inter .body.int-columns.scroll-vertical {
   display: grid;
-  gap: var(--int-col-gap-y) var(--int-col-gap-x);
+  row-gap: 0;
+  column-gap: var(--int-col-gap-x);
   /* compute column width from the same math used by the flex layout, then apply the int scale so size changes affect both axes */
   grid-template-columns: repeat(var(--int-cols, 3), minmax(0, calc(((100% - (var(--int-cols, 3) - 1) * var(--int-col-gap-x)) / var(--int-cols, 3)) * var(--nt-int-scale, 1))));
   grid-auto-rows: calc(var(--nt-vh)*60 * var(--nt-int-scale, 1));
@@ -8793,9 +8794,10 @@
 }
 
 .nt-inter .body.int-columns.scroll-vertical .item {
-  width: 100%;
-  max-width: 100%;
+  width: auto;
+  max-width: none;
   justify-self: stretch;
+  margin: calc(var(--int-col-gap-y, calc(var(--nt-vh)*1)) * 0.5) 0;
 }
 
 .nt-inter .body.int-columns.scroll-vertical.int-align-left .item {
@@ -8831,7 +8833,11 @@
   overflow: hidden;
   cursor: pointer;
   box-sizing: border-box;
-  margin: 0;
+  margin: calc(var(--int-col-gap-y, calc(var(--nt-vh)*1)) * 0.5) calc(var(--int-col-gap-x, calc(var(--nt-vw)*1)) * 0.35);
+}
+
+.nt-inter .body.int-columns.scroll-horizontal .item {
+  margin: 0 calc(var(--int-col-gap-x, calc(var(--nt-vw)*1)) * 0.5);
 }
 
 .nt-inter .body.int-columns .item .img {
