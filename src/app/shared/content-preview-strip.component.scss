@@ -53,6 +53,71 @@ app-content-preview-strip {
   box-sizing: border-box;
 }
 
+/* Create Content > Intermediate horizontal columns: show a 3-card viewport;
+   extra cards scroll sideways. */
+.prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal {
+  --cps-shared-gap: calc(var(--nt-vw) * 1.4);
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  gap: var(--cps-shared-gap) !important;
+  padding-left: calc(var(--nt-vw) * 2) !important;
+  padding-right: calc(var(--nt-vw) * 2) !important;
+}
+
+.prev.nt-stage.nt-inter.force-shared-intermediate.shared-intermediate-few .body.int-columns.scroll-horizontal {
+  justify-content: center !important;
+}
+
+.prev.nt-stage.nt-inter.force-shared-intermediate.shared-intermediate-scroll .body.int-columns.scroll-horizontal {
+  justify-content: flex-start !important;
+}
+
+.prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal .item {
+  flex: 0 0 calc((100% - var(--cps-shared-gap) - var(--cps-shared-gap)) / 3) !important;
+  width: calc((100% - var(--cps-shared-gap) - var(--cps-shared-gap)) / 3) !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  height: calc(var(--nt-vh) * 54 * var(--nt-int-scale, 1)) !important;
+}
+
+.prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon) .item {
+  flex: 0 0 calc(var(--nt-vh) * 45 * var(--nt-int-scale, 1)) !important;
+  width: calc(var(--nt-vh) * 45 * var(--nt-int-scale, 1)) !important;
+  height: calc(var(--nt-vh) * 45 * var(--nt-int-scale, 1)) !important;
+}
+
+/* Create Content > Intermediate vertical columns: keep the theme preview's
+   column-card grid and let additional rows scroll vertically. */
+.prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-vertical {
+  display: grid !important;
+  grid-template-columns: repeat(var(--int-cols, 3), minmax(0, 1fr)) !important;
+  grid-auto-rows: max-content !important;
+  align-items: start !important;
+  align-content: flex-start !important;
+  justify-content: center !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  gap: calc(var(--nt-vh) * 1.4) calc(var(--nt-vw) * 1.4) !important;
+  padding: calc(var(--nt-vh) * 2) calc(var(--nt-vw) * 2) !important;
+}
+
+.prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-vertical .item {
+  flex: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  height: calc(var(--nt-vh) * 60 * var(--nt-int-scale, 1)) !important;
+  justify-self: stretch !important;
+}
+
+.prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-vertical:is(.int-shape-circle, .int-shape-hexagon) .item {
+  width: calc(var(--nt-vh) * 45 * var(--nt-int-scale, 1)) !important;
+  height: calc(var(--nt-vh) * 45 * var(--nt-int-scale, 1)) !important;
+  justify-self: center !important;
+}
+
 /* placeholder tiles (no image yet) */
 .prev .card .img.placeholder { opacity: .15; }
 
