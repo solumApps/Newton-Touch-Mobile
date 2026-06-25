@@ -56,6 +56,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-res-card]="theme?.result?.cardBackground"
            [style.--nt-res-bg]="theme?.result?.background"
            [style.--nt-res-accent]="theme?.result?.accent"
+           [style.--nt-res-popular-text]="theme?.result?.popularText"
            [style.--nt-res-text]="theme?.result?.cardText"
            [style.--nt-res-header]="theme?.result?.headerColor"
            [style.--prm-panel]="resTpl==='promo-map-rank' ? theme?.result?.panelColor : 'transparent'"
@@ -186,7 +187,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           </ng-container>
           <ng-template #flatInter>
-            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{$any(theme?.intermediateStyle)==='side-rail' ? 'left' : (theme?.intermediateStyle==='columns' ? 'center' : (theme?.intermediate?.align||'center'))}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-valign-{{theme?.intermediate?.valign||'middle'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}} int-brm-{{theme?.intermediate?.brandRailMessagePos||'right'}} int-brmv-{{theme?.intermediate?.brandRailMessageAlign||'center'}}"
+            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{interAlignmentClass}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-valign-{{theme?.intermediate?.valign||'middle'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}} int-brm-{{theme?.intermediate?.brandRailMessagePos||'right'}} int-brmv-{{theme?.intermediate?.brandRailMessageAlign||'center'}}"
                  [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && interScrollMode==='vertical' && (theme?.intermediate?.columns || 3)===1" [class.int-strip-few]="theme?.intermediateStyle==='card-strip' && interStripRenderedCount<=2" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [style.--int-cols]="interVisibleColumns" [style.--int-strip-card-width]="interStripCardWidth" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1" [style.--int-brm-bg]="theme?.intermediate?.brandRailMessageBgColor || null" [style.--int-brm-text]="theme?.intermediate?.brandRailMessageTextColor || null">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0" [class.has-img]="!!it.image">
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
@@ -394,6 +395,14 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
           <!-- default: map + list -->
           <div class="body" *ngIf="!specialResult">
+            <div class="result-tools" *ngIf="resTpl==='map-list'">
+              <input class="res-search" type="text" value="" placeholder="Search products..." readonly />
+              <div class="res-sort">
+                <button type="button" class="active">Popular</button>
+                <button type="button">A-Z</button>
+                <button type="button">Z-A</button>
+              </div>
+            </div>
             <div class="map" [style.background-image]="result?.mapImage ? 'url('+result?.mapImage+')' : null">
               <div class="marker" *ngIf="markerVisible" [style.top]="markerTop" [style.left]="markerLeft" [style.background]="markerColor"></div>
             </div>
@@ -486,6 +495,8 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   @Input() page: PreviewPage = 'home';
   @Input() home: CardItem[] = [];
   @Input() intermediate: CardItem[] = [];
+  @Input() forceSharedIntermediate = false;
+  @Input() intermediateCreatePreview = false;
   @Input() result?: { mapImage?: string; promoImage?: string; products: ResultProduct[]; route?: { kind?: 'line' | 'dot' | 'none'; x?: number; y?: number; w?: number; color?: string } };
   @Input() screensaver?: Screensaver;
   @Input() header?: { title?: string; caption?: string };
@@ -561,7 +572,13 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       'surface-' + (this.theme?.cardSurface || 'flat'),
       'nav-' + (this.theme?.navStyle || 'floating'),
     ];
-    if (this.page === 'inter') cls.push('nt-inter');
+    if (this.page === 'inter') {
+      cls.push('nt-inter');
+      if (this.intermediateCreatePreview) {
+        cls.push('force-shared-intermediate');
+        cls.push(this.intermediateSource.length > 3 ? 'shared-intermediate-scroll' : 'shared-intermediate-few');
+      }
+    }
     else if (this.page === 'result') {
       cls.push('nt-result', 'res-' + this.resTpl);
       const rk = this.result?.route?.kind;
@@ -670,13 +687,30 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get cardAlignCss(): string { return this.theme?.cardTextAlign === 'left' ? 'left' : this.theme?.cardTextAlign === 'right' ? 'right' : 'center'; }
   get interCardAlignCss(): string { return this.theme?.intermediate?.textAlign === 'left' ? 'left' : this.theme?.intermediate?.textAlign === 'right' ? 'right' : 'center'; }
   get interScrollMode(): 'vertical' | 'horizontal' { return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal'; }
+  get interAlignmentClass(): 'left' | 'center' | 'right' {
+    if ((this.theme?.intermediateStyle as string) === 'side-rail') return 'left';
+    if (this.theme?.intermediateStyle === 'columns' && this.interScrollMode === 'horizontal') return 'center';
+    return this.theme?.intermediate?.align === 'left' || this.theme?.intermediate?.align === 'right'
+      ? this.theme.intermediate.align
+      : 'center';
+  }
+  get sharedIntermediatePreviewCount(): number {
+    const count = this.intermediateSource.length;
+    return count ? Math.min(count, 3) : 3;
+  }
   get interVisibleColumns(): number {
+    if (this.intermediateCreatePreview) {
+      return this.interScrollMode === 'vertical'
+        ? (this.theme?.intermediate?.columns || 3)
+        : this.sharedIntermediatePreviewCount;
+    }
     return this.theme?.intermediateStyle === 'columns' && this.interScrollMode === 'horizontal'
       ? 4 : (this.theme?.intermediate?.columns || 3);
   }
   get interStripRenderedCount(): number {
     const configured = this.theme?.intermediate?.columns || 3;
     const sourceCount = this.intermediateSource.length;
+    if (this.intermediateCreatePreview) return this.sharedIntermediatePreviewCount;
     return Math.max(1, sourceCount ? Math.min(sourceCount, configured) : configured);
   }
   get interStripCardWidth(): string {
@@ -784,6 +818,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: this.placeholderLabels[i % this.placeholderLabels.length] } as CardItem));
   }
   get intermediateSource(): CardItem[] {
+    if (this.forceSharedIntermediate) return this.intermediate || [];
     // Mirror the LCD runtime (IntermediateComponent.load): the intermediate page
     // shows the *opened* node's OWN children first, and only falls back to the
     // SHARED default intermediate list when that node has no custom subtree.
@@ -819,10 +854,22 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return this.interCells.slice(0, 6).map((it) => it.name);
   }
   get interCells(): CardItem[] {
-    // 'columns' shows ONE row matching the chosen column count (extra items
-    // overflow via scroll). card-strip shows the visible-count too.
+    // Builder shared-intermediate previews render every item, with a 3-card
+    // viewport; items after the third are available by horizontal scroll.
     const cols = this.theme?.intermediate?.columns;
     const source = this.intermediateSource;
+    if (this.intermediateCreatePreview) {
+      const real = source.map(c => ({ ...c, name: c.name || 'Item' }));
+      if (real.length) return real;
+      const minCount = this.interScrollMode === 'vertical' ? (cols || 3) : 3;
+      const dummy = Array.from({ length: Math.max(0, minCount - real.length) }, (_, i) => ({
+        id: 'inter-shared-ph' + i,
+        name: this.placeholderLabels[(real.length + i) % this.placeholderLabels.length]
+      } as CardItem));
+      return [...real, ...dummy];
+    }
+    // 'columns' shows ONE row matching the chosen column count (extra items
+    // overflow via scroll). card-strip shows the visible-count too.
     if (this.interScrollMode === 'vertical') {
       const cardCount = cols ? cols * 4 : 12;
       const real = source.slice(0, cardCount).map(c => ({ ...c, name: c.name || 'Item' }));
