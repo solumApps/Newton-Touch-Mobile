@@ -199,7 +199,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (this.draft?.drillMode) return this.draft.drillMode;
     // Hierarchical templates (finder-select / promo-map-rank / finder-detail) need
     // the per-card nested tree so Category → Sub → Products is enterable.
-    if (this.isFinderSelect || this.interAllowProducts || this.isFinder) return 'individual';
+    if (this.isFinderSelect || this.interAllowProducts || this.isFinder || this.isDrillFilter) return 'individual';
     return this.draft?.home.some(c => c.children && c.children.length > 0) ? 'individual' : 'common';
   }
   setDrillMode(m: 'common' | 'individual'): void { if (this.draft) this.draft.drillMode = m; }
@@ -318,6 +318,8 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   get isPromoRank(): boolean { return this.draft?.themeTokens.resultTemplate === 'promo-map-rank'; }
   /** finder-detail adds description, sale price, attributes and fitments. */
   get isFinder(): boolean { return this.draft?.themeTokens.resultTemplate === 'finder-detail'; }
+  /** drill-filter uses a per-home-card drill tree before the filtered result list. */
+  get isDrillFilter(): boolean { return this.draft?.themeTokens.resultTemplate === 'drill-filter'; }
 
   addSpec(p: ResultProduct): void { (p.specs = p.specs || []).push({ label: '', value: '' }); }
   removeSpec(p: ResultProduct, i: number): void { p.specs?.splice(i, 1); }
