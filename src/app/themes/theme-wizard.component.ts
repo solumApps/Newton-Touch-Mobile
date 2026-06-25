@@ -168,6 +168,7 @@ export class ThemeWizardComponent implements OnInit {
       this.setCardSize(this.cardSizeMax);
     }
     this.coerceTextPos();
+    this.checkDefaultCardGap();
     this.clampCardGap();
   }
   pickContent(c: CardContent): void {
@@ -261,6 +262,7 @@ export class ThemeWizardComponent implements OnInit {
       this.t.scrollMode = 'vertical';
     }
     this.coerceTextPos();
+    this.checkDefaultCardGap();
     this.clampCardGap();
   }
 
@@ -383,10 +385,12 @@ export class ThemeWizardComponent implements OnInit {
     if (typeof this.t.cardSizeScale === 'number' && this.t.cardSizeScale > this.cardSizeMax) {
       this.setCardSize(this.cardSizeMax);
     }
+    this.checkDefaultCardGap();
     this.clampCardGap();
   }
   setColumns(v: string): void {
     this.t.columns = coerceColumns(v);
+    this.checkDefaultCardGap();
     this.clampCardGap();
   }
 
@@ -430,12 +434,30 @@ export class ThemeWizardComponent implements OnInit {
     const isColumns = this.columnLayouts.includes(this.t.homeLayout);
     const isHorizontal = this.effectiveScrollMode === 'horizontal';
     const isShape = this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon';
+    const isRectOrPill = this.t.cardShape === 'rect' || this.t.cardShape === 'pill';
     const isColsLess4 = this.effectiveColumns < 4;
+    const isColsOne = this.effectiveColumns === 1;
 
-    if (isColumns && isHorizontal && isShape && isColsLess4) {
-      return 165;
+    if (isColumns && isHorizontal) {
+      if (isShape && isColsLess4) {
+        return 165;
+      }
+      if (isRectOrPill && isColsOne) {
+        return 150;
+      }
     }
     return 20;
+  }
+
+  checkDefaultCardGap(): void {
+    const isColumns = this.columnLayouts.includes(this.t.homeLayout);
+    const isHorizontal = this.effectiveScrollMode === 'horizontal';
+    const isRectOrPill = this.t.cardShape === 'rect' || this.t.cardShape === 'pill';
+    const isColsOne = this.effectiveColumns === 1;
+
+    if (isColumns && isHorizontal && isRectOrPill && isColsOne) {
+      this.setCardGap(100);
+    }
   }
 
   clampCardGap(): void {
@@ -619,6 +641,7 @@ export class ThemeWizardComponent implements OnInit {
     this.t.scrollMode = m;
     if (m === 'vertical') { this.t.cardVAlign = 'top'; this.t.cardAlign = 'left'; }
     else if (m === 'horizontal') { this.t.cardAlign = 'left'; this.t.cardVAlign = 'middle'; }
+    this.checkDefaultCardGap();
     this.clampCardGap();
   }
   /** Set Intermediate scroll + coerce alignment to a safe, non-clipping default. */
