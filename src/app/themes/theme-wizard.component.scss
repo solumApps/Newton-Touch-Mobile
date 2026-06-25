@@ -1285,6 +1285,6 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 .inherited-hint span { font-size: 15px; flex-shrink: 0; color: var(--nt-brand-ink); }
 
 /* ===== Nav button design section ===== */
-.nav-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
-.nav-btn-grp { background: var(--nt-surface); border: 1.5px solid var(--nt-border); border-radius: var(--nt-r); padding: 10px 12px; }
+.nav-btn-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-bottom: 4px; }
+.nav-btn-grp { min-width: 0; background: var(--nt-surface); border: 1.5px solid var(--nt-border); border-radius: var(--nt-r); padding: 10px 12px; }
 .nav-btn-lbl { display: block; font-size: 13px; font-weight: 800; color: var(--nt-text); margin-bottom: 8px; }

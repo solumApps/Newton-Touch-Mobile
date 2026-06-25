@@ -148,15 +148,23 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <div class="fs-hero-title">{{ titleText || 'Product Finder' }}</div>
               <div class="fs-home"><span class="fs-home-ic">&#8962;</span> Home</div>
               <div class="fs-steps">
-                <div class="fs-step done"><span class="fs-step-lbl">Manufacturer</span><span class="fs-step-ic">&#10003;</span></div>
-                <div class="fs-step done"><span class="fs-step-lbl">Model</span><span class="fs-step-ic">&#10003;</span></div>
-                <div class="fs-step current"><span class="fs-step-lbl">Year</span><span class="fs-step-dot"></span></div>
+                <div class="fs-step" *ngFor="let s of fsStepRows" [class.done]="s.state==='done'" [class.current]="s.state==='current'">
+                  <span class="fs-step-lbl">{{ s.label }}</span>
+                  <span class="fs-step-val">{{ s.value }}</span>
+                  <span class="fs-step-ic" *ngIf="s.state==='done'">&#10003;</span>
+                  <span class="fs-step-dot" *ngIf="s.state==='current'"></span>
+                </div>
               </div>
             </div>
             <div class="fs-main">
               <div class="fs-top fs-back-{{theme?.intermediate?.fsBackPos||'left'}} fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}"><button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">&#8592;</button><div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div></div>
-              <div class="fs-cards"><div class="fs-card" *ngFor="let it of interCells.slice(0,5)"><span class="fs-card-nm">{{ it.name }}</span></div></div>
-              <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let it of interCells.slice(0,6); let i=index" [class.active]="i===0">{{ it.name }}</span></div>
+              <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{theme?.intermediate?.fsTextPos||'center'}} textalign-{{theme?.intermediate?.fsTextAlign||'center'}}">
+                <div class="fs-card" *ngFor="let it of interCells.slice(0,5)">
+                  <div class="fs-card-img" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='text-only'" [class.no-img]="!it.image" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(0) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
+                  <span class="fs-card-nm" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='image-only'">{{ it.name }}</span>
+                </div>
+              </div>
+              <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let v of fsIndexValues; let i=index" [class.active]="i===0">{{ v }}</span></div>
             </div>
           </div>
           <ng-container *ngIf="theme?.intermediateStyle!=='finder-select'">
@@ -782,6 +790,33 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     const ownChildren = this.home?.[0]?.children || [];
     if (ownChildren.length) return ownChildren;
     return this.intermediate || [];
+  }
+  /** finder-select progress rows: Category labels (left) + selected values
+   *  (right). Real step labels/values win; otherwise reasonable fallbacks (#5). */
+  get fsStepRows(): { label: string; value: string; state: 'done' | 'current' | 'todo' }[] {
+    const labels = (this.theme?.intermediate?.stepLabels && this.theme.intermediate.stepLabels.length)
+      ? this.theme.intermediate.stepLabels.slice(0, 4)
+      : ['Category 1', 'Category 2', 'Category 3', 'Category 4'];
+    const cells = this.interCells;
+    const sample = ['Bosch', 'X5 Series', '2021', 'Premium'];
+    return labels.map((label, i) => ({
+      label,
+      value: cells[i]?.name || sample[i] || '—',
+      state: i < labels.length - 1 ? 'done' : 'current',
+    }));
+  }
+  /** finder-select fast-lookup values: numeric (min/max/interval) when the
+   *  content/theme sets indexMode='number', else item names (#4). */
+  get fsIndexValues(): string[] {
+    const im = this.theme?.intermediate;
+    if (im?.indexMode === 'number') {
+      const min = Number(im.indexNumberMin ?? 0), max = Number(im.indexNumberMax ?? 100);
+      const step = Math.max(1, Number(im.indexNumberInterval ?? 10));
+      const out: string[] = [];
+      if (max >= min) for (let v = min; v <= max && out.length < 12; v += step) out.push(String(v));
+      return out;
+    }
+    return this.interCells.slice(0, 6).map((it) => it.name);
   }
   get interCells(): CardItem[] {
     // 'columns' shows ONE row matching the chosen column count (extra items

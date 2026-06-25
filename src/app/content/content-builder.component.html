@@ -149,6 +149,17 @@
         <div class="sec"><span>Finder steps &amp; prompt</span></div>
         <input class="inp" placeholder="Step labels (comma e.g. Manufacturer,Model,Year)" [ngModel]="tplStepsCsv" (ngModelChange)="tplStepsCsv=$event" />
         <input class="inp" placeholder="Prompt prefix (e.g. TOUCH YOUR)" [(ngModel)]="td.promptPrefix" />
+        <div class="sec"><span>Fast lookup index</span></div>
+        <p class="note">How the side index strip is generated for the selection cards.</p>
+        <div class="seg">
+          <button type="button" class="tile" [class.sel]="(td.indexMode||'alpha')==='alpha'" (click)="td.indexMode='alpha'">A–Z</button>
+          <button type="button" class="tile" [class.sel]="td.indexMode==='number'" (click)="td.indexMode='number'">Number</button>
+        </div>
+        <div class="row" *ngIf="td.indexMode==='number'">
+          <input class="inp" type="number" placeholder="Min" [ngModel]="td.indexNumberMin ?? 0" (ngModelChange)="td.indexNumberMin=+$event" />
+          <input class="inp" type="number" placeholder="Max" [ngModel]="td.indexNumberMax ?? 100" (ngModelChange)="td.indexNumberMax=+$event" />
+          <input class="inp" type="number" min="1" placeholder="Interval" [ngModel]="td.indexNumberInterval ?? 10" (ngModelChange)="td.indexNumberInterval=+$event" />
+        </div>
         <p class="note">The selection cards for each level are the sub-items you add per card below (each card → its children → … → products).</p>
       </ng-container>
       <!-- Individual drill mode: fill each home card's OWN intermediate page here -->

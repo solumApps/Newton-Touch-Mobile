@@ -365,6 +365,10 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (td.heroImage != null) r.heroImage = td.heroImage;
     if (td.promptPrefix != null) im.promptPrefix = td.promptPrefix;
     if (td.stepLabels) im.stepLabels = td.stepLabels;
+    if (td.indexMode != null) im.indexMode = td.indexMode;
+    if (td.indexNumberMin != null) im.indexNumberMin = td.indexNumberMin;
+    if (td.indexNumberMax != null) im.indexNumberMax = td.indexNumberMax;
+    if (td.indexNumberInterval != null) im.indexNumberInterval = td.indexNumberInterval;
     return { ...t, result: r, intermediate: im };
   }
 
