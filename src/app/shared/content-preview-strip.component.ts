@@ -160,8 +160,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="fs-main">
               <div class="fs-top fs-back-{{theme?.intermediate?.fsBackPos||'left'}} fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}"><button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">&#8592;</button><div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div></div>
               <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{theme?.intermediate?.fsTextPos||'center'}} textalign-{{theme?.intermediate?.fsTextAlign||'center'}}">
-                <div class="fs-card" *ngFor="let it of interCells.slice(0,5)">
-                  <div class="fs-card-img" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='text-only'" [class.no-img]="!it.image" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(0) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
+                <div class="fs-card" *ngFor="let it of interCells.slice(0,5); let i = index">
+                  <div class="fs-card-img" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='text-only'" [class.no-img]="!it.image && !finderUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (finderUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                   <span class="fs-card-nm" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='image-only'">{{ it.name }}</span>
                 </div>
               </div>
@@ -187,9 +187,9 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           </ng-container>
           <ng-template #flatInter>
-            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{interAlignmentClass}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-valign-{{theme?.intermediate?.valign||'middle'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}} int-brm-{{theme?.intermediate?.brandRailMessagePos||'right'}} int-brmv-{{theme?.intermediate?.brandRailMessageAlign||'center'}}"
-                 [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && interScrollMode==='vertical' && (theme?.intermediate?.columns || 3)===1" [class.int-strip-few]="theme?.intermediateStyle==='card-strip' && interStripRenderedCount<=2" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [style.--int-cols]="interVisibleColumns" [style.--int-strip-card-width]="interStripCardWidth" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1" [style.--int-brm-bg]="theme?.intermediate?.brandRailMessageBgColor || null" [style.--int-brm-text]="theme?.intermediate?.brandRailMessageTextColor || null">
-              <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0" [class.has-img]="!!it.image">
+            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{$any(theme?.intermediateStyle)==='side-rail' ? 'left' : (theme?.intermediateStyle==='columns' ? 'center' : (theme?.intermediate?.align||'center'))}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-valign-{{theme?.intermediate?.valign||'middle'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'below'}} int-brm-{{theme?.intermediate?.brandRailMessagePos||'right'}} int-brmv-{{theme?.intermediate?.brandRailMessageAlign||'center'}}"
+                 [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && (theme?.intermediate?.columns || 3)===1" [class.int-scroll-peek]="interColumnsScrollPeek" [class.int-strip-few]="theme?.intermediateStyle==='card-strip' && interStripRenderedCount<=2" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [style.--int-cols]="interVisibleColumns" [style.--int-strip-card-width]="interStripCardWidth" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1" [style.--int-brm-bg]="theme?.intermediate?.brandRailMessageBgColor || null" [style.--int-brm-text]="theme?.intermediate?.brandRailMessageTextColor || null" [style.--card-gap]="theme?.intermediate?.gapNum != null ? (theme?.intermediate?.gapNum + 'px') : null">
+              <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0" [class.has-img]="!!it.image || interUsePh">
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                 <span class="name">{{ it.name }}</span>
               </div>
@@ -522,10 +522,17 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     const cc = this.theme?.cardContent;
     return this.page === 'home' && (cc === 'image-text' || cc === 'image-only');
   }
-  /** Intermediate: dummy images for image-showing styles (unless text-only). */
+  /** Intermediate: dummy images for styles whose selected card content shows an image. */
   get interUsePh(): boolean {
-    if (this.page !== 'inter' || this.theme?.intermediate?.content === 'text-only') return false;
-    return ['image-grid', 'card-strip', 'side-rail', 'brand-grid', 'brand-rail', 'circular', 'fullscreen'].includes(this.theme?.intermediateStyle || '');
+    if (this.page !== 'inter') return false;
+    const style = this.theme?.intermediateStyle || '';
+    if (style === 'finder-select') return false;
+    if (!this.imageContent(this.theme?.intermediate?.content || 'image-text')) return false;
+    return ['columns', 'image-grid', 'card-strip', 'side-rail', 'brand-grid', 'brand-rail', 'circular', 'fullscreen'].includes(style);
+  }
+  get finderUsePh(): boolean {
+    if (this.page !== 'inter' || this.theme?.intermediateStyle !== 'finder-select') return false;
+    return this.imageContent(this.theme?.intermediate?.fsCardContent || 'text-only');
   }
   /** Result: dummy product images (unless content is text-only). */
   get resUsePh(): boolean {
@@ -535,6 +542,10 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   phImg(i: number): string {
     const c = ContentPreviewStripComponent.PH_FILLS[i % ContentPreviewStripComponent.PH_FILLS.length];
     return `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'%3E%3Crect width='160' height='100' fill='${c}'/%3E%3Cpolygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/%3E%3C/svg%3E")`;
+  }
+
+  private imageContent(content?: string): boolean {
+    return content === 'image-text' || content === 'image-only';
   }
 
   /* ===== Stage units: --nt-vw/--nt-vh/--nt-vmin in px from the measured stage width.
@@ -686,35 +697,25 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get cardSizeScaleNum(): number { const n = this.theme?.cardSizeScale; return typeof n === 'number' && n > 0 ? n : 1; }
   get cardAlignCss(): string { return this.theme?.cardTextAlign === 'left' ? 'left' : this.theme?.cardTextAlign === 'right' ? 'right' : 'center'; }
   get interCardAlignCss(): string { return this.theme?.intermediate?.textAlign === 'left' ? 'left' : this.theme?.intermediate?.textAlign === 'right' ? 'right' : 'center'; }
-  get interScrollMode(): 'vertical' | 'horizontal' { return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal'; }
-  get interAlignmentClass(): 'left' | 'center' | 'right' {
-    if ((this.theme?.intermediateStyle as string) === 'side-rail') return 'left';
-    if (this.theme?.intermediateStyle === 'columns' && this.interScrollMode === 'horizontal') return 'center';
-    return this.theme?.intermediate?.align === 'left' || this.theme?.intermediate?.align === 'right'
-      ? this.theme.intermediate.align
-      : 'center';
-  }
-  get sharedIntermediatePreviewCount(): number {
-    const count = this.intermediateSource.length;
-    return count ? Math.min(count, 3) : 3;
+  get interScrollMode(): 'vertical' | 'horizontal' {
+    const style = this.theme?.intermediateStyle;
+    if (style === 'card-strip' || style === 'brand-rail') return 'horizontal';
+    return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal';
   }
   get interVisibleColumns(): number {
-    if (this.intermediateCreatePreview) {
-      return this.interScrollMode === 'vertical'
-        ? (this.theme?.intermediate?.columns || 3)
-        : this.sharedIntermediatePreviewCount;
-    }
-    return this.theme?.intermediateStyle === 'columns' && this.interScrollMode === 'horizontal'
-      ? 4 : (this.theme?.intermediate?.columns || 3);
+    return this.theme?.intermediate?.columns || 3;
+  }
+  get interColumnsScrollPeek(): boolean {
+    if (this.theme?.intermediateStyle !== 'columns' || this.interScrollMode !== 'horizontal') return false;
+    const cols = this.interVisibleColumns;
+    const shape = this.theme?.intermediate?.cardShape || 'rect';
+    return (shape === 'circle' || shape === 'hexagon') ? cols >= 6 : cols >= 3;
   }
   get interStripRenderedCount(): number {
-    const configured = this.theme?.intermediate?.columns || 3;
-    const sourceCount = this.intermediateSource.length;
-    if (this.intermediateCreatePreview) return this.sharedIntermediatePreviewCount;
-    return Math.max(1, sourceCount ? Math.min(sourceCount, configured) : configured);
+    return Math.max(1, this.theme?.intermediate?.columns || 3);
   }
   get interStripCardWidth(): string {
-    return this.interStripRenderedCount <= 2 ? '33.333%' : `${100 / this.interStripRenderedCount}%`;
+    return `${100 / this.interStripRenderedCount}%`;
   }
   get cardGapPx(): string | null {
     const n = this.theme?.cardGapNum;
@@ -880,7 +881,8 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       return [...real, ...dummy];
     }
     if (this.theme?.intermediateStyle === 'columns') {
-      const cardCount = cols || 3;
+      const baseCount = cols || 3;
+      const cardCount = this.interColumnsScrollPeek ? baseCount + 3 : baseCount;
       const real = source.slice(0, cardCount).map(c => ({ ...c, name: c.name || 'Item' }));
       const dummy = Array.from({ length: cardCount - real.length }, (_, i) => ({
         id: 'inter-scroll-ph' + i,
@@ -888,8 +890,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       } as CardItem));
       return [...real, ...dummy];
     }
-    const n = this.theme?.intermediateStyle === 'card-strip' && cols
-      ? cols : 6;
+    const n = this.theme?.intermediateStyle === 'card-strip'
+      ? Math.max((cols || 3) + 3, 6)
+      : 6;
     const real = source.slice(0, n);
     if (real.length) return real.map(c => ({ ...c, name: c.name || 'Item' }));
     return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: this.placeholderLabels[i % this.placeholderLabels.length] } as CardItem));

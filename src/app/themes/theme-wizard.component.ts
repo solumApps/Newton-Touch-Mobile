@@ -138,7 +138,8 @@ export class ThemeWizardComponent implements OnInit {
     // Card-strip & fullscreen are full-bleed image cards — only the inner (overlay)
     // positions make sense; Top (above) / Below would push text off the card.
     const innerOnly = ['card-strip', 'fullscreen'].includes(this.t.intermediateStyle);
-    if (innerOnly || (this.t.intermediate.content || 'image-text') === 'text-only') {
+    const interContent = (this.t.intermediate.content || 'image-text');
+    if (innerOnly || interContent === 'text-only' || interContent === 'icon-text') {
       return this.cardTextPositions.filter((p) => p.id !== 'below' && p.id !== 'above');
     }
     return this.cardTextPositions;
@@ -177,6 +178,14 @@ export class ThemeWizardComponent implements OnInit {
     if (c === 'image-only') this.t.cardShape = 'none';
     else if (this.t.cardShape === 'none') this.t.cardShape = 'rect';
     this.coerceTextPos();
+    // Auto-select a valid text vertical position when switching to text-only/icon-text
+    if (c === 'text-only' || c === 'icon-text') {
+      const opts = this.textPositionsFor;
+      if (opts && opts.length) {
+        const center = opts.find((p) => p.id === 'center');
+        this.t.cardTextPos = center ? center.id : opts[0].id;
+      }
+    }
   }
   pickInterContent(c: CardContent): void {
     this.t.intermediate.content = c;
@@ -192,6 +201,14 @@ export class ThemeWizardComponent implements OnInit {
       this.t.intermediate.textAlign = 'center';
     }
     this.coerceTextPos();
+    // Auto-select a valid intermediate text vertical position when switching to text-only/icon-text
+    if (c === 'text-only' || c === 'icon-text') {
+      const opts = this.interTextPositionsFor;
+      if (opts && opts.length) {
+        const center = opts.find((p) => p.id === 'center');
+        this.t.intermediate.textPos = center ? center.id : opts[0].id;
+      }
+    }
   }
   pickInterStyle(s: IntermediateStyle): void {
     this.t.intermediateStyle = s;
@@ -206,7 +223,7 @@ export class ThemeWizardComponent implements OnInit {
     // (the renderers prefer it over the global one).
     if (s === 'fullscreen') this.setInterScroll('horizontal');
     // brand-rail is a horizontal single-row rail.
-    if (s === 'brand-rail') this.setInterScroll('horizontal');
+    if (s === 'brand-rail' || s === 'card-strip') this.setInterScroll('horizontal');
     // finder-select replaces the global header/nav with its own fs-top + fs-hero
     // bars, so the standard intermediate header is force-hidden (#5a).
     if (s === 'finder-select') this.t.intermediate.showHeader = false;
@@ -606,7 +623,7 @@ export class ThemeWizardComponent implements OnInit {
     if (!this.interTextAlignMatters) this.t.intermediate.textAlign = 'center'; // #7 pill forces center
   }
   /** Overflow scrolling matters for the columns grid + brand grid/rail. */
-  get intScrollMatters(): boolean { return ['columns', 'brand-rail'].includes(this.t.intermediateStyle); }
+  get intScrollMatters(): boolean { return ['columns', 'brand-rail', 'card-strip'].includes(this.t.intermediateStyle); }
   /** #7 Text horizontal alignment is hidden for brand-rail pill (image/icon text)
    *  because left/right text distorts the pill — value forced to center. */
   get interTextAlignMatters(): boolean {
@@ -619,7 +636,7 @@ export class ThemeWizardComponent implements OnInit {
     return c !== 'image-only';
   }
   /** brand-rail is a single horizontal row — only horizontal scroll allowed. */
-  get intScrollHorizontalOnly(): boolean { return this.t.intermediateStyle === 'brand-rail'; }
+  get intScrollHorizontalOnly(): boolean { return this.t.intermediateStyle === 'brand-rail' || this.t.intermediateStyle === 'card-strip'; }
   /** #4 Card content applies to image-showing styles incl. card-strip + fullscreen. */
   get intContentMatters(): boolean { return this.intShapeMatters || this.t.intermediateStyle === 'card-strip' || this.t.intermediateStyle === 'fullscreen'; }
 

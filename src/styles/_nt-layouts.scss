@@ -8582,6 +8582,7 @@
   font-size: calc(var(--nt-vw)*2.6);
   font-weight: 900;
   line-height: 1.12;
+  margin: calc(var(--nt-vh)*1.4) auto;
 }
 
 .nt-inter .fs-home {
@@ -8605,6 +8606,7 @@
   display: flex;
   flex-direction: column;
   gap: calc(var(--nt-vh)*1.5);
+  row-gap: calc(var(--nt-vh)*5);
   flex: 1;
   justify-content: center;
 }
@@ -8614,6 +8616,7 @@
   align-items: center;
   gap: calc(var(--nt-vw)*0.9);
   padding: calc(var(--nt-vh)*1.35) calc(var(--nt-vw)*1.4);
+  min-height: calc(var(--nt-vh)*2.6);
   background: rgba(255, 255, 255, .07);
   border-radius: 999px;
 }
@@ -8757,16 +8760,33 @@
 
 /* ---- intermediate 'columns' grid (column count from --int-cols, like Home) ---- */
 .nt-inter .body.int-columns {
+  --int-col-gap-x: var(--card-gap, calc(var(--nt-vw)*1));
+  --int-col-gap-y: var(--card-gap, calc(var(--nt-vh)*1));
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   align-content: flex-start;
   justify-content: center;
-  gap: calc(var(--nt-vh)*1.4) calc(var(--nt-vw)*1.4);
+  gap: 0;
   padding: calc(var(--nt-vh)*2) calc(var(--nt-vw)*2);
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
+}
+
+.nt-inter .body.int-columns.int-gap-tight {
+  --int-col-gap-x: var(--card-gap, calc(var(--nt-vw)*0.6));
+  --int-col-gap-y: var(--card-gap, calc(var(--nt-vh)*0.6));
+}
+
+.nt-inter .body.int-columns.int-gap-normal {
+  --int-col-gap-x: var(--card-gap, calc(var(--nt-vw)*1));
+  --int-col-gap-y: var(--card-gap, calc(var(--nt-vh)*1));
+}
+
+.nt-inter .body.int-columns.int-gap-loose {
+  --int-col-gap-x: var(--card-gap, calc(var(--nt-vw)*2));
+  --int-col-gap-y: var(--card-gap, calc(var(--nt-vh)*2));
 }
 
 .nt-inter .body.int-columns.scroll-horizontal {
@@ -8778,15 +8798,19 @@
 
 .nt-inter .body.int-columns.scroll-vertical {
   display: grid;
-  grid-template-columns: repeat(var(--int-cols, 3), minmax(0, 1fr));
-  grid-auto-rows: max-content;
+  row-gap: 0;
+  column-gap: var(--int-col-gap-x);
+  /* compute column width from the same math used by the flex layout, then apply the int scale so size changes affect both axes */
+  grid-template-columns: repeat(var(--int-cols, 3), minmax(0, calc(((100% - (var(--int-cols, 3) - 1) * var(--int-col-gap-x)) / var(--int-cols, 3)) * var(--nt-int-scale, 1))));
+  grid-auto-rows: calc(var(--nt-vh)*60 * var(--nt-int-scale, 1));
   align-items: start;
 }
 
 .nt-inter .body.int-columns.scroll-vertical .item {
-  width: 100%;
-  max-width: 100%;
+  width: auto;
+  max-width: none;
   justify-self: stretch;
+  margin: calc(var(--int-col-gap-y, calc(var(--nt-vh)*1)) * 0.5) 0;
 }
 
 .nt-inter .body.int-columns.scroll-vertical.int-align-left .item {
@@ -8810,7 +8834,8 @@
 
 /* rect cards: 1/cols of the row width, tall enough to read; one row fills, extras overflow */
 .nt-inter .body.int-columns .item {
-  flex: 0 0 calc((100% - (var(--int-cols, 3) - 1) * var(--nt-vw)*1.4) / var(--int-cols, 3));
+  /* base width follows the available row width divided by columns, and scales with --nt-int-scale for uniform resizing */
+  flex: 0 0 calc(((100% - (var(--int-cols, 3) - 1) * var(--int-col-gap-x)) / var(--int-cols, 3)) * var(--nt-int-scale, 1));
   height: calc(var(--nt-vh)*60 * var(--nt-int-scale, 1));
   position: relative;
   display: flex;
@@ -8821,6 +8846,11 @@
   overflow: hidden;
   cursor: pointer;
   box-sizing: border-box;
+  margin: calc(var(--int-col-gap-y, calc(var(--nt-vh)*1)) * 0.5) calc(var(--int-col-gap-x, calc(var(--nt-vw)*1)) * 0.35);
+}
+
+.nt-inter .body.int-columns.scroll-horizontal .item {
+  margin: 0 calc(var(--int-col-gap-x, calc(var(--nt-vw)*1)) * 0.5);
 }
 
 .nt-inter .body.int-columns .item .img {
@@ -8895,6 +8925,21 @@
 .nt-inter .body.int-columns.int-shape-hexagon .item .img {
   position: absolute;
   inset: 0;
+}
+
+.nt-inter .body.int-columns.int-content-image-text.int-shape-circle .item .img,
+.nt-inter .body.int-columns.int-content-image-text.int-shape-hexagon .item .img {
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  flex: none !important;
+  align-self: stretch;
+  background-size: cover;
+  background-position: center;
 }
 
 .nt-inter .body.int-columns.int-shape-circle .item .name,
@@ -9915,10 +9960,11 @@
   font-size: calc(var(--nt-vw)*2.6);
   font-weight: 900;
   line-height: 1.12;
+  margin: calc(var(--nt-vh)*1.4) auto;
 }
 
 .nt-inter .fs-home {
-  margin-top: calc(var(--nt-vh)*2.4);
+  margin-top: calc(var(--nt-vh)*5);
   text-align: center;
   padding: calc(var(--nt-vh)*1.1) calc(var(--nt-vw)*1.8);
   background: rgba(255, 255, 255, .1);
@@ -9938,6 +9984,7 @@
   display: flex;
   flex-direction: column;
   gap: calc(var(--nt-vh)*1.5);
+  row-gap: calc(var(--nt-vh)*5);
   flex: 1;
   justify-content: center;
 }
@@ -9947,6 +9994,7 @@
   align-items: center;
   gap: calc(var(--nt-vw)*0.9);
   padding: calc(var(--nt-vh)*1.35) calc(var(--nt-vw)*1.4);
+  min-height: calc(var(--nt-vh)*9);
   background: rgba(255, 255, 255, .07);
   border-radius: 999px;
 }
@@ -10610,8 +10658,11 @@
   flex-wrap: nowrap;
   padding: 0 !important;
   gap: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
 }
 
 .nt-inter .body.int-card-strip .item {
@@ -10626,6 +10677,7 @@
   clip-path: none !important;
   border: 0;
   border-right: calc(var(--nt-vw)*0.08) solid rgba(255, 255, 255, .15) !important;
+  scroll-snap-align: start;
 }
 
 .nt-inter .body.int-card-strip .item .img {
@@ -10634,7 +10686,6 @@
   flex: none !important;
   width: auto !important;
   height: auto !important;
-  opacity: .6;
   border-radius: 0 !important;
   clip-path: none !important;
   background-size: cover;
@@ -10820,20 +10871,23 @@
   text-align: center;
 }
 
-/* #3 overflow peek: show a sliver of the next card so scrollability is obvious */
-.nt-inter .body.int-columns.scroll-horizontal .item {
-  flex: 0 0 calc(100% / (var(--int-cols, 3) + 0.4)) !important;
+/* #3 overflow peek: keep the requested visible-card sizing and reserve only a
+   small lead-in so the next horizontal card is discoverable. */
+.nt-inter .body.int-columns.scroll-horizontal.int-scroll-peek .item {
+  flex: 0 0 calc((100% - (var(--int-cols, 3) - 1) * var(--nt-vw)*1.4 - var(--nt-vw)*2.4) / var(--int-cols, 3)) !important;
 }
 
-.nt-inter .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon) .item {
+.nt-inter .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon).int-scroll-peek .item {
   flex: 0 0 calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
   width: calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
   height: calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
 }
 
-/* card-strip: dynamic per-card width (team) + flex-grow so cards fill leftover (#1) */
+/* card-strip: dynamic visible-card width; no grow, so extra preview cards overflow horizontally. */
 .nt-inter .body.int-card-strip .item {
-  flex: 1 0 var(--int-strip-card-width, 33.333%) !important;
+  flex: 0 0 var(--int-strip-card-width, 33.333%) !important;
+  width: var(--int-strip-card-width, 33.333%) !important;
+  min-width: var(--int-strip-card-width, 33.333%) !important;
 }
 
 .nt-inter .body.int-columns.scroll-horizontal,
