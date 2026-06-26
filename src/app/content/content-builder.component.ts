@@ -515,6 +515,28 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
 
   /** Tap-to-place map marker: which product the next map tap positions. */
   markerIdx = 0;
+  /** Selected product per individual end-item for the Promo Map + Ranks map locator. */
+  private leafMarkerIndices: Record<string, number> = {};
+  leafMarkerIndex(node: CardItem): number {
+    const index = this.leafMarkerIndices[node.id] ?? 0;
+    const count = node.products?.length || 0;
+    return count ? Math.max(0, Math.min(index, count - 1)) : 0;
+  }
+  selectLeafMarker(node: CardItem, index: number): void { this.leafMarkerIndices[node.id] = index; }
+  leafMarkerColor(node: CardItem): string {
+    return node.products?.[this.leafMarkerIndex(node)]?.markerColor
+      || this.mapRoute?.color
+      || this.draft?.themeTokens.result.pathColor
+      || this.draft?.themeTokens.result.accent
+      || '#2563eb';
+  }
+  setLeafMarkerColor(node: CardItem, color: string): void {
+    const products = node.products || [];
+    const product = products[this.leafMarkerIndex(node)];
+    if (!product) return;
+    product.markerColor = color;
+    node.products = [...products];
+  }
   /** Editor map zoom (H-2) — 1 = fit. Coordinates stay correct because
    *  placeMarker reads the (scaled) bounding rect. */
   mapZoom = 1;
@@ -537,6 +559,19 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     p.mapX = x; p.mapY = y;
     // New products array reference so the preview strip re-renders the dot immediately.
     this.setCurResult({ ...cur, products: [...products] });
+  }
+
+  /** Place a marker on a product owned by an individual intermediate end-item. */
+  placeLeafMarker(ev: MouseEvent, box: HTMLElement, node: CardItem): void {
+    if (!this.mapDotsEnabled) return;
+    const rect = box.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const products = node.products || [];
+    const product = products[this.leafMarkerIndex(node)];
+    if (!product) return;
+    product.mapX = Math.round(Math.max(0, Math.min(100, ((ev.clientX - rect.left) / rect.width) * 100)));
+    product.mapY = Math.round(Math.max(0, Math.min(100, ((ev.clientY - rect.top) / rect.height) * 100)));
+    node.products = [...products];
   }
 
   /** Map marker placement mode of the ACTIVE result page: dot / none. */
