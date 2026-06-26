@@ -277,12 +277,15 @@ export class ThemeWizardComponent implements OnInit {
         (this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon')) {
       this.t.cardShape = 'rect';
     }
+    if (l === 'image-strip') {
+      this.t.scrollMode = 'horizontal';
+    }
     // Auto-reset overflow scrolling if the new layout doesn't offer the current
     // mode (e.g. Column+Horizontal → Hero+List, which has no Horizontal option):
     // leaving a stale 'horizontal' applied the scroll-horizontal class to a
     // layout that can't lay out as a row and broke the preview/render.
     if (!this.scrollModesFor.some((m) => m.id === this.t.scrollMode)) {
-      this.t.scrollMode = 'vertical';
+      this.t.scrollMode = this.scrollModesFor[0]?.id || 'vertical';
     }
     this.coerceTextPos();
     this.checkDefaultCardGap();
@@ -321,7 +324,13 @@ export class ThemeWizardComponent implements OnInit {
   /** Card gap: hidden where cards always fill the screen. */
   get gapMatters(): boolean { return !['image-strip', 'fullscreen', 'finder-select'].includes(this.t.homeLayout); }
   get scrollModesFor(): { id: ScrollMode; label: string }[] {
-    return this.t.homeLayout === 'hero-list' ? this.scrollModes.filter(m => m.id !== 'horizontal') : this.scrollModes;
+    if (this.t.homeLayout === 'hero-list') {
+      return this.scrollModes.filter(m => m.id !== 'horizontal');
+    }
+    if (this.t.homeLayout === 'image-strip') {
+      return this.scrollModes.filter(m => m.id !== 'vertical');
+    }
+    return this.scrollModes;
   }
   /** Intermediate content options (image layouts only). */
   interContents: { id: CardContent; label: string }[] = [
@@ -385,12 +394,14 @@ export class ThemeWizardComponent implements OnInit {
   }
   /** Result: card shape applies to templates with product cards/thumbnails. */
   get resShapeMatters(): boolean {
-    return ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'catalog-grid', 'filter-list', 'map-filter-list', 'shelf'].includes(this.t.resultTemplate);
+    return ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'catalog-grid', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'promo-map-rank', 'shelf'].includes(this.t.resultTemplate);
   }
   /** Row templates only change the small thumbnail — rect/pill are no-ops there. */
   get resShapesFor(): { id: CardShape; label: string }[] {
-    const thumbOnly = ['map-list', 'list-only', 'filter-list', 'map-filter-list'].includes(this.t.resultTemplate);
-    return thumbOnly ? this.cardShapes.filter((s) => s.id === 'circle' || s.id === 'hexagon') : this.cardShapes;
+    const thumbOnly = ['map-list', 'list-only', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'promo-map-rank'].includes(this.t.resultTemplate);
+    if (thumbOnly) return this.cardShapes.filter((s) => s.id === 'circle' || s.id === 'hexagon');
+    if (this.t.resultTemplate === 'card-grid') return this.cardShapes.filter((s) => s.id !== 'circle' && s.id !== 'hexagon');
+    return this.cardShapes;
   }
   /** Effective count shown in the stepper: override, else derived from the layout. */
   get effectiveColumns(): number { return this.t.columns ?? columnsForLayout(this.t.homeLayout); }
@@ -705,6 +716,9 @@ export class ThemeWizardComponent implements OnInit {
     const changed = this.t.resultTemplate !== o;
     this.t.resultTemplate = o;
     if (!changed) return;
+    if (o === 'card-grid' && (this.t.result.cardShape === 'circle' || this.t.result.cardShape === 'hexagon')) {
+      this.t.result.cardShape = undefined;
+    }
     if (o === 'promo-map-rank') this.applyPromoMapRankDefaults();
     else if (o === 'finder-detail') this.applyFinderDetailDefaults();
     else this.applyMapListDefaults();

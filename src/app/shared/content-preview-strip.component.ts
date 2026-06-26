@@ -239,9 +239,10 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           <!-- drill-filter -->
           <div class="body stair" *ngIf="resTpl==='drill-filter'">
-            <div class="scol">
+            <div class="scol" *ngFor="let col of drillFilterColumns">
+              <div class="scol-label">{{ col.label }}</div>
               <div class="scol-items">
-                <div class="scol-item" *ngFor="let p of resultCells.slice(0,3); let i = index" [class.picked]="isFound(i)" (click)="selectResult(i)">{{ p.name }}</div>
+                <div class="scol-item" *ngFor="let it of col.items; let i = index" [class.picked]="i===col.pickedIndex">{{ it.name }}</div>
               </div>
             </div>
             <div class="scol scol-flist">
@@ -252,6 +253,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <div class="filter-list">
                 <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                   <span class="fnum">{{ i + 1 }}</span>
+                  <div class="fimg" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                   <div class="finfo">
                     <div class="fnm">{{ p.name }}</div>
                     <div class="fmeta" *ngIf="p.price">Price {{ p.price }}<span *ngIf="p.aisle"> · Zone {{ p.aisle }}</span></div>
@@ -269,6 +271,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="filter-list">
                 <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                 <span class="fnum">{{ i + 1 }}</span>
+                <div class="fimg" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="finfo">
                   <div class="fnm">{{ p.name }}</div>
                   <div class="fmeta" *ngIf="p.price">Price {{ p.price }}<span *ngIf="p.aisle"> · Zone {{ p.aisle }}</span></div>
@@ -288,6 +291,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="filter-list">
               <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                 <span class="fnum">{{ i + 1 }}</span>
+                <div class="fimg" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="finfo">
                   <div class="fnm">{{ p.name }}</div>
                   <div class="fmeta" *ngIf="p.price">Price {{ p.price }}<span *ngIf="p.aisle"> · Zone {{ p.aisle }}</span></div>
@@ -306,6 +310,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 <div class="ftab">Alphabetical</div>
               </div>
               <div class="prod" [class.found]="isFound(i)" *ngFor="let p of resultCells.slice(0,5); let i = index" (click)="selectResult(i)">
+                <div class="img" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="info">
                   <div class="nm">{{ p.name }}<span class="price" *ngIf="p.price"> · {{ p.price }}</span></div>
                   <div class="loc" *ngIf="p.aisle">ZONE {{ p.aisle }}</div>
@@ -642,6 +647,29 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     const labels = this.theme?.result?.breadcrumbLabels?.length ? this.theme.result.breadcrumbLabels : ['Manufacturer', 'Model', 'Year'];
     const vals = ['Mercedes-Benz', 'S Class', '2021'];
     return labels.slice(0, 3).map((label, i) => ({ label, value: vals[i] || '—' }));
+  }
+  /** drill-filter result preview: one breadcrumb column per real hierarchy level. */
+  get drillFilterColumns(): { label: string; items: CardItem[]; pickedIndex: number }[] {
+    const fallback = this.homeCells.slice(0, 3);
+    const roots = (this.home || []).length ? this.home : fallback;
+    const labels = this.theme?.result?.breadcrumbLabels || [];
+    const out: { label: string; items: CardItem[]; pickedIndex: number }[] = [];
+    let levelItems = roots;
+    let picked: CardItem | undefined;
+
+    for (let level = 0; levelItems.length && level < 6; level++) {
+      const items = levelItems.map((c) => ({ ...c, name: c.name || 'Item' }));
+      picked = items.find((c) => c.children?.length || c.products?.length) || items[0];
+      const pickedIndex = Math.max(0, items.findIndex((c) => c.id === picked?.id));
+      out.push({
+        label: labels[level] || (level === 0 ? 'Category' : (out[level - 1]?.items[out[level - 1].pickedIndex]?.name || `Level ${level + 1}`)),
+        items,
+        pickedIndex,
+      });
+      levelItems = picked.children || [];
+    }
+
+    return out.length ? out : [{ label: 'Category', items: fallback, pickedIndex: 0 }];
   }
   private swatch(hex: string): string {
     return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Crect width='120' height='80' fill='${hex}'/%3E%3C/svg%3E`;
