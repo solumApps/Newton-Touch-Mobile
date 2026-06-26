@@ -61,9 +61,29 @@
         </div>
 
         <!-- HOME -->
-        <div *ngSwitchCase="'home'" class="stage layout-{{t.homeLayout}} card-size-{{t.cardSize||'normal'}} align-{{t.cardAlign||'center'}} gap-{{t.cardGap||'normal'}}" [class.shape]="shapeCard"
+        <div *ngSwitchCase="'home'" class="stage layout-{{t.homeLayout}} card-size-{{t.cardSize||'normal'}} align-{{t.cardAlign||'center'}} gap-{{t.cardGap||'normal'}}" [class.shape]="shapeCard" [class.nt-inter]="t.homeLayout==='finder-select'"
              [class.has-cols]="t.columns !== undefined" [style.--cols]="t.columns" [class.cols-1]="effectiveColumns === 1"
              [class.scroll-vertical]="t.scrollMode==='vertical'" [class.scroll-horizontal]="t.scrollMode==='horizontal'">
+          <div class="body fs-body" *ngIf="t.homeLayout==='finder-select'" [style.--prm-panel]="t.intermediate.heroColor || null" [style.--prm-accent]="t.intermediate.accent || null" [style.--nt-int-scale]="t.intermediate.itemSizeScale || 1">
+            <div class="fs-hero">
+              <div class="fs-hero-title">Newton Touch</div>
+              <div class="fs-home"><span class="fs-home-ic">&#8962;</span> Home</div>
+              <div class="fs-steps">
+                <div class="fs-step" *ngFor="let s of homeFinderSteps; let i=index" [class.current]="i===0" [class.todo]="i>0"><span class="fs-step-lbl">{{ s }}</span><span class="fs-step-val">-</span><span class="fs-step-dot" *ngIf="i===0"></span></div>
+              </div>
+            </div>
+            <div class="fs-main">
+              <div class="fs-top fs-back-{{t.intermediate.fsBackPos||'left'}} fs-prompt-{{t.intermediate.fsPromptPos||'center'}}"><button type="button" class="fs-back" *ngIf="t.intermediate.fsShowBack!==false">&#8592;</button><div class="fs-prompt" *ngIf="t.intermediate.fsShowPrompt!==false">{{ (t.intermediate.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div></div>
+              <div class="fs-cards content-{{t.intermediate.fsCardContent||'text-only'}} shape-{{t.intermediate.fsCardShape||'rect'}} textpos-{{t.intermediate.fsTextPos||'center'}} textalign-{{t.intermediate.fsTextAlign||'center'}}">
+                <div class="fs-card" *ngFor="let n of slots; let i = index">
+                  <div class="fs-card-img" *ngIf="(t.intermediate.fsCardContent||'text-only')!=='text-only'" [style.background-image]="phImg(i)"></div>
+                  <span class="fs-card-nm" *ngIf="(t.intermediate.fsCardContent||'text-only')!=='image-only'">{{ labels[i] }}</span>
+                </div>
+              </div>
+              <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let n of slots; let i=index" [class.active]="i===0">{{ labels[i] }}</span></div>
+            </div>
+          </div>
+
           <div class="hero-copy" *ngIf="t.homeLayout==='hero-start'">
             <span>Product Finder</span>
             <b>Start Search</b>
@@ -86,7 +106,7 @@
               <div class="meta"><span class="name">{{ labels[i] }}</span></div>
             </div>
           </div>
-          <ng-container *ngIf="t.homeLayout!=='h-scroll' && t.homeLayout!=='promo-categories'">
+          <ng-container *ngIf="t.homeLayout!=='h-scroll' && t.homeLayout!=='promo-categories' && t.homeLayout!=='finder-select'">
             <div class="card shape-{{t.cardShape}} content-{{t.cardContent}} pos-{{t.cardTextPos}}" *ngFor="let n of slots; let i = index"
                  [class.featured]="i===0"
                  [style.color]="t.cardText" [style.borderColor]="t.accent">
@@ -290,7 +310,32 @@
           </div>
         </ng-container>
 
-        <ng-container *ngIf="!isHeroStart">
+        <ng-container *ngIf="t.homeLayout==='finder-select'">
+          <div class="step-title sm">Finder Select Top Bar</div>
+          <div class="step-title sm">Title visibility</div>
+          <div class="seg">
+            <button class="tile" [class.sel]="t.intermediate.fsShowPrompt!==false" (click)="t.intermediate.fsShowPrompt=true">Show title</button>
+            <button class="tile" [class.sel]="t.intermediate.fsShowPrompt===false" (click)="t.intermediate.fsShowPrompt=false">Hide title</button>
+          </div>
+          <div class="step-title sm" *ngIf="t.intermediate.fsShowPrompt!==false">Title alignment</div>
+          <div class="seg" *ngIf="t.intermediate.fsShowPrompt!==false"><button class="tile" *ngFor="let p of fsPositions" [class.sel]="(t.intermediate.fsPromptPos||'center')===p" (click)="t.intermediate.fsPromptPos=p">{{ p }}</button></div>
+          <div class="step-title sm">Back visibility</div>
+          <div class="seg"><button class="tile" [class.sel]="t.intermediate.fsShowBack!==false" (click)="t.intermediate.fsShowBack=true">Show back</button><button class="tile" [class.sel]="t.intermediate.fsShowBack===false" (click)="t.intermediate.fsShowBack=false">Hide back</button></div>
+          <div class="step-title sm">Card content</div>
+          <div class="seg"><button class="tile" *ngFor="let c of fsCardContents" [class.sel]="(t.intermediate.fsCardContent||'text-only')===c.id" (click)="pickFsContent(c.id)">{{ c.label }}</button></div>
+          <ng-container *ngIf="(t.intermediate.fsCardContent||'text-only')!=='text-only' && (t.intermediate.fsCardContent||'text-only')!=='image-only'">
+            <div class="step-title sm">Card shape</div>
+            <div class="tiles"><button class="tile" *ngFor="let s of cardShapes" [class.sel]="(t.intermediate.fsCardShape||'rect')===s.id" (click)="t.intermediate.fsCardShape=s.id">{{ s.label }}</button></div>
+          </ng-container>
+          <div class="step-title sm">Text vertical position</div>
+          <div class="seg"><button class="tile" *ngFor="let p of fsTextVPositions" [class.sel]="(t.intermediate.fsTextPos||'center')===p.id" (click)="t.intermediate.fsTextPos=p.id">{{ p.label }}</button></div>
+          <ng-container *ngIf="(t.intermediate.fsCardContent||'text-only')!=='image-only'">
+            <div class="step-title sm">Text horizontal alignment</div>
+            <div class="seg"><button class="tile" *ngFor="let a of cardAligns" [class.sel]="(t.intermediate.fsTextAlign||'center')===a.id" (click)="t.intermediate.fsTextAlign=a.id">{{ a.label }}</button></div>
+          </ng-container>
+        </ng-container>
+
+        <ng-container *ngIf="!isHeroStart && t.homeLayout!=='finder-select'">
         <ng-container *ngIf="sizeMatters">
           <div class="step-title sm">Card size</div>
           <p class="hint">Drag to set the physical size of each category card.</p>
@@ -345,7 +390,7 @@
         </div>
         </ng-container>
 
-        <ng-container *ngIf="showTextPos">
+        <ng-container *ngIf="showTextPos && t.homeLayout!=='finder-select'">
           <div class="step-title sm">Text vertical position</div>
           <div class="seg">
             <button class="tile" *ngFor="let p of textPositionsFor" [class.sel]="t.cardTextPos===p.id" (click)="t.cardTextPos=p.id">{{ p.label }}</button>
@@ -365,6 +410,7 @@
           </ng-container>
         </ng-container>
 
+        <ng-container *ngIf="t.homeLayout!=='finder-select'">
         <div class="step-title sm">Header bar</div>
         <div class="seg">
           <button class="tile" [class.sel]="t.showHeader" (click)="t.showHeader=true">Show</button>
@@ -401,6 +447,7 @@
           </ng-container>
           <p class="hint">Text fields (title / caption) are filled in the content section.</p>
         </ng-container>
+        </ng-container>
         <div class="step-title sm">Intermediate page</div>
         <div class="seg">
           <button class="tile" [class.sel]="t.includeIntermediate" (click)="t.includeIntermediate=true">Include</button>
@@ -428,7 +475,8 @@
         </ng-container>
         <app-color-picker *ngIf="t.cardContent !== 'image-only' && t.cardContent !== 'image-text'" label="Card background" [allowGradient]="true" [value]="t.cardBackground" (valueChange)="t.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker label="Card text" [value]="t.cardText" (valueChange)="t.cardText=$event" [presets]="textPresets"></app-color-picker>
-        <app-color-picker *ngIf="overlayRelevant" label="Text overlay" hint="background behind text on cards" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
+        <app-color-picker *ngIf="t.homeLayout==='finder-select'" label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
+        <app-color-picker *ngIf="overlayRelevant || t.homeLayout==='finder-select'" label="Text overlay" hint="background behind text on cards" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
         <app-color-picker label="Accent / highlight" [value]="t.accent" (valueChange)="t.accent=$event"></app-color-picker>
         <ng-container *ngIf="t.showHeader && !isCustomHeader">
           <div class="step-title sm">Logo position</div>
@@ -544,8 +592,6 @@
             <div class="seg"><button class="tile" *ngFor="let a of cardAligns" [class.sel]="(t.intermediate.fsTextAlign||'center')===a.id" (click)="t.intermediate.fsTextAlign=a.id">{{ a.label }}</button></div>
           </ng-container>
 
-          <app-color-picker label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
-          <app-color-picker label="Text overlay" hint="background behind overlaid finder card text" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
         </ng-container>
 
         <ng-container *ngIf="t.intermediateStyle==='fullscreen'">
@@ -666,6 +712,8 @@
         </ng-container>
         <app-color-picker label="Row / card background" [value]="t.intermediate.cardBackground" (valueChange)="t.intermediate.cardBackground=$event" [presets]="intCardPresets"></app-color-picker>
         <app-color-picker label="Card text" [value]="t.intermediate.cardText" (valueChange)="t.intermediate.cardText=$event" [presets]="textPresets"></app-color-picker>
+        <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
+        <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Text overlay" hint="background behind overlaid finder card text" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
         <app-color-picker label="Accent / active" [value]="t.intermediate.accent" (valueChange)="t.intermediate.accent=$event"></app-color-picker>
         <div class="step-title sm">Sub-item size</div>
         <div class="slider-row">

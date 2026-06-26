@@ -104,7 +104,27 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         </div>
 
         <!-- HOME (LCD markup: .cards.layout-*) -->
-        <div *ngSwitchCase="'home'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} valign-{{theme?.cardVAlign||'middle'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
+        <ng-container *ngSwitchCase="'home'">
+        <div class="body fs-body" *ngIf="theme?.homeLayout==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || null" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--int-gap]="cardGapPx" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
+          <div class="fs-hero">
+            <div class="fs-hero-title">{{ titleText || 'Product Finder' }}</div>
+            <div class="fs-home"><span class="fs-home-ic">&#8962;</span> Home</div>
+            <div class="fs-steps">
+              <div class="fs-step" *ngFor="let s of homeFinderSteps; let i=index" [class.current]="i===0" [class.todo]="i>0"><span class="fs-step-lbl">{{ s }}</span><span class="fs-step-val">-</span><span class="fs-step-dot" *ngIf="i===0"></span></div>
+            </div>
+          </div>
+          <div class="fs-main">
+            <div class="fs-top fs-back-{{theme?.intermediate?.fsBackPos||'left'}} fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}"><button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">&#8592;</button><div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div></div>
+            <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{theme?.intermediate?.fsTextPos||'center'}} textalign-{{theme?.intermediate?.fsTextAlign||'center'}}">
+              <div class="fs-card" *ngFor="let c of homeCells; let i = index">
+                <div class="fs-card-img" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='text-only'" [class.no-img]="!c.image && !finderUsePh" [style.background-image]="c.image ? 'url('+c.image+')' : (finderUsePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null"></div>
+                <span class="fs-card-nm" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='image-only'">{{ c.name }}</span>
+              </div>
+            </div>
+            <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let c of homeCells; let i=index" [class.active]="i===0">{{ c.name }}</span></div>
+          </div>
+        </div>
+        <div *ngIf="theme?.homeLayout!=='finder-select'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} valign-{{theme?.cardVAlign||'middle'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
              [class.has-cols]="cols !== undefined" [style.--cols]="cols" [style.--card-gap]="cardGapPx" [class.cols-1]="cols === 1"
              [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [class.no-overlay]="theme?.cardTextOverlay === false">
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
@@ -140,6 +160,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             </div>
           </ng-container>
         </div>
+        </ng-container>
 
         <!-- INTERMEDIATE (LCD markup: .body.int-*) -->
         <ng-container *ngSwitchCase="'inter'">
@@ -531,9 +552,10 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return ['columns', 'image-grid', 'card-strip', 'side-rail', 'brand-grid', 'brand-rail', 'circular', 'fullscreen'].includes(style);
   }
   get finderUsePh(): boolean {
-    if (this.page !== 'inter' || this.theme?.intermediateStyle !== 'finder-select') return false;
+    if (!((this.page === 'inter' && this.theme?.intermediateStyle === 'finder-select') || (this.page === 'home' && this.theme?.homeLayout === 'finder-select'))) return false;
     return this.imageContent(this.theme?.intermediate?.fsCardContent || 'text-only');
   }
+  homeFinderSteps = ['Category 1', 'Category 2', 'Category 3', 'Category 4'];
   /** Result: dummy product images (unless content is text-only). */
   get resUsePh(): boolean {
     return this.page === 'result' && this.theme?.result?.content !== 'text-only';
@@ -602,7 +624,10 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
         if (this.theme?.scrollMode === 'vertical') cls.push('scroll-vertical');
         if (this.theme?.scrollMode === 'horizontal') cls.push('scroll-horizontal');
       }
-    } else if (this.page === 'home') cls.push('nt-home');
+    } else if (this.page === 'home') {
+      cls.push('nt-home');
+      if (this.theme?.homeLayout === 'finder-select') cls.push('nt-inter');
+    }
     return cls;
   }
   get resTpl(): string { return this.theme?.resultTemplate || 'map-list'; }
@@ -773,6 +798,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       if (this.resTpl === 'promo-map-rank' || this.resTpl === 'finder-detail') return false;
       return this.theme?.result?.showHeader !== false;
     }
+    if (this.theme?.homeLayout === 'finder-select') return false;
     return this.theme?.showHeader !== false;
   }
   get backgroundForPage(): string | undefined {
