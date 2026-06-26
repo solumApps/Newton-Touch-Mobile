@@ -456,7 +456,8 @@ export class ThemeWizardComponent implements OnInit {
     const cols = this.computedColumns;
     const gap = this.cardGapValue;
     // Base max shrinks as columns grow; gap further reduces headroom.
-    return Math.max(0.9, 1.25 - (cols - 3) * 0.06 - gap * 0.005);
+    const maxVal = Math.max(0.9, 1.25 - (cols - 3) * 0.06 - gap * 0.005);
+    return Math.min(1.1, maxVal);
   }
   setCardSize(v: string | number): void {
     const n = Math.min(this.cardSizeMax, Math.max(0.8, Number(v)));
