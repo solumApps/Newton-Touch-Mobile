@@ -65,15 +65,16 @@ export class ThemeWizardComponent implements OnInit {
 
   slots = [0, 1, 2, 3, 4, 5];
   labels = ['Bakery', 'Dairy', 'Produce', 'Meat', 'Frozen', 'Drinks'];
+  homeFinderSteps = ['Category 1', 'Category 2', 'Category 3', 'Category 4'];
 
   /** Grid/column variants collapse into ONE 'Columns' tile — the free column
    *  stepper picks the count (legacy layouts still map onto it when editing). */
-  homeLayouts: HomeLayout[] = ['col-3', 'fullscreen', 'image-strip', 'promo-categories', 'bento'];
+  homeLayouts: HomeLayout[] = ['col-3', 'fullscreen', 'image-strip', 'promo-categories', 'bento', 'finder-select'];
   layoutLabels: Record<HomeLayout, string> = {
     'grid-2x3': 'Columns', 'grid-2x2': 'Columns', 'col-2': 'Columns', 'col-3': 'Columns', 'col-4': 'Columns',
     'hero-list': 'Hero + list', 'list': 'List rows', 'fullscreen': 'Fullscreen',
     'image-strip': 'Image strips', 'hero-start': 'Hero start', 'promo-categories': 'Promo categories',
-    'h-scroll': 'Horizontal scroll', 'bento': 'Bento grid',
+    'h-scroll': 'Horizontal scroll', 'bento': 'Bento grid', 'finder-select': 'Finder select',
   };
   /** Independent card axes — any shape × any content × any text position. */
   cardShapes: { id: CardShape; label: string }[] = [
@@ -211,6 +212,7 @@ export class ThemeWizardComponent implements OnInit {
     }
   }
   pickInterStyle(s: IntermediateStyle): void {
+    const wasFinderSelect = this.t.intermediateStyle === 'finder-select';
     this.t.intermediateStyle = s;
     if (s === 'columns') this.t.intermediate.align = 'center';
     if ((s as string) === 'side-rail') this.t.intermediate.align = 'left';
@@ -227,6 +229,7 @@ export class ThemeWizardComponent implements OnInit {
     // finder-select replaces the global header/nav with its own fs-top + fs-hero
     // bars, so the standard intermediate header is force-hidden (#5a).
     if (s === 'finder-select') this.t.intermediate.showHeader = false;
+    else if (wasFinderSelect) this.t.intermediate.showHeader = true;
     // #2/#5 full-bleed styles must use an inner text position; #4 ensure content set.
     if (s === 'fullscreen' || s === 'card-strip') {
       this.coerceInnerTextPos();
@@ -244,6 +247,7 @@ export class ThemeWizardComponent implements OnInit {
   private readonly noShapeLayouts: HomeLayout[] = ['list', 'fullscreen', 'image-strip', 'hero-list', 'bento'];
 
   pickLayout(l: HomeLayout): void {
+    const wasFinderSelect = this.t.homeLayout === 'finder-select';
     this.t.homeLayout = l;
     // #2 full-bleed fullscreen must use an inner text position.
     if (l === 'fullscreen') this.coerceHomeInnerTextPos();
@@ -254,6 +258,8 @@ export class ThemeWizardComponent implements OnInit {
     }
     if (l === 'image-strip') this.t.columns = 4;
     if (l === 'bento') this.t.columns = 4;
+    if (l === 'finder-select') this.t.showHeader = false;
+    else if (wasFinderSelect) this.t.showHeader = true;
     // image-strip is image-based — coerce a non-image content to Image + Text.
     if (l === 'image-strip' && !['image-text', 'image-only'].includes(this.t.cardContent)) {
       this.pickContent('image-text');
@@ -271,12 +277,15 @@ export class ThemeWizardComponent implements OnInit {
         (this.t.cardShape === 'circle' || this.t.cardShape === 'hexagon')) {
       this.t.cardShape = 'rect';
     }
+    if (l === 'image-strip') {
+      this.t.scrollMode = 'horizontal';
+    }
     // Auto-reset overflow scrolling if the new layout doesn't offer the current
     // mode (e.g. Column+Horizontal → Hero+List, which has no Horizontal option):
     // leaving a stale 'horizontal' applied the scroll-horizontal class to a
     // layout that can't lay out as a row and broke the preview/render.
     if (!this.scrollModesFor.some((m) => m.id === this.t.scrollMode)) {
-      this.t.scrollMode = 'vertical';
+      this.t.scrollMode = this.scrollModesFor[0]?.id || 'vertical';
     }
     this.coerceTextPos();
     this.checkDefaultCardGap();
@@ -311,11 +320,17 @@ export class ThemeWizardComponent implements OnInit {
   /** Layouts with a free ITEM count (same stepper, different meaning). */
   get itemCountMatters(): boolean { return ['image-strip', 'bento', 'hero-list'].includes(this.t.homeLayout); }
   /** Overflow-scrolling control: hidden where it breaks the layout or is moot. */
-  get scrollMatters(): boolean { return !['image-strip', 'hero-start', 'bento', 'fullscreen', 'promo-categories'].includes(this.t.homeLayout); }
+  get scrollMatters(): boolean { return !['image-strip', 'hero-start', 'bento', 'fullscreen', 'promo-categories', 'finder-select'].includes(this.t.homeLayout); }
   /** Card gap: hidden where cards always fill the screen. */
-  get gapMatters(): boolean { return !['image-strip', 'fullscreen'].includes(this.t.homeLayout); }
+  get gapMatters(): boolean { return !['image-strip', 'fullscreen', 'finder-select'].includes(this.t.homeLayout); }
   get scrollModesFor(): { id: ScrollMode; label: string }[] {
-    return this.t.homeLayout === 'hero-list' ? this.scrollModes.filter(m => m.id !== 'horizontal') : this.scrollModes;
+    if (this.t.homeLayout === 'hero-list') {
+      return this.scrollModes.filter(m => m.id !== 'horizontal');
+    }
+    if (this.t.homeLayout === 'image-strip') {
+      return this.scrollModes.filter(m => m.id !== 'vertical');
+    }
+    return this.scrollModes;
   }
   /** Intermediate content options (image layouts only). */
   interContents: { id: CardContent; label: string }[] = [
@@ -846,8 +861,16 @@ export class ThemeWizardComponent implements OnInit {
   ];
   bgPresets = ['linear-gradient(135deg,#2F006D,#001973)', '#0F172A', '#FFFFFF', '#1A0036', '#0A0A1A', ...this.gradientPresets.slice(1)];
   cardPresets = ['rgba(255,255,255,0.15)', '#FFFFFF', '#1E293B', '#F1F5F9', ...this.gradientPresets];
+  intCardPresets = ['rgba(255,255,255,0.12)', '#EEF3F8', '#E2E8F0', '#CBD5E1', '#1E293B', ...this.gradientPresets];
+  heroPanelPresets = ['#172033', '#0F172A', '#1D3A66', '#123B3F', '#3B2F12', '#23262B'];
   textPresets = ['#FFFFFF', '#0F172A', '#FFCD00'];
   overlayPresets = ['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)', 'rgba(255,255,255,0.6)', 'rgba(47,0,109,0.7)'];
+
+  phImg(i: number): string {
+    const fills = ['%2386EFAC', '%23FDE68A', '%23FCA5A5', '%23A5B4FC', '%2367E8F9', '%23F9A8D4'];
+    const fill = fills[i % fills.length];
+    return `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'%3E%3Crect width='160' height='100' fill='${fill}'/%3E%3Cpolygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/%3E%3C/svg%3E")`;
+  }
 
   constructor(private themes: ThemeService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private sanitizer: DomSanitizer) {}
 

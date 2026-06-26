@@ -27,7 +27,9 @@ export type HomeLayout =
   /** h-scroll: single horizontally-scrolling row of cards — great as a category rail. */
   | 'h-scroll'
   /** bento: asymmetric tile grid — one large hero tile plus smaller tiles. Modern, promo-friendly. */
-  | 'bento';
+  | 'bento'
+  /** finder-select: Home arrangement using the finder progress rail + selection cards. */
+  | 'finder-select';
 
 export type CardSize = 'xs' | 'small' | 'normal' | 'large';
 export type NavButtonPosition = 'bottom-left' | 'bottom-center' | 'bottom-right' | 'side-left' | 'side-right' | 'header-left' | 'header-right' | 'hidden';
@@ -386,7 +388,7 @@ export interface ResultContent {
  *  file) to safe defaults instead of passing them through into CSS classes. */
 export const THEME_ENUM_VALUES = {
   logoPosition: ['left', 'center', 'right'],
-  homeLayout: ['grid-2x3', 'grid-2x2', 'col-2', 'col-3', 'col-4', 'hero-list', 'list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'h-scroll', 'bento'],
+  homeLayout: ['grid-2x3', 'grid-2x2', 'col-2', 'col-3', 'col-4', 'hero-list', 'list', 'fullscreen', 'image-strip', 'hero-start', 'promo-categories', 'h-scroll', 'bento', 'finder-select'],
   cardSize: ['xs', 'small', 'normal', 'large'],
   cardShape: ['rect', 'pill', 'circle', 'hexagon', 'none'],
   cardContent: ['image-text', 'image-only', 'text-only', 'icon-text', 'color-block', 'gradient'],
