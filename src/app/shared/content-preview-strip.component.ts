@@ -232,6 +232,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <div class="filter-list">
                 <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                   <span class="fnum">{{ i + 1 }}</span>
+                  <div class="fimg" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                   <div class="finfo">
                     <div class="fnm">{{ p.name }}</div>
                     <div class="fmeta" *ngIf="p.price">Price {{ p.price }}<span *ngIf="p.aisle"> · Zone {{ p.aisle }}</span></div>
@@ -249,6 +250,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="filter-list">
                 <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                 <span class="fnum">{{ i + 1 }}</span>
+                <div class="fimg" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="finfo">
                   <div class="fnm">{{ p.name }}</div>
                   <div class="fmeta" *ngIf="p.price">Price {{ p.price }}<span *ngIf="p.aisle"> · Zone {{ p.aisle }}</span></div>
@@ -268,6 +270,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="filter-list">
               <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
                 <span class="fnum">{{ i + 1 }}</span>
+                <div class="fimg" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="finfo">
                   <div class="fnm">{{ p.name }}</div>
                   <div class="fmeta" *ngIf="p.price">Price {{ p.price }}<span *ngIf="p.aisle"> · Zone {{ p.aisle }}</span></div>
@@ -286,6 +289,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 <div class="ftab">Alphabetical</div>
               </div>
               <div class="prod" [class.found]="isFound(i)" *ngFor="let p of resultCells.slice(0,5); let i = index" (click)="selectResult(i)">
+                <div class="img" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="info">
                   <div class="nm">{{ p.name }}<span class="price" *ngIf="p.price"> · {{ p.price }}</span></div>
                   <div class="loc" *ngIf="p.aisle">ZONE {{ p.aisle }}</div>

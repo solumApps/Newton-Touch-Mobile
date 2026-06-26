@@ -379,12 +379,14 @@ export class ThemeWizardComponent implements OnInit {
   }
   /** Result: card shape applies to templates with product cards/thumbnails. */
   get resShapeMatters(): boolean {
-    return ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'catalog-grid', 'filter-list', 'map-filter-list', 'shelf'].includes(this.t.resultTemplate);
+    return ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'catalog-grid', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'promo-map-rank', 'shelf'].includes(this.t.resultTemplate);
   }
   /** Row templates only change the small thumbnail — rect/pill are no-ops there. */
   get resShapesFor(): { id: CardShape; label: string }[] {
-    const thumbOnly = ['map-list', 'list-only', 'filter-list', 'map-filter-list'].includes(this.t.resultTemplate);
-    return thumbOnly ? this.cardShapes.filter((s) => s.id === 'circle' || s.id === 'hexagon') : this.cardShapes;
+    const thumbOnly = ['map-list', 'list-only', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'promo-map-rank'].includes(this.t.resultTemplate);
+    if (thumbOnly) return this.cardShapes.filter((s) => s.id === 'circle' || s.id === 'hexagon');
+    if (this.t.resultTemplate === 'card-grid') return this.cardShapes.filter((s) => s.id !== 'circle' && s.id !== 'hexagon');
+    return this.cardShapes;
   }
   /** Effective count shown in the stepper: override, else derived from the layout. */
   get effectiveColumns(): number { return this.t.columns ?? columnsForLayout(this.t.homeLayout); }
@@ -699,6 +701,9 @@ export class ThemeWizardComponent implements OnInit {
     const changed = this.t.resultTemplate !== o;
     this.t.resultTemplate = o;
     if (!changed) return;
+    if (o === 'card-grid' && (this.t.result.cardShape === 'circle' || this.t.result.cardShape === 'hexagon')) {
+      this.t.result.cardShape = undefined;
+    }
     if (o === 'promo-map-rank') this.applyPromoMapRankDefaults();
     else if (o === 'finder-detail') this.applyFinderDetailDefaults();
     else this.applyMapListDefaults();

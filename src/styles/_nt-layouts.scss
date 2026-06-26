@@ -4527,6 +4527,21 @@
   min-width: 0;
 }
 
+/* Product thumbnails in the compact ranked/filter result lists. */
+.nt-result .fitem .fimg {
+  width: calc(var(--nt-vw)*3.2);
+  height: calc(var(--nt-vh)*5.6);
+  flex: 0 0 auto;
+  margin-right: calc(var(--nt-vw)*0.9);
+  border-radius: calc(var(--nt-vw)*0.3);
+  background: #f1f1ef center / cover no-repeat;
+}
+
+.nt-result .fitem .fimg.no-img,
+.nt-result .prod .img.no-img {
+  background-color: #e5e5e1;
+}
+
 /* G-3: Map-List search + sort bar */
 .nt-result.res-map-list .body {
   display: grid;
@@ -5548,6 +5563,13 @@
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   scrollbar-width: none;
+}
+
+/* Image + Text promo lists should begin at the top of the result panel. */
+.nt-result.res-promo-list:not(.res-content-text-only) .promo-products {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .nt-result.res-promo-list .promo-products::-webkit-scrollbar {
@@ -10984,3 +11006,40 @@
 .nt-inter .fs-step.done .fs-step-val { color: var(--prm-accent, #4ea1ff); }
 .nt-inter .fs-step.todo .fs-step-val { color: #aab0b8; }
 .nt-inter .fs-hero { padding-top: calc(var(--nt-vh)*3.4); }
+
+/* Finder Detail hero spacing and compact-list thumbnail sizing. */
+.nt-result.res-finder-detail .fd-chip {
+  gap: calc(var(--nt-vw)*1.8);
+  padding: calc(var(--nt-vh)*2) calc(var(--nt-vw)*1.1);
+  margin-bottom: calc(var(--nt-vh)*1.6);
+}
+
+.nt-result.res-finder-detail .fd-chips,
+.nt-result.res-finder-detail .fd-home {
+  margin-top: calc(var(--nt-vh)*4.6);
+}
+
+.nt-result .fitem .fimg {
+  height: calc(var(--nt-vh)*9.6);
+}
+
+/* Keep result-list thumbnails in step with Map List's circle/hexagon image
+   treatment when the Result card shape is changed. */
+.nt-result.res-shape-circle.res-drill-filter .fimg,
+.nt-result.res-shape-circle.res-filter-list .fimg,
+.nt-result.res-shape-circle.res-map-filter-list .fimg,
+.nt-result.res-shape-circle.res-promo-list .prod .img,
+.nt-result.res-shape-circle.res-promo-map-rank .prm-img {
+  border-radius: 50%;
+  background-size: cover;
+}
+
+.nt-result.res-shape-hexagon.res-drill-filter .fimg,
+.nt-result.res-shape-hexagon.res-filter-list .fimg,
+.nt-result.res-shape-hexagon.res-map-filter-list .fimg,
+.nt-result.res-shape-hexagon.res-promo-list .prod .img,
+.nt-result.res-shape-hexagon.res-promo-map-rank .prm-img {
+  border-radius: 0;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background-size: cover;
+}
