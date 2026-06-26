@@ -473,6 +473,10 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
       const t = await this.themes.getById(this.draft.themeId);
       if (t) { this.draft.themeTokens = t.tokens; this.draft.themeName = t.name; }
     } catch { /* keep snapshot */ }
+    const themeSaverMode = this.draft.themeTokens.screensaver?.mode;
+    if (themeSaverMode && this.draft.screensaver.mode !== themeSaverMode) {
+      this.draft.screensaver = { ...this.draft.screensaver, mode: themeSaverMode };
+    }
     // Resume where the user left off (lastStep persisted with the draft).
     if (typeof this.draft.lastStep === 'number') {
       this.stepIndex = Math.min(Math.max(0, Math.round(this.draft.lastStep)), this.visibleSteps.length - 1);
@@ -580,7 +584,8 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
 
   /** Append a screensaver media item (image or video frame). */
   async addSaverMedia(): Promise<void> {
-    const dataUrl = await this.picker.pick();
+    const wantsVideo = this.draft?.screensaver?.mode === 'video';
+    const dataUrl = wantsVideo ? await this.picker.pickRaw('video/*') : await this.picker.pick();
     if (!dataUrl) return;
     this.draft!.screensaver.media = [...(this.draft!.screensaver.media || []), dataUrl];
   }
@@ -588,6 +593,10 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     const arr = this.draft!.screensaver.media || [];
     arr.splice(i, 1);
     this.draft!.screensaver.media = arr;
+  }
+
+  isVideoDataUrl(s: string | undefined): boolean {
+    return !!s && typeof s === 'string' && s.startsWith('data:video');
   }
 
   eslId(productId: string): string {

@@ -105,6 +105,7 @@ export class ContentCreateComponent implements OnInit {
       return;
     }
     this.nameError = '';
+    const screensaverMode = theme.tokens.screensaver?.mode ?? 'slideshow';
     const draft: ContentDraft = {
       id: 'cnt_' + Date.now(),
       name,
@@ -116,7 +117,7 @@ export class ContentCreateComponent implements OnInit {
       home: [],
       intermediate: [],
       result: { products: [] },
-      screensaver: { mode: 'slideshow', media: [], secondsPerSlide: 5, loop: true, idleTimeoutSec: 60, ctaText: 'Touch screen to begin' },
+      screensaver: { mode: screensaverMode, media: [], secondsPerSlide: 5, loop: true, idleTimeoutSec: 60, ctaText: 'Touch screen to begin' },
       status: 'draft',
       updatedAt: Date.now(),
     };

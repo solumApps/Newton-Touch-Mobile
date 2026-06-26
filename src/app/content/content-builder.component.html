@@ -408,7 +408,10 @@
       <p class="note">Mode: <b>{{ d.screensaver.mode }}</b> (set in theme).</p>
       <div class="sec"><span>Media ({{ d.screensaver.media?.length || 0 }})</span><button class="mini" (click)="addSaverMedia()">+ Media</button></div>
       <div class="erow" *ngFor="let m of d.screensaver.media; let i = index">
-        <div class="thumb" [style.background-image]="'url('+m+')'"></div>
+        <ng-container *ngIf="isVideoDataUrl(m); else imgThumb">
+          <video class="thumb" [src]="m" muted playsinline></video>
+        </ng-container>
+        <ng-template #imgThumb><div class="thumb" [style.background-image]="'url('+m+')'"></div></ng-template>
         <span class="inp" style="display:flex;align-items:center;opacity:.7">#{{ i+1 }}</span>
         <button class="del" (click)="removeSaverMedia(i)">✕</button>
       </div>
