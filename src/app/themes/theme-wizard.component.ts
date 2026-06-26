@@ -211,6 +211,7 @@ export class ThemeWizardComponent implements OnInit {
     }
   }
   pickInterStyle(s: IntermediateStyle): void {
+    const wasFinderSelect = this.t.intermediateStyle === 'finder-select';
     this.t.intermediateStyle = s;
     if (s === 'columns') this.t.intermediate.align = 'center';
     if ((s as string) === 'side-rail') this.t.intermediate.align = 'left';
@@ -227,6 +228,7 @@ export class ThemeWizardComponent implements OnInit {
     // finder-select replaces the global header/nav with its own fs-top + fs-hero
     // bars, so the standard intermediate header is force-hidden (#5a).
     if (s === 'finder-select') this.t.intermediate.showHeader = false;
+    else if (wasFinderSelect) this.t.intermediate.showHeader = true;
     // #2/#5 full-bleed styles must use an inner text position; #4 ensure content set.
     if (s === 'fullscreen' || s === 'card-strip') {
       this.coerceInnerTextPos();
@@ -841,6 +843,8 @@ export class ThemeWizardComponent implements OnInit {
   ];
   bgPresets = ['linear-gradient(135deg,#2F006D,#001973)', '#0F172A', '#FFFFFF', '#1A0036', '#0A0A1A', ...this.gradientPresets.slice(1)];
   cardPresets = ['rgba(255,255,255,0.15)', '#FFFFFF', '#1E293B', '#F1F5F9', ...this.gradientPresets];
+  intCardPresets = ['rgba(255,255,255,0.12)', '#EEF3F8', '#E2E8F0', '#CBD5E1', '#1E293B', ...this.gradientPresets];
+  heroPanelPresets = ['#172033', '#0F172A', '#1D3A66', '#123B3F', '#3B2F12', '#23262B'];
   textPresets = ['#FFFFFF', '#0F172A', '#FFCD00'];
   overlayPresets = ['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)', 'rgba(255,255,255,0.6)', 'rgba(47,0,109,0.7)'];
 
