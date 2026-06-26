@@ -205,7 +205,11 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   setDrillMode(m: 'common' | 'individual'): void { if (this.draft) this.draft.drillMode = m; }
   /** Common = one shared result product list; Individual = per end-item products
    *  (tree leaves in individual drill mode, intermediate items in common mode). */
-  get resultMode(): 'common' | 'individual' { return this.draft?.resultMode || 'common'; }
+  get resultMode(): 'common' | 'individual' {
+    if (this.draft?.resultMode) return this.draft.resultMode;
+    // Promo Map + Ranks is built around per-branch ranked products and markers.
+    return this.isPromoRank ? 'individual' : 'common';
+  }
   setResultMode(m: 'common' | 'individual'): void { if (this.draft) this.draft.resultMode = m; }
 
   // ---- Per-item result pages (skip-intermediate themes: Home → Result directly) ----
