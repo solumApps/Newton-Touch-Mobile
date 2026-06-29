@@ -14,7 +14,7 @@ import { CardTreeEditorComponent } from './card-tree-editor.component';
 import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
 import type { ResultProduct, CardItem, ImageFit, ResultContent, ThemeTokens, FieldSource } from '@contract/layout';
 
-type StepKey = 'home' | 'inter' | 'result' | 'saver' | 'review';
+type StepKey = 'home' | 'inter' | 'inter1' | 'inter2' | 'inter3' | 'result' | 'saver' | 'review';
 interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' | 'saver'; }
 
 /**
@@ -53,13 +53,23 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
 
   /** Skip the Intermediate step when the theme has includeIntermediate=false. */
   get visibleSteps(): Step[] {
-    return this.allSteps.filter(s => {
-      if (s.key !== 'inter') return true;
-      if (this.draft?.themeTokens.includeIntermediate === false) return false;
-      // Category mode with no sub-levels (L0 only) → skip the Intermediate step.
-      if (this.draft?.appMode === 'category' && this.categoryLevelCount === 0) return false;
-      return true;
-    });
+    // Category mode: replace the single 'inter' step with one step per drilled
+    // level (inter1..interN) based on categoryLevelCount.
+    if (this.draft?.appMode === 'category') {
+      const interSteps: Step[] = [];
+      if (this.draft.themeTokens.includeIntermediate !== false) {
+        for (let i = 1; i <= this.categoryLevelCount; i++) {
+          interSteps.push({ key: ('inter' + i) as StepKey, label: 'Intermediate L' + i, page: 'inter' });
+        }
+      }
+      return this.allSteps.flatMap(s => (s.key === 'inter' ? interSteps : [s]));
+    }
+    return this.allSteps.filter(s => s.key !== 'inter' || this.draft?.themeTokens.includeIntermediate !== false);
+  }
+  /** Current intermediate level (1–3) for category steps; 0 for the legacy single step. */
+  get interLevel(): number {
+    const k = this.step?.key || '';
+    return /^inter[123]$/.test(k) ? Number(k.slice(5)) : 0;
   }
   get step(): Step { return this.visibleSteps[this.stepIndex] || this.visibleSteps[0]; }
   get isFirst(): boolean { return this.stepIndex <= 0; }
@@ -78,7 +88,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
         if (!d.fieldSource) e.push('Select a field source (Category or ETC) first.');
         else if (!this.apiProducts.length) e.push('Fetch products from the API first.');
         else if (this.catSel[0].size === 0) e.push('Select at least one L0 value (category1/etc0).');
-        if (this.catSel[0].size) this.applyHierarchy(); // keep home/result tree current
+        if (this.catSel[0].size) this.applySelection(); // build/sync L0 cards
       } else {
         if (!d.home.length) e.push('Add at least one home card.');
         d.home.forEach((c, i) => { if (!c.name?.trim()) e.push(`Home card ${i + 1} needs a name.`); });
@@ -90,14 +100,12 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     }
     if (key === 'inter') {
       if (d.appMode === 'category') {
-        // Validate each enabled intermediate level that actually has values.
-        for (let i = 1; i <= this.categoryLevelCount; i++) {
-          if (this.catSel[i - 1].size === 0) break;                 // can't reach this level
-          if (this.catValues(i).length > 0 && this.catSel[i].size === 0) {
-            e.push(`Select at least one value at L${i} (${this.catLabel(i)}).`); break;
-          }
-        }
-        this.applyHierarchy();
+        // Validate the CURRENT intermediate level: every parent with available
+        // child values must have at least one selected (empty levels auto-skip).
+        const lvl = this.interLevel || 1;
+        const err = this.categoryInterError(lvl);
+        if (err) e.push(err);
+        this.syncResultProducts();
       } else if (this.showIntermediateEditor) {
         if (!d.intermediate.length) e.push('Add at least one intermediate item.');
         d.intermediate.forEach((it, i) => { if (!it.name?.trim()) e.push(`Intermediate item ${i + 1} needs a name.`); });
@@ -179,9 +187,13 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   }
 
   private afterStepChange(): void {
-    // Category mode: keep the drilled Home/Result tree in sync with the current
-    // level selections on every step navigation (so previews + validation match).
-    if (this.draft?.appMode === 'category' && this.apiProducts.length && this.catSel[0].size) this.applyHierarchy();
+    // Category mode: keep L0 cards synced, init the intermediate segment filters,
+    // and re-derive products when reaching the Result step.
+    if (this.draft?.appMode === 'category') {
+      if (this.catSel[0].size) this.applySelection();
+      if (this.interLevel > 0) this.ensureInterActive();
+      if (this.step?.key === 'result') this.syncResultProducts();
+    }
     setTimeout(() => {
       void this.contentViewport?.scrollToTop(0);
       const host = this.builderSteps?.nativeElement;
@@ -493,7 +505,13 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   setCategoryLevelCount(n: number): void {
     if (!this.draft) return;
     this.draft.categoryLevelCount = Math.min(3, Math.max(0, Number(n) || 0));
-    for (let i = this.draft.categoryLevelCount + 1; i < 4; i++) this.catSel[i].clear();
+    // Prune any tree nodes deeper than the new depth (depth 0 = home/L0 cards).
+    const prune = (node: CardItem, depth: number): void => {
+      if (depth >= this.draft!.categoryLevelCount!) { delete node.children; }
+      else (node.children || []).forEach((c) => prune(c, depth + 1));
+    };
+    (this.draft.home || []).forEach((c) => prune(c, 0));
+    this.syncResultProducts();
   }
   /** Products surviving the selections at every level BEFORE `level`. */
   private filteredUpTo(level: number): ApiProduct[] {
@@ -518,85 +536,163 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   toggleCat(level: number, value: string): void {
     const s = this.catSel[level];
     s.has(value) ? s.delete(value) : s.add(value);
-    for (let i = level + 1; i < 4; i++) this.catSel[i].clear(); // ancestor changed → reset deeper
   }
-  /** Field source changed → every level's values differ, so reset all selections. */
+  /** Field source changed → values + tree differ, so reset everything. */
   setFieldSource(src: FieldSource): void {
     if (!this.draft) return;
     this.draft.fieldSource = src;
     this.catSel = [new Set(), new Set(), new Set(), new Set()];
-  }
-  /** Breadcrumb of selections across the enabled levels. */
-  get categoryBreadcrumb(): string {
-    const parts: string[] = [];
-    for (let i = 0; i <= this.categoryLevelCount; i++) {
-      const s = this.catSel[i]; if (!s.size) break;
-      parts.push(`${this.catLabel(i)}: ${Array.from(s).join(', ')}`);
-    }
-    return parts.join('  ›  ');
-  }
-  /** True once L0 is chosen and (if enabled) each available intermediate level has a pick. */
-  get categorySelectionComplete(): boolean {
-    if (!this.catSel[0].size) return false;
-    for (let i = 1; i <= this.categoryLevelCount; i++) {
-      if (this.catSel[i - 1].size === 0) break;            // can't reach this level yet
-      if (this.catValues(i).length > 0 && this.catSel[i].size === 0) return false;
-    }
-    return true;
+    this.draft.home = [];
+    this.activeL0 = ''; this.activeL1 = 'all'; this.activeL2 = 'all';
   }
 
-  /** Builds Home cards as a nested tree from the level selections; the deepest
-   *  reached level's leaves carry the matching products. Also rebuilds the shared
-   *  Result product list. Uploaded images are preserved by id across rebuilds. */
-  applyHierarchy(): void {
+  // ── Intermediate L1/L2/L3 — ancestor segment selectors + path-based cards ────
+  /** Active ancestor segment selections that filter the current intermediate step. */
+  activeL0 = ''; activeL1: string = 'all'; activeL2: string = 'all';
+  private mk(raw: string) { return { rawName: raw, name: this.applyCase(raw), fromApi: true }; }
+  private gv(p: ApiProduct, key: string): string { return (((p as any)[key] ?? '') as string).trim(); }
+  /** Abbreviate a parent value to its first 3 chars (for "all" mode labels). */
+  abbrev(s: string): string { return (s || '').slice(0, 3); }
+  private childVal(c: CardItem): string { return (c.rawName ?? c.name) ?? ''; }
+  private findChild(list: CardItem[], v: string): CardItem | undefined { return list.find((c) => this.childVal(c) === v); }
+  findNodeByPath(path: string[]): CardItem | undefined {
+    let list = this.draft?.home || []; let node: CardItem | undefined;
+    for (const v of path) { node = this.findChild(list, v); if (!node) return undefined; list = node.children || []; }
+    return node;
+  }
+  private ensureNodeByPath(path: string[]): CardItem {
+    let list = this.draft!.home; let node!: CardItem;
+    for (let i = 0; i < path.length; i++) {
+      const v = path[i]; let n = this.findChild(list, v);
+      if (!n) { n = { id: `l${i}_${v.replace(/\W+/g, '_')}_${Math.random().toString(36).slice(2, 5)}`, ...this.mk(v) }; list.push(n); }
+      node = n; if (i < path.length - 1) { node.children = node.children || []; list = node.children; }
+    }
+    return node;
+  }
+  private removeNodeByPath(path: string[]): void {
+    if (!path.length) return;
+    const list = path.length > 1 ? (this.findNodeByPath(path.slice(0, -1))?.children || []) : (this.draft?.home || []);
+    const idx = list.findIndex((c) => this.childVal(c) === path[path.length - 1]);
+    if (idx >= 0) list.splice(idx, 1);
+  }
+
+  /** L0 segment options = the home (L0) cards. */
+  get interL0Segs(): string[] { return (this.draft?.home || []).map((c) => this.childVal(c)); }
+  /** L1 segment options (+ 'all') = L1 children under the active L0 node. */
+  get interL1Segs(): string[] {
+    const l0 = this.findNodeByPath([this.activeL0]);
+    return ['all', ...(l0?.children || []).map((c) => this.childVal(c))];
+  }
+  /** L2 segment options (+ 'all') = L2 nodes under the active L0 (and L1 if specific). */
+  get interL2Segs(): string[] {
+    const l0 = this.findNodeByPath([this.activeL0]); if (!l0) return ['all'];
+    const l1s = this.activeL1 === 'all' ? (l0.children || []) : (l0.children || []).filter((c) => this.childVal(c) === this.activeL1);
+    const set = new Set<string>();
+    l1s.forEach((c) => (c.children || []).forEach((g) => set.add(this.childVal(g))));
+    return ['all', ...Array.from(set)];
+  }
+  setActiveL0(v: string): void { this.activeL0 = v; this.activeL1 = 'all'; this.activeL2 = 'all'; }
+  setActiveL1(v: string): void { this.activeL1 = v; this.activeL2 = 'all'; }
+  setActiveL2(v: string): void { this.activeL2 = v; }
+  /** Pick a sensible active L0 when entering an intermediate step. */
+  ensureInterActive(): void {
+    const segs = this.interL0Segs;
+    if (!segs.includes(this.activeL0)) { this.activeL0 = segs[0] || ''; this.activeL1 = 'all'; this.activeL2 = 'all'; }
+    if (this.interLevel >= 2 && !this.interL1Segs.includes(this.activeL1)) this.activeL1 = 'all';
+    if (this.interLevel >= 3 && !this.interL2Segs.includes(this.activeL2)) this.activeL2 = 'all';
+  }
+
+  /** Checkbox rows for the given intermediate level under the active filters.
+   *  Each row is a unique full path (L0..Llevel); labels are abbreviated only
+   *  when every ancestor segment is in 'all' mode. */
+  interRows(level: number): { path: string[]; value: string; label: string; checked: boolean }[] {
+    const allMode = level === 1 ? false : level === 2 ? this.activeL1 === 'all' : (this.activeL1 === 'all' && this.activeL2 === 'all');
+    const rows = new Map<string, { path: string[]; value: string; label: string; checked: boolean }>();
+    for (const p of this.apiProducts) {
+      if (this.gv(p, this.catKey(0)) !== this.activeL0) continue;
+      if (level >= 2 && this.activeL1 !== 'all' && this.gv(p, this.catKey(1)) !== this.activeL1) continue;
+      if (level >= 3 && this.activeL2 !== 'all' && this.gv(p, this.catKey(2)) !== this.activeL2) continue;
+      const path: string[] = []; let ok = true;
+      for (let i = 0; i <= level; i++) { const vv = this.gv(p, this.catKey(i)); if (!vv) { ok = false; break; } path.push(vv); }
+      if (!ok) continue;
+      const key = path.join(''); if (rows.has(key)) continue;
+      const value = path[level];
+      let label = value;
+      if (allMode && level >= 2) { const parts: string[] = []; for (let i = level - 1; i >= 0; i--) parts.push(this.abbrev(path[i])); label = `${value} -${parts.join('-')}`; }
+      rows.set(key, { path, value, label, checked: !!this.findNodeByPath(path) });
+    }
+    return Array.from(rows.values()).sort((a, b) => a.label.localeCompare(b.label));
+  }
+  /** Toggle a checkbox row → add/remove the node at its path; resync products. */
+  interToggleRow(row: { path: string[] }): void {
+    if (this.findNodeByPath(row.path)) this.removeNodeByPath(row.path); else this.ensureNodeByPath(row.path);
+    this.syncResultProducts();
+  }
+  /** The selected (checked) card nodes at this level under the active filters. */
+  interCards(level: number): { node: CardItem; label: string }[] {
+    return this.interRows(level).filter((r) => r.checked).map((r) => ({ node: this.findNodeByPath(r.path)!, label: r.label }));
+  }
+  /** Remove a card node (and its subtree) from the tree. */
+  removeInterCard(node: CardItem): void {
+    const strip = (list: CardItem[]): boolean => {
+      const i = list.indexOf(node); if (i >= 0) { list.splice(i, 1); return true; }
+      return list.some((c) => c.children && strip(c.children));
+    };
+    if (this.draft) { strip(this.draft.home); this.syncResultProducts(); }
+  }
+
+  /** Re-derive each leaf's products + the shared Result list from the tree paths. */
+  private syncResultProducts(): void {
     if (!this.draft) return;
-    // Never clobber an already-built tree when there is no live L0 selection
-    // (e.g. just reopened the draft — catSel is transient and starts empty).
-    if (!this.catSel[0].size) return;
-    if (!this.draft.fieldSource) this.draft.fieldSource = 'category';
-    // Preserve previously-uploaded images by id.
-    const imgMap = new Map<string, string>();
-    const collect = (cards?: CardItem[]): void => cards?.forEach((c) => {
-      if (c.image) imgMap.set(c.id, c.image);
-      (c.products || []).forEach((p) => { if (p.image) imgMap.set(p.id, p.image); });
-      collect(c.children);
-    });
-    collect(this.draft.home);
-    (this.draft.result.products || []).forEach((p) => { if (p.image) imgMap.set(p.id, p.image); });
-
-    const maxLevel = this.categoryLevelCount;
-    const mk = (raw: string) => ({ rawName: raw, name: this.applyCase(raw), fromApi: true });
     const dedupe = (arr: ApiProduct[]): ApiProduct[] => { const seen = new Set<string>(); return arr.filter((p) => (seen.has(p.productId) ? false : (seen.add(p.productId), true))); };
-    const toProduct = (p: ApiProduct): ResultProduct => {
-      const rp: ResultProduct = { id: p.productId, ...mk(p.name), price: p.price, articleId: p.articleId, labelId: p.labelId, shelf: p.shelf, aisle: p.zone } as ResultProduct;
-      const img = imgMap.get(p.productId); if (img) rp.image = img; return rp;
-    };
-    const build = (level: number, subset: ApiProduct[]): CardItem[] => {
-      const k = this.catKey(level), sel = this.catSel[level];
-      return Array.from(sel).sort((a, b) => a.localeCompare(b)).map((v) => {
-        const sub = subset.filter((p) => (((p as any)[k] ?? '') as string).trim() === v);
-        const id = `l${level}_${v.replace(/\W+/g, '_')}`;
-        const node: CardItem = { id, ...mk(v) };
-        const img = imgMap.get(id); if (img) node.image = img;
-        if (level < maxLevel && this.catSel[level + 1].size) node.children = build(level + 1, sub);
-        else node.products = dedupe(sub).map(toProduct);
-        return node;
-      });
-    };
-    this.draft.home = build(0, this.apiProducts);
-    this.draft.drillMode = 'individual';
-    // Shared fallback Result products = everything under the full selection.
-    const inAll = (p: ApiProduct): boolean => {
-      for (let i = 0; i <= maxLevel; i++) {
-        const k = this.catKey(i), s = this.catSel[i];
-        if (s.size && !s.has((((p as any)[k] ?? '') as string).trim())) return false;
+    const toProduct = (p: ApiProduct): ResultProduct => ({ id: p.productId, ...this.mk(p.name), price: p.price, articleId: p.articleId, labelId: p.labelId, shelf: p.shelf, aisle: p.zone } as ResultProduct);
+    const all: ApiProduct[] = [];
+    const walk = (node: CardItem, path: string[]): void => {
+      const kids = node.children || [];
+      if (kids.length) { kids.forEach((ch) => walk(ch, [...path, this.childVal(ch)])); }
+      else {
+        const prods = this.apiProducts.filter((p) => path.every((v, i) => this.gv(p, this.catKey(i)) === v));
+        node.products = dedupe(prods).map(toProduct); all.push(...prods);
       }
-      return true;
     };
-    this.draft.result.products = dedupe(this.apiProducts.filter(inAll)).map(toProduct);
+    (this.draft.home || []).forEach((c) => walk(c, [this.childVal(c)]));
+    this.draft.result.products = dedupe(all).map(toProduct);
   }
-  /** Home-step "build pages" button — same action as the auto-rebuild. */
-  applySelection(): void { this.applyHierarchy(); }
+
+  /** First incomplete intermediate level error (used by validateStep). */
+  private categoryInterError(level: number): string {
+    const parents = this.nodesAtDepth(level - 1);
+    for (const par of parents) {
+      const avail = new Set<string>();
+      for (const p of this.apiProducts) {
+        if (par.path.every((v, i) => this.gv(p, this.catKey(i)) === v)) { const vv = this.gv(p, this.catKey(level)); if (vv) avail.add(vv); }
+      }
+      if (avail.size > 0 && !(par.node.children && par.node.children.length)) {
+        return `Select at least one L${level} value for "${this.childVal(par.node)}".`;
+      }
+    }
+    return '';
+  }
+  private nodesAtDepth(depth: number): { node: CardItem; path: string[] }[] {
+    const out: { node: CardItem; path: string[] }[] = [];
+    const walk = (node: CardItem, path: string[], d: number): void => {
+      if (d === depth) { out.push({ node, path }); return; }
+      (node.children || []).forEach((ch) => walk(ch, [...path, this.childVal(ch)], d + 1));
+    };
+    (this.draft?.home || []).forEach((c) => walk(c, [this.childVal(c)], 0));
+    return out;
+  }
+
+  /** Home-step "build pages" → build/sync the L0 cards (children preserved). */
+  applySelection(): void {
+    if (!this.draft || !this.catSel[0].size) return;
+    if (!this.draft.fieldSource) this.draft.fieldSource = 'category';
+    const existing = new Map(this.draft.home.map((c) => [this.childVal(c), c]));
+    this.draft.home = Array.from(this.catSel[0]).sort((a, b) => a.localeCompare(b))
+      .map((v) => existing.get(v) || ({ id: `l0_${v.replace(/\W+/g, '_')}`, ...this.mk(v) } as CardItem));
+    this.draft.drillMode = 'individual';
+    this.syncResultProducts();
+  }
 
   // ── Locked API article names: case transform only (no free-text edit) ──────
   articleCaseOpts: { id: NonNullable<ContentDraft['articleCase']>; label: string }[] = [

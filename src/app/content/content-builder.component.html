@@ -171,42 +171,59 @@
       <h2 class="step-title">Intermediate page</h2>
       <p class="note">Style: <b>{{ d.themeTokens.intermediateStyle }}</b><span *ngIf="intermediateNeedsImage"> — this style shows an image per item.</span></p>
 
-      <!-- CATEGORY: progressive L1–L3 drill (filtered by ancestor selections) -->
+      <!-- CATEGORY: Intermediate L{{interLevel}} — segment selectors + cards -->
       <ng-container *ngIf="d.appMode === 'category'">
-        <p class="note" *ngIf="categoryBreadcrumb"><b>{{ categoryBreadcrumb }}</b></p>
-        <p class="note err" *ngIf="!catSel[0].size">Select L0 values on the Home step first.</p>
+        <p class="note err" *ngIf="!interL0Segs.length">Select L0 values on the Home step first.</p>
 
-        <ng-container *ngIf="categoryLevelCount >= 1 && catSel[0].size">
-          <ng-container *ngIf="catValues(1).length">
-            <div class="sec"><span>L1 — {{ catLabel(1) }}</span></div>
-            <label class="pick" *ngFor="let v of catValues(1)">
-              <input type="checkbox" [checked]="catSel[1].has(v)" (change)="toggleCat(1, v)" />
-              <span class="pn">{{ v }}<span class="pm">({{ catCount(1, v) }})</span></span>
-            </label>
-          </ng-container>
-          <p class="note" *ngIf="!catValues(1).length && apiProducts.length">No subcategories at L1 — skipped.</p>
-        </ng-container>
+        <ng-container *ngIf="interL0Segs.length">
+          <!-- L0 selector (Home Fields) -->
+          <div class="sec"><span>Home Fields</span></div>
+          <div class="seg fit-seg">
+            <button class="mini" *ngFor="let v of interL0Segs" [class.sel]="activeL0===v" (click)="setActiveL0(v)">{{ v }}</button>
+          </div>
 
-        <ng-container *ngIf="categoryLevelCount >= 2 && catSel[1].size">
-          <ng-container *ngIf="catValues(2).length">
-            <div class="sec"><span>L2 — {{ catLabel(2) }}</span></div>
-            <label class="pick" *ngFor="let v of catValues(2)">
-              <input type="checkbox" [checked]="catSel[2].has(v)" (change)="toggleCat(2, v)" />
-              <span class="pn">{{ v }}<span class="pm">({{ catCount(2, v) }})</span></span>
-            </label>
+          <!-- L1 options selector (inter2 / inter3) -->
+          <ng-container *ngIf="interLevel >= 2">
+            <div class="sec"><span>{{ catLabel(1) }} options</span></div>
+            <div class="seg fit-seg">
+              <button class="mini" *ngFor="let v of interL1Segs" [class.sel]="activeL1===v" (click)="setActiveL1(v)">{{ v }}</button>
+            </div>
           </ng-container>
-          <p class="note" *ngIf="!catValues(2).length">No subcategories at L2 — skipped.</p>
-        </ng-container>
 
-        <ng-container *ngIf="categoryLevelCount >= 3 && catSel[2].size">
-          <ng-container *ngIf="catValues(3).length">
-            <div class="sec"><span>L3 — {{ catLabel(3) }}</span></div>
-            <label class="pick" *ngFor="let v of catValues(3)">
-              <input type="checkbox" [checked]="catSel[3].has(v)" (change)="toggleCat(3, v)" />
-              <span class="pn">{{ v }}<span class="pm">({{ catCount(3, v) }})</span></span>
-            </label>
+          <!-- L2 options selector (inter3) -->
+          <ng-container *ngIf="interLevel >= 3">
+            <div class="sec"><span>{{ catLabel(2) }} options</span></div>
+            <div class="seg fit-seg">
+              <button class="mini" *ngFor="let v of interL2Segs" [class.sel]="activeL2===v" (click)="setActiveL2(v)">{{ v }}</button>
+            </div>
           </ng-container>
-          <p class="note" *ngIf="!catValues(3).length">No subcategories at L3 — skipped.</p>
+
+          <!-- Checkbox list for this level (labels abbreviated in 'all' mode) -->
+          <div class="sec"><span>{{ catLabel(interLevel) }}</span></div>
+          <label class="pick" *ngFor="let r of interRows(interLevel)">
+            <input type="checkbox" [checked]="r.checked" (change)="interToggleRow(r)" />
+            <span class="pn">{{ r.label }}</span>
+          </label>
+          <p class="note" *ngIf="!interRows(interLevel).length">No values at this level — skipped.</p>
+
+          <!-- Card editors for the checked items at this level -->
+          <div class="sec" *ngIf="interCards(interLevel).length"><span>Intermediate L{{ interLevel }} Cards</span></div>
+          <div class="pcard" *ngFor="let it of interCards(interLevel)">
+            <div class="erow">
+              <div class="thumb" *ngIf="intermediateNeedsImage" [style.background-image]="it.node.image ? 'url('+it.node.image+')' : null" (click)="pickImage(it.node)">{{ it.node.image ? '' : '📷' }}</div>
+              <input class="inp locked" [value]="it.node.name" readonly title="From API — name locked" />
+              <button class="del" (click)="removeInterCard(it.node)">✕</button>
+            </div>
+            <div class="seg fit-seg" *ngIf="intermediateNeedsImage && it.node.image">
+              <span class="fit-lbl">Fit</span>
+              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(it.node)===f" (click)="setFit(it.node, f)">{{ f | titlecase }}</button>
+              <button class="mini danger" (click)="clearImage(it.node)" title="Remove image">✕ Image</button>
+            </div>
+            <div class="prow">
+              <input class="inp" [(ngModel)]="it.node.price" placeholder="Price (optional)" />
+              <input class="inp" [(ngModel)]="it.node.unit" placeholder="Unit (optional)" />
+            </div>
+          </div>
         </ng-container>
       </ng-container>
 
