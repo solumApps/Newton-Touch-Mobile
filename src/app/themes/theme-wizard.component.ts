@@ -9,7 +9,7 @@ import { ThemeService, SavedTheme } from '../services/theme.service';
 import { ImagePickerService } from '../services/image-picker.service';
 import { FONTS } from '../shared/fonts';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, TextCase, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, NavButtonMode, NavButtonSize, SaverOverlayPosition, ScrollMode } from '@contract/layout';
+import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, TextCase, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, NavButtonMode, NavButtonSize, SaverOverlayPosition, ScrollMode, ScreensaverMode } from '@contract/layout';
 import { MIN_COLUMNS, MAX_COLUMNS, columnsForLayout, coerceColumns, NAV_ICONS, navIconKind } from '@contract/layout';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
@@ -33,7 +33,7 @@ export class ThemeWizardComponent implements OnInit {
   openedFromPreview = false;
   previewReturnId: string | null = null;
   t: ThemeTokens = ThemeService.defaultTokens();
-  saverMode = 'slideshow';
+  saverMode: ScreensaverMode = 'slideshow';
   stepIndex = 0;
   /** Shown on the Review step when the chosen name collides with an existing theme. */
   nameError = '';
@@ -456,7 +456,8 @@ export class ThemeWizardComponent implements OnInit {
     const cols = this.computedColumns;
     const gap = this.cardGapValue;
     // Base max shrinks as columns grow; gap further reduces headroom.
-    return Math.max(0.9, 1.25 - (cols - 3) * 0.06 - gap * 0.005);
+    const maxVal = Math.max(0.9, 1.25 - (cols - 3) * 0.06 - gap * 0.005);
+    return Math.min(1.1, maxVal);
   }
   setCardSize(v: string | number): void {
     const n = Math.min(this.cardSizeMax, Math.max(0.8, Number(v)));
@@ -849,7 +850,7 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'bottom-right', label: 'Bottom right' },
   ];
   sizes: Array<'small' | 'medium' | 'large'> = ['small', 'medium', 'large'];
-  saverModes = ['slideshow', 'single-image', 'video'];
+  saverModes: ScreensaverMode[] = ['slideshow', 'single-image', 'video'];
 
   /** Gradient presets offered for card-area and card backgrounds (A4/A5). The
    *  picker renders any CSS background string, and these flow through --nt-bg /
@@ -890,6 +891,7 @@ export class ThemeWizardComponent implements OnInit {
     this.nameError = '';
     this.name = '';
     this.t = ThemeService.defaultTokens();
+    this.saverMode = this.t.screensaver?.mode ?? 'slideshow';
     this.id = this.route.snapshot.paramMap.get('id');
     this.openedFromPreview = this.route.snapshot.queryParamMap.get('from') === 'theme-preview';
     this.previewReturnId = this.route.snapshot.queryParamMap.get('returnTheme');
@@ -898,6 +900,7 @@ export class ThemeWizardComponent implements OnInit {
       if (existing) {
         this.name = existing.name;
         this.t = ThemeService.normalize(JSON.parse(JSON.stringify(existing.tokens)));
+        this.saverMode = this.t.screensaver?.mode ?? 'slideshow';
         // Edit-time only: a loaded theme may carry a textPos that is hidden for
         // its content/layout combo — coerce so the wizard never saves it back.
         this.coerceTextPos();
@@ -1123,6 +1126,7 @@ export class ThemeWizardComponent implements OnInit {
       return;
     }
     this.nameError = '';
+    this.t = { ...this.t, screensaver: { mode: this.saverMode } };
     const theme: SavedTheme = { id: this.id ?? 'thm_' + Date.now(), name, tokens: this.t, updatedAt: Date.now() };
     await this.themes.save(theme);
     this.router.navigateByUrl('/tabs/themes');

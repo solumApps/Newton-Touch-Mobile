@@ -333,9 +333,66 @@
 .prev .stage.layout-promo-categories .promo-rail .card { flex-direction: column; clip-path: none; background: transparent; border: 0; }
 .prev .stage.layout-promo-categories .promo-rail .card:not(.content-icon-text) .img {
   display: block !important; position: static !important; inset: auto !important; flex: 0 0 auto;
-  height: 56%; width: auto; aspect-ratio: 1; margin: 0 auto 3px; border-radius: 50%; opacity: .92;
+  height: 56%; width: auto; aspect-ratio: 1; margin: 0 auto 3px; opacity: .92;
 }
-.prev .stage.layout-promo-categories .promo-rail .card.shape-hexagon .img { border-radius: 0; clip-path: polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%); }
+.prev .stage.layout-promo-categories .promo-rail .card.shape-rect:not(.content-icon-text) .img {
+  border-radius: 4px;
+}
+.prev .stage.layout-promo-categories .promo-rail .card.shape-pill {
+  flex: 0 0 66px;
+}
+.prev .stage.layout-promo-categories .promo-rail .card.shape-pill:not(.content-icon-text) .img {
+  border-radius: 999px;
+  width: 66px !important;
+  height: 37px !important;
+  aspect-ratio: auto !important;
+}
+.prev .stage.layout-promo-categories .promo-rail .card.shape-circle,
+.prev .stage.layout-promo-categories .promo-rail .card.shape-hexagon {
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 50%;
+  align-self: center;
+}
+.prev .stage.layout-promo-categories .promo-rail .card.shape-hexagon {
+  border-radius: 0;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+.prev .stage.layout-promo-categories .promo-rail .card.shape-circle .img,
+.prev .stage.layout-promo-categories .promo-rail .card.shape-hexagon .img {
+  position: absolute !important;
+  left: 0; right: 0; top: 0; bottom: 0;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  border-radius: 0;
+  clip-path: none;
+  background-size: cover;
+}
+.prev .stage.layout-promo-categories .promo-rail .card.shape-circle .meta,
+.prev .stage.layout-promo-categories .promo-rail .card.shape-hexagon .meta {
+  position: absolute !important;
+  left: 10% !important;
+  right: 10% !important;
+  top: auto !important;
+  bottom: 10% !important;
+  width: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 999px !important;
+  background: var(--prev-overlay, rgba(0, 0, 0, .52)) !important;
+  padding: 1px 4px !important;
+  transform: none !important;
+}
+.prev .stage.layout-promo-categories .promo-rail .card.shape-circle .name,
+.prev .stage.layout-promo-categories .promo-rail .card.shape-hexagon .name {
+  color: var(--prev-text, #fff);
+  font-size: 5px;
+}
 .prev .stage.layout-promo-categories .promo-rail .card:not(.shape-circle):not(.shape-hexagon) .meta {
   position: static !important; inset: auto !important; left: auto !important; right: auto !important;
   bottom: auto !important; top: auto !important; width: 100% !important; background: transparent !important; padding: 2px 0 0 !important;

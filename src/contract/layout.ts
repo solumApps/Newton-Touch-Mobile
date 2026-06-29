@@ -289,6 +289,8 @@ export interface ThemeTokens {
     textScaleNum?: number; };
   /** Screensaver overlay content styling (title, subtitle, position, colors). */
   saverOverlay?: SaverOverlay;
+  /** Theme-level default for content screensaver mode. Media is content-specific. */
+  screensaver?: { mode: ScreensaverMode };
 }
 
 export interface CardItem {

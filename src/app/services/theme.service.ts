@@ -71,6 +71,7 @@ export class ThemeService {
       loader: { style: 'spinner', color: '#FFCD00' },
       typography: { fontFamily: DEFAULT_FONT, textScale: 'normal', textFit: 'shrink', baseTextColor: '#FFFFFF' },
       saverOverlay: { ...DEFAULT_SAVER_OVERLAY },
+      screensaver: { mode: 'slideshow' },
     };
   }
 
@@ -134,6 +135,8 @@ export class ThemeService {
     out.typography = { ...d.typography, ...(t?.typography || {}) };
     const saver = { ...DEFAULT_SAVER_OVERLAY, ...(t?.saverOverlay || {}) };
     out.saverOverlay = saver;
+    const screensaver = { ...d.screensaver, ...(t?.screensaver || {}) };
+    out.screensaver = screensaver;
     // Enum safety net: coerce unknown/invalid values (e.g. from a newer app
     // version's export) to defaults with a console warning — never pass through.
     const E = THEME_ENUM_VALUES;
@@ -185,6 +188,7 @@ export class ThemeService {
     out.loader.style = coerceEnum(out.loader.style, E.loaderStyle, d.loader.style, 'loader.style');
     out.typography.textScale = coerceEnum(out.typography.textScale, E.textScale, d.typography.textScale, 'typography.textScale');
     out.typography.textFit = coerceEnum(out.typography.textFit, E.textFit, d.typography.textFit, 'typography.textFit');
+    screensaver.mode = coerceEnum(screensaver.mode, ['slideshow', 'single-image', 'video'], 'slideshow', 'screensaver.mode');
     // Per-element typography tokens stay undefined when absent (= inherit global).
     if (out.typography.cardTextScale !== undefined) out.typography.cardTextScale = coerceEnum(out.typography.cardTextScale, E.textScale, 'normal', 'typography.cardTextScale');
     if (out.typography.headerTextScale !== undefined) out.typography.headerTextScale = coerceEnum(out.typography.headerTextScale, E.textScale, 'normal', 'typography.headerTextScale');
@@ -201,7 +205,7 @@ export class ThemeService {
     // Optional fine-grained card-size multiplier (slider).
     const csn = Number(out.cardSizeScale);
     out.cardSizeScale = out.cardSizeScale !== undefined && Number.isFinite(csn)
-      ? Math.min(1.25, Math.max(0.8, csn)) : undefined;
+      ? Math.min(1.1, Math.max(0.8, csn)) : undefined;
     // Optional independent horizontal card-text alignment.
     out.cardTextAlign = ['left', 'center', 'right'].includes(out.cardTextAlign as string) ? out.cardTextAlign : undefined;
     // Optional background-image framing (B-4).
