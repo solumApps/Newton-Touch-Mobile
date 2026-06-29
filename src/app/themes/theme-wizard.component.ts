@@ -111,7 +111,7 @@ export class ThemeWizardComponent implements OnInit {
    *  positioned over the image (overlay-top / overlay-bottom / center). */
   get interOverlayRelevant(): boolean {
     return (this.t.intermediate.content || 'image-text') === 'image-text'
-      && this.overlayPositions.includes(this.t.intermediate.textPos || 'below');
+      && this.overlayPositions.includes(this.t.intermediate.textPos || 'overlay-bottom');
   }
   /** 'Below' only makes sense when there is an image to sit below — hidden for
    *  every text-style content, and for arrangements with no under-card area
@@ -692,7 +692,7 @@ export class ThemeWizardComponent implements OnInit {
   }
   /** #2/#5 Coerce text position to an inner position for full-bleed styles. */
   private coerceInnerTextPos(): void {
-    if (!this.innerTextPositions.includes(this.t.intermediate.textPos || 'below')) this.t.intermediate.textPos = 'overlay-bottom';
+    if (!this.innerTextPositions.includes(this.t.intermediate.textPos || 'overlay-bottom')) this.t.intermediate.textPos = 'overlay-bottom';
   }
   private coerceHomeInnerTextPos(): void {
     if (!this.innerTextPositions.includes(this.t.cardTextPos)) this.t.cardTextPos = 'overlay-bottom';

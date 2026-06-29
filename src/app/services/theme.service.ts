@@ -62,7 +62,7 @@ export class ThemeService {
       includeIntermediate: true,
       intermediateStyle: 'columns',
       resultTemplate: 'map-list',
-      intermediate: { headerColor: 'rgba(0,0,0,0.45)', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'middle', gap: 'normal' },
+      intermediate: { headerColor: 'rgba(0,0,0,0.45)', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'middle', gap: 'normal', textPos: 'overlay-bottom' },
       result: { headerColor: 'transparent', background: '#1a0036', cardBackground: '#0f172a', cardText: '#FFFFFF', accent: '#ffcd00', popularText: '#FFFFFF', pathColor: '#ffcd00', pathStyle: 'dashed', showHeader: true },
       // Default to no page transition — faster, more responsive navigation
       // (per team feedback). The transition options remain available in the
@@ -182,6 +182,7 @@ export class ThemeService {
     out.intermediate.scrollMode = coerceEnum(out.intermediate.scrollMode, E.scrollMode, 'horizontal', 'intermediate.scrollMode');
     out.intermediate.valign = coerceEnum(out.intermediate.valign, E.valign, 'middle', 'intermediate.valign');
     out.intermediate.gap = coerceEnum(out.intermediate.gap, E.gap, 'normal', 'intermediate.gap');
+    out.intermediate.textPos = coerceEnum(out.intermediate.textPos, E.cardTextPos, d.intermediate.textPos || 'overlay-bottom', 'intermediate.textPos');
     out.result.pathStyle = coerceEnum(out.result.pathStyle, E.pathStyle, d.result.pathStyle, 'result.pathStyle');
     out.animation.transition = coerceEnum(out.animation.transition, E.transition, d.animation.transition, 'animation.transition');
     out.animation.speed = coerceEnum(out.animation.speed, E.animSpeed, d.animation.speed, 'animation.speed');

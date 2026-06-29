@@ -8834,7 +8834,7 @@
 
 .nt-inter .body.int-columns.scroll-vertical {
   --int-col-gap-h: var(--int-col-gap-x);
-  --int-col-gap-x: 20px;
+  --int-col-gap-x: 4px;
   --int-col-gap-y: 20px;
   display: grid;
   row-gap: 0;
@@ -8869,13 +8869,6 @@
   margin: calc(var(--int-col-gap-y, calc(var(--nt-vh)*1)) * 0.2) 0;
 }
 
-.nt-inter .body.int-columns.scroll-vertical:is(.int-shape-rect, .int-shape-pill) .item {
-  width: calc(100% + var(--nt-vw)*4);
-  max-width: none;
-  height: calc(var(--nt-vh) * 65 * var(--nt-int-scale, 1));
-  margin-left: calc(var(--nt-vw)*-2);
-  margin-right: calc(var(--nt-vw)*-2);
-}
 
 .nt-inter .body.int-columns.scroll-vertical.int-align-left .item {
   justify-self: start;
@@ -10236,7 +10229,7 @@
 }
 
 .nt-inter .body.int-columns.scroll-vertical:is(.int-shape-rect, .int-shape-pill) .item {
-  width: calc(100% + var(--nt-vw)*4);
+  width: calc(100% + var(--nt-vw)*0);
   max-width: none;
   height: calc(var(--nt-vh) * 65 * var(--nt-int-scale, 1));
   margin-left: calc(var(--nt-vw)*-2);
