@@ -8860,6 +8860,7 @@
   --int-col-gap-h: calc(var(--int-col-gap-x) * 5.2);
   grid-template-columns: repeat(var(--int-cols, 3), calc(var(--nt-vh)*54 * var(--nt-int-scale, 1)));
   grid-auto-rows: calc(var(--nt-vh)*68 * var(--nt-int-scale, 1));
+  justify-content: space-around;
 }
 
 .nt-inter .body.int-columns.scroll-vertical .item {
@@ -10818,7 +10819,7 @@
 /* Column cards can be narrower than the viewport, so their
    explicit card alignment remains useful during horizontal scrolling. */
 .nt-inter .body.int-columns.scroll-horizontal.int-align-center {
-  justify-content: safe center !important;
+  justify-content: space-around!important;
 }
 
 .nt-inter .body.int-columns.scroll-horizontal.int-align-right {
