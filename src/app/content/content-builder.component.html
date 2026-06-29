@@ -94,6 +94,20 @@
             <span class="pn">{{ p.name }}<span class="pm">{{ p.price }}<span *ngIf="p.zone"> · {{ p.zone }}</span> · {{ p.articleId }}</span></span>
           </label>
           <button class="btn-o" (click)="applySelection()">Use {{ selected.size }} selected → build pages</button>
+          <!-- Article names come from the API and are locked; only their text case
+               can be changed (applied live to every locked name). -->
+          <div class="sec"><span>Article text case</span></div>
+          <p class="note">API article names are read-only — pick how they're displayed.</p>
+          <div class="seg fit-seg">
+            <button class="mini" *ngFor="let c of articleCaseOpts" [class.sel]="(d.articleCase||'asis')===c.id" (click)="setArticleCase(c.id)">{{ c.label }}</button>
+          </div>
+          <!-- LCD refreshes these article fields live from the API on startup -->
+          <div class="sec"><span>LCD live refresh</span></div>
+          <p class="note">Fields the kiosk re-fetches from the API on startup (matched by article ID).</p>
+          <div class="seg fit-seg">
+            <button class="mini" [class.sel]="liveRefreshHas('name')" (click)="toggleLiveRefresh('name')">Name</button>
+            <button class="mini" [class.sel]="liveRefreshHas('price')" (click)="toggleLiveRefresh('price')">Price</button>
+          </div>
         </ng-container>
       </ng-container>
 
@@ -118,7 +132,8 @@
       <div class="pcard" *ngFor="let c of d.home; let i = index">
         <div class="erow">
           <div class="thumb" *ngIf="needsImage" [style.background-image]="c.image ? 'url('+c.image+')' : null" (click)="pickImage(c)">{{ c.image ? '' : '📷' }}</div>
-          <input class="inp" [(ngModel)]="c.name" placeholder="Card name" />
+          <input *ngIf="!c.fromApi" class="inp" [(ngModel)]="c.name" placeholder="Card name" />
+          <input *ngIf="c.fromApi" class="inp locked" [value]="c.name" readonly title="From API — edit text case below" />
           <button class="del" (click)="removeCard(i)">✕</button>
         </div>
         <div class="seg fit-seg" *ngIf="needsImage && c.image">
@@ -180,7 +195,8 @@
         <ng-container *ngFor="let it of d.intermediate; let i = index">
           <div class="erow">
             <div class="thumb" *ngIf="intermediateNeedsImage" [style.background-image]="it.image ? 'url('+it.image+')' : null" (click)="pickImage(it)">{{ it.image ? '' : '📷' }}</div>
-            <input class="inp" [(ngModel)]="it.name" placeholder="Item name" />
+            <input *ngIf="!it.fromApi" class="inp" [(ngModel)]="it.name" placeholder="Item name" />
+            <input *ngIf="it.fromApi" class="inp locked" [value]="it.name" readonly title="From API — edit text case below" />
             <button class="del" (click)="removeIntermediate(i)">✕</button>
           </div>
           <div class="seg fit-seg" *ngIf="intermediateNeedsImage && it.image">
@@ -296,7 +312,8 @@
           <ng-container *ngFor="let p of leaf.node.products || []; let pi = index">
             <div class="erow">
               <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
-              <input class="inp" [(ngModel)]="p.name" placeholder="Product name" />
+              <input *ngIf="!p.fromApi" class="inp" [(ngModel)]="p.name" placeholder="Product name" />
+          <input *ngIf="p.fromApi" class="inp locked" [value]="p.name" readonly title="From API — edit text case below" />
               <button class="del" (click)="removeLeafProduct(leaf.node, pi)">✕</button>
             </div>
             <div class="prow">
@@ -340,7 +357,8 @@
       <div class="pcard" *ngFor="let p of curResult.products; let i = index">
         <div class="erow">
           <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>
-          <input class="inp" [(ngModel)]="p.name" placeholder="Product name" />
+          <input *ngIf="!p.fromApi" class="inp" [(ngModel)]="p.name" placeholder="Product name" />
+          <input *ngIf="p.fromApi" class="inp locked" [value]="p.name" readonly title="From API — edit text case below" />
           <button class="del" (click)="removeProduct(i)">✕</button>
         </div>
         <div class="seg fit-seg" *ngIf="p.image">

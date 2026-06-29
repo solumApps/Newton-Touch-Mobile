@@ -455,8 +455,49 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   applySelection(): void {
     const picks = this.apiProducts.filter((p) => this.selected.has(p.productId));
     if (!this.draft!.fieldSource) this.draft!.fieldSource = 'etc';
-    this.draft!.home = picks.map((p) => ({ id: p.productId, name: p.name, price: p.price, articleId: p.articleId }));
-    this.draft!.result.products = picks.map((p) => ({ id: p.productId, name: p.name, price: p.price, articleId: p.articleId, labelId: p.labelId, shelf: p.shelf, aisle: p.zone }));
+    const mk = (raw: string) => ({ rawName: raw, name: this.applyCase(raw), fromApi: true });
+    this.draft!.home = picks.map((p) => ({ id: p.productId, ...mk(p.name), price: p.price, articleId: p.articleId }));
+    this.draft!.result.products = picks.map((p) => ({ id: p.productId, ...mk(p.name), price: p.price, articleId: p.articleId, labelId: p.labelId, shelf: p.shelf, aisle: p.zone }));
+  }
+
+  // ── Locked API article names: case transform only (no free-text edit) ──────
+  articleCaseOpts: { id: NonNullable<ContentDraft['articleCase']>; label: string }[] = [
+    { id: 'asis', label: 'As is' }, { id: 'upper', label: 'UPPER' }, { id: 'lower', label: 'lower' },
+    { id: 'capital', label: 'Capitalize' }, { id: 'camel', label: 'camelCase' },
+  ];
+  /** Transform a raw API string by the draft's selected article case. */
+  applyCase(raw: string, mode = this.draft?.articleCase || 'asis'): string {
+    const s = (raw ?? '').trim();
+    if (!s) return s;
+    switch (mode) {
+      case 'upper': return s.toUpperCase();
+      case 'lower': return s.toLowerCase();
+      case 'capital': return s.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+      case 'camel': {
+        const words = s.toLowerCase().split(/[^a-z0-9]+/i).filter(Boolean);
+        return words.map((w, i) => (i === 0 ? w : w.charAt(0).toUpperCase() + w.slice(1))).join('');
+      }
+      default: return s;
+    }
+  }
+  /** Set the case and re-derive every locked (fromApi) name from its rawName. */
+  setArticleCase(mode: NonNullable<ContentDraft['articleCase']>): void {
+    if (!this.draft) return;
+    this.draft.articleCase = mode;
+    const fix = (o: any) => { if (o?.fromApi && o.rawName != null) o.name = this.applyCase(o.rawName, mode); };
+    const walk = (cards: any[]) => cards?.forEach((c) => { fix(c); (c.products || []).forEach(fix); walk(c.children || []); });
+    walk(this.draft.home);
+    walk(this.draft.intermediate);
+    (this.draft.result?.products || []).forEach(fix);
+    Object.values(this.draft.itemResults || {}).forEach((r: any) => (r?.products || []).forEach(fix));
+  }
+  /** LCD live-refresh: which API fields the kiosk re-fetches at startup. */
+  liveRefreshHas(f: 'name' | 'price'): boolean { return (this.draft?.liveRefresh ?? ['name']).includes(f); }
+  toggleLiveRefresh(f: 'name' | 'price'): void {
+    if (!this.draft) return;
+    const cur = new Set(this.draft.liveRefresh ?? ['name']);
+    cur.has(f) ? cur.delete(f) : cur.add(f);
+    this.draft.liveRefresh = Array.from(cur) as ('name' | 'price')[];
   }
 
   get modeLabel(): string {

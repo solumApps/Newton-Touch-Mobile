@@ -58,7 +58,8 @@ export class DeployComponent implements OnInit, OnDestroy {
     const id = this.route.snapshot.paramMap.get('id');
     this.draft = (await this.content.list()).find((d) => d.id === id);
     if (!this.draft) { this.router.navigateByUrl('/tabs/content'); return; }
-    this.payload = this.content.build(this.draft);
+    let creds: any; try { creds = await this.workspace.creds(); } catch { creds = undefined; }
+    this.payload = this.content.build(this.draft, creds);
     this.sizeKb = Math.max(1, Math.round(JSON.stringify(this.payload).length / 1024));
     this.sub = this.transfer.found$.subscribe((list) => (this.found = list));
   }
