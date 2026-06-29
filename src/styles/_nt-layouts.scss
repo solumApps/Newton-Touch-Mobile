@@ -8866,7 +8866,7 @@
   width: auto;
   max-width: none;
   justify-self: stretch;
-  margin: calc(var(--int-col-gap-y, calc(var(--nt-vh)*1)) * 0.5) 0;
+  margin: calc(var(--int-col-gap-y, calc(var(--nt-vh)*1)) * 0.1) 0;
 }
 
 .nt-inter .body.int-columns.scroll-vertical.int-align-left .item {
@@ -10221,9 +10221,10 @@
 }
 
 .nt-inter .body.int-columns.scroll-vertical .item {
-  width: 100%;
-  max-width: 100%;
+  width: auto;
+  max-width: none;
   justify-self: stretch;
+  margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.1) 0;
 }
 
 .nt-inter .body.int-columns.scroll-vertical.int-align-left .item {
