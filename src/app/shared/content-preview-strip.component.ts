@@ -756,7 +756,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal';
   }
   get interVisibleColumns(): number {
-    return this.theme?.intermediate?.columns || 3;
+    const cols = Math.max(1, this.theme?.intermediate?.columns || 3);
+    const shape = this.theme?.intermediate?.cardShape || 'rect';
+    if (this.theme?.intermediateStyle === 'columns' && (shape === 'circle' || shape === 'hexagon')) {
+      return Math.min(5, cols);
+    }
+    return cols;
   }
   get interColumnsScrollPeek(): boolean {
     if (this.theme?.intermediateStyle !== 'columns' || this.interScrollMode !== 'horizontal') return false;
@@ -911,7 +916,8 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get interCells(): CardItem[] {
     // Builder shared-intermediate previews render every item, with a 3-card
     // viewport; items after the third are available by horizontal scroll.
-    const cols = this.theme?.intermediate?.columns;
+    const rawCols = this.theme?.intermediate?.columns;
+    const cols = this.theme?.intermediateStyle === 'columns' ? this.interVisibleColumns : rawCols;
     const source = this.intermediateSource;
     if (this.intermediateCreatePreview) {
       const real = source.map(c => ({ ...c, name: c.name || 'Item' }));

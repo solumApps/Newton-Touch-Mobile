@@ -627,8 +627,9 @@ export class ThemeWizardComponent implements OnInit {
   get intColumnsValue(): number { return this.t.intermediate.columns || 3; }
   /** #6 Dynamic max "visible cards": shaped cards (circle/hex) distort sooner. */
   get maxVisibleCards(): number {
-    if (this.t.intermediateStyle === 'columns') return 8;
     const sh = this.t.intermediate.cardShape;
+    if (this.t.intermediateStyle === 'columns' && (sh === 'circle' || sh === 'hexagon')) return 5;
+    if (this.t.intermediateStyle === 'columns') return 8;
     return (sh === 'circle' || sh === 'hexagon') ? 5 : 8;
   }
   /** Stepper used like Home: +/- buttons. */
