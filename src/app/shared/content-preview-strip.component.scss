@@ -79,7 +79,7 @@ app-content-preview-strip {
   width: calc((100% - var(--cps-shared-gap) - var(--cps-shared-gap)) / 3) !important;
   max-width: none !important;
   min-width: 0 !important;
-  height: calc(var(--nt-vh) * 54 * var(--nt-int-scale, 1)) !important;
+  height: calc(var(--nt-vh) * 72 * var(--nt-int-scale, 1)) !important;
 }
 
 .prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon) .item {
