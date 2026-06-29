@@ -12,7 +12,7 @@ import { SelectFieldComponent, SelectOption } from '../shared/select-field.compo
 import { ColorPickerComponent } from '../shared/color-picker.component';
 import { CardTreeEditorComponent } from './card-tree-editor.component';
 import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
-import type { ResultProduct, CardItem, ImageFit, ResultContent, ThemeTokens } from '@contract/layout';
+import type { ResultProduct, CardItem, ImageFit, ResultContent, ThemeTokens, FieldSource } from '@contract/layout';
 
 type StepKey = 'home' | 'inter' | 'result' | 'saver' | 'review';
 interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' | 'saver'; }
@@ -34,6 +34,11 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   draft?: ContentDraft;
   apiProducts: ApiProduct[] = [];
   selected = new Set<string>();
+  /** Category drill selections per level [L0,L1,L2,L3] — unique values of
+   *  category(n+1)/etc(n). catSel[0] is the Home (L0) selection. */
+  catSel: Set<string>[] = [new Set(), new Set(), new Set(), new Set()];
+  /** Back-compat alias used by the Home template (= L0 selection). */
+  get selectedL0(): Set<string> { return this.catSel[0]; }
   fetchError = '';
   fetching = false;
   stepIndex = 0;
@@ -48,7 +53,13 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
 
   /** Skip the Intermediate step when the theme has includeIntermediate=false. */
   get visibleSteps(): Step[] {
-    return this.allSteps.filter(s => s.key !== 'inter' || this.draft?.themeTokens.includeIntermediate !== false);
+    return this.allSteps.filter(s => {
+      if (s.key !== 'inter') return true;
+      if (this.draft?.themeTokens.includeIntermediate === false) return false;
+      // Category mode with no sub-levels (L0 only) → skip the Intermediate step.
+      if (this.draft?.appMode === 'category' && this.categoryLevelCount === 0) return false;
+      return true;
+    });
   }
   get step(): Step { return this.visibleSteps[this.stepIndex] || this.visibleSteps[0]; }
   get isFirst(): boolean { return this.stepIndex <= 0; }
@@ -63,15 +74,31 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     const d = this.draft;
     if (!d) return { errors: e, warnings: w };
     if (key === 'home') {
-      if (!d.home.length) e.push('Add at least one home card.');
-      d.home.forEach((c, i) => { if (!c.name?.trim()) e.push(`Home card ${i + 1} needs a name.`); });
-      if (this.needsImage) {
-        const n = d.home.filter((c) => !c.image).length;
-        if (n) w.push(`${n} home card(s) have no image — this theme's cards show images.`);
+      if (d.appMode === 'category') {
+        if (!d.fieldSource) e.push('Select a field source (Category or ETC) first.');
+        else if (!this.apiProducts.length) e.push('Fetch products from the API first.');
+        else if (this.catSel[0].size === 0) e.push('Select at least one L0 value (category1/etc0).');
+        if (this.catSel[0].size) this.applyHierarchy(); // keep home/result tree current
+      } else {
+        if (!d.home.length) e.push('Add at least one home card.');
+        d.home.forEach((c, i) => { if (!c.name?.trim()) e.push(`Home card ${i + 1} needs a name.`); });
+        if (this.needsImage) {
+          const n = d.home.filter((c) => !c.image).length;
+          if (n) w.push(`${n} home card(s) have no image — this theme's cards show images.`);
+        }
       }
     }
     if (key === 'inter') {
-      if (this.showIntermediateEditor) {
+      if (d.appMode === 'category') {
+        // Validate each enabled intermediate level that actually has values.
+        for (let i = 1; i <= this.categoryLevelCount; i++) {
+          if (this.catSel[i - 1].size === 0) break;                 // can't reach this level
+          if (this.catValues(i).length > 0 && this.catSel[i].size === 0) {
+            e.push(`Select at least one value at L${i} (${this.catLabel(i)}).`); break;
+          }
+        }
+        this.applyHierarchy();
+      } else if (this.showIntermediateEditor) {
         if (!d.intermediate.length) e.push('Add at least one intermediate item.');
         d.intermediate.forEach((it, i) => { if (!it.name?.trim()) e.push(`Intermediate item ${i + 1} needs a name.`); });
       } else {
@@ -152,6 +179,9 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   }
 
   private afterStepChange(): void {
+    // Category mode: keep the drilled Home/Result tree in sync with the current
+    // level selections on every step navigation (so previews + validation match).
+    if (this.draft?.appMode === 'category' && this.apiProducts.length && this.catSel[0].size) this.applyHierarchy();
     setTimeout(() => {
       void this.contentViewport?.scrollToTop(0);
       const host = this.builderSteps?.nativeElement;
@@ -438,6 +468,8 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     try {
       const creds = await this.workspace.creds();
       this.apiProducts = await this.categoryApi.fetchProducts(creds);
+      if (this.draft && !this.draft.fieldSource) this.draft.fieldSource = 'category'; // default L0 source
+      this.catSel = [new Set(), new Set(), new Set(), new Set()];
       if (!this.apiProducts.length) this.fetchError = 'No products returned for this store.';
     } catch (e: any) {
       this.apiProducts = [];
@@ -451,14 +483,120 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (this.selected.has(id)) this.selected.delete(id); else this.selected.add(id);
   }
 
-  /** Map selected API products → Home cards + Result products (text from API, images uploaded later). */
-  applySelection(): void {
-    const picks = this.apiProducts.filter((p) => this.selected.has(p.productId));
-    if (!this.draft!.fieldSource) this.draft!.fieldSource = 'etc';
-    const mk = (raw: string) => ({ rawName: raw, name: this.applyCase(raw), fromApi: true });
-    this.draft!.home = picks.map((p) => ({ id: p.productId, ...mk(p.name), price: p.price, articleId: p.articleId }));
-    this.draft!.result.products = picks.map((p) => ({ id: p.productId, ...mk(p.name), price: p.price, articleId: p.articleId, labelId: p.labelId, shelf: p.shelf, aisle: p.zone }));
+  // ── Category hierarchy selection: pick category(n+1)/etc(n) VALUES per level ──
+  /** API key for a level (0-indexed) driven by the chosen field source. */
+  private catKey(level: number): string { return this.draft?.fieldSource === 'etc' ? `etc${level}` : `category${level + 1}`; }
+  /** Display label for a level (same as the API key). */
+  catLabel(level: number): string { return this.catKey(level); }
+  /** How many INTERMEDIATE levels (0–3) the user chose on the Home step. */
+  get categoryLevelCount(): number { return Math.min(3, Math.max(0, this.draft?.categoryLevelCount ?? 0)); }
+  setCategoryLevelCount(n: number): void {
+    if (!this.draft) return;
+    this.draft.categoryLevelCount = Math.min(3, Math.max(0, Number(n) || 0));
+    for (let i = this.draft.categoryLevelCount + 1; i < 4; i++) this.catSel[i].clear();
   }
+  /** Products surviving the selections at every level BEFORE `level`. */
+  private filteredUpTo(level: number): ApiProduct[] {
+    let arr = this.apiProducts;
+    for (let i = 0; i < level; i++) {
+      const k = this.catKey(i), sel = this.catSel[i];
+      if (sel.size) arr = arr.filter((p) => sel.has((((p as any)[k] ?? '') as string).trim()));
+    }
+    return arr;
+  }
+  /** Unique, non-empty, sorted values at a level (filtered by ancestor selections). */
+  catValues(level: number): string[] {
+    const arr = this.filteredUpTo(level), k = this.catKey(level), set = new Set<string>();
+    for (const p of arr) { const v = (((p as any)[k] ?? '') as string).trim(); if (v) set.add(v); }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }
+  /** Count of products under a value at a level (filtered by ancestor selections). */
+  catCount(level: number, value: string): number {
+    const arr = this.filteredUpTo(level), k = this.catKey(level);
+    return arr.filter((p) => (((p as any)[k] ?? '') as string).trim() === value).length;
+  }
+  toggleCat(level: number, value: string): void {
+    const s = this.catSel[level];
+    s.has(value) ? s.delete(value) : s.add(value);
+    for (let i = level + 1; i < 4; i++) this.catSel[i].clear(); // ancestor changed → reset deeper
+  }
+  /** Field source changed → every level's values differ, so reset all selections. */
+  setFieldSource(src: FieldSource): void {
+    if (!this.draft) return;
+    this.draft.fieldSource = src;
+    this.catSel = [new Set(), new Set(), new Set(), new Set()];
+  }
+  /** Breadcrumb of selections across the enabled levels. */
+  get categoryBreadcrumb(): string {
+    const parts: string[] = [];
+    for (let i = 0; i <= this.categoryLevelCount; i++) {
+      const s = this.catSel[i]; if (!s.size) break;
+      parts.push(`${this.catLabel(i)}: ${Array.from(s).join(', ')}`);
+    }
+    return parts.join('  ›  ');
+  }
+  /** True once L0 is chosen and (if enabled) each available intermediate level has a pick. */
+  get categorySelectionComplete(): boolean {
+    if (!this.catSel[0].size) return false;
+    for (let i = 1; i <= this.categoryLevelCount; i++) {
+      if (this.catSel[i - 1].size === 0) break;            // can't reach this level yet
+      if (this.catValues(i).length > 0 && this.catSel[i].size === 0) return false;
+    }
+    return true;
+  }
+
+  /** Builds Home cards as a nested tree from the level selections; the deepest
+   *  reached level's leaves carry the matching products. Also rebuilds the shared
+   *  Result product list. Uploaded images are preserved by id across rebuilds. */
+  applyHierarchy(): void {
+    if (!this.draft) return;
+    // Never clobber an already-built tree when there is no live L0 selection
+    // (e.g. just reopened the draft — catSel is transient and starts empty).
+    if (!this.catSel[0].size) return;
+    if (!this.draft.fieldSource) this.draft.fieldSource = 'category';
+    // Preserve previously-uploaded images by id.
+    const imgMap = new Map<string, string>();
+    const collect = (cards?: CardItem[]): void => cards?.forEach((c) => {
+      if (c.image) imgMap.set(c.id, c.image);
+      (c.products || []).forEach((p) => { if (p.image) imgMap.set(p.id, p.image); });
+      collect(c.children);
+    });
+    collect(this.draft.home);
+    (this.draft.result.products || []).forEach((p) => { if (p.image) imgMap.set(p.id, p.image); });
+
+    const maxLevel = this.categoryLevelCount;
+    const mk = (raw: string) => ({ rawName: raw, name: this.applyCase(raw), fromApi: true });
+    const dedupe = (arr: ApiProduct[]): ApiProduct[] => { const seen = new Set<string>(); return arr.filter((p) => (seen.has(p.productId) ? false : (seen.add(p.productId), true))); };
+    const toProduct = (p: ApiProduct): ResultProduct => {
+      const rp: ResultProduct = { id: p.productId, ...mk(p.name), price: p.price, articleId: p.articleId, labelId: p.labelId, shelf: p.shelf, aisle: p.zone } as ResultProduct;
+      const img = imgMap.get(p.productId); if (img) rp.image = img; return rp;
+    };
+    const build = (level: number, subset: ApiProduct[]): CardItem[] => {
+      const k = this.catKey(level), sel = this.catSel[level];
+      return Array.from(sel).sort((a, b) => a.localeCompare(b)).map((v) => {
+        const sub = subset.filter((p) => (((p as any)[k] ?? '') as string).trim() === v);
+        const id = `l${level}_${v.replace(/\W+/g, '_')}`;
+        const node: CardItem = { id, ...mk(v) };
+        const img = imgMap.get(id); if (img) node.image = img;
+        if (level < maxLevel && this.catSel[level + 1].size) node.children = build(level + 1, sub);
+        else node.products = dedupe(sub).map(toProduct);
+        return node;
+      });
+    };
+    this.draft.home = build(0, this.apiProducts);
+    this.draft.drillMode = 'individual';
+    // Shared fallback Result products = everything under the full selection.
+    const inAll = (p: ApiProduct): boolean => {
+      for (let i = 0; i <= maxLevel; i++) {
+        const k = this.catKey(i), s = this.catSel[i];
+        if (s.size && !s.has((((p as any)[k] ?? '') as string).trim())) return false;
+      }
+      return true;
+    };
+    this.draft.result.products = dedupe(this.apiProducts.filter(inAll)).map(toProduct);
+  }
+  /** Home-step "build pages" button — same action as the auto-rebuild. */
+  applySelection(): void { this.applyHierarchy(); }
 
   // ── Locked API article names: case transform only (no free-text edit) ──────
   articleCaseOpts: { id: NonNullable<ContentDraft['articleCase']>; label: string }[] = [

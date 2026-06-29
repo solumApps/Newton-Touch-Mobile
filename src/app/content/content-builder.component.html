@@ -88,12 +88,22 @@
         </div>
         <ng-container *ngIf="apiProducts.length">
           <app-select-field label="Hierarchy fields" placeholder="Choose field source"
-            [options]="fieldSourceOpts" [value]="d.fieldSource || ''" (valueChange)="d.fieldSource=$any($event)"></app-select-field>
-          <label class="pick" *ngFor="let p of apiProducts">
-            <input type="checkbox" [checked]="selected.has(p.productId)" (change)="toggle(p.productId)" />
-            <span class="pn">{{ p.name }}<span class="pm">{{ p.price }}<span *ngIf="p.zone"> · {{ p.zone }}</span> · {{ p.articleId }}</span></span>
+            [options]="fieldSourceOpts" [value]="d.fieldSource || 'category'" (valueChange)="setFieldSource($any($event))"></app-select-field>
+          <!-- Category depth: how many intermediate sub-levels to drill -->
+          <div class="sec"><span>Category depth</span></div>
+          <div class="seg fit-seg">
+            <button class="mini" [class.sel]="categoryLevelCount===0" (click)="setCategoryLevelCount(0)">L0 only</button>
+            <button class="mini" [class.sel]="categoryLevelCount===1" (click)="setCategoryLevelCount(1)">L0+L1</button>
+            <button class="mini" [class.sel]="categoryLevelCount===2" (click)="setCategoryLevelCount(2)">+L2</button>
+            <button class="mini" [class.sel]="categoryLevelCount===3" (click)="setCategoryLevelCount(3)">+L3</button>
+          </div>
+          <!-- L0 values (category1 / etc0) — unique, deduped. Pick which to build. -->
+          <div class="sec"><span>L0 — {{ catLabel(0) }}</span></div>
+          <label class="pick" *ngFor="let v of catValues(0)">
+            <input type="checkbox" [checked]="catSel[0].has(v)" (change)="toggleCat(0, v)" />
+            <span class="pn">{{ v }}<span class="pm">({{ catCount(0, v) }})</span></span>
           </label>
-          <button class="btn-o" (click)="applySelection()">Use {{ selected.size }} selected → build pages</button>
+          <button class="btn-o" (click)="applySelection()">Use {{ catSel[0].size }} selected → build pages</button>
           <!-- Article names come from the API and are locked; only their text case
                can be changed (applied live to every locked name). -->
           <div class="sec"><span>Article text case</span></div>
@@ -161,6 +171,45 @@
       <h2 class="step-title">Intermediate page</h2>
       <p class="note">Style: <b>{{ d.themeTokens.intermediateStyle }}</b><span *ngIf="intermediateNeedsImage"> — this style shows an image per item.</span></p>
 
+      <!-- CATEGORY: progressive L1–L3 drill (filtered by ancestor selections) -->
+      <ng-container *ngIf="d.appMode === 'category'">
+        <p class="note" *ngIf="categoryBreadcrumb"><b>{{ categoryBreadcrumb }}</b></p>
+        <p class="note err" *ngIf="!catSel[0].size">Select L0 values on the Home step first.</p>
+
+        <ng-container *ngIf="categoryLevelCount >= 1 && catSel[0].size">
+          <ng-container *ngIf="catValues(1).length">
+            <div class="sec"><span>L1 — {{ catLabel(1) }}</span></div>
+            <label class="pick" *ngFor="let v of catValues(1)">
+              <input type="checkbox" [checked]="catSel[1].has(v)" (change)="toggleCat(1, v)" />
+              <span class="pn">{{ v }}<span class="pm">({{ catCount(1, v) }})</span></span>
+            </label>
+          </ng-container>
+          <p class="note" *ngIf="!catValues(1).length && apiProducts.length">No subcategories at L1 — skipped.</p>
+        </ng-container>
+
+        <ng-container *ngIf="categoryLevelCount >= 2 && catSel[1].size">
+          <ng-container *ngIf="catValues(2).length">
+            <div class="sec"><span>L2 — {{ catLabel(2) }}</span></div>
+            <label class="pick" *ngFor="let v of catValues(2)">
+              <input type="checkbox" [checked]="catSel[2].has(v)" (change)="toggleCat(2, v)" />
+              <span class="pn">{{ v }}<span class="pm">({{ catCount(2, v) }})</span></span>
+            </label>
+          </ng-container>
+          <p class="note" *ngIf="!catValues(2).length">No subcategories at L2 — skipped.</p>
+        </ng-container>
+
+        <ng-container *ngIf="categoryLevelCount >= 3 && catSel[2].size">
+          <ng-container *ngIf="catValues(3).length">
+            <div class="sec"><span>L3 — {{ catLabel(3) }}</span></div>
+            <label class="pick" *ngFor="let v of catValues(3)">
+              <input type="checkbox" [checked]="catSel[3].has(v)" (change)="toggleCat(3, v)" />
+              <span class="pn">{{ v }}<span class="pm">({{ catCount(3, v) }})</span></span>
+            </label>
+          </ng-container>
+          <p class="note" *ngIf="!catValues(3).length">No subcategories at L3 — skipped.</p>
+        </ng-container>
+      </ng-container>
+
       <!-- finder-select: steps + prompt (the selection cards are the sub-items below) -->
       <ng-container *ngIf="isFinderSelect">
         <div class="sec"><span>Finder steps &amp; prompt</span></div>
@@ -180,7 +229,7 @@
         <p class="note">The selection cards for each level are the sub-items you add per card below (each card → its children → … → products).</p>
       </ng-container>
       <!-- Individual drill mode: fill each home card's OWN intermediate page here -->
-      <ng-container *ngIf="!showIntermediateEditor && d.themeTokens.includeIntermediate !== false">
+      <ng-container *ngIf="d.appMode !== 'category' && !showIntermediateEditor && d.themeTokens.includeIntermediate !== false">
         <p class="note"><b>Individual mode</b> — each home card opens its own intermediate page. Fill each one below.</p>
         <div class="pcard" *ngFor="let c of d.home">
           <div class="sec"><span>{{ c.name || 'Home card' }} — sub-items</span></div>
@@ -189,7 +238,7 @@
         </div>
       </ng-container>
 
-      <ng-container *ngIf="showIntermediateEditor">
+      <ng-container *ngIf="d.appMode !== 'category' && showIntermediateEditor">
         <p class="note"><b>Common mode</b> — every home card opens this one shared page.</p>
         <div class="sec"><span>Intermediate items ({{ d.intermediate.length }})</span><button class="mini" (click)="addIntermediate()">+ Add</button></div>
         <ng-container *ngFor="let it of d.intermediate; let i = index">

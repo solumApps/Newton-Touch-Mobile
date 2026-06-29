@@ -19,6 +19,8 @@ export interface ContentDraft {
   /** Category mode: which article fields the LCD re-fetches from the API at
    *  startup (matched by articleId). Default ['name']. Empty = no live refresh. */
   liveRefresh?: ('name' | 'price')[];
+  /** Category mode: how many INTERMEDIATE levels to drill (0=L0 only … 3=L0+L1+L2+L3). */
+  categoryLevelCount?: number;
   home: CardItem[];
   intermediate: CardItem[];
   result: ResultContent;
