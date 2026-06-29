@@ -8855,11 +8855,11 @@
   --int-col-gap-y: 40px;
 }
 
-/* Reduced horizontal gap for 2-3 columns with 1:1 aspect shapes (circle/hexagon) */
+/* Extra horizontal spacing for 2-3 vertical columns with 1:1 aspect shapes (circle/hexagon) */
 .nt-inter .body.int-columns.scroll-vertical:is(.int-shape-circle, .int-shape-hexagon):is(.cols-2, .cols-3, [style*="--int-cols: 2"], [style*="--int-cols: 3"]) {
-  --int-col-gap-h: calc(var(--int-col-gap-x) * 0.2);
+  --int-col-gap-h: calc(var(--int-col-gap-x) * 5.2);
   grid-template-columns: repeat(var(--int-cols, 3), calc(var(--nt-vh)*54 * var(--nt-int-scale, 1)));
-  grid-auto-rows: calc(var(--nt-vh)*60 * var(--nt-int-scale, 1));
+  grid-auto-rows: calc(var(--nt-vh)*68 * var(--nt-int-scale, 1));
 }
 
 .nt-inter .body.int-columns.scroll-vertical .item {
@@ -10325,8 +10325,8 @@
 .nt-inter .body.int-columns.int-shape-circle .item,
 .nt-inter .body.int-columns.int-shape-hexagon .item {
   flex: 0 0 auto;
-  width: calc(var(--nt-vh)*48 * var(--nt-int-scale, 1));
-  height: calc(var(--nt-vh)*48 * var(--nt-int-scale, 1));
+  width: calc(var(--nt-vh)*60 * var(--nt-int-scale, 1));
+  height: calc(var(--nt-vh)*60 * var(--nt-int-scale, 1));
 }
 
 .nt-inter .body.int-columns.int-shape-circle .item {
