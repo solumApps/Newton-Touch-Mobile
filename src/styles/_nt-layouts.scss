@@ -10952,6 +10952,10 @@
   min-width: var(--int-strip-card-width, 33.333%) !important;
 }
 
+.nt-inter .body.int-card-strip.int-strip-few {
+  justify-content: center !important;
+}
+
 .nt-inter .body.int-columns.scroll-horizontal,
 .nt-inter .body.int-card-strip {
   scroll-padding-inline-end: calc(var(--nt-vw)*4);

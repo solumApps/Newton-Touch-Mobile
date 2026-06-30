@@ -209,7 +209,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </ng-container>
           <ng-template #flatInter>
             <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{$any(theme?.intermediateStyle)==='side-rail' ? 'left' : (theme?.intermediateStyle==='columns' ? 'center' : (theme?.intermediate?.align||'center'))}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-valign-{{theme?.intermediate?.valign||'middle'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'overlay-bottom'}} int-brm-{{theme?.intermediate?.brandRailMessagePos||'right'}} int-brmv-{{theme?.intermediate?.brandRailMessageAlign||'center'}}"
-                 [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && (theme?.intermediate?.columns || 3)===1" [class.int-scroll-peek]="interColumnsScrollPeek" [class.int-strip-few]="theme?.intermediateStyle==='card-strip' && interStripRenderedCount<=2" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [class.cols-2]="(theme?.intermediate?.columns || 3) === 2" [class.cols-3]="(theme?.intermediate?.columns || 3) === 3" [style.--int-cols]="interVisibleColumns" [style.--int-strip-card-width]="interStripCardWidth" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1" [style.--int-brm-bg]="theme?.intermediate?.brandRailMessageBgColor || null" [style.--int-brm-text]="theme?.intermediate?.brandRailMessageTextColor || null" [style.--card-gap]="theme?.intermediate?.gapNum != null ? (theme?.intermediate?.gapNum + 'px') : null">
+                 [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && (theme?.intermediate?.columns || 3)===1" [class.int-scroll-peek]="interColumnsScrollPeek" [class.int-strip-few]="theme?.intermediateStyle==='card-strip' && interStripRenderedCount<=3" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [class.cols-2]="(theme?.intermediate?.columns || 3) === 2" [class.cols-3]="(theme?.intermediate?.columns || 3) === 3" [style.--int-cols]="interVisibleColumns" [style.--int-strip-card-width]="interStripCardWidth" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1" [style.--int-brm-bg]="theme?.intermediate?.brandRailMessageBgColor || null" [style.--int-brm-text]="theme?.intermediate?.brandRailMessageTextColor || null" [style.--card-gap]="theme?.intermediate?.gapNum != null ? (theme?.intermediate?.gapNum + 'px') : null">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0" [class.has-img]="!!it.image || interUsePh">
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                 <span class="name">{{ it.name }}</span>
@@ -770,9 +770,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return (shape === 'circle' || shape === 'hexagon') ? cols >= 6 : cols >= 3;
   }
   get interStripRenderedCount(): number {
-    return Math.max(1, this.theme?.intermediate?.columns || 3);
+    return this.interCells.length;
   }
   get interStripCardWidth(): string {
+    if (this.interStripRenderedCount <= 3) {
+      return '25%';
+    }
     return `${100 / this.interStripRenderedCount}%`;
   }
   get cardGapPx(): string | null {
@@ -951,7 +954,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       return [...real, ...dummy];
     }
     const n = this.theme?.intermediateStyle === 'card-strip'
-      ? Math.max((cols || 3) + 3, 6)
+      ? (cols || 3)
       : 6;
     const real = source.slice(0, n);
     if (real.length) return real.map(c => ({ ...c, name: c.name || 'Item' }));
