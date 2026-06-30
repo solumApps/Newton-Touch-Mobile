@@ -14,6 +14,13 @@ export interface ContentDraft {
   themeTokens: ThemeTokens;
   appMode: AppMode;
   fieldSource?: FieldSource;   // Category mode: 'category' (category1–4) or 'etc' (etc0–3)
+  /** Category mode: case transform applied to API-sourced (locked) article names. */
+  articleCase?: 'asis' | 'upper' | 'lower' | 'camel' | 'capital';
+  /** Category mode: which article fields the LCD re-fetches from the API at
+   *  startup (matched by articleId). Default ['name']. Empty = no live refresh. */
+  liveRefresh?: ('name' | 'price')[];
+  /** Category mode: how many INTERMEDIATE levels to drill (0=L0 only … 3=L0+L1+L2+L3). */
+  categoryLevelCount?: number;
   home: CardItem[];
   intermediate: CardItem[];
   result: ResultContent;
@@ -228,8 +235,10 @@ export class ContentService {
     this.changed.next();
   }
 
-  /** Compile a draft into the deployable layout.json (the contract LCD renders). */
-  build(d: ContentDraft): LayoutJson {
+  /** Compile a draft into the deployable layout.json (the contract LCD renders).
+   *  `creds` (optional) are embedded as `liveApi` for Category mode so the LCD can
+   *  refresh article values from the SOLUM API at startup. */
+  build(d: ContentDraft, creds?: { serverUrl: string; token: string; companyId: string; storeId: string }): LayoutJson {
     // Map coordinates are RELATIVE percentages (0–100) per the contract — clamp
     // free-typed values so an out-of-range number can never push the marker
     // off the map on the 1920-wide kiosk.
@@ -289,6 +298,13 @@ export class ContentService {
       payload.eslBlinkBy = d.eslBlinkBy ?? 'article';
     }
     if (d.appMode === 'category' && d.fieldSource) payload.fieldSource = d.fieldSource;
+    // Category live data: the LCD logs in itself (encrypted creds travel in the
+    // separate serverConfig message) and fetches the API — so NO creds/token here.
+    // Only the article-case + refresh preference ride along.
+    if (d.appMode === 'category') {
+      const refresh = d.liveRefresh?.length ? d.liveRefresh : ['name'] as ('name' | 'price')[];
+      payload.liveApi = { refresh, articleCase: d.articleCase || 'asis' };
+    }
     if (d.appMode === 'media' && d.media) payload.media = d.media;
     return payload;
   }

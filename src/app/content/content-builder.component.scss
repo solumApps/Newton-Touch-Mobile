@@ -282,3 +282,6 @@ table.sum td:first-child {
 .foot .nav .btn-o,
 .foot .nav .btn-y { width: 100%; min-width: 0; padding: 12px 8px; box-sizing: border-box; margin: 0; }
 .foot .nav button[disabled] { opacity: .45; }
+
+/* Category mode: API-sourced names are read-only (case transform only). */
+.inp.locked { background: var(--nt-surface-2, #f3f3ef); color: var(--nt-text-2, #6b6b66); cursor: not-allowed; }

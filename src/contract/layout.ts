@@ -302,6 +302,10 @@ export interface CardItem {
   price?: string;
   unit?: string;
   articleId?: string;          // for ESL blink (Category / +ESL)
+  /** Category mode: this value came from the SOLUM API — its name is locked from
+   *  free-text editing (only a case transform is allowed). `rawName` keeps the
+   *  original API value so the case transform can be re-derived non-destructively. */
+  fromApi?: boolean; rawName?: string;
   children?: CardItem[];       // intermediate sub-items (recursive drill-down)
   /** Leaf-only: products/content surfaced on the Result page when THIS leaf is
    *  reached. Optional — when absent the LCD/preview fall back to the SHARED
@@ -321,6 +325,8 @@ export interface ResultProduct {
   shelf?: string;
   articleId?: string;          // for ESL blink
   labelId?: string;
+  /** Category mode: name came from the SOLUM API — locked except case transform. */
+  fromApi?: boolean; rawName?: string;
   /** Per-product map marker position (percentage 0–100 from the top-left).
    *  When set, the map template shows a dot at this location for the found product
    *  so routing varies per product instead of a single fixed marker. */
@@ -378,6 +384,9 @@ export interface ResultContent {
   mapImage?: string;
   promoImage?: string;
   products: ResultProduct[];
+  /** Category mode: which product fields the result page should display. Absent =
+   *  default (name + price + zone). Drives both the builder preview and the LCD. */
+  fields?: ('name' | 'price' | 'zone' | 'articleId' | 'shelf')[];
   /** Optional map annotation: draw the route LINE or a single DOT anywhere on
    *  the map (percent coords, 0–100), with an optional color override.
    *  kind 'none' hides both; absent = legacy default (line + product marker). */
@@ -514,6 +523,10 @@ export interface LayoutJson {
   appMode: AppMode;
   /** Category mode only: which API field set drove the hierarchy. */
   fieldSource?: FieldSource;
+  /** Category mode: lets the LCD refresh article values from the SOLUM API at
+   *  startup. Creds are embedded at deploy; `refresh` lists which fields to update
+   *  (matched by articleId); `articleCase` mirrors the content-side text case. */
+  liveApi?: { refresh?: ('name' | 'price')[]; articleCase?: 'asis' | 'upper' | 'lower' | 'camel' | 'capital'; };
   theme: ThemeTokens;
   /** Per-deploy header content — fields shown depend on theme.headerStyle.
    *  Title defaults to contentName if empty; caption defaults to 'Welcome';
