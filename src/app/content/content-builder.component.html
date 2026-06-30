@@ -286,6 +286,14 @@
           <button class="mini" *ngFor="let f of resultFieldOpts" [class.sel]="resultFieldOn(f.id)" (click)="toggleResultField(f.id)">{{ f.label }}</button>
         </div>
 
+        <!-- LED blink: the kiosk blinks every article shown here on result entry,
+             and turns the LEDs off (duration 0) when leaving the page. -->
+        <div class="sec"><span>LED blink</span></div>
+        <app-select-field placeholder="LED colour" [options]="ledColorOpts"
+          [value]="d.ledColour || 'Red'" (valueChange)="setLedColour($any($event))"></app-select-field>
+        <app-select-field placeholder="Blink duration" [options]="ledDurationOpts"
+          [value]="d.ledDuration || '10s'" (valueChange)="setLedDuration($any($event))"></app-select-field>
+
         <div class="sec"><span>Hierarchy &amp; matched products ({{ d.result.products.length }})</span></div>
         <p class="note">Each matched article shows inputs for the fields you enabled above — edit per product as needed.</p>
         <p class="note err" *ngIf="!resultLeaves.length">Select categories on the previous steps first.</p>

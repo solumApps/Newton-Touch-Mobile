@@ -522,8 +522,7 @@ export interface LayoutJson {
   /** Category mode: lets the LCD refresh article values from the SOLUM API at
    *  startup. Creds are embedded at deploy; `refresh` lists which fields to update
    *  (matched by articleId); `articleCase` mirrors the content-side text case. */
-  liveApi?: { serverUrl: string; token: string; companyId: string; storeId: string;
-    refresh?: ('name' | 'price')[]; articleCase?: 'asis' | 'upper' | 'lower' | 'camel' | 'capital'; };
+  liveApi?: { refresh?: ('name' | 'price')[]; articleCase?: 'asis' | 'upper' | 'lower' | 'camel' | 'capital'; };
   theme: ThemeTokens;
   /** Per-deploy header content — fields shown depend on theme.headerStyle.
    *  Title defaults to contentName if empty; caption defaults to 'Welcome';
