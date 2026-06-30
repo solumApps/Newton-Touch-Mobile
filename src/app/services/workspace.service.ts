@@ -3,6 +3,7 @@ import { Preferences } from '@capacitor/preferences';
 import { CapacitorHttp, Capacitor } from '@capacitor/core';
 import { Subject } from 'rxjs';
 import type { ApiCreds } from './category-api.service';
+import { AuthExpiredService } from './auth-expired.service';
 
 /** Browser dev: route SOLUM calls through the Angular dev-proxy to dodge CORS.
  *  On native (Android/iOS) CapacitorHttp bypasses CORS → use the real URL. */
@@ -71,6 +72,8 @@ export class WorkspaceService {
   private ws: Workspace | null = null;
   public changed = new Subject<Workspace>();
 
+  constructor(private authExpired: AuthExpiredService) {}
+
   async get(): Promise<Workspace> {
     if (!this.ws) {
       const { value } = await Preferences.get({ key: KEY });
@@ -117,6 +120,9 @@ export class WorkspaceService {
       const err: Error & { authExpired?: boolean } = new Error(msg);
       // 401 / TOKEN_EXPIRED → stored access token is no longer valid; caller should re-authenticate.
       err.authExpired = res.status === 401 || /TOKEN_EXPIRED|UNAUTHORIZED/i.test(msg);
+      if (err.authExpired) {
+        this.authExpired.triggerExpired();
+      }
       throw err;
     }
 
