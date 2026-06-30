@@ -436,8 +436,13 @@ export class DeployComponent implements OnInit, OnDestroy {
           if (!cred.password) this.pushStep('⚠ No saved password — sign out & sign in again so the LCD can log in to ESL');
           const encUser = await encryptText(cred.username);
           const encPass = await encryptText(cred.password);
+          this.pushStep(`▸ serverConfig … (encrypted creds, NO token · server=${creds.serverUrl} company=${creds.companyId} store=${creds.storeId})`);
+          if (this.draft.appMode === 'category') this.pushStep(`  • category: LED ${this.draft.ledColour || 'Red'}/${this.draft.ledDuration || '10s'} · LCD will self-login + fetch category API on load`);
           const serverConfig = JSON.stringify({ kind: 'serverConfig', serverUrl: creds.serverUrl, username: encUser, password: encPass, companyId: creds.companyId, storeId: creds.storeId, ledColour: this.draft.ledColour || 'Red', ledDuration: this.draft.ledDuration || '10s', environment: w.environment });
-          try { await this.transfer.send(this.targetHost, this.targetPort, serverConfig, () => {}); await this.sleep(this.SEND_DELAY_MS); } catch { /* non-fatal */ }
+          try { await this.transfer.send(this.targetHost, this.targetPort, serverConfig, () => {}); await this.sleep(this.SEND_DELAY_MS); this.pushStep('  ✓ serverConfig sent'); }
+          catch { this.pushStep('  ⚠ serverConfig send failed (non-fatal)'); }
+        } else {
+          this.pushStep('⚠ No server credentials — sign in so the LCD can fetch live data');
         }
       }
       // LAYOUT LAST — the final payload, so no other send can clobber it in flight.
