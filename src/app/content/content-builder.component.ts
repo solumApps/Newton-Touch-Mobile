@@ -827,6 +827,13 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     return m === 'category' ? 'Category' : m === 'prototype' ? 'Prototype' : 'Prototype + ESL';
   }
 
+  get previewIntermediateItems(): CardItem[] {
+    if (this.draft?.appMode === 'category') {
+      return (this.interCardsList || []).map((it) => it.node);
+    }
+    return this.draft?.intermediate || [];
+  }
+
   async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.paramMap.get('id');
     this.draft = (await this.content.list()).find((d) => d.id === id);
@@ -848,6 +855,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (typeof this.draft.lastStep === 'number') {
       this.stepIndex = Math.min(Math.max(0, Math.round(this.draft.lastStep)), this.visibleSteps.length - 1);
     }
+    this.afterStepChange();
   }
 
   /** Safety net: leaving the builder by ANY route (tab switch, hardware back,
