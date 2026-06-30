@@ -380,6 +380,9 @@ export interface ResultContent {
   mapImage?: string;
   promoImage?: string;
   products: ResultProduct[];
+  /** Category mode: which product fields the result page should display. Absent =
+   *  default (name + price + zone). Drives both the builder preview and the LCD. */
+  fields?: ('name' | 'price' | 'zone' | 'articleId' | 'shelf')[];
   /** Optional map annotation: draw the route LINE or a single DOT anywhere on
    *  the map (percent coords, 0–100), with an optional color override.
    *  kind 'none' hides both; absent = legacy default (line + product marker). */
