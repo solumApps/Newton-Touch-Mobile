@@ -298,10 +298,12 @@ export class ContentService {
       payload.eslBlinkBy = d.eslBlinkBy ?? 'article';
     }
     if (d.appMode === 'category' && d.fieldSource) payload.fieldSource = d.fieldSource;
-    // Embed creds so the LCD can refresh article values from the API at startup.
-    if (d.appMode === 'category' && creds?.serverUrl && creds.token) {
+    // Category live data: the LCD logs in itself (encrypted creds travel in the
+    // separate serverConfig message) and fetches the API — so NO creds/token here.
+    // Only the article-case + refresh preference ride along.
+    if (d.appMode === 'category') {
       const refresh = d.liveRefresh?.length ? d.liveRefresh : ['name'] as ('name' | 'price')[];
-      payload.liveApi = { serverUrl: creds.serverUrl, token: creds.token, companyId: creds.companyId, storeId: creds.storeId, refresh, articleCase: d.articleCase || 'asis' };
+      payload.liveApi = { refresh, articleCase: d.articleCase || 'asis' };
     }
     if (d.appMode === 'media' && d.media) payload.media = d.media;
     return payload;
