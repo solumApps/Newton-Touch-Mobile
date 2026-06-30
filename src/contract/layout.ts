@@ -384,6 +384,9 @@ export interface ResultContent {
   mapImage?: string;
   promoImage?: string;
   products: ResultProduct[];
+  /** Category mode: which product fields the result page should display. Absent =
+   *  default (name + price + zone). Drives both the builder preview and the LCD. */
+  fields?: ('name' | 'price' | 'zone' | 'articleId' | 'shelf')[];
   /** Optional map annotation: draw the route LINE or a single DOT anywhere on
    *  the map (percent coords, 0–100), with an optional color override.
    *  kind 'none' hides both; absent = legacy default (line + product marker). */
@@ -523,8 +526,7 @@ export interface LayoutJson {
   /** Category mode: lets the LCD refresh article values from the SOLUM API at
    *  startup. Creds are embedded at deploy; `refresh` lists which fields to update
    *  (matched by articleId); `articleCase` mirrors the content-side text case. */
-  liveApi?: { serverUrl: string; token: string; companyId: string; storeId: string;
-    refresh?: ('name' | 'price')[]; articleCase?: 'asis' | 'upper' | 'lower' | 'camel' | 'capital'; };
+  liveApi?: { refresh?: ('name' | 'price')[]; articleCase?: 'asis' | 'upper' | 'lower' | 'camel' | 'capital'; };
   theme: ThemeTokens;
   /** Per-deploy header content — fields shown depend on theme.headerStyle.
    *  Title defaults to contentName if empty; caption defaults to 'Welcome';

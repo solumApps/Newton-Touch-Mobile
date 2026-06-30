@@ -59,6 +59,9 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
       const interSteps: Step[] = [];
       if (this.draft.themeTokens.includeIntermediate !== false) {
         for (let i = 1; i <= this.categoryLevelCount; i++) {
+          // Skip a level entirely when it has no values (e.g. category4 empty) —
+          // go straight to the next level / Result.
+          if (!this.categoryLevelHasValues(i)) continue;
           interSteps.push({ key: ('inter' + i) as StepKey, label: 'Intermediate L' + i, page: 'inter' });
         }
       }
@@ -66,11 +69,29 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     }
     return this.allSteps.filter(s => s.key !== 'inter' || this.draft?.themeTokens.includeIntermediate !== false);
   }
+  /** Does a category level have ANY non-empty values (so its step is worth
+   *  showing)? Uses the fetched products when available, else the built tree
+   *  depth (after a reload, apiProducts is empty but the tree persists). */
+  categoryLevelHasValues(level: number): boolean {
+    if (this.apiProducts.length) {
+      const sel = this.catSel[0];
+      const pool = sel.size ? this.apiProducts.filter((p) => sel.has(this.gv(p, this.catKey(0)))) : this.apiProducts;
+      return pool.some((p) => this.gv(p, this.catKey(level)) !== '');
+    }
+    return this.nodesAtDepth(level).length > 0;
+  }
   /** Current intermediate level (1–3) for category steps; 0 for the legacy single step. */
   get interLevel(): number {
     const k = this.step?.key || '';
     return /^inter[123]$/.test(k) ? Number(k.slice(5)) : 0;
   }
+  /** Switch key for the editor template: inter1/2/3 collapse to the 'inter' case. */
+  get stepCase(): string {
+    const k = this.step?.key || '';
+    return /^inter[123]$/.test(k) ? 'inter' : k;
+  }
+  /** True on any intermediate step (single 'inter' or category inter1/2/3). */
+  get isInterStep(): boolean { return this.stepCase === 'inter'; }
   get step(): Step { return this.visibleSteps[this.stepIndex] || this.visibleSteps[0]; }
   get isFirst(): boolean { return this.stepIndex <= 0; }
   get isLast(): boolean { return this.stepIndex >= this.visibleSteps.length - 1; }
@@ -98,14 +119,11 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
         }
       }
     }
-    if (key === 'inter') {
+    if (key === 'inter' || /^inter[123]$/.test(key)) {
       if (d.appMode === 'category') {
-        // Validate the CURRENT intermediate level: every parent with available
-        // child values must have at least one selected (empty levels auto-skip).
-        const lvl = this.interLevel || 1;
-        const err = this.categoryInterError(lvl);
-        if (err) e.push(err);
-        this.syncResultProducts();
+        // No selection at intermediate levels — all options are shown. Just keep
+        // the tree + products in sync; nothing to block on.
+        if (this.catSel[0].size) this.applySelection();
       } else if (this.showIntermediateEditor) {
         if (!d.intermediate.length) e.push('Add at least one intermediate item.');
         d.intermediate.forEach((it, i) => { if (!it.name?.trim()) e.push(`Intermediate item ${i + 1} needs a name.`); });
@@ -191,7 +209,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     // and re-derive products when reaching the Result step.
     if (this.draft?.appMode === 'category') {
       if (this.catSel[0].size) this.applySelection();
-      if (this.interLevel > 0) this.ensureInterActive();
+      if (this.interLevel > 0) this.refreshInter();
       if (this.step?.key === 'result') this.syncResultProducts();
     }
     setTimeout(() => {
@@ -481,6 +499,8 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
       const creds = await this.workspace.creds();
       this.apiProducts = await this.categoryApi.fetchProducts(creds);
       if (this.draft && !this.draft.fieldSource) this.draft.fieldSource = 'category'; // default L0 source
+      // Default depth to what the data actually has (the user can reduce it).
+      if (this.draft && this.draft.categoryLevelCount == null) this.draft.categoryLevelCount = this.maxCategoryDepth;
       this.catSel = [new Set(), new Set(), new Set(), new Set()];
       if (!this.apiProducts.length) this.fetchError = 'No products returned for this store.';
     } catch (e: any) {
@@ -500,8 +520,21 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   private catKey(level: number): string { return this.draft?.fieldSource === 'etc' ? `etc${level}` : `category${level + 1}`; }
   /** Display label for a level (same as the API key). */
   catLabel(level: number): string { return this.catKey(level); }
-  /** How many INTERMEDIATE levels (0–3) the user chose on the Home step. */
-  get categoryLevelCount(): number { return Math.min(3, Math.max(0, this.draft?.categoryLevelCount ?? 0)); }
+  /** Deepest intermediate level (0–3) actually present in the fetched data —
+   *  drives which depth options the Home step offers. */
+  get maxCategoryDepth(): number {
+    if (!this.apiProducts.length) return 3;
+    let m = 0;
+    for (let lvl = 1; lvl <= 3; lvl++) {
+      if (this.apiProducts.some((p) => this.gv(p, this.catKey(lvl)) !== '')) m = lvl; else break;
+    }
+    return m;
+  }
+  /** How many INTERMEDIATE levels the user chose, clamped to what the data has. */
+  get categoryLevelCount(): number {
+    const stored = Math.min(3, Math.max(0, this.draft?.categoryLevelCount ?? 0));
+    return this.apiProducts.length ? Math.min(stored, this.maxCategoryDepth) : stored;
+  }
   setCategoryLevelCount(n: number): void {
     if (!this.draft) return;
     this.draft.categoryLevelCount = Math.min(3, Math.max(0, Number(n) || 0));
@@ -549,6 +582,19 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   // ── Intermediate L1/L2/L3 — ancestor segment selectors + path-based cards ────
   /** Active ancestor segment selections that filter the current intermediate step. */
   activeL0 = ''; activeL1: string = 'all'; activeL2: string = 'all';
+  /** Cached view-state for the current intermediate step — recomputed only on
+   *  real events (NOT every change-detection) to avoid CD thrash / freezes. */
+  l0SegList: string[] = []; l1SegList: string[] = []; l2SegList: string[] = [];
+  interCardsList: { node: CardItem; label: string }[] = [];
+  /** Recompute the cached intermediate view-state (segments + all option cards). */
+  refreshInter(): void {
+    if (this.draft?.appMode !== 'category' || this.interLevel < 1) { this.interCardsList = []; this.l0SegList = []; this.l1SegList = []; this.l2SegList = []; return; }
+    this.ensureInterActive();
+    this.l0SegList = this.interL0Segs;
+    this.l1SegList = this.interLevel >= 2 ? this.interL1Segs : [];
+    this.l2SegList = this.interLevel >= 3 ? this.interL2Segs : [];
+    this.interCardsList = this.interCards(this.interLevel);
+  }
   private mk(raw: string) { return { rawName: raw, name: this.applyCase(raw), fromApi: true }; }
   private gv(p: ApiProduct, key: string): string { return (((p as any)[key] ?? '') as string).trim(); }
   /** Abbreviate a parent value to its first 3 chars (for "all" mode labels). */
@@ -591,9 +637,9 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     l1s.forEach((c) => (c.children || []).forEach((g) => set.add(this.childVal(g))));
     return ['all', ...Array.from(set)];
   }
-  setActiveL0(v: string): void { this.activeL0 = v; this.activeL1 = 'all'; this.activeL2 = 'all'; }
-  setActiveL1(v: string): void { this.activeL1 = v; this.activeL2 = 'all'; }
-  setActiveL2(v: string): void { this.activeL2 = v; }
+  setActiveL0(v: string): void { this.activeL0 = v; this.activeL1 = 'all'; this.activeL2 = 'all'; this.refreshInter(); }
+  setActiveL1(v: string): void { this.activeL1 = v; this.activeL2 = 'all'; this.refreshInter(); }
+  setActiveL2(v: string): void { this.activeL2 = v; this.refreshInter(); }
   /** Pick a sensible active L0 when entering an intermediate step. */
   ensureInterActive(): void {
     const segs = this.interL0Segs;
@@ -602,48 +648,56 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (this.interLevel >= 3 && !this.interL2Segs.includes(this.activeL2)) this.activeL2 = 'all';
   }
 
-  /** Checkbox rows for the given intermediate level under the active filters.
-   *  Each row is a unique full path (L0..Llevel); labels are abbreviated only
-   *  when every ancestor segment is in 'all' mode. */
-  interRows(level: number): { path: string[]; value: string; label: string; checked: boolean }[] {
-    const allMode = level === 1 ? false : level === 2 ? this.activeL1 === 'all' : (this.activeL1 === 'all' && this.activeL2 === 'all');
-    const rows = new Map<string, { path: string[]; value: string; label: string; checked: boolean }>();
-    for (const p of this.apiProducts) {
-      if (this.gv(p, this.catKey(0)) !== this.activeL0) continue;
-      if (level >= 2 && this.activeL1 !== 'all' && this.gv(p, this.catKey(1)) !== this.activeL1) continue;
-      if (level >= 3 && this.activeL2 !== 'all' && this.gv(p, this.catKey(2)) !== this.activeL2) continue;
-      const path: string[] = []; let ok = true;
-      for (let i = 0; i <= level; i++) { const vv = this.gv(p, this.catKey(i)); if (!vv) { ok = false; break; } path.push(vv); }
-      if (!ok) continue;
-      const key = path.join(''); if (rows.has(key)) continue;
-      const value = path[level];
-      let label = value;
-      if (allMode && level >= 2) { const parts: string[] = []; for (let i = level - 1; i >= 0; i--) parts.push(this.abbrev(path[i])); label = `${value} -${parts.join('-')}`; }
-      rows.set(key, { path, value, label, checked: !!this.findNodeByPath(path) });
-    }
-    return Array.from(rows.values()).sort((a, b) => a.label.localeCompare(b.label));
-  }
-  /** Toggle a checkbox row → add/remove the node at its path; resync products. */
-  interToggleRow(row: { path: string[] }): void {
-    if (this.findNodeByPath(row.path)) this.removeNodeByPath(row.path); else this.ensureNodeByPath(row.path);
-    this.syncResultProducts();
-  }
-  /** The selected (checked) card nodes at this level under the active filters. */
+  /** ALL card nodes at the given level under the active filters (NO selection —
+   *  every option is shown). Labels are abbreviated when every ancestor segment
+   *  is in 'all' mode. Reads straight from the auto-built tree. */
   interCards(level: number): { node: CardItem; label: string }[] {
-    return this.interRows(level).filter((r) => r.checked).map((r) => ({ node: this.findNodeByPath(r.path)!, label: r.label }));
+    const l0 = this.findNodeByPath([this.activeL0]); if (!l0) return [];
+    const out: { node: CardItem; label: string }[] = [];
+    if (level === 1) {
+      (l0.children || []).forEach((c) => out.push({ node: c, label: this.childVal(c) }));
+    } else if (level === 2) {
+      const l1s = this.activeL1 === 'all' ? (l0.children || []) : (l0.children || []).filter((c) => this.childVal(c) === this.activeL1);
+      const allMode = this.activeL1 === 'all';
+      l1s.forEach((l1) => (l1.children || []).forEach((l2) => out.push({
+        node: l2, label: allMode ? `${this.childVal(l2)} -${this.abbrev(this.childVal(l1))}-${this.abbrev(this.activeL0)}` : this.childVal(l2),
+      })));
+    } else if (level === 3) {
+      const l1s = this.activeL1 === 'all' ? (l0.children || []) : (l0.children || []).filter((c) => this.childVal(c) === this.activeL1);
+      const allMode = this.activeL1 === 'all' && this.activeL2 === 'all';
+      l1s.forEach((l1) => {
+        const l2s = this.activeL2 === 'all' ? (l1.children || []) : (l1.children || []).filter((c) => this.childVal(c) === this.activeL2);
+        l2s.forEach((l2) => (l2.children || []).forEach((l3) => out.push({
+          node: l3, label: allMode ? `${this.childVal(l3)} -${this.abbrev(this.childVal(l2))}-${this.abbrev(this.childVal(l1))}-${this.abbrev(this.activeL0)}` : this.childVal(l3),
+        })));
+      });
+    }
+    return out.sort((a, b) => a.label.localeCompare(b.label));
   }
-  /** Remove a card node (and its subtree) from the tree. */
-  removeInterCard(node: CardItem): void {
-    const strip = (list: CardItem[]): boolean => {
-      const i = list.indexOf(node); if (i >= 0) { list.splice(i, 1); return true; }
-      return list.some((c) => c.children && strip(c.children));
-    };
-    if (this.draft) { strip(this.draft.home); this.syncResultProducts(); }
+  trackInterCard = (_: number, it: { node: CardItem }): string => it.node.id;
+
+  // ── Category Result: which product fields to display ───────────────────────
+  resultFieldOpts: { id: 'name' | 'price' | 'zone' | 'articleId' | 'shelf'; label: string }[] = [
+    { id: 'name', label: 'Article name' }, { id: 'price', label: 'Price' }, { id: 'zone', label: 'Zone' },
+    { id: 'articleId', label: 'Article ID' }, { id: 'shelf', label: 'Shelf' },
+  ];
+  private readonly defaultResultFields: ('name' | 'price' | 'zone' | 'articleId' | 'shelf')[] = ['name', 'price', 'zone'];
+  resultFieldOn(f: 'name' | 'price' | 'zone' | 'articleId' | 'shelf'): boolean {
+    return (this.draft?.result.fields ?? this.defaultResultFields).includes(f);
+  }
+  toggleResultField(f: 'name' | 'price' | 'zone' | 'articleId' | 'shelf'): void {
+    if (!this.draft) return;
+    const cur = new Set(this.draft.result.fields ?? this.defaultResultFields);
+    cur.has(f) ? cur.delete(f) : cur.add(f);
+    this.draft.result.fields = this.resultFieldOpts.map((o) => o.id).filter((id) => cur.has(id));
   }
 
   /** Re-derive each leaf's products + the shared Result list from the tree paths. */
   private syncResultProducts(): void {
     if (!this.draft) return;
+    // Never wipe the persisted product lists when the API products aren't loaded
+    // (e.g. after reopening the draft — apiProducts is transient and empty).
+    if (!this.apiProducts.length) return;
     const dedupe = (arr: ApiProduct[]): ApiProduct[] => { const seen = new Set<string>(); return arr.filter((p) => (seen.has(p.productId) ? false : (seen.add(p.productId), true))); };
     const toProduct = (p: ApiProduct): ResultProduct => ({ id: p.productId, ...this.mk(p.name), price: p.price, articleId: p.articleId, labelId: p.labelId, shelf: p.shelf, aisle: p.zone } as ResultProduct);
     const all: ApiProduct[] = [];
@@ -683,15 +737,49 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     return out;
   }
 
-  /** Home-step "build pages" → build/sync the L0 cards (children preserved). */
+  /** Home-step "build pages" → build the FULL tree: the SELECTED L0 (category1)
+   *  values, then ALL descendant values (category2..4) down to the chosen depth
+   *  (no per-level selection). Existing per-node edits (image/price/unit) are
+   *  preserved by path. */
   applySelection(): void {
     if (!this.draft || !this.catSel[0].size) return;
     if (!this.draft.fieldSource) this.draft.fieldSource = 'category';
-    const existing = new Map(this.draft.home.map((c) => [this.childVal(c), c]));
-    this.draft.home = Array.from(this.catSel[0]).sort((a, b) => a.localeCompare(b))
-      .map((v) => existing.get(v) || ({ id: `l0_${v.replace(/\W+/g, '_')}`, ...this.mk(v) } as CardItem));
+    // Snapshot existing edits by path so a rebuild keeps user-entered fields.
+    const editMap = new Map<string, { image?: string; price?: string; unit?: string }>();
+    const collect = (nodes: CardItem[], path: string[]): void => nodes.forEach((c) => {
+      const pp = [...path, this.childVal(c)];
+      editMap.set(pp.join(''), { image: c.image, price: c.price, unit: c.unit });
+      collect(c.children || [], pp);
+    });
+    collect(this.draft.home, []);
+    const maxLevel = this.categoryLevelCount;
+    const applyEdits = (node: CardItem, pp: string[]): void => {
+      const e = editMap.get(pp.join('')); if (!e) return;
+      if (e.image) node.image = e.image; if (e.price) node.price = e.price; if (e.unit) node.unit = e.unit;
+    };
+    const build = (level: number, subset: ApiProduct[], path: string[]): CardItem[] => {
+      const k = this.catKey(level), vals = new Set<string>();
+      for (const p of subset) { const v = this.gv(p, k); if (v) vals.add(v); }
+      return Array.from(vals).sort((a, b) => a.localeCompare(b)).map((v) => {
+        const pp = [...path, v];
+        const node: CardItem = { id: `l${level}_${v.replace(/\W+/g, '_')}`, ...this.mk(v) };
+        applyEdits(node, pp);
+        if (level < maxLevel) node.children = build(level + 1, subset.filter((p) => this.gv(p, k) === v), pp);
+        return node;
+      });
+    };
+    this.draft.home = Array.from(this.catSel[0]).sort((a, b) => a.localeCompare(b)).map((v) => {
+      const sub = this.apiProducts.filter((p) => this.gv(p, this.catKey(0)) === v);
+      const node: CardItem = { id: `l0_${v.replace(/\W+/g, '_')}`, ...this.mk(v) };
+      applyEdits(node, [v]);
+      if (maxLevel >= 1) node.children = build(1, sub, [v]);
+      return node;
+    });
     this.draft.drillMode = 'individual';
     this.syncResultProducts();
+    // The tree was replaced with NEW node objects (same ids) — invalidate the
+    // resultLeaves memo so it returns the CURRENT nodes (which carry products).
+    this.leafCache = null;
   }
 
   // ── Locked API article names: case transform only (no free-text edit) ──────
