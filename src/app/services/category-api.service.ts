@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CapacitorHttp } from '@capacitor/core';
 import { httpBase } from './workspace.service';
+import { AuthExpiredService } from './auth-expired.service';
 
 /**
  * A product flattened from the SOLUM Category API (`labelList[].articleList[]`).
@@ -30,6 +31,8 @@ export interface ApiCreds {
 
 @Injectable({ providedIn: 'root' })
 export class CategoryApiService {
+  constructor(private authExpired: AuthExpiredService) {}
+
   /** GET {base}/common/api/v2/common/labels/category?company=&store= (Bearer). Mock fallback if no creds. */
   async fetchProducts(creds?: ApiCreds, category1 = ''): Promise<ApiProduct[]> {
     if (creds?.serverUrl && creds.token) {
@@ -38,6 +41,10 @@ export class CategoryApiService {
           `?company=${encodeURIComponent(creds.companyId)}&store=${encodeURIComponent(creds.storeId)}` +
           (category1 ? `&category1=${encodeURIComponent(category1)}` : '');
         const res = await CapacitorHttp.get({ url, headers: { Authorization: `Bearer ${creds.token}` } });
+        if (res.status === 401) {
+          this.authExpired.triggerExpired();
+          throw new Error('Unauthorized (401)');
+        }
         return this.parseLabelList(res.data);
       } catch (e) {
         console.warn('Category API fetch failed', e);
