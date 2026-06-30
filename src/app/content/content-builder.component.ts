@@ -265,7 +265,11 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   setDrillMode(m: 'common' | 'individual'): void { if (this.draft) this.draft.drillMode = m; }
   /** Common = one shared result product list; Individual = per end-item products
    *  (tree leaves in individual drill mode, intermediate items in common mode). */
-  get resultMode(): 'common' | 'individual' { return this.draft?.resultMode || 'common'; }
+  get resultMode(): 'common' | 'individual' {
+    if (this.draft?.resultMode) return this.draft.resultMode;
+    // Promo Map + Ranks is built around per-branch ranked products and markers.
+    return this.isPromoRank ? 'individual' : 'common';
+  }
   setResultMode(m: 'common' | 'individual'): void { if (this.draft) this.draft.resultMode = m; }
 
   // ---- Per-item result pages (skip-intermediate themes: Home → Result directly) ----
@@ -836,6 +840,10 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
       const t = await this.themes.getById(this.draft.themeId);
       if (t) { this.draft.themeTokens = t.tokens; this.draft.themeName = t.name; }
     } catch { /* keep snapshot */ }
+    const themeSaverMode = this.draft.themeTokens.screensaver?.mode;
+    if (themeSaverMode && this.draft.screensaver.mode !== themeSaverMode) {
+      this.draft.screensaver = { ...this.draft.screensaver, mode: themeSaverMode };
+    }
     // Resume where the user left off (lastStep persisted with the draft).
     if (typeof this.draft.lastStep === 'number') {
       this.stepIndex = Math.min(Math.max(0, Math.round(this.draft.lastStep)), this.visibleSteps.length - 1);
@@ -878,6 +886,28 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
 
   /** Tap-to-place map marker: which product the next map tap positions. */
   markerIdx = 0;
+  /** Selected product per individual end-item for the Promo Map + Ranks map locator. */
+  private leafMarkerIndices: Record<string, number> = {};
+  leafMarkerIndex(node: CardItem): number {
+    const index = this.leafMarkerIndices[node.id] ?? 0;
+    const count = node.products?.length || 0;
+    return count ? Math.max(0, Math.min(index, count - 1)) : 0;
+  }
+  selectLeafMarker(node: CardItem, index: number): void { this.leafMarkerIndices[node.id] = index; }
+  leafMarkerColor(node: CardItem): string {
+    return node.products?.[this.leafMarkerIndex(node)]?.markerColor
+      || this.mapRoute?.color
+      || this.draft?.themeTokens.result.pathColor
+      || this.draft?.themeTokens.result.accent
+      || '#2563eb';
+  }
+  setLeafMarkerColor(node: CardItem, color: string): void {
+    const products = node.products || [];
+    const product = products[this.leafMarkerIndex(node)];
+    if (!product) return;
+    product.markerColor = color;
+    node.products = [...products];
+  }
   /** Editor map zoom (H-2) — 1 = fit. Coordinates stay correct because
    *  placeMarker reads the (scaled) bounding rect. */
   mapZoom = 1;
@@ -900,6 +930,19 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     p.mapX = x; p.mapY = y;
     // New products array reference so the preview strip re-renders the dot immediately.
     this.setCurResult({ ...cur, products: [...products] });
+  }
+
+  /** Place a marker on a product owned by an individual intermediate end-item. */
+  placeLeafMarker(ev: MouseEvent, box: HTMLElement, node: CardItem): void {
+    if (!this.mapDotsEnabled) return;
+    const rect = box.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const products = node.products || [];
+    const product = products[this.leafMarkerIndex(node)];
+    if (!product) return;
+    product.mapX = Math.round(Math.max(0, Math.min(100, ((ev.clientX - rect.left) / rect.width) * 100)));
+    product.mapY = Math.round(Math.max(0, Math.min(100, ((ev.clientY - rect.top) / rect.height) * 100)));
+    node.products = [...products];
   }
 
   /** Map marker placement mode of the ACTIVE result page: dot / none. */
@@ -943,7 +986,8 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
 
   /** Append a screensaver media item (image or video frame). */
   async addSaverMedia(): Promise<void> {
-    const dataUrl = await this.picker.pick();
+    const wantsVideo = this.draft?.screensaver?.mode === 'video';
+    const dataUrl = wantsVideo ? await this.picker.pickRaw('video/*') : await this.picker.pick();
     if (!dataUrl) return;
     this.draft!.screensaver.media = [...(this.draft!.screensaver.media || []), dataUrl];
   }
@@ -951,6 +995,10 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     const arr = this.draft!.screensaver.media || [];
     arr.splice(i, 1);
     this.draft!.screensaver.media = arr;
+  }
+
+  isVideoDataUrl(s: string | undefined): boolean {
+    return !!s && typeof s === 'string' && s.startsWith('data:video');
   }
 
   eslId(productId: string): string {

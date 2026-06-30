@@ -62,7 +62,7 @@ export class ThemeService {
       includeIntermediate: true,
       intermediateStyle: 'columns',
       resultTemplate: 'map-list',
-      intermediate: { headerColor: 'rgba(0,0,0,0.45)', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'middle', gap: 'normal' },
+      intermediate: { headerColor: 'rgba(0,0,0,0.45)', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'middle', gap: 'normal', textPos: 'overlay-bottom' },
       result: { headerColor: 'transparent', background: '#1a0036', cardBackground: '#0f172a', cardText: '#FFFFFF', accent: '#ffcd00', popularText: '#FFFFFF', pathColor: '#ffcd00', pathStyle: 'dashed', showHeader: true },
       // Default to no page transition — faster, more responsive navigation
       // (per team feedback). The transition options remain available in the
@@ -71,6 +71,7 @@ export class ThemeService {
       loader: { style: 'spinner', color: '#FFCD00' },
       typography: { fontFamily: DEFAULT_FONT, textScale: 'normal', textFit: 'shrink', baseTextColor: '#FFFFFF' },
       saverOverlay: { ...DEFAULT_SAVER_OVERLAY },
+      screensaver: { mode: 'slideshow' },
     };
   }
 
@@ -134,6 +135,8 @@ export class ThemeService {
     out.typography = { ...d.typography, ...(t?.typography || {}) };
     const saver = { ...DEFAULT_SAVER_OVERLAY, ...(t?.saverOverlay || {}) };
     out.saverOverlay = saver;
+    const screensaver = { ...d.screensaver, ...(t?.screensaver || {}) };
+    out.screensaver = screensaver;
     // Enum safety net: coerce unknown/invalid values (e.g. from a newer app
     // version's export) to defaults with a console warning — never pass through.
     const E = THEME_ENUM_VALUES;
@@ -179,12 +182,14 @@ export class ThemeService {
     out.intermediate.scrollMode = coerceEnum(out.intermediate.scrollMode, E.scrollMode, 'horizontal', 'intermediate.scrollMode');
     out.intermediate.valign = coerceEnum(out.intermediate.valign, E.valign, 'middle', 'intermediate.valign');
     out.intermediate.gap = coerceEnum(out.intermediate.gap, E.gap, 'normal', 'intermediate.gap');
+    out.intermediate.textPos = coerceEnum(out.intermediate.textPos, E.cardTextPos, d.intermediate.textPos || 'overlay-bottom', 'intermediate.textPos');
     out.result.pathStyle = coerceEnum(out.result.pathStyle, E.pathStyle, d.result.pathStyle, 'result.pathStyle');
     out.animation.transition = coerceEnum(out.animation.transition, E.transition, d.animation.transition, 'animation.transition');
     out.animation.speed = coerceEnum(out.animation.speed, E.animSpeed, d.animation.speed, 'animation.speed');
     out.loader.style = coerceEnum(out.loader.style, E.loaderStyle, d.loader.style, 'loader.style');
     out.typography.textScale = coerceEnum(out.typography.textScale, E.textScale, d.typography.textScale, 'typography.textScale');
     out.typography.textFit = coerceEnum(out.typography.textFit, E.textFit, d.typography.textFit, 'typography.textFit');
+    screensaver.mode = coerceEnum(screensaver.mode, ['slideshow', 'single-image', 'video'], 'slideshow', 'screensaver.mode');
     // Per-element typography tokens stay undefined when absent (= inherit global).
     if (out.typography.cardTextScale !== undefined) out.typography.cardTextScale = coerceEnum(out.typography.cardTextScale, E.textScale, 'normal', 'typography.cardTextScale');
     if (out.typography.headerTextScale !== undefined) out.typography.headerTextScale = coerceEnum(out.typography.headerTextScale, E.textScale, 'normal', 'typography.headerTextScale');
@@ -201,7 +206,7 @@ export class ThemeService {
     // Optional fine-grained card-size multiplier (slider).
     const csn = Number(out.cardSizeScale);
     out.cardSizeScale = out.cardSizeScale !== undefined && Number.isFinite(csn)
-      ? Math.min(1.25, Math.max(0.8, csn)) : undefined;
+      ? Math.min(1.1, Math.max(0.8, csn)) : undefined;
     // Optional independent horizontal card-text alignment.
     out.cardTextAlign = ['left', 'center', 'right'].includes(out.cardTextAlign as string) ? out.cardTextAlign : undefined;
     // Optional background-image framing (B-4).

@@ -419,6 +419,33 @@
               <input class="inp" [(ngModel)]="p.aisle" placeholder="Aisle / Zone" />
               <input class="inp" [(ngModel)]="p.shelf" placeholder="Shelf" />
             </div>
+            <div class="prow" *ngIf="isPromoRank">
+              <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapX" placeholder="Map X % (0–100)" />
+              <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapY" placeholder="Map Y % (0–100)" />
+            </div>
+          </ng-container>
+          <ng-container *ngIf="isPromoRank && d.result.mapImage && (leaf.node.products?.length || 0)">
+            <div class="sec sub"><span>Map locator</span></div>
+            <p class="note">Select a product, then tap the shared map to place its marker.</p>
+            <div class="seg fit-seg marker-seg">
+              <button class="mini" *ngFor="let p of leaf.node.products; let pi = index"
+                      [class.sel]="leafMarkerIndex(leaf.node)===pi" (click)="selectLeafMarker(leaf.node, pi)">{{ p.name || ('Product ' + (pi+1)) }}</button>
+            </div>
+            <app-color-picker label="Marker color" [allowTransparent]="false"
+              [value]="leafMarkerColor(leaf.node)"
+              (valueChange)="setLeafMarkerColor(leaf.node, $event)"></app-color-picker>
+            <div class="map-zoomwrap">
+              <div class="map-place" #leafMapBox (click)="placeLeafMarker($event, leafMapBox, leaf.node)"
+                   [style.transform]="'scale('+mapZoom+')'" [style.transformOrigin]="'top left'"
+                   [style.background-image]="'url('+d.result.mapImage+')'">
+                <ng-container *ngFor="let p of leaf.node.products; let pi = index">
+                  <span class="map-dot" *ngIf="mapDotsEnabled && p.mapX != null && p.mapY != null"
+                        [class.sel]="leafMarkerIndex(leaf.node)===pi"
+                        [style.left.%]="p.mapX" [style.top.%]="p.mapY"
+                        [style.background]="p.markerColor || mapRoute?.color || d.themeTokens.result.pathColor"></span>
+                </ng-container>
+              </div>
+            </div>
           </ng-container>
           <p class="note" *ngIf="!(leaf.node.products && leaf.node.products.length)">No own products — uses the shared list below.</p>
         </div>
@@ -526,7 +553,10 @@
       <p class="note">Mode: <b>{{ d.screensaver.mode }}</b> (set in theme).</p>
       <div class="sec"><span>Media ({{ d.screensaver.media.length || 0 }})</span><button class="mini" (click)="addSaverMedia()">+ Media</button></div>
       <div class="erow" *ngFor="let m of d.screensaver.media; let i = index">
-        <div class="thumb" [style.background-image]="'url('+m+')'"></div>
+        <ng-container *ngIf="isVideoDataUrl(m); else imgThumb">
+          <video class="thumb" [src]="m" muted playsinline></video>
+        </ng-container>
+        <ng-template #imgThumb><div class="thumb" [style.background-image]="'url('+m+')'"></div></ng-template>
         <span class="inp" style="display:flex;align-items:center;opacity:.7">#{{ i+1 }}</span>
         <button class="del" (click)="removeSaverMedia(i)">✕</button>
       </div>

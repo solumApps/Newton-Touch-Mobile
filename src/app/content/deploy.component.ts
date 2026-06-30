@@ -107,9 +107,12 @@ export class DeployComponent implements OnInit, OnDestroy {
   /** Pull every data-URI image out of the layout into a separate list, replacing it
    *  with a small `ntimg:<id>` reference — so layout.json stays tiny and images are
    *  sent + stored as files (no base64 bloat → no renderer OOM on the LCD). */
-  private externalizeImages(src: LayoutJson, opts: { media?: boolean } = {}): { layout: LayoutJson; images: { id: string; data: string; ext: string }[]; media?: { id: string; data: string; ext: string } } {
+  private externalizeImages(src: LayoutJson, opts: { media?: boolean } = {}): { layout: LayoutJson; images: { id: string; data: string; ext: string }[]; videos: { id: string; data: string; ext: string }[]; media?: { id: string; data: string; ext: string } } {
     const layout: LayoutJson = JSON.parse(JSON.stringify(src));
     const images: { id: string; data: string; ext: string }[] = [];
+    // Videos travel as a separate chunked stream so multi-MB base64 never hits the
+    // native bridge / relay WebSocket as one giant frame (OOM + MP4 corruption).
+    const videos: { id: string; data: string; ext: string }[] = [];
     let n = 0;
     /** Parse extension from a data URI ("data:image/png;base64,..." → "png").
      *  Default to "png" if MIME is missing/unknown — the LCD WebView refuses to
@@ -141,6 +144,16 @@ export class DeployComponent implements OnInit, OnDestroy {
       if (v && v.startsWith('data:')) { const id = 'img_' + (n++); images.push({ id, data: toBase64DataUri(v), ext: extFrom(v) }); return 'ntimg:' + id; }
       return v;
     };
+    // Screensaver media may include `data:video/*` blobs — route those to the
+    // chunked stream instead of the one-shot images[] channel.
+    const takeMaybeVideo = (v?: string): string | undefined => {
+      if (v && v.startsWith('data:video/')) {
+        const id = 'img_' + (n++);
+        videos.push({ id, data: toBase64DataUri(v), ext: extFrom(v) });
+        return 'ntimg:' + id;
+      }
+      return take(v);
+    };
     const cards = (arr?: CardItem[]) => arr?.forEach((c) => {
       c.image = take(c.image);
       c.products?.forEach((p) => (p.image = take(p.image)));
@@ -167,7 +180,7 @@ export class DeployComponent implements OnInit, OnDestroy {
         rc.products?.forEach((p) => (p.image = take(p.image)));
       }
     }
-    if (layout.screensaver?.media) layout.screensaver.media = layout.screensaver.media.map((m) => take(m) || m);
+    if (layout.screensaver?.media) layout.screensaver.media = layout.screensaver.media.map((m) => takeMaybeVideo(m) || m);
     // Externalize the header logo if it's a data URI.
     if (layout.header?.logo) layout.header.logo = take(layout.header.logo);
     // Media mode (appMode 'media'): externalize the image/video to a SEPARATE
@@ -181,7 +194,7 @@ export class DeployComponent implements OnInit, OnDestroy {
       media = { id, data: toBase64DataUri(layout.media.url), ext: extFrom(layout.media.url) };
       layout.media = { ...layout.media, url: 'ntimg:' + id };
     }
-    return { layout, images, media };
+    return { layout, images, videos, media };
   }
 
   /** Pause between sends so the LCD's LAN-transfer plugin can flush each file
@@ -202,6 +215,19 @@ export class DeployComponent implements OnInit, OnDestroy {
    *  ntimg/<id>.<ext> standalone. Native LAN path only (browser keeps media
    *  inline → Blob URL). */
   private async sendMediaChunks(media: { id: string; data: string; ext: string }): Promise<void> {
+    return this.sendMediaChunked(media, (json) =>
+      this.transfer.send(this.targetHost, this.targetPort, json, () => {}));
+  }
+
+  /** Browser/relay sibling of sendMediaChunks — same `kind:'imageChunk'` envelope
+   *  the receiver already understands, shipped through the dev-relay WebSocket. */
+  private async sendMediaChunksRelay(media: { id: string; data: string; ext: string }): Promise<void> {
+    return this.sendMediaChunked(media, (json) =>
+      this.transfer.sendRelayNoAck(this.targetHost, json));
+  }
+
+  /** Loop body shared by sendMediaChunks / sendMediaChunksRelay. */
+  private async sendMediaChunked(media: { id: string; data: string; ext: string }, sendJson: (json: string) => Promise<void>): Promise<void> {
     const comma = media.data.indexOf(',');
     const b64 = comma >= 0 ? media.data.slice(comma + 1) : media.data;
     // 1 MB slices (multiple of 4). A 1 MB string is trivial for V8 — the OOM was
@@ -214,8 +240,7 @@ export class DeployComponent implements OnInit, OnDestroy {
     for (let seq = 0; seq < total; seq++) {
       const slice = b64.slice(seq * CHUNK, (seq + 1) * CHUNK);
       const last = seq === total - 1;
-      await this.transfer.send(this.targetHost, this.targetPort,
-        JSON.stringify({ kind: 'imageChunk', id: media.id, ext: media.ext, seq, total, last, data: slice, bytes: last ? this.decodedBytes(media.data) : undefined }), () => {});
+      await sendJson(JSON.stringify({ kind: 'imageChunk', id: media.id, ext: media.ext, seq, total, last, data: slice, bytes: last ? this.decodedBytes(media.data) : undefined }));
       this.percent = Math.min(89, Math.round(((seq + 1) / total) * 88));
       await this.sleep(120);                                // small flush gap; append is cheap
     }
@@ -298,12 +323,14 @@ export class DeployComponent implements OnInit, OnDestroy {
         // receives every image as a separate message (no multi-MB single frame).
         // Images use fire-and-forget (sendRelayNoAck) because the LCD only
         // sends a deploy_ack after the final layout, not after each image.
-        const { layout, images } = this.externalizeImages(this.payload);
-        layout.imageManifest = images.map((im) => im.id);
-        layout.imageSizes = Object.fromEntries(images.map((im) => [im.id, this.decodedBytes(im.data)]));
+        const { layout, images, videos } = this.externalizeImages(this.payload);
+        layout.imageManifest = [...images.map((im) => im.id), ...videos.map((vm) => vm.id)];
+        layout.imageSizes = Object.fromEntries(
+          [...images, ...videos].map((im) => [im.id, this.decodedBytes(im.data)]),
+        );
         layout.imageFallbacks = await this.buildFallbacks(images);
-        const total = images.length + 1;
-        this.pushStep(`Preparing ${images.length} image(s) + layout (browser/relay)`);
+        const total = images.length + videos.length + 1;
+        this.pushStep(`Preparing ${images.length} image(s)${videos.length ? ` + ${videos.length} video(s)` : ''} + layout (browser/relay)`);
         for (let i = 0; i < images.length; i++) {
           const img = images[i];
           const sizeKb = Math.round(img.data.length / 1024);
@@ -314,23 +341,36 @@ export class DeployComponent implements OnInit, OnDestroy {
           this.percent = Math.round(((i + 1) / total) * 90);
           await this.sleep(this.delayFor(img.data.length));
         }
+        // Screensaver videos: chunked over the relay so neither the WebSocket frame
+        // nor the LCD V8 heap ever holds the whole multi-MB blob at once.
+        for (let i = 0; i < videos.length; i++) {
+          await this.sendMediaChunksRelay(videos[i]);
+          this.percent = Math.round(((images.length + i + 1) / total) * 90);
+          await this.sleep(this.SEND_DELAY_MS);
+        }
         layoutJson = JSON.stringify(layout);
       } else {
         // Device: send each image as its own file payload first, then the tiny layout.
         // media:true → video/image streamed to disk (keeps layout.json small; the
         // LCD plays video from a file URL, not an in-memory base64 blob).
-        const { layout, images, media } = this.externalizeImages(this.payload, { media: true });
+        const { layout, images, videos, media } = this.externalizeImages(this.payload, { media: true });
         // Attach a manifest of expected image ids + decoded sizes so the LCD can
         // verify completeness AND integrity (size match) after the deploy.
-        layout.imageManifest = [...images.map((im) => im.id), ...(media ? [media.id] : [])];
-        layout.imageSizes = Object.fromEntries([...images, ...(media ? [media] : [])].map((im) => [im.id, this.decodedBytes(im.data)]));
+        layout.imageManifest = [
+          ...images.map((im) => im.id),
+          ...videos.map((vm) => vm.id),
+          ...(media ? [media.id] : []),
+        ];
+        layout.imageSizes = Object.fromEntries(
+          [...images, ...videos, ...(media ? [media] : [])].map((im) => [im.id, this.decodedBytes(im.data)]),
+        );
         // NOTE: do NOT embed imageFallbacks on native — the LCD resolves images from
         // the ntimg/ files on disk, so the inline fallbacks only bloat layout.json
         // (up to ~1MB) and that oversized payload fails to transfer over real LAN
         // (the layout was being dropped). Keep the native layout small & reliable.
         layout.imageFallbacks = {};
-        const total = images.length + 1;
-        this.pushStep(`Preparing ${images.length} image(s) + layout`);
+        const total = images.length + videos.length + 1;
+        this.pushStep(`Preparing ${images.length} image(s)${videos.length ? ` + ${videos.length} video(s)` : ''} + layout`);
         for (let i = 0; i < images.length; i++) {
           const img = images[i];
           const sizeKb = Math.round(img.data.length / 1024);
@@ -343,6 +383,23 @@ export class DeployComponent implements OnInit, OnDestroy {
           // the previous file before we open a new TCP write. Without enough time,
           // larger payloads are dropped with a transfer error.
           await this.sleep(this.delayFor(img.data.length));
+        }
+        // Screensaver videos: RAW BINARY via mediaMeta + sendBinary (the same
+        // proven path as appMode='media'). The chunked base64 path corrupted the
+        // MP4 on the LCD (FFmpegDemuxer: open context failed) because per-chunk
+        // appendFile decode left the file misaligned.
+        for (let i = 0; i < videos.length; i++) {
+          const v = videos[i];
+          const comma = v.data.indexOf(',');
+          const b64 = comma >= 0 ? v.data.slice(comma + 1) : v.data;
+          this.pushStep(`▸ video ${v.id}.${v.ext} (${Math.round((b64.length * 0.75) / 1024)} KB)…`);
+          await this.transfer.send(this.targetHost, this.targetPort,
+            JSON.stringify({ kind: 'mediaMeta', id: v.id, ext: v.ext, bytes: this.decodedBytes(v.data) }), () => {});
+          await this.sleep(this.SEND_DELAY_MS);
+          await this.transfer.sendBinary(this.targetHost, this.targetPort, b64, (p) => (this.percent = Math.min(89, p)));
+          this.pushStep(`  ✓ ${v.id} sent`);
+          this.percent = Math.min(89, Math.round(((images.length + i + 1) / total) * 90));
+          await this.sleep(1500);
         }
         // Media (image/video) is sent as RAW BINARY: a small JSON 'mediaMeta'
         // announces the id/ext, then the bytes go via sendBinary (the plugin
