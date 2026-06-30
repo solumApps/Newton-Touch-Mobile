@@ -96,6 +96,74 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   get isFirst(): boolean { return this.stepIndex <= 0; }
   get isLast(): boolean { return this.stepIndex >= this.visibleSteps.length - 1; }
   get progressPct(): number { return ((this.stepIndex + 1) / this.visibleSteps.length) * 100; }
+  get hasMissingImagesForCurrentStep(): boolean {
+    const d = this.draft;
+    if (!d) return false;
+    const key = this.step.key;
+    if (key === 'home') {
+      return this.needsImage && d.home.some((c) => !c.image);
+    }
+    if (key === 'inter' || /^inter[123]$/.test(key)) {
+      if (!this.intermediateNeedsImage) return false;
+      if (d.appMode === 'category') {
+        return this.nodesAtDepth(this.interLevel).some((n) => !n.node.image);
+      } else if (this.showIntermediateEditor) {
+        return d.intermediate.some((it) => !it.image);
+      } else {
+        let missing = false;
+        const walk = (c: CardItem): void => {
+          if (!c.image) missing = true;
+          (c.children || []).forEach(walk);
+        };
+        d.home.forEach((c) => (c.children || []).forEach(walk));
+        return missing;
+      }
+    }
+    return false;
+  }
+  isSegOptionMissingImages(segType: 'L0' | 'L1' | 'L2', value: string): boolean {
+    if (!this.draft || !this.intermediateNeedsImage) return false;
+    let pathPrefix: string[] = [];
+    if (segType === 'L0') {
+      pathPrefix = [value];
+    } else if (segType === 'L1') {
+      pathPrefix = value === 'all' ? [this.activeL0] : [this.activeL0, value];
+    } else if (segType === 'L2') {
+      if (value === 'all') {
+        pathPrefix = this.activeL1 === 'all' ? [this.activeL0] : [this.activeL0, this.activeL1];
+      } else {
+        pathPrefix = this.activeL1 === 'all' ? [this.activeL0] : [this.activeL0, this.activeL1, value];
+      }
+    }
+    let hasMissing = false;
+    const walk = (node: CardItem, currentPath: string[], depth: number): void => {
+      const val = this.childVal(node);
+      const newPath = [...currentPath, val];
+      if (depth === this.interLevel) {
+        let matches = true;
+        for (let i = 0; i < pathPrefix.length; i++) {
+          if (newPath[i] !== pathPrefix[i]) {
+            matches = false;
+            break;
+          }
+        }
+        if (segType === 'L2' && value !== 'all' && this.activeL1 === 'all') {
+          if (newPath[0] !== this.activeL0 || newPath[2] !== value) {
+            matches = false;
+          }
+        }
+        if (matches && !node.image) {
+          hasMissing = true;
+        }
+        return;
+      }
+      if (node.children?.length) {
+        node.children.forEach((ch) => walk(ch, newPath, depth + 1));
+      }
+    };
+    this.draft.home.forEach((c) => walk(c, [], 0));
+    return hasMissing;
+  }
   /** Per-step gating: Next blocks on missing REQUIRED data (errors listed above
    *  the footer); warnings inform but never block. */
   stepErrors: string[] = [];
@@ -109,13 +177,19 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
         if (!d.fieldSource) e.push('Select a field source (Category or ETC) first.');
         else if (!this.apiProducts.length) e.push('Fetch products from the API first.');
         else if (this.catSel[0].size === 0) e.push('Select at least one L0 value (category1/etc0).');
-        if (this.catSel[0].size) this.applySelection(); // build/sync L0 cards
+        if (this.catSel[0].size) {
+          this.applySelection(); // build/sync L0 cards
+          if (this.needsImage) {
+            const n = d.home.filter((c) => !c.image).length;
+            if (n) e.push(`${n} home card(s) have no image — this theme's cards show images.`);
+          }
+        }
       } else {
         if (!d.home.length) e.push('Add at least one home card.');
         d.home.forEach((c, i) => { if (!c.name?.trim()) e.push(`Home card ${i + 1} needs a name.`); });
         if (this.needsImage) {
           const n = d.home.filter((c) => !c.image).length;
-          if (n) w.push(`${n} home card(s) have no image — this theme's cards show images.`);
+          if (n) e.push(`${n} home card(s) have no image — this theme's cards show images.`);
         }
       }
     }
@@ -124,9 +198,17 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
         // No selection at intermediate levels — all options are shown. Just keep
         // the tree + products in sync; nothing to block on.
         if (this.catSel[0].size) this.applySelection();
+        if (this.intermediateNeedsImage) {
+          const n = this.nodesAtDepth(this.interLevel).filter((it) => !it.node.image).length;
+          if (n) e.push(`${n} intermediate card(s) at L${this.interLevel} have no image — this theme requires images/thumbnails.`);
+        }
       } else if (this.showIntermediateEditor) {
         if (!d.intermediate.length) e.push('Add at least one intermediate item.');
         d.intermediate.forEach((it, i) => { if (!it.name?.trim()) e.push(`Intermediate item ${i + 1} needs a name.`); });
+        if (this.intermediateNeedsImage) {
+          const n = d.intermediate.filter((it) => !it.image).length;
+          if (n) e.push(`${n} intermediate item(s) have no image — this theme requires images/thumbnails.`);
+        }
       } else {
         const empty = d.home.filter((c) => !(c.children && c.children.length)).length;
         if (empty === d.home.length && d.home.length) e.push('Individual mode: add sub-items under at least one home card.');
@@ -135,6 +217,12 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
         const walk = (c: CardItem): void => (c.children || []).forEach((ch) => { if (!ch.name?.trim()) unnamed++; walk(ch); });
         d.home.forEach(walk);
         if (unnamed) e.push(`${unnamed} sub-item(s) need a name.`);
+        if (this.intermediateNeedsImage) {
+          let missingCount = 0;
+          const walkImages = (c: CardItem): void => (c.children || []).forEach((ch) => { if (!ch.image) missingCount++; walkImages(ch); });
+          d.home.forEach(walkImages);
+          if (missingCount) e.push(`${missingCount} intermediate sub-item(s) have no image — this theme requires images/thumbnails.`);
+        }
       }
     }
     if (key === 'result') {
@@ -1081,6 +1169,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
       for (const c of items) {
         if (!c.name?.trim()) unnamed++;
         if (top && this.needsImage && !c.image) missingImages++;
+        if (!top && this.intermediateNeedsImage && !c.image) missingImages++;
         if (c.children?.length) walk(c.children, false);
         // Per-item mode: a home card with its OWN result page counts as covered.
         else if (!c.products?.length && !(top && this.perItemActive && d.itemResults?.[c.id]?.products?.length)) leavesNoProducts++;
@@ -1088,12 +1177,15 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     };
     walk(d.home, true);
     if (this.showIntermediateEditor) {
-      for (const it of d.intermediate) if (!it.name?.trim()) unnamed++;
+      for (const it of d.intermediate) {
+        if (!it.name?.trim()) unnamed++;
+        if (this.intermediateNeedsImage && !it.image) missingImages++;
+      }
     }
     for (const p of d.result.products) if (!p.name?.trim()) unnamed++;
     if (unnamed) errors.push(`${unnamed} item(s) have an empty name.`);
 
-    if (missingImages) warnings.push(`${missingImages} home card(s) have no image, but this theme's cards show images.`);
+    if (missingImages) errors.push(`${missingImages} card(s) have no image — this theme requires images/thumbnails.`);
     // Leaves without own products fall back to the shared Result list — only
     // warn when that fallback is empty too (nothing would show on Result).
     if (leavesNoProducts && !d.result.products.length) {
