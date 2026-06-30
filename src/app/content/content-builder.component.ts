@@ -502,6 +502,15 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
       // Default depth to what the data actually has (the user can reduce it).
       if (this.draft && this.draft.categoryLevelCount == null) this.draft.categoryLevelCount = this.maxCategoryDepth;
       this.catSel = [new Set(), new Set(), new Set(), new Set()];
+      if (this.draft?.home?.length) {
+        const validL0 = new Set(this.catValues(0));
+        for (const card of this.draft.home) {
+          const val = this.childVal(card);
+          if (val && validL0.has(val)) {
+            this.catSel[0].add(val);
+          }
+        }
+      }
       if (!this.apiProducts.length) this.fetchError = 'No products returned for this store.';
     } catch (e: any) {
       this.apiProducts = [];
