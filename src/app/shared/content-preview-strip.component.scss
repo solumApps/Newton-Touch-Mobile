@@ -82,6 +82,11 @@ app-content-preview-strip {
   height: calc(var(--nt-vh) * 72 * var(--nt-int-scale, 1)) !important;
 }
 
+.prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal.int-shape-pill .item {
+  height: calc(var(--nt-vh) * 38 * var(--nt-int-scale, 1)) !important;
+  margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.2) 0 !important;
+}
+
 .prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon) .item {
   flex: 0 0 calc(var(--nt-vh) * 45 * var(--nt-int-scale, 1)) !important;
   width: calc(var(--nt-vh) * 45 * var(--nt-int-scale, 1)) !important;
@@ -113,10 +118,18 @@ app-content-preview-strip {
   margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.2) 0 !important;
 }
 
-.prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-vertical:is(.int-shape-rect, .int-shape-pill) .item {
+.prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-vertical.int-shape-rect .item {
   width: calc(100% + var(--nt-vw) * 4) !important;
   max-width: none !important;
   height: calc(var(--nt-vh) * 65 * var(--nt-int-scale, 1)) !important;
+  margin-left: calc(var(--nt-vw) * -2) !important;
+  margin-right: calc(var(--nt-vw) * -2) !important;
+}
+
+.prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-vertical.int-shape-pill .item {
+  width: calc(100% + var(--nt-vw) * 4) !important;
+  max-width: none !important;
+  height: calc(var(--nt-vh) * 38 * var(--nt-int-scale, 1)) !important;
   margin-left: calc(var(--nt-vw) * -2) !important;
   margin-right: calc(var(--nt-vw) * -2) !important;
 }

@@ -757,8 +757,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   get interVisibleColumns(): number {
     const cols = Math.max(1, this.theme?.intermediate?.columns || 3);
-    const shape = this.theme?.intermediate?.cardShape || 'rect';
-    if (this.theme?.intermediateStyle === 'columns' && (shape === 'circle' || shape === 'hexagon')) {
+    if (this.theme?.intermediateStyle === 'columns') {
       return Math.min(5, cols);
     }
     return cols;

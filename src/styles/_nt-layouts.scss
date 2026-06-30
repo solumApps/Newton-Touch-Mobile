@@ -8963,6 +8963,8 @@
 /* shapes — circle/hexagon are SQUARE (narrower than rect), image fills, name overlaid */
 .nt-inter .body.int-columns.int-shape-pill .item {
   border-radius: 999px;
+  height: calc(var(--nt-vh) * 36 * var(--nt-int-scale, 1));
+  margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.2) 0;
 }
 
 .nt-inter .body.int-columns.int-shape-circle .item,
@@ -10229,10 +10231,18 @@
   margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.2) 0;
 }
 
-.nt-inter .body.int-columns.scroll-vertical:is(.int-shape-rect, .int-shape-pill) .item {
+.nt-inter .body.int-columns.scroll-vertical.int-shape-rect .item {
   width: calc(100% + var(--nt-vw)*0);
   max-width: none;
   height: calc(var(--nt-vh) * 65 * var(--nt-int-scale, 1));
+  margin-left: calc(var(--nt-vw)*-2);
+  margin-right: calc(var(--nt-vw)*-2);
+}
+
+.nt-inter .body.int-columns.scroll-vertical.int-shape-pill .item {
+  width: calc(100% + var(--nt-vw)*0);
+  max-width: none;
+  height: calc(var(--nt-vh) * 38 * var(--nt-int-scale, 1));
   margin-left: calc(var(--nt-vw)*-2);
   margin-right: calc(var(--nt-vw)*-2);
 }
@@ -10321,6 +10331,8 @@
 /* shapes — circle/hexagon are SQUARE (narrower than rect), image fills, name overlaid */
 .nt-inter .body.int-columns.int-shape-pill .item {
   border-radius: 999px;
+  height: calc(var(--nt-vh) * 38 * var(--nt-int-scale, 1));
+  margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.2) 0;
 }
 
 .nt-inter .body.int-columns.int-shape-circle .item,
