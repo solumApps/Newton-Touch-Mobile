@@ -101,7 +101,7 @@
           <!-- L0 values (category1 / etc0) — unique, deduped. Pick which to build. -->
           <div class="sec"><span>L0 — {{ catLabel(0) }}</span></div>
           <label class="pick" *ngFor="let v of catValues(0)">
-            <input type="checkbox" [checked]="catSel[0].has(v)" (change)="toggleCat(0, v)" />
+            <input type="checkbox" [checked]="catSel[0].has(v)" (change)="toggleCat(0, v, $event)" />
             <span class="pn">{{ v }}<span class="pm">({{ catCount(0, v) }})</span></span>
           </label>
           <button class="btn-o" (click)="applySelection()">Use {{ catSel[0].size }} selected → build pages</button>

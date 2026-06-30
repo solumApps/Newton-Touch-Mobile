@@ -2,7 +2,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonModal } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonModal, AlertController } from '@ionic/angular/standalone';
 import { ContentService, ContentDraft } from '../services/content.service';
 import { ThemeService } from '../services/theme.service';
 import { CategoryApiService, ApiProduct } from '../services/category-api.service';
@@ -560,7 +560,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (dataUrl) this.setHeader('logo', dataUrl);
   }
 
-  constructor(private content: ContentService, private themes: ThemeService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router) {}
+  constructor(private content: ContentService, private themes: ThemeService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private alertController: AlertController) {}
 
   async pickImage(item: CardItem | ResultProduct): Promise<void> {
     const dataUrl = await this.picker.pick();
@@ -635,6 +635,19 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   setCategoryLevelCount(n: number): void {
     if (!this.draft) return;
     this.draft.categoryLevelCount = Math.min(3, Math.max(0, Number(n) || 0));
+    
+    // Validate currently selected L0 categories and uncheck any that are not supported at the new depth
+    const unchecked: string[] = [];
+    if (this.catSel[0].size) {
+      for (const val of Array.from(this.catSel[0])) {
+        const missingKey = this.checkCategoryDepthValid(val);
+        if (missingKey) {
+          this.catSel[0].delete(val);
+          unchecked.push(val);
+        }
+      }
+    }
+
     // Prune any tree nodes deeper than the new depth (depth 0 = home/L0 cards).
     const prune = (node: CardItem, depth: number): void => {
       if (depth >= this.draft!.categoryLevelCount!) { delete node.children; }
@@ -642,6 +655,19 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     };
     (this.draft.home || []).forEach((c) => prune(c, 0));
     this.syncResultProducts();
+
+    if (unchecked.length) {
+      void this.showUncheckedAlert(unchecked);
+    }
+  }
+  private async showUncheckedAlert(categories: string[]): Promise<void> {
+    const listStr = categories.join(', ');
+    const alert = await this.alertController.create({
+      header: 'Categories Unselected',
+      message: `The following categories were unchecked because they do not contain required category/etc values for the new depth: ${listStr}. Please update data and refetch if needed.`,
+      buttons: ['OK']
+    });
+    await alert.present();
   }
   /** Products surviving the selections at every level BEFORE `level`. */
   private filteredUpTo(level: number): ApiProduct[] {
@@ -663,9 +689,42 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     const arr = this.filteredUpTo(level), k = this.catKey(level);
     return arr.filter((p) => (((p as any)[k] ?? '') as string).trim() === value).length;
   }
-  toggleCat(level: number, value: string): void {
+  checkCategoryDepthValid(value: string): string | null {
+    const depth = this.categoryLevelCount;
+    for (let lvl = 1; lvl <= depth; lvl++) {
+      const key = this.catKey(lvl);
+      const hasValue = this.apiProducts.some(
+        (p) => this.gv(p, this.catKey(0)) === value && this.gv(p, key) !== ''
+      );
+      if (!hasValue) {
+        return key;
+      }
+    }
+    return null;
+  }
+  async toggleCat(level: number, value: string, ev?: Event): Promise<void> {
     const s = this.catSel[level];
-    s.has(value) ? s.delete(value) : s.add(value);
+    if (s.has(value)) {
+      s.delete(value);
+    } else {
+      if (level === 0) {
+        const missingKey = this.checkCategoryDepthValid(value);
+        if (missingKey) {
+          if (ev) {
+            ev.preventDefault();
+            (ev.target as HTMLInputElement).checked = false;
+          }
+          const alert = await this.alertController.create({
+            header: 'Missing Category Value',
+            message: `this data is not contains requird ${missingKey} value, plese update ${missingKey} value and refetch data to continue`,
+            buttons: ['OK']
+          });
+          await alert.present();
+          return;
+        }
+      }
+      s.add(value);
+    }
   }
   /** Field source changed → values + tree differ, so reset everything. */
   setFieldSource(src: FieldSource): void {
