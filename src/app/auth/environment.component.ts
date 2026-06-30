@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonHeader, IonToolbar, IonButtons, IonButton, IonContent, IonFooter, IonIcon } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonButtons, IonButton, IonContent, IonFooter } from '@ionic/angular/standalone';
 import { isValidServerUrl, normalizeServerUrl, WorkspaceService, SERVERS } from '../services/workspace.service';
 import { BrandComponent } from '../shared/brand.component';
 
@@ -10,7 +10,7 @@ import { BrandComponent } from '../shared/brand.component';
 @Component({
   selector: 'app-environment',
   standalone: true,
-  imports: [IonIcon, CommonModule, FormsModule, IonHeader, IonToolbar, IonButtons, IonButton, IonContent, IonFooter, BrandComponent],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonButtons, IonButton, IonContent, IonFooter, BrandComponent],
   templateUrl: './environment.component.html',
   styleUrls: ['./environment.component.scss'],
 })
