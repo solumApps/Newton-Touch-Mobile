@@ -309,6 +309,7 @@ export class ThemeWizardComponent implements OnInit {
    *  the card height constrains width on the landscape kiosk (1920×540). */
   get maxColumns(): number {
     const shape = this.t.cardShape;
+    if (this.columnLayouts.includes(this.t.homeLayout) && (shape === 'rect' || shape === 'pill')) return 5;
     if (shape === 'circle' || shape === 'hexagon') return 5;
     return MAX_COLUMNS;
   }
@@ -332,6 +333,13 @@ export class ThemeWizardComponent implements OnInit {
       return this.scrollModes.filter(m => m.id !== 'vertical');
     }
     return this.scrollModes;
+  }
+  /** HIDDEN (not deleted): vertical overflow scrolling on Home + Intermediate caused
+   *  layout issues, so the option is hidden for now. Flip to false to re-enable it. */
+  readonly hideVerticalScroll = true;
+  /** Home overflow options shown in the UI (vertical hidden while hideVerticalScroll). */
+  get scrollModesVisible(): { id: ScrollMode; label: string }[] {
+    return this.hideVerticalScroll ? this.scrollModesFor.filter((m) => m.id !== 'vertical') : this.scrollModesFor;
   }
   /** Intermediate content options (image layouts only). */
   interContents: { id: CardContent; label: string }[] = [
@@ -424,7 +432,8 @@ export class ThemeWizardComponent implements OnInit {
     this.clampCardGap();
   }
   setColumns(v: string): void {
-    this.t.columns = coerceColumns(v);
+    const next = coerceColumns(v);
+    this.t.columns = next == null ? next : Math.min(this.maxColumns, Math.max(this.minColumns, next));
     this.checkDefaultCardGap();
     this.clampCardGap();
   }

@@ -113,6 +113,11 @@
   margin-top: calc(var(--nt-vh)*0.2);
 }
 
+.nt-home .hdr .title,
+.nt-home .hdr .caption {
+  color: var(--nt-header-text, #fff);
+}
+
 .nt-inter .hdr .title,
 .nt-result .hdr .title,
 .nt-inter .hdr .caption,
@@ -875,6 +880,7 @@
   right: 0;
   top: 0;
   bottom: 0;
+  opacity: .9;
 }
 
 .nt-home .layout-image-strip .card .meta {
@@ -1628,7 +1634,7 @@
 .nt-home .cards.has-cols.layout-col-2 .card.shape-pill,
 .nt-home .cards.has-cols.layout-col-3 .card.shape-pill,
 .nt-home .cards.has-cols.layout-col-4 .card.shape-pill {
-  height: 52%;
+  height: 38% !important;
   width: auto;
   align-self: center;
   margin-left: calc(var(--card-gap, calc(var(--nt-vw)*1.5)) * 0.7);
@@ -3358,12 +3364,14 @@
 
 .nt-inter .int-image-grid.int-textpos-overlay-bottom .item .name,
 .nt-inter .int-card-strip.int-textpos-overlay-bottom .item .name {
-  bottom: 7%;
+  bottom: 7% !important;
+  top: auto !important;
 }
 
 .nt-inter .int-image-grid.int-textpos-overlay-top .item .name,
 .nt-inter .int-card-strip.int-textpos-overlay-top .item .name {
-  top: 7%;
+  top: 7% !important;
+  bottom: auto !important;
 }
 
 .nt-inter .int-image-grid.int-textpos-center .item .name,
@@ -3372,6 +3380,7 @@
   left: 8% !important;
   right: 8% !important;
   top: 50% !important;
+  bottom: auto !important;
   transform: translateY(-50%) !important;
   z-index: 1;
   display: flex !important;
@@ -10357,7 +10366,7 @@
 /* shapes — circle/hexagon are SQUARE (narrower than rect), image fills, name overlaid */
 .nt-inter .body.int-columns.int-shape-pill .item {
   border-radius: 999px;
-  height: calc(var(--nt-vh) * 38 * var(--nt-int-scale, 1));
+  height: calc(var(--nt-vh) * 35 * var(--nt-int-scale, 1));
   margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.2) 0;
 }
 
@@ -10812,6 +10821,7 @@
   flex: none !important;
   width: auto !important;
   height: auto !important;
+  opacity: .9;
   border-radius: 0 !important;
   clip-path: none !important;
   background-size: cover;
@@ -10819,10 +10829,8 @@
 }
 
 .nt-inter .body.int-card-strip .item .name {
-  position: absolute !important;
-  left: 8% !important;
-  right: 8% !important;
-  z-index: 1;
+  position: relative;
+  z-index: 2;
   margin: 0;
   padding: 0;
   color: #fff;
@@ -10835,33 +10843,38 @@
 /* The full-bleed strip has no area outside its image, so above/below pin the
    label to the corresponding card edge while the overlay options add an inset. */
 .nt-inter .body.int-card-strip.int-textpos-overlay-top .item .name {
+  position: absolute !important;
   top: 7% !important;
   bottom: auto !important;
-  transform: none;
+  transform: none !important;
 }
 
 .nt-inter .body.int-card-strip.int-textpos-above .item .name {
+  position: absolute !important;
   top: 0 !important;
   bottom: auto !important;
-  transform: none;
+  transform: none !important;
 }
 
 .nt-inter .body.int-card-strip.int-textpos-center .item .name {
+  position: absolute !important;
   top: 50% !important;
   bottom: auto !important;
-  transform: translateY(-50%);
+  transform: translateY(-50%) !important;
 }
 
 .nt-inter .body.int-card-strip.int-textpos-overlay-bottom .item .name {
+  position: absolute !important;
   top: auto !important;
   bottom: 7% !important;
-  transform: none;
+  transform: none !important;
 }
 
 .nt-inter .body.int-card-strip.int-textpos-below .item .name {
+  position: absolute !important;
   top: auto !important;
   bottom: 0 !important;
-  transform: none;
+  transform: none !important;
 }
 
 /* card-strip visible-count is driven by --int-cols (above); item-size buckets no-op here */

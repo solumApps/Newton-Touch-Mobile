@@ -172,6 +172,8 @@ export interface SaverOverlay {
 
 export interface ThemeTokens {
   headerColor: string;
+  /** Home header title/caption text color. Logo image is unchanged. */
+  headerTextColor?: string;
   background: string;          // solid | css gradient string
   backgroundImage?: string;    // optional page background image/data URI
   cardBackground: string;

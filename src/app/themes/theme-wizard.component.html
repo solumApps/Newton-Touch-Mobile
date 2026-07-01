@@ -31,7 +31,7 @@
       <div class="prev" [ngClass]="['fit-'+t.typography.textFit, 'surface-'+(t.cardSurface || 'flat'), 'nav-'+(t.navStyle || 'floating')]"
            [style.background]="backgroundForPage(page)"
            [style.fontFamily]="t.typography.fontFamily" [style.--prev-scale]="scaleNum"
-           [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [style.--prev-res-card]="t.result.cardBackground" [style.--prev-res-text]="t.result.cardText" [style.--prev-res-popular-text]="t.result.popularText || t.result.cardText" [style.--prev-overlay]="t.overlayColor || 'rgba(0,0,0,0.6)'" [ngSwitch]="page">
+           [style.--prev-header-text]="page === 'home' ? (t.headerTextColor || '#FFFFFF') : null" [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [style.--prev-res-card]="t.result.cardBackground" [style.--prev-res-text]="t.result.cardText" [style.--prev-res-popular-text]="t.result.popularText || t.result.cardText" [style.--prev-overlay]="t.overlayColor || 'rgba(0,0,0,0.6)'" [ngSwitch]="page">
         <div class="hdr" *ngIf="headerVisibleFor(page)"
              [ngClass]="isCustomHeader ? 'hdr-custom' : ['logo-'+t.logoPosition, 'hdr-style-'+(t.headerStyle || 'logo-only')]"
              [class.hdr-transparent]="transparentFor(page)"
@@ -290,11 +290,11 @@
 
         <!-- Overflow scrolling comes first; Columns is shown afterwards and only
              when relevant (hidden for vertical scrolling on grid layouts). -->
-        <ng-container *ngIf="scrollMatters && !isHeroStart">
+        <ng-container *ngIf="scrollMatters && !isHeroStart && scrollModesVisible.length > 1">
           <div class="step-title sm">Overflow scrolling</div>
           <p class="hint">When items don't fit: Auto picks the layout's natural direction (grids vertical, rails horizontal).</p>
           <div class="seg">
-            <button class="tile" *ngFor="let m of scrollModesFor" [class.sel]="effectiveScrollMode===m.id" (click)="setHomeScroll(m.id)">{{ m.label }}</button>
+            <button class="tile" *ngFor="let m of scrollModesVisible" [class.sel]="effectiveScrollMode===m.id" (click)="setHomeScroll(m.id)">{{ m.label }}</button>
           </div>
         </ng-container>
 
@@ -460,6 +460,7 @@
       <div *ngSwitchCase="'colors'">
         <div class="step-title">Colors &amp; branding</div>
         <app-color-picker *ngIf="t.showHeader" label="Header" hint="top bar" [value]="t.headerColor" (valueChange)="t.headerColor=$event"></app-color-picker>
+        <app-color-picker *ngIf="t.showHeader" label="Header text" hint="title and caption" [value]="t.headerTextColor || '#FFFFFF'" (valueChange)="t.headerTextColor=$event"></app-color-picker>
         <app-color-picker *ngIf="!t.backgroundImage" label="Card area background" [allowGradient]="true" [value]="t.background" (valueChange)="t.background=$event" [presets]="bgPresets"></app-color-picker>
         <div class="media-row">
           <button class="btn-o media-btn" (click)="pickBackground('home')">{{ t.backgroundImage ? 'Replace home background image' : 'Upload home background image' }}</button>
@@ -531,7 +532,7 @@
           </div>
         </ng-container>
 
-        <ng-container *ngIf="intScrollMatters">
+        <ng-container *ngIf="intScrollMatters && !hideVerticalScroll">
           <div class="step-title sm">Overflow scrolling</div>
           <p class="hint">How extra cards scroll when they don't fit one screen.</p>
           <div class="seg">
@@ -594,7 +595,7 @@
 
         </ng-container>
 
-        <ng-container *ngIf="t.intermediateStyle==='fullscreen'">
+        <ng-container *ngIf="t.intermediateStyle==='fullscreen' && !hideVerticalScroll">
           <div class="step-title sm">Carousel scrolling</div>
           <p class="hint">How full-screen items advance when there's more than one.</p>
           <div class="seg">

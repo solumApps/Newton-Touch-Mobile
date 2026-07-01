@@ -671,8 +671,11 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     }
     return m;
   }
-  /** How many INTERMEDIATE levels the user chose, clamped to what the data has. */
+  /** How many INTERMEDIATE levels the user chose, clamped to what the data has.
+   *  A theme WITHOUT an intermediate page forces 0 — the Home (L0) selection maps
+   *  every product under it straight to the Result page. */
   get categoryLevelCount(): number {
+    if (this.draft?.themeTokens.includeIntermediate === false) return 0;
     const stored = Math.min(3, Math.max(0, this.draft?.categoryLevelCount ?? 0));
     return this.apiProducts.length ? Math.min(stored, this.maxCategoryDepth) : stored;
   }
