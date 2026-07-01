@@ -117,8 +117,8 @@
         </div>
 
         <!-- INTERMEDIATE -->
-        <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}} int-size-{{t.intermediate.itemSize||'medium'}} int-shape-{{t.intermediate.cardShape||'rect'}} int-align-{{$any(t.intermediateStyle)==='side-rail' ? 'left' : (t.intermediateStyle==='columns' && (t.intermediate.scrollMode || t.scrollMode) === 'horizontal' ? 'center' : (t.intermediate.align||'center'))}} int-gap-{{t.intermediate.gap||'normal'}} int-content-{{t.intermediate.content||'image-text'}} int-textpos-{{t.intermediate.textPos||'overlay-bottom'}}"
-             [class.scroll-vertical]="t.scrollMode==='vertical'" [class.scroll-horizontal]="t.scrollMode==='horizontal'"
+        <div *ngSwitchCase="'inter'" class="stage int int-{{t.intermediateStyle}} int-size-{{t.intermediate.itemSize||'medium'}} int-shape-{{t.intermediate.cardShape||'rect'}} int-align-{{$any(t.intermediateStyle)==='side-rail' ? 'left' : (t.intermediateStyle==='columns' && effectiveInterScrollMode === 'horizontal' ? 'center' : (t.intermediate.align||'center'))}} int-gap-{{t.intermediate.gap||'normal'}} int-content-{{t.intermediate.content||'image-text'}} int-textpos-{{t.intermediate.textPos||'overlay-bottom'}}"
+             [class.scroll-vertical]="effectiveInterScrollMode==='vertical'" [class.scroll-horizontal]="effectiveInterScrollMode==='horizontal'"
              [style.--int-card]="t.intermediate.cardBackground" [style.--int-accent]="t.intermediate.accent" [style.--int-text]="t.intermediate.cardText">
           <div class="rail" *ngIf="$any(t.intermediateStyle)==='side-rail'">
             <b>Finder</b><span>Category</span><span>Model</span><span>Year</span>
@@ -131,7 +131,7 @@
 
         <!-- RESULT -->
         <div *ngSwitchCase="'result'" class="stage result res-{{t.resultTemplate}}"
-             [class.scroll-vertical]="resOverflowMatters && t.scrollMode==='vertical'" [class.scroll-horizontal]="resOverflowMatters && t.scrollMode==='horizontal'">
+             [class.scroll-vertical]="resOverflowMatters && effectiveResultScrollMode==='vertical'" [class.scroll-horizontal]="resOverflowMatters && effectiveResultScrollMode==='horizontal'">
           <div class="result-tools" *ngIf="t.resultTemplate==='map-list'">
             <span class="res-search">Search products...</span>
             <span class="res-sort"><span class="active">Popular</span><span>A-Z</span><span>Z-A</span></span>
@@ -536,8 +536,8 @@
           <div class="step-title sm">Overflow scrolling</div>
           <p class="hint">How extra cards scroll when they don't fit one screen.</p>
           <div class="seg">
-            <button class="tile" *ngIf="!intScrollHorizontalOnly" [class.sel]="t.intermediate.scrollMode==='vertical'" (click)="setInterScroll('vertical')">Vertical</button>
-            <button class="tile" [class.sel]="intScrollHorizontalOnly || (t.intermediate.scrollMode||'horizontal')==='horizontal'" (click)="setInterScroll('horizontal')">Horizontal</button>
+            <button class="tile" *ngIf="!intScrollHorizontalOnly" [class.sel]="effectiveInterScrollMode==='vertical'" (click)="setInterScroll('vertical')">Vertical</button>
+            <button class="tile" [class.sel]="effectiveInterScrollMode==='horizontal'" (click)="setInterScroll('horizontal')">Horizontal</button>
           </div>
         </ng-container>
 
@@ -599,8 +599,8 @@
           <div class="step-title sm">Carousel scrolling</div>
           <p class="hint">How full-screen items advance when there's more than one.</p>
           <div class="seg">
-            <button class="tile" [class.sel]="(t.intermediate.scrollMode||'horizontal')!=='vertical'" (click)="setInterScroll('horizontal')">Horizontal carousel</button>
-            <button class="tile" [class.sel]="t.intermediate.scrollMode==='vertical'" (click)="setInterScroll('vertical')">Vertical carousel</button>
+            <button class="tile" [class.sel]="effectiveInterScrollMode==='horizontal'" (click)="setInterScroll('horizontal')">Horizontal carousel</button>
+            <button class="tile" [class.sel]="effectiveInterScrollMode==='vertical'" (click)="setInterScroll('vertical')">Vertical carousel</button>
           </div>
         </ng-container>
 
@@ -861,7 +861,7 @@
           <div class="step-title sm">Overflow scrolling</div>
           <p class="hint">How the product list scrolls when items don't fit. Auto uses the template's natural direction.</p>
           <div class="seg">
-            <button class="tile" *ngFor="let m of scrollModes" [class.sel]="(t.scrollMode||'auto')===m.id" (click)="t.scrollMode=m.id">{{ m.label }}</button>
+            <button class="tile" *ngFor="let m of scrollModes" [class.sel]="effectiveResultScrollMode===m.id" (click)="t.scrollMode=m.id">{{ m.label }}</button>
           </div>
         </ng-container>
 
