@@ -745,7 +745,6 @@
         <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
         <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Text overlay" hint="background behind overlaid finder card text" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
         <app-color-picker label="Accent / active" [value]="t.intermediate.accent" (valueChange)="t.intermediate.accent=$event"></app-color-picker>
-
         <div class="step-title sm">Navigation buttons</div>
         <p class="hint">Style the Back and Home buttons. Set a position to “Hidden” to hide that button.</p>
         <div class="nav-btn-row">

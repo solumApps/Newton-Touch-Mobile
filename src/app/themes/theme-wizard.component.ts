@@ -334,8 +334,8 @@ export class ThemeWizardComponent implements OnInit {
   get itemCountMatters(): boolean { return ['image-strip', 'bento', 'hero-list'].includes(this.t.homeLayout); }
   /** Overflow-scrolling control: hidden where it breaks the layout or is moot. */
   get scrollMatters(): boolean { return !['image-strip', 'hero-start', 'bento', 'fullscreen', 'promo-categories', 'finder-select'].includes(this.t.homeLayout); }
-  /** Card gap: hidden where cards always fill the screen. */
-  get gapMatters(): boolean { return !['image-strip', 'fullscreen', 'finder-select'].includes(this.t.homeLayout); }
+  /** Card gap: hidden where spacing is owned by a custom layout. */
+  get gapMatters(): boolean { return !['image-strip', 'finder-select'].includes(this.t.homeLayout); }
   get scrollModesFor(): { id: ScrollMode; label: string }[] {
     if (this.t.homeLayout === 'hero-list') {
       return this.scrollModes.filter(m => m.id !== 'horizontal');
@@ -391,8 +391,9 @@ export class ThemeWizardComponent implements OnInit {
     return this.interTextPositions;
   }
   get isImageStrip(): boolean { return this.t.homeLayout === 'image-strip'; }
-  /** Card size: hidden where cards always fill the screen (fullscreen, strips). */
-  get sizeMatters(): boolean { return !['fullscreen', 'image-strip'].includes(this.t.homeLayout); }
+  /** Card size: hidden only for fixed strip layouts. Fullscreen uses the slider
+   *  to scale the active slide within the page, matching intermediate controls. */
+  get sizeMatters(): boolean { return this.t.homeLayout !== 'image-strip'; }
   get isHeroList(): boolean { return this.t.homeLayout === 'hero-list'; }
   /** hero-list: the alignment control means VERTICAL alignment of the list. */
   get alignsFor(): { id: 'left' | 'center' | 'right'; label: string }[] {

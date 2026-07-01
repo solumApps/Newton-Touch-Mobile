@@ -7502,6 +7502,145 @@
   scroll-snap-align: center;
 }
 
+/* Home fullscreen mirrors intermediate fullscreen: image fills the card, label
+   sits inside the image, and optional scroll mode becomes a full-slide carousel. */
+.nt-home .layout-fullscreen {
+  padding: calc(var(--card-gap, 0px) * 0.5) !important;
+  gap: var(--card-gap, 0px);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.nt-home .layout-fullscreen .card {
+  position: relative;
+  overflow: hidden;
+}
+
+.nt-home .layout-fullscreen .card .img {
+  display: block !important;
+  position: absolute !important;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  flex: none;
+  border-radius: 0 !important;
+  clip-path: none !important;
+}
+
+.nt-home .layout-fullscreen .card.content-image-only .meta {
+  display: none !important;
+}
+
+.nt-home .layout-fullscreen .card.content-text-only .img,
+.nt-home .layout-fullscreen .card.content-color-block .img,
+.nt-home .layout-fullscreen .card.content-gradient .img {
+  display: none !important;
+}
+
+.nt-home .layout-fullscreen .card:is(.pos-overlay-top, .pos-overlay-bottom, .pos-center) .meta {
+  position: absolute !important;
+  left: 8%;
+  right: 8%;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+  margin: 0 !important;
+  padding: calc(var(--nt-vh)*0.6) calc(var(--nt-vw)*0.8);
+  background: var(--nt-overlay, rgba(0, 0, 0, .5));
+  border-radius: 999px;
+  text-align: center;
+  color: #fff;
+}
+
+.nt-home .layout-fullscreen .card.pos-overlay-top .meta {
+  top: 8%;
+  bottom: auto;
+}
+
+.nt-home .layout-fullscreen .card.pos-overlay-bottom .meta {
+  top: auto;
+  bottom: 8%;
+}
+
+.nt-home .layout-fullscreen .card.pos-center .meta {
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+
+.nt-home .layout-fullscreen .card:is(.pos-overlay-top, .pos-overlay-bottom, .pos-center) .name {
+  display: block;
+  width: 100%;
+  color: #fff;
+  text-shadow: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nt-home .layout-fullscreen .card.pos-below,
+.nt-home .layout-fullscreen .card.pos-above {
+  display: flex;
+  box-sizing: border-box;
+}
+
+.nt-home .layout-fullscreen .card.pos-below {
+  flex-direction: column;
+}
+
+.nt-home .layout-fullscreen .card.pos-above {
+  flex-direction: column-reverse;
+}
+
+.nt-home .layout-fullscreen .card:is(.pos-below, .pos-above) .img {
+  position: static !important;
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0;
+}
+
+.nt-home .layout-fullscreen .card:is(.pos-below, .pos-above) .meta {
+  position: static !important;
+  flex: 0 0 auto;
+  margin: 0 !important;
+  padding: calc(var(--nt-vh)*1.4) calc(var(--nt-vw)*2);
+  background: transparent !important;
+  text-align: center;
+  color: var(--nt-text, #fff);
+}
+
+.nt-home .layout-fullscreen.scroll-horizontal {
+  flex-direction: row;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nt-home .layout-fullscreen.scroll-vertical {
+  flex-direction: column;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nt-home .layout-fullscreen.scroll-horizontal .card,
+.nt-home .layout-fullscreen.scroll-vertical .card {
+  display: flex !important;
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  scroll-snap-align: center;
+}
+
 .nt-inter .int-center-tiles.int-textpos-overlay-top .item {
   align-items: flex-start;
   padding-top: calc(var(--nt-vh)*2);
