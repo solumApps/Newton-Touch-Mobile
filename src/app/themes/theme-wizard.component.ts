@@ -895,6 +895,28 @@ export class ThemeWizardComponent implements OnInit {
   textPresets = ['#FFFFFF', '#0F172A', '#FFCD00'];
   overlayPresets = ['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)', 'rgba(255,255,255,0.6)', 'rgba(47,0,109,0.7)'];
 
+  /** Overlay scrim strength (0–100%). Reads/writes the alpha channel of
+   *  overlayColor so it flows through the existing --nt-overlay/--prev-overlay
+   *  vars with no contract or CSS changes (works on-device unchanged). */
+  get overlayOpacity(): number {
+    return Math.round(this.parseRgba(this.t.overlayColor || 'rgba(0,0,0,0.6)').a * 100);
+  }
+  setOverlayOpacity(pct: number): void {
+    const a = Math.max(0, Math.min(100, Math.round(pct))) / 100;
+    const { r, g, b } = this.parseRgba(this.t.overlayColor || 'rgba(0,0,0,0.6)');
+    this.t.overlayColor = `rgba(${r},${g},${b},${a})`;
+  }
+  /** Parse rgb()/rgba()/#hex into {r,g,b,a}; falls back to opaque black. */
+  private parseRgba(c: string): { r: number; g: number; b: number; a: number } {
+    const s = (c || '').trim();
+    const m = s.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+)\s*)?\)/i);
+    if (m) return { r: +m[1], g: +m[2], b: +m[3], a: m[4] !== undefined ? +m[4] : 1 };
+    const hex = s.replace('#', '');
+    if (/^[0-9a-f]{6}$/i.test(hex)) return { r: parseInt(hex.slice(0, 2), 16), g: parseInt(hex.slice(2, 4), 16), b: parseInt(hex.slice(4, 6), 16), a: 1 };
+    if (/^[0-9a-f]{3}$/i.test(hex)) return { r: parseInt(hex[0] + hex[0], 16), g: parseInt(hex[1] + hex[1], 16), b: parseInt(hex[2] + hex[2], 16), a: 1 };
+    return { r: 0, g: 0, b: 0, a: 1 };
+  }
+
   phImg(i: number): string {
     const fills = ['%2386EFAC', '%23FDE68A', '%23FCA5A5', '%23A5B4FC', '%2367E8F9', '%23F9A8D4'];
     const fill = fills[i % fills.length];

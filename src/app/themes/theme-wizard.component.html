@@ -407,6 +407,12 @@
               <button class="tile" [class.sel]="t.cardTextOverlay !== false" (click)="t.cardTextOverlay=true">On</button>
               <button class="tile" [class.sel]="t.cardTextOverlay === false" (click)="t.cardTextOverlay=false">Off</button>
             </div>
+            <div class="slider-row" *ngIf="t.cardTextOverlay !== false">
+              <span class="slider-lbl">Opacity</span>
+              <input type="range" class="nt-slider" min="0" max="100" step="5" [value]="overlayOpacity"
+                     (input)="setOverlayOpacity(+$any($event.target).value)" aria-label="Text overlay opacity" />
+              <span class="slider-val">{{ overlayOpacity }}%</span>
+            </div>
           </ng-container>
         </ng-container>
 
@@ -640,6 +646,12 @@
           <div class="seg">
             <button class="tile" [class.sel]="t.intermediate.textOverlay !== false" (click)="t.intermediate.textOverlay=true">On</button>
             <button class="tile" [class.sel]="t.intermediate.textOverlay === false" (click)="t.intermediate.textOverlay=false">Off</button>
+          </div>
+          <div class="slider-row" *ngIf="t.intermediate.textOverlay !== false">
+            <span class="slider-lbl">Opacity</span>
+            <input type="range" class="nt-slider" min="0" max="100" step="5" [value]="overlayOpacity"
+                   (input)="setOverlayOpacity(+$any($event.target).value)" aria-label="Intermediate text overlay opacity" />
+            <span class="slider-val">{{ overlayOpacity }}%</span>
           </div>
         </ng-container>
 

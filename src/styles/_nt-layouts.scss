@@ -7531,10 +7531,17 @@
   display: none !important;
 }
 
-.nt-home .layout-fullscreen .card:is(.pos-overlay-top, .pos-overlay-bottom, .pos-center) .meta {
+/* Overlay top/bottom: the scrim hugs the label as a shrink-to-fit centred pill
+   instead of spanning 84% of the card (left/right 8%). max-width keeps long text
+   in bounds. pos-center is intentionally excluded — there the label carries its
+   own pill (.pos-center .name), so a meta scrim would double it. */
+.nt-home .layout-fullscreen .card:is(.pos-overlay-top, .pos-overlay-bottom) .meta {
   position: absolute !important;
-  left: 8%;
-  right: 8%;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: auto;
+  max-width: 84%;
   z-index: 1;
   display: flex;
   justify-content: center;
@@ -7558,15 +7565,24 @@
   bottom: 8%;
 }
 
+/* Centre: transparent full-card wrapper that only centres the label — the pill
+   comes from .pos-center .name, so there is a single scrim, not two nested ones. */
 .nt-home .layout-fullscreen .card.pos-center .meta {
-  top: 50%;
-  bottom: auto;
-  transform: translateY(-50%);
+  position: absolute !important;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 !important;
+  padding: 0;
+  background: transparent;
+  color: #fff;
 }
 
-.nt-home .layout-fullscreen .card:is(.pos-overlay-top, .pos-overlay-bottom, .pos-center) .name {
+.nt-home .layout-fullscreen .card:is(.pos-overlay-top, .pos-overlay-bottom) .name {
   display: block;
-  width: 100%;
+  max-width: 100%;
   color: #fff;
   text-shadow: none;
   white-space: nowrap;
