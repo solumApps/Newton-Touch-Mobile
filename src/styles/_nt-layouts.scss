@@ -8830,6 +8830,11 @@
   justify-content: flex-start;
   overflow-x: auto;
   overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: calc(var(--nt-vw)*2.5);
+  scrollbar-width: none;
 }
 
 .nt-inter .body.int-columns.scroll-vertical {
@@ -8911,6 +8916,7 @@
 
 .nt-inter .body.int-columns.scroll-horizontal .item {
   margin: 0 calc(var(--int-col-gap-x, calc(var(--nt-vw)*1)) * 0.5);
+  scroll-snap-align: start;
 }
 
 .nt-inter .body.int-columns .item .img {
@@ -10215,6 +10221,11 @@
   justify-content: flex-start;
   overflow-x: auto;
   overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: calc(var(--nt-vw)*2.5);
+  scrollbar-width: none;
 }
 
 .nt-inter .body.int-columns.scroll-vertical {
@@ -10349,6 +10360,23 @@
 .nt-inter .body.int-columns.int-shape-hexagon .item {
   border-radius: 0;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* Keep horizontal columns for circle/hexagon aligned with Home horizontal scroll:
+   square cards, visible count driven by the configured column count. */
+.nt-inter .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon) {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  align-content: center;
+}
+
+.nt-inter .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon) .item {
+  flex: 0 0 min(calc((100% - var(--int-cols, 3) * var(--int-col-gap-x, calc(var(--nt-vw)*1))) / var(--int-cols, 3)), calc(var(--nt-vh)*85 * var(--nt-int-scale, 1))) !important;
+  width: min(calc((100% - var(--int-cols, 3) * var(--int-col-gap-x, calc(var(--nt-vw)*1))) / var(--int-cols, 3)), calc(var(--nt-vh)*85 * var(--nt-int-scale, 1))) !important;
+  height: auto !important;
+  aspect-ratio: 1;
+  scroll-snap-align: start;
 }
 
 .nt-inter .body.int-columns.int-shape-circle .item .img,
@@ -10952,9 +10980,10 @@
 }
 
 .nt-inter .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon).int-scroll-peek .item {
-  flex: 0 0 calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
-  width: calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
-  height: calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
+  flex: 0 0 min(calc((100% - (var(--int-cols, 3) - 1) * var(--nt-vw)*1.4 - var(--nt-vw)*2.4) / var(--int-cols, 3)), calc(var(--nt-vh)*85 * var(--nt-int-scale, 1))) !important;
+  width: min(calc((100% - (var(--int-cols, 3) - 1) * var(--nt-vw)*1.4 - var(--nt-vw)*2.4) / var(--int-cols, 3)), calc(var(--nt-vh)*85 * var(--nt-int-scale, 1))) !important;
+  height: auto !important;
+  aspect-ratio: 1;
 }
 
 /* card-strip: dynamic visible-card width; no grow, so extra preview cards overflow horizontally. */

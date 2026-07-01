@@ -764,9 +764,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   get interColumnsScrollPeek(): boolean {
     if (this.theme?.intermediateStyle !== 'columns' || this.interScrollMode !== 'horizontal') return false;
-    const cols = this.interVisibleColumns;
-    const shape = this.theme?.intermediate?.cardShape || 'rect';
-    return (shape === 'circle' || shape === 'hexagon') ? cols >= 6 : cols >= 3;
+    return true;
   }
   get interStripRenderedCount(): number {
     return this.interCells.length;
