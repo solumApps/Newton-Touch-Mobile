@@ -89,14 +89,18 @@
         <ng-container *ngIf="apiProducts.length">
           <app-select-field label="Hierarchy fields" placeholder="Choose field source"
             [options]="fieldSourceOpts" [value]="d.fieldSource || 'category'" (valueChange)="setFieldSource($any($event))"></app-select-field>
-          <!-- Category depth: how many intermediate sub-levels to drill -->
-          <div class="sec"><span>Category depth</span></div>
-          <div class="seg fit-seg">
-            <button class="mini" [class.sel]="categoryLevelCount===0" (click)="setCategoryLevelCount(0)">L0 only</button>
-            <button class="mini" *ngIf="maxCategoryDepth>=1" [class.sel]="categoryLevelCount===1" (click)="setCategoryLevelCount(1)">L0+L1</button>
-            <button class="mini" *ngIf="maxCategoryDepth>=2" [class.sel]="categoryLevelCount===2" (click)="setCategoryLevelCount(2)">+L2</button>
-            <button class="mini" *ngIf="maxCategoryDepth>=3" [class.sel]="categoryLevelCount===3" (click)="setCategoryLevelCount(3)">+L3</button>
-          </div>
+          <!-- Category depth: how many intermediate sub-levels to drill. Hidden when
+               the theme has NO intermediate page — L0 maps straight to Result. -->
+          <ng-container *ngIf="d.themeTokens.includeIntermediate !== false">
+            <div class="sec"><span>Category depth</span></div>
+            <div class="seg fit-seg">
+              <button class="mini" [class.sel]="categoryLevelCount===0" (click)="setCategoryLevelCount(0)">L0 only</button>
+              <button class="mini" *ngIf="maxCategoryDepth>=1" [class.sel]="categoryLevelCount===1" (click)="setCategoryLevelCount(1)">L0+L1</button>
+              <button class="mini" *ngIf="maxCategoryDepth>=2" [class.sel]="categoryLevelCount===2" (click)="setCategoryLevelCount(2)">+L2</button>
+              <button class="mini" *ngIf="maxCategoryDepth>=3" [class.sel]="categoryLevelCount===3" (click)="setCategoryLevelCount(3)">+L3</button>
+            </div>
+          </ng-container>
+          <p class="note" *ngIf="d.themeTokens.includeIntermediate === false">This theme has no intermediate page — every product under the selected L0 category shows on the Result page.</p>
           <p class="note" *ngIf="apiProducts.length">Data has up to <b>L{{ maxCategoryDepth }}</b> ({{ catLabel(maxCategoryDepth) }}).</p>
           <!-- L0 values (category1 / etc0) — unique, deduped. Pick which to build. -->
           <div class="sec"><span>L0 — {{ catLabel(0) }}</span></div>
@@ -320,8 +324,9 @@
         </div>
       </ng-container>
 
-      <!-- Skip-intermediate themes: choose ONE common result page or one PER home card -->
-      <ng-container *ngIf="skipsIntermediate">
+      <!-- Skip-intermediate themes: choose ONE common result page or one PER home card
+           (not for Category — it uses the hierarchy block above). -->
+      <ng-container *ngIf="skipsIntermediate && d.appMode !== 'category'">
         <div class="sec"><span>Result pages</span></div>
         <div class="seg fit-seg">
           <button class="mini" [class.sel]="itemResultMode==='common'" (click)="setItemResultMode('common')">Common — one result page</button>

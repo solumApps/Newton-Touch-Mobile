@@ -3278,6 +3278,10 @@
   scrollbar-width: none;
 }
 
+.nt-inter .body.int-brand-rail {
+  padding: 0;
+}
+
 .nt-inter .body::-webkit-scrollbar,
 .nt-inter .body *::-webkit-scrollbar {
   display: none;
@@ -3671,7 +3675,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: calc(var(--nt-vh)*2) 0 calc(var(--nt-vh)*2) calc(var(--nt-vw)*4);
+  // padding: calc(var(--nt-vh)*2) 0 calc(var(--nt-vh)*2) calc(var(--nt-vw)*4);
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -3759,6 +3763,7 @@
   mask-image: linear-gradient(90deg, transparent 0%, #000 35%);
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 35%);
   text-shadow: 0 calc(var(--nt-vh)*0.3) calc(var(--nt-vh)*1) rgba(0, 0, 0, .5);
+  padding-right: calc(var(--nt-vw)*2.5) !important;
 }
 
 /* brand-rail follows the selected card shape (was hard-wired to a circle) */
@@ -8841,6 +8846,11 @@
   justify-content: flex-start;
   overflow-x: auto;
   overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: calc(var(--nt-vw)*2.5);
+  scrollbar-width: none;
 }
 
 .nt-inter .body.int-columns.scroll-vertical {
@@ -8922,6 +8932,7 @@
 
 .nt-inter .body.int-columns.scroll-horizontal .item {
   margin: 0 calc(var(--int-col-gap-x, calc(var(--nt-vw)*1)) * 0.5);
+  scroll-snap-align: start;
 }
 
 .nt-inter .body.int-columns .item .img {
@@ -8974,6 +8985,12 @@
 /* shapes — circle/hexagon are SQUARE (narrower than rect), image fills, name overlaid */
 .nt-inter .body.int-columns.int-shape-pill .item {
   border-radius: 999px;
+  height: calc(var(--nt-vh) * 36 * var(--nt-int-scale, 1));
+  margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.2) 0;
+}
+
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-pill .item {
+  margin: 0 calc(var(--int-col-gap-x, calc(var(--nt-vw)*1)) * 0.5);
 }
 
 .nt-inter .body.int-columns.int-shape-circle .item,
@@ -10224,6 +10241,11 @@
   justify-content: flex-start;
   overflow-x: auto;
   overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: calc(var(--nt-vw)*2.5);
+  scrollbar-width: none;
 }
 
 .nt-inter .body.int-columns.scroll-vertical {
@@ -10240,12 +10262,19 @@
   margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.2) 0;
 }
 
-.nt-inter .body.int-columns.scroll-vertical:is(.int-shape-rect, .int-shape-pill) .item {
+.nt-inter .body.int-columns.scroll-vertical.int-shape-rect .item {
   width: calc(100% + var(--nt-vw)*0);
   max-width: none;
   height: calc(var(--nt-vh) * 65 * var(--nt-int-scale, 1));
   margin-left: calc(var(--nt-vw)*-2);
   margin-right: calc(var(--nt-vw)*-2);
+}
+
+.nt-inter .body.int-columns.scroll-vertical.int-shape-pill .item {
+  width: calc(100% + var(--nt-vw)*0);
+  max-width: none;
+  height: calc(var(--nt-vh) * 38 * var(--nt-int-scale, 1));
+  margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.8) calc(var(--nt-vw)*-2);
 }
 
 .nt-inter .body.int-columns.scroll-vertical.int-align-left .item {
@@ -10332,6 +10361,12 @@
 /* shapes — circle/hexagon are SQUARE (narrower than rect), image fills, name overlaid */
 .nt-inter .body.int-columns.int-shape-pill .item {
   border-radius: 999px;
+  height: calc(var(--nt-vh) * 38 * var(--nt-int-scale, 1));
+  margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.2) 0;
+}
+
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-pill .item {
+  margin: 0 calc(var(--int-col-gap-x, calc(var(--nt-vw)*1)) * 0.5);
 }
 
 .nt-inter .body.int-columns.int-shape-circle .item,
@@ -10348,6 +10383,23 @@
 .nt-inter .body.int-columns.int-shape-hexagon .item {
   border-radius: 0;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* Keep horizontal columns for circle/hexagon aligned with Home horizontal scroll:
+   square cards, visible count driven by the configured column count. */
+.nt-inter .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon) {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  align-content: center;
+}
+
+.nt-inter .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon) .item {
+  flex: 0 0 min(calc((100% - var(--int-cols, 3) * var(--int-col-gap-x, calc(var(--nt-vw)*1))) / var(--int-cols, 3)), calc(var(--nt-vh)*85 * var(--nt-int-scale, 1))) !important;
+  width: min(calc((100% - var(--int-cols, 3) * var(--int-col-gap-x, calc(var(--nt-vw)*1))) / var(--int-cols, 3)), calc(var(--nt-vh)*85 * var(--nt-int-scale, 1))) !important;
+  height: auto !important;
+  aspect-ratio: 1;
+  scroll-snap-align: start;
 }
 
 .nt-inter .body.int-columns.int-shape-circle .item .img,
@@ -10826,8 +10878,8 @@
 .nt-home .cards.scroll-horizontal,
 .nt-inter .body.scroll-horizontal {
   justify-content: flex-start !important;
-  padding-left: calc(var(--nt-vw)*2.5) !important;
-  padding-right: calc(var(--nt-vw)*2.5) !important;
+  // padding-left: calc(var(--nt-vw)*2.5) !important;
+  // padding-right: calc(var(--nt-vw)*2.5) !important;
   align-items: center;
 }
 
@@ -10955,9 +11007,10 @@
 }
 
 .nt-inter .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon).int-scroll-peek .item {
-  flex: 0 0 calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
-  width: calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
-  height: calc(var(--nt-vh)*45 * var(--nt-int-scale, 1)) !important;
+  flex: 0 0 min(calc((100% - (var(--int-cols, 3) - 1) * var(--nt-vw)*1.4 - var(--nt-vw)*2.4) / var(--int-cols, 3)), calc(var(--nt-vh)*85 * var(--nt-int-scale, 1))) !important;
+  width: min(calc((100% - (var(--int-cols, 3) - 1) * var(--nt-vw)*1.4 - var(--nt-vw)*2.4) / var(--int-cols, 3)), calc(var(--nt-vh)*85 * var(--nt-int-scale, 1))) !important;
+  height: auto !important;
+  aspect-ratio: 1;
 }
 
 /* card-strip: dynamic visible-card width; no grow, so extra preview cards overflow horizontally. */
@@ -10976,7 +11029,19 @@
   scroll-padding-inline-end: calc(var(--nt-vw)*4);
 }
 /* ---- brand-rail message position + vertical alignment (#5) ---- */
-.nt-inter .int-brand-rail.int-brm-left::after { order:-1; left:0; right:auto; margin-left:calc(var(--nt-vw)*-4); margin-right:auto; text-align:left; padding:0 calc(var(--nt-vw)*6) 0 0; background:var(--int-brm-bg, linear-gradient(270deg, rgba(8,4,32,0) 0%, rgba(8,4,32,.55) 40%, rgba(8,4,32,.88) 100%)); }
+.nt-inter .int-brand-rail.int-brm-left::after {
+  order: -1;
+  left: 0;
+  right: auto;
+  margin-left: calc(var(--nt-vw)*-4);
+  margin-right: auto;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 0 calc(var(--nt-vw)*6) 0 calc(var(--nt-vw)*2.5) !important;
+  background: var(--int-brm-bg, linear-gradient(90deg, rgba(8,4,32,.88) 0%, rgba(8,4,32,.55) 65%, rgba(8,4,32,0) 100%));
+  mask-image: linear-gradient(90deg, #000 0%, #000 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 70%, transparent 100%);
+}
 .nt-inter .int-brand-rail.int-brmv-top::after { align-items:flex-start; }
 .nt-inter .int-brand-rail.int-brmv-center::after { align-items:center; }
 .nt-inter .int-brand-rail.int-brmv-bottom::after { align-items:flex-end; }
