@@ -716,12 +716,6 @@
         <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
         <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Text overlay" hint="background behind overlaid finder card text" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
         <app-color-picker label="Accent / active" [value]="t.intermediate.accent" (valueChange)="t.intermediate.accent=$event"></app-color-picker>
-        <div class="step-title sm">Sub-item size</div>
-        <div class="slider-row">
-          <input type="range" class="nt-slider" min="0.7" [max]="intItemSizeMax" step="0.05" [value]="intItemSizeValue"
-                 (input)="setIntItemSize($any($event.target).value)" aria-label="Sub-item size" />
-          <span class="slider-val">{{ (intItemSizeValue * 100) | number:'1.0-0' }}%</span>
-        </div>
         <div class="step-title sm">Header bar</div>
         <div class="seg">
           <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>

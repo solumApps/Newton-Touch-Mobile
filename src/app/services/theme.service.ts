@@ -47,7 +47,7 @@ export class ThemeService {
       // pre-selected "Columns" tile in the wizard exactly.
       homeLayout: 'col-3',
       columns: 3,
-      scrollMode: 'vertical',
+      scrollMode: 'horizontal',
       cardSize: 'normal',
       cardAlign: 'center',
       cardGap: 'normal',
