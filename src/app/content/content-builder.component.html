@@ -324,8 +324,9 @@
         </div>
       </ng-container>
 
-      <!-- Skip-intermediate themes: choose ONE common result page or one PER home card -->
-      <ng-container *ngIf="skipsIntermediate">
+      <!-- Skip-intermediate themes: choose ONE common result page or one PER home card
+           (not for Category — it uses the hierarchy block above). -->
+      <ng-container *ngIf="skipsIntermediate && d.appMode !== 'category'">
         <div class="sec"><span>Result pages</span></div>
         <div class="seg fit-seg">
           <button class="mini" [class.sel]="itemResultMode==='common'" (click)="setItemResultMode('common')">Common — one result page</button>
