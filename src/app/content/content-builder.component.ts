@@ -592,11 +592,44 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
       this.catSel = [new Set(), new Set(), new Set(), new Set()];
       if (this.draft?.home?.length) {
         const validL0 = new Set(this.catValues(0));
+        const unchecked: string[] = [];
+        const missingFromApi: string[] = [];
         for (const card of this.draft.home) {
           const val = this.childVal(card);
-          if (val && validL0.has(val)) {
-            this.catSel[0].add(val);
+          if (val) {
+            if (!validL0.has(val)) {
+              missingFromApi.push(val);
+            } else {
+              const missingKey = this.checkCategoryDepthValid(val);
+              if (missingKey) {
+                unchecked.push(val);
+              } else {
+                this.catSel[0].add(val);
+              }
+            }
           }
+        }
+        if (missingFromApi.length || unchecked.length) {
+          if (this.catSel[0].size > 0) {
+            this.applySelection();
+          } else {
+            this.draft.home = [];
+            this.syncResultProducts();
+            this.leafCache = null;
+          }
+          const alertMessages: string[] = [];
+          if (missingFromApi.length) {
+            alertMessages.push(`The following categories are no longer available in the API and have been removed: ${missingFromApi.join(', ')}.`);
+          }
+          if (unchecked.length) {
+            alertMessages.push(`The following categories were removed because they do not contain required category/etc values for the current depth: ${unchecked.join(', ')}.`);
+          }
+          const alert = await this.alertController.create({
+            header: 'Categories Validated',
+            message: alertMessages.join('\n\n'),
+            buttons: ['OK']
+          });
+          await alert.present();
         }
       }
       if (!this.apiProducts.length) this.fetchError = 'No products returned for this store.';
@@ -1010,6 +1043,9 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     // Resume where the user left off (lastStep persisted with the draft).
     if (typeof this.draft.lastStep === 'number') {
       this.stepIndex = Math.min(Math.max(0, Math.round(this.draft.lastStep)), this.visibleSteps.length - 1);
+    }
+    if (this.draft.appMode === 'category') {
+      await this.fetch();
     }
     this.afterStepChange();
   }
