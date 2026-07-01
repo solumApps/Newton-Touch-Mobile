@@ -1110,12 +1110,14 @@ export class ThemeWizardComponent implements OnInit {
   private resultSynced = false;
   private prevHomeHeaderColor?: string;
   private prevHomeHeaderTextColor?: string;
+  private prevHomeBackground?: string;
 
   /** Keep Intermediate header/background-related values synced with Home. */
   private syncInterFromHome(): void {
     const d = ThemeService.defaultTokens().intermediate;
     const homeHeaderColor = this.t.headerColor;
     const homeHeaderTextColor = this.t.headerTextColor || '#FFFFFF';
+    const homeBackground = this.t.background;
     const interHeaderTextColor = this.t.intermediate.headerTextColor || '#FFFFFF';
 
     this.t.intermediate.headerLayout = this.t.headerLayout || 'preset';
@@ -1134,7 +1136,10 @@ export class ThemeWizardComponent implements OnInit {
     this.prevHomeHeaderColor = homeHeaderColor;
     this.prevHomeHeaderTextColor = homeHeaderTextColor;
     this.t.intermediate.transparentHeader = this.t.transparentHeader;
-    this.t.intermediate.background = this.t.background;
+    if (this.t.intermediate.background === d.background || this.t.intermediate.background === this.prevHomeBackground) {
+      this.t.intermediate.background = homeBackground;
+    }
+    this.prevHomeBackground = homeBackground;
     this.t.intermediate.backgroundImage = this.t.backgroundImage;
     this.t.intermediate.bgImageX = this.t.bgImageX;
     this.t.intermediate.bgImageY = this.t.bgImageY;

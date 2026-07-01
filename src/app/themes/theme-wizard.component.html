@@ -699,8 +699,9 @@
         </div>
         <app-color-picker *ngIf="t.intermediate.showHeader" label="Header background" [value]="t.intermediate.headerColor" (valueChange)="t.intermediate.headerColor=$event"></app-color-picker>
         <app-color-picker *ngIf="t.intermediate.showHeader" label="Header text color" [value]="t.intermediate.headerTextColor || '#FFFFFF'" (valueChange)="t.intermediate.headerTextColor=$event"></app-color-picker>
+        <app-color-picker label="Page background" [value]="t.intermediate.background" (valueChange)="t.intermediate.background=$event" [presets]="bgPresets"></app-color-picker>
         <p class="hint">Header colors start from Home values, then you can customize them for Intermediate.</p>
-        <p class="hint">Page background on Intermediate is inherited from Home.</p>
+        <p class="hint">Page background starts from Home, then you can customize it for Intermediate.</p>
         <app-color-picker *ngIf="showInterCardBackgroundColor" label="Row / card background" [value]="t.intermediate.cardBackground" (valueChange)="t.intermediate.cardBackground=$event" [presets]="intCardPresets"></app-color-picker>
         <app-color-picker *ngIf="showInterCardTextColor" label="Card text" [value]="t.intermediate.cardText" (valueChange)="t.intermediate.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
