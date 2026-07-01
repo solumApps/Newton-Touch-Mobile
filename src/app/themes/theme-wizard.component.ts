@@ -939,7 +939,6 @@ export class ThemeWizardComponent implements OnInit {
     // Full reset so a reused (cached) wizard instance never carries stale state.
     this.stepIndex = 0;
     this.activeSlide = 0;
-    this.interSynced = false;
     this.resultSynced = false;
     this.nameError = '';
     this.name = '';
@@ -1107,26 +1106,39 @@ export class ThemeWizardComponent implements OnInit {
     else this.t.backgroundImage = undefined;
   }
 
-  /** Tracks whether inter/result colors have already been synced from home this session. */
-  private interSynced = false;
+  /** Tracks whether result colors have already been synced from home this session. */
   private resultSynced = false;
+  private prevHomeHeaderColor?: string;
+  private prevHomeHeaderTextColor?: string;
 
-  /**
-   * Copy Home colors into Intermediate defaults, but only if they are still at
-   * factory defaults (i.e., the user hasn't customised them yet).
-   */
+  /** Keep Intermediate header/background-related values synced with Home. */
   private syncInterFromHome(): void {
-    if (this.interSynced) return;
     const d = ThemeService.defaultTokens().intermediate;
-    const i = this.t.intermediate;
-    const atDefault = (val: string, def: string) => val === def;
-    if (atDefault(i.headerColor, d.headerColor)) this.t.intermediate.headerColor = this.t.headerColor;
-    if (atDefault(i.background, d.background)) this.t.intermediate.background = this.t.background;
-    if (atDefault(i.cardBackground, d.cardBackground)) this.t.intermediate.cardBackground = this.t.cardBackground;
-    if (atDefault(i.cardText, d.cardText)) this.t.intermediate.cardText = this.t.cardText;
-    if (atDefault(i.accent, d.accent)) this.t.intermediate.accent = this.t.accent;
-    if (i.showHeader === d.showHeader) this.t.intermediate.showHeader = this.t.showHeader;
-    this.interSynced = true;
+    const homeHeaderColor = this.t.headerColor;
+    const homeHeaderTextColor = this.t.headerTextColor || '#FFFFFF';
+    const interHeaderTextColor = this.t.intermediate.headerTextColor || '#FFFFFF';
+
+    this.t.intermediate.headerLayout = this.t.headerLayout || 'preset';
+    this.t.intermediate.headerStyle = this.t.headerStyle || 'logo-only';
+    this.t.intermediate.logoPos = this.t.logoPos || this.t.logoPosition || 'left';
+    this.t.intermediate.titlePos = this.t.titlePos || 'center';
+    this.t.intermediate.captionPos = this.t.captionPos || 'center';
+
+    if (this.t.intermediate.headerColor === d.headerColor || this.t.intermediate.headerColor === this.prevHomeHeaderColor) {
+      this.t.intermediate.headerColor = homeHeaderColor;
+    }
+    if (interHeaderTextColor === (d.headerTextColor || '#FFFFFF') || interHeaderTextColor === (this.prevHomeHeaderTextColor || '#FFFFFF')) {
+      this.t.intermediate.headerTextColor = homeHeaderTextColor;
+    }
+
+    this.prevHomeHeaderColor = homeHeaderColor;
+    this.prevHomeHeaderTextColor = homeHeaderTextColor;
+    this.t.intermediate.transparentHeader = this.t.transparentHeader;
+    this.t.intermediate.background = this.t.background;
+    this.t.intermediate.backgroundImage = this.t.backgroundImage;
+    this.t.intermediate.bgImageX = this.t.bgImageX;
+    this.t.intermediate.bgImageY = this.t.bgImageY;
+    this.t.intermediate.bgImageZoom = this.t.bgImageZoom;
   }
 
   /**
@@ -1208,9 +1220,9 @@ export class ThemeWizardComponent implements OnInit {
       this.t.intermediateStyle = 'columns';
       this.t.intermediate.align = 'center';
     }
-    // Inherit header values from home when first entering intermediate design step
-    if (this.visibleSteps[this.stepIndex]?.key === 'intStyle') {
-      this.syncHeaderToIntermediate();
+    // Intermediate header/background-related settings are inherited from Home.
+    if (this.visibleSteps[this.stepIndex]?.key === 'intStyle' || this.visibleSteps[this.stepIndex]?.key === 'intColors') {
+      this.syncInterFromHome();
     }
     if (this.visibleSteps[this.stepIndex]?.page === 'inter') this.clampIntColumns();
     if (this.visibleSteps[this.stepIndex]?.page === 'result' && this.t.resultTemplate === 'map-list') {
@@ -1240,6 +1252,7 @@ export class ThemeWizardComponent implements OnInit {
     this.nameError = '';
     this.clampIntColumns();
     this.clampIntItemSize();
+    this.syncInterFromHome();
     this.t = { ...this.t, screensaver: { mode: this.saverMode } };
     const theme: SavedTheme = { id: this.id ?? 'thm_' + Date.now(), name, tokens: this.t, updatedAt: Date.now() };
     await this.themes.save(theme);

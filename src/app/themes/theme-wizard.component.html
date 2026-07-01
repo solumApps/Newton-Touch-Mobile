@@ -688,35 +688,7 @@
             <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
             <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
           </div>
-          <ng-container *ngIf="t.intermediate.showHeader">
-            <div class="step-title sm">Header layout</div>
-            <div class="seg">
-              <button class="tile" [class.sel]="t.intermediate.headerLayout!=='custom'" (click)="t.intermediate.headerLayout='preset'">Preset combos</button>
-              <button class="tile" [class.sel]="t.intermediate.headerLayout==='custom'" (click)="t.intermediate.headerLayout='custom'">Custom (independent)</button>
-            </div>
-            <ng-container *ngIf="t.intermediate.headerLayout !== 'custom'">
-              <div class="step-title sm">Header style</div>
-              <div class="seg">
-                <button class="tile" *ngFor="let h of headerStyles" [class.sel]="(t.intermediate.headerStyle||'logo-only')===h.id" (click)="t.intermediate.headerStyle=h.id">{{ h.label }}</button>
-              </div>
-            </ng-container>
-            <ng-container *ngIf="t.intermediate.headerLayout === 'custom'">
-              <p class="hint">Position each element independently, or hide it.</p>
-              <div class="step-title sm">Logo position</div>
-              <div class="seg">
-                <button class="tile" *ngFor="let p of headerItemPositions" [class.sel]="(t.intermediate.logoPos||'left')===p.id" (click)="t.intermediate.logoPos=p.id">{{ p.label }}</button>
-              </div>
-              <div class="step-title sm">Title position</div>
-              <div class="seg">
-                <button class="tile" *ngFor="let p of headerItemPositions" [class.sel]="(t.intermediate.titlePos||'center')===p.id" (click)="t.intermediate.titlePos=p.id">{{ p.label }}</button>
-              </div>
-              <div class="step-title sm">Caption position</div>
-              <div class="seg">
-                <button class="tile" *ngFor="let p of headerItemPositions" [class.sel]="(t.intermediate.captionPos||'center')===p.id" (click)="t.intermediate.captionPos=p.id">{{ p.label }}</button>
-              </div>
-            </ng-container>
-          </ng-container>
-          <p class="hint">Header colors and text appearance are configured on the Intermediate colors step.</p>
+          <p class="hint">Header bar, header layout, and header style are inherited from Home.</p>
         </ng-container>
       </div>
 
@@ -725,21 +697,10 @@
         <div class="inherited-hint">
           <span>&#9432;</span> Colors pre-filled from your Home page — adjust below if needed.
         </div>
-        <app-color-picker *ngIf="t.intermediate.showHeader" label="Header / breadcrumb" [value]="t.intermediate.headerColor" (valueChange)="t.intermediate.headerColor=$event"></app-color-picker>
-        <app-color-picker *ngIf="t.intermediate.showHeader" label="Header text" hint="title and caption" [value]="t.intermediate.headerTextColor || '#FFFFFF'" (valueChange)="t.intermediate.headerTextColor=$event"></app-color-picker>
-        <app-color-picker *ngIf="!t.intermediate.backgroundImage" label="Page background" [value]="t.intermediate.background" (valueChange)="t.intermediate.background=$event" [presets]="bgPresets"></app-color-picker>
-        <div class="media-row">
-          <button class="btn-o media-btn" (click)="pickBackground('inter')">{{ t.intermediate.backgroundImage ? 'Replace intermediate background image' : 'Upload intermediate background image' }}</button>
-          <button class="btn-o media-clear" *ngIf="t.intermediate.backgroundImage" (click)="clearBackground('inter')">Clear</button>
-        </div>
-        <p class="hint" *ngIf="t.intermediate.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
-        <ng-container *ngIf="t.intermediate.backgroundImage">
-          <div class="step-title sm">Background framing</div>
-          <p class="hint">Pan and zoom to choose which part of the image shows.</p>
-          <div class="slider-row"><span class="slider-lbl">Pan X</span><input type="range" class="nt-slider" min="0" max="100" step="1" [value]="t.intermediate.bgImageX ?? 50" (input)="t.intermediate.bgImageX=+$any($event.target).value" aria-label="Background pan X" /><span class="slider-val">{{ t.intermediate.bgImageX ?? 50 }}%</span></div>
-          <div class="slider-row"><span class="slider-lbl">Pan Y</span><input type="range" class="nt-slider" min="0" max="100" step="1" [value]="t.intermediate.bgImageY ?? 50" (input)="t.intermediate.bgImageY=+$any($event.target).value" aria-label="Background pan Y" /><span class="slider-val">{{ t.intermediate.bgImageY ?? 50 }}%</span></div>
-          <div class="slider-row"><span class="slider-lbl">Zoom</span><input type="range" class="nt-slider" min="100" max="300" step="5" [value]="t.intermediate.bgImageZoom ?? 100" (input)="t.intermediate.bgImageZoom=+$any($event.target).value" aria-label="Background zoom" /><span class="slider-val">{{ t.intermediate.bgImageZoom ?? 100 }}%</span></div>
-        </ng-container>
+        <app-color-picker *ngIf="t.intermediate.showHeader" label="Header background" [value]="t.intermediate.headerColor" (valueChange)="t.intermediate.headerColor=$event"></app-color-picker>
+        <app-color-picker *ngIf="t.intermediate.showHeader" label="Header text color" [value]="t.intermediate.headerTextColor || '#FFFFFF'" (valueChange)="t.intermediate.headerTextColor=$event"></app-color-picker>
+        <p class="hint">Header colors start from Home values, then you can customize them for Intermediate.</p>
+        <p class="hint">Page background on Intermediate is inherited from Home.</p>
         <app-color-picker *ngIf="showInterCardBackgroundColor" label="Row / card background" [value]="t.intermediate.cardBackground" (valueChange)="t.intermediate.cardBackground=$event" [presets]="intCardPresets"></app-color-picker>
         <app-color-picker *ngIf="showInterCardTextColor" label="Card text" [value]="t.intermediate.cardText" (valueChange)="t.intermediate.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
