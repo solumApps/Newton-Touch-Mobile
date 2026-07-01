@@ -78,6 +78,7 @@
   --ion-background-color-rgb: 248, 250, 252;
   --ion-text-color: #0F172A;
   --ion-text-color-rgb: 15, 23, 42;
+  --nt-alert-btn-color: #000000;
 }
 
 /* ===== Dark scheme token overrides =====
@@ -121,6 +122,7 @@
   --ion-background-color-rgb: 13, 19, 34;
   --ion-text-color: #F1F5F9;
   --ion-text-color-rgb: 241, 245, 249;
+  --nt-alert-btn-color: #ffffff;
 }
 
 /* Manual override from Settings → Appearance: Dark */
@@ -419,4 +421,13 @@ ion-modal.nt-sheet-modal::part(content) {
 .nt-sheet-row.cancel:hover {
   background: #230052;
   color: #fff;
+}
+
+/* Custom alert button color matching user theme */
+ion-alert {
+  --button-color: var(--nt-alert-btn-color);
+  
+  button.alert-button {
+    color: var(--nt-alert-btn-color) !important;
+  }
 }

@@ -240,6 +240,7 @@ export class ThemeWizardComponent implements OnInit {
         this.t.intermediate.content = 'image-text';
       }
     }
+    this.clampIntItemSize();
   }
 
   /** Layouts where circle/hexagon shapes don't render well and are hidden.
@@ -529,16 +530,25 @@ export class ThemeWizardComponent implements OnInit {
   }
 
   /** Fine-grained intermediate item size (slider). */
+  get intItemSizeMax(): number {
+    const shape = this.t.intermediate.cardShape;
+    return this.t.intermediateStyle === 'columns' && (shape === 'circle' || shape === 'hexagon') ? 1 : 1.3;
+  }
   get intItemSizeValue(): number {
     const n = this.t.intermediate.itemSizeScale;
-    if (typeof n === 'number') return n;
+    if (typeof n === 'number') return Math.min(this.intItemSizeMax, n);
     const s = this.t.intermediate.itemSize || 'medium';
-    return s === 'small' ? 0.86 : s === 'large' ? 1.15 : 1;
+    return Math.min(this.intItemSizeMax, s === 'small' ? 0.86 : s === 'large' ? 1.15 : 1);
   }
   setIntItemSize(v: string | number): void {
-    const n = Math.min(1.3, Math.max(0.7, Number(v)));
+    const n = Math.min(this.intItemSizeMax, Math.max(0.7, Number(v)));
     this.t.intermediate.itemSizeScale = n;
     this.t.intermediate.itemSize = n < 0.93 ? 'small' : n > 1.07 ? 'large' : 'medium';
+  }
+  private clampIntItemSize(): void {
+    if (typeof this.t.intermediate.itemSizeScale === 'number' && this.t.intermediate.itemSizeScale > this.intItemSizeMax) {
+      this.setIntItemSize(this.intItemSizeMax);
+    }
   }
 
   /** Independent horizontal card-text alignment (C-3). */
@@ -624,21 +634,24 @@ export class ThemeWizardComponent implements OnInit {
   set intStepsCsv(v: string) { this.t.intermediate.stepLabels = v.split(',').map((s) => s.trim()).filter(Boolean); }
   /** Column / item count input — for 'columns' (grid) AND 'card-strip' (visible count). */
   get intColumnsMatters(): boolean { return this.t.intermediateStyle === 'columns' || this.t.intermediateStyle === 'card-strip'; }
-  get intColumnsValue(): number { return this.t.intermediate.columns || 3; }
-  /** #6 Dynamic max "visible cards": shaped cards (circle/hex) distort sooner. */
+  get intColumnsValue(): number { return Math.min(this.maxVisibleCards, this.t.intermediate.columns || 3); }
+  /** #6 Dynamic max "visible cards": intermediate columns cap at 5 for every shape. */
   get maxVisibleCards(): number {
     const sh = this.t.intermediate.cardShape;
-    if (this.t.intermediateStyle === 'columns' && (sh === 'circle' || sh === 'hexagon')) return 5;
-    if (this.t.intermediateStyle === 'columns') return 8;
+    if (this.t.intermediateStyle === 'columns') return 5;
     return (sh === 'circle' || sh === 'hexagon') ? 5 : 8;
   }
   /** Stepper used like Home: +/- buttons. */
   stepIntColumns(delta: number): void { this.setIntColumns(this.intColumnsValue + delta); }
   setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(1, Math.min(this.maxVisibleCards, Math.round(n))); }
+  private clampIntColumns(): void {
+    if ((this.t.intermediate.columns || 3) > this.maxVisibleCards) this.setIntColumns(this.maxVisibleCards);
+  }
   /** Cap visible cards if a shape change lowered the dynamic max. */
   setInterShape(s: CardShape): void {
     this.t.intermediate.cardShape = s;
-    if ((this.t.intermediate.columns || 3) > this.maxVisibleCards) this.setIntColumns(this.maxVisibleCards);
+    this.clampIntColumns();
+    this.clampIntItemSize();
     if (!this.interTextAlignMatters) this.t.intermediate.textAlign = 'center'; // #7 pill forces center
   }
   /** Overflow scrolling matters for the columns grid + brand grid/rail. */
@@ -686,6 +699,8 @@ export class ThemeWizardComponent implements OnInit {
     if (this.t.intermediateStyle === 'columns') {
       this.t.intermediate.align = 'center';
       this.t.intermediate.valign = m === 'vertical' ? 'top' : 'middle';
+      this.clampIntColumns();
+      this.clampIntItemSize();
       return;
     }
     if (m === 'vertical') { this.t.intermediate.valign = 'top'; this.t.intermediate.align = 'left'; }
@@ -1102,6 +1117,7 @@ export class ThemeWizardComponent implements OnInit {
       this.t.intermediateStyle = 'columns';
       this.t.intermediate.align = 'center';
     }
+    if (this.visibleSteps[this.stepIndex]?.page === 'inter') this.clampIntColumns();
     if (this.visibleSteps[this.stepIndex]?.page === 'result' && this.t.resultTemplate === 'map-list') {
       this.applyMapListDefaults();
       this.resultSynced = true;
@@ -1127,6 +1143,8 @@ export class ThemeWizardComponent implements OnInit {
       return;
     }
     this.nameError = '';
+    this.clampIntColumns();
+    this.clampIntItemSize();
     this.t = { ...this.t, screensaver: { mode: this.saverMode } };
     const theme: SavedTheme = { id: this.id ?? 'thm_' + Date.now(), name, tokens: this.t, updatedAt: Date.now() };
     await this.themes.save(theme);
