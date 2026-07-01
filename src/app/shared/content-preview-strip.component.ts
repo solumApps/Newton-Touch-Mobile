@@ -79,7 +79,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
              [ngClass]="isCustomHeader ? '' : ('hdr-style-' + headerStyle)"
              [style.background]="isTransparentHeader ? 'transparent' : headerColor">
           <ng-container *ngIf="!isCustomHeader">
-            <img *ngIf="showLogo" src="assets/solum-logo-white.svg" alt="Logo" class="brand-logo" />
+            <img *ngIf="showLogo" [src]="header?.logo || 'assets/solum-logo-white.svg'" alt="Logo" class="brand-logo" />
             <div class="brand-text" *ngIf="showTitle || showHeaderCaption">
               <span class="title" *ngIf="showTitle">{{ titleText }}</span>
               <span class="caption" *ngIf="showHeaderCaption">{{ captionText }}</span>
@@ -87,17 +87,17 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </ng-container>
           <ng-container *ngIf="isCustomHeader">
             <div class="hzone left">
-              <img *ngIf="logoPos==='left'" src="assets/solum-logo-white.svg" alt="Logo" class="brand-logo" />
+              <img *ngIf="logoPos==='left'" [src]="header?.logo || 'assets/solum-logo-white.svg'" alt="Logo" class="brand-logo" />
               <span class="title" *ngIf="titlePos==='left'">{{ titleText }}</span>
               <span class="caption" *ngIf="captionPos==='left'">{{ captionText }}</span>
             </div>
             <div class="hzone center">
-              <img *ngIf="logoPos==='center'" src="assets/solum-logo-white.svg" alt="Logo" class="brand-logo" />
+              <img *ngIf="logoPos==='center'" [src]="header?.logo || 'assets/solum-logo-white.svg'" alt="Logo" class="brand-logo" />
               <span class="title" *ngIf="titlePos==='center'">{{ titleText }}</span>
               <span class="caption" *ngIf="captionPos==='center'">{{ captionText }}</span>
             </div>
             <div class="hzone right">
-              <img *ngIf="logoPos==='right'" src="assets/solum-logo-white.svg" alt="Logo" class="brand-logo" />
+              <img *ngIf="logoPos==='right'" [src]="header?.logo || 'assets/solum-logo-white.svg'" alt="Logo" class="brand-logo" />
               <span class="title" *ngIf="titlePos==='right'">{{ titleText }}</span>
               <span class="caption" *ngIf="captionPos==='right'">{{ captionText }}</span>
             </div>
@@ -526,7 +526,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   @Input() intermediateCreatePreview = false;
   @Input() result?: { mapImage?: string; promoImage?: string; products: ResultProduct[]; route?: { kind?: 'line' | 'dot' | 'none'; x?: number; y?: number; w?: number; color?: string } };
   @Input() screensaver?: Screensaver;
-  @Input() header?: { title?: string; caption?: string };
+  @Input() header?: { title?: string; caption?: string; logo?: string };
   /** Optional caption override under the strip. */
   @Input() caption?: string;
   /** Set false to hide the caption text under the preview. */
