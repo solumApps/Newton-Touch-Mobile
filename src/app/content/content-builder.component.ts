@@ -559,6 +559,11 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     const dataUrl = await this.picker.pick();
     if (dataUrl) this.setHeader('logo', dataUrl);
   }
+  clearLogo(): void {
+    if (this.draft?.header) {
+      delete this.draft.header.logo;
+    }
+  }
 
   constructor(private content: ContentService, private themes: ThemeService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private alertController: AlertController) {}
 

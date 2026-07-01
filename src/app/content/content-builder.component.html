@@ -62,6 +62,7 @@
           <div class="erow">
             <div class="thumb" [style.background-image]="d.header?.logo ? 'url('+d.header!.logo+')' : null" (click)="pickLogo()">{{ d.header?.logo ? '' : '📷' }}</div>
             <span class="inp" style="opacity:.6;pointer-events:none">Logo image (optional — defaults to SOLUM)</span>
+            <button class="del" *ngIf="d.header?.logo" (click)="clearLogo()">✕</button>
           </div>
         </ng-container>
         <!-- Title (shown for title-only, title+caption, logo+title+caption) -->
