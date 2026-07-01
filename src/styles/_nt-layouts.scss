@@ -1627,7 +1627,7 @@
 .nt-home .cards.has-cols.layout-col-2 .card.shape-pill,
 .nt-home .cards.has-cols.layout-col-3 .card.shape-pill,
 .nt-home .cards.has-cols.layout-col-4 .card.shape-pill {
-  height: 52%;
+  height: 38% !important;
   width: auto;
   align-self: center;
   margin-left: calc(var(--card-gap, calc(var(--nt-vw)*1.5)) * 0.7);
@@ -10350,7 +10350,7 @@
 /* shapes — circle/hexagon are SQUARE (narrower than rect), image fills, name overlaid */
 .nt-inter .body.int-columns.int-shape-pill .item {
   border-radius: 999px;
-  height: calc(var(--nt-vh) * 38 * var(--nt-int-scale, 1));
+  height: calc(var(--nt-vh) * 35 * var(--nt-int-scale, 1));
   margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.2) 0;
 }
 
