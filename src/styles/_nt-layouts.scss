@@ -119,6 +119,16 @@
 }
 
 .nt-inter .hdr .title,
+.nt-inter .hdr .caption {
+  color: var(--nt-int-header-text, #fff);
+}
+
+.nt-result .hdr .title,
+.nt-result .hdr .caption {
+  color: var(--nt-res-header-text, #fff);
+}
+
+.nt-inter .hdr .title,
 .nt-result .hdr .title,
 .nt-inter .hdr .caption,
 .nt-result .hdr .caption {

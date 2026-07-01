@@ -31,31 +31,31 @@
       <div class="prev" [ngClass]="['fit-'+t.typography.textFit, 'surface-'+(t.cardSurface || 'flat'), 'nav-'+(t.navStyle || 'floating')]"
            [style.background]="backgroundForPage(page)"
            [style.fontFamily]="t.typography.fontFamily" [style.--prev-scale]="scaleNum"
-           [style.--prev-header-text]="page === 'home' ? (t.headerTextColor || '#FFFFFF') : null" [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [style.--prev-res-card]="t.result.cardBackground" [style.--prev-res-text]="t.result.cardText" [style.--prev-res-popular-text]="t.result.popularText || t.result.cardText" [style.--prev-overlay]="t.overlayColor || 'rgba(0,0,0,0.6)'" [ngSwitch]="page">
+           [style.--prev-header-text]="headerTextColorFor(page)" [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [style.--prev-res-card]="t.result.cardBackground" [style.--prev-res-text]="t.result.cardText" [style.--prev-res-popular-text]="t.result.popularText || t.result.cardText" [style.--prev-overlay]="t.overlayColor || 'rgba(0,0,0,0.6)'" [ngSwitch]="page">
         <div class="hdr" *ngIf="headerVisibleFor(page)"
-             [ngClass]="isCustomHeader ? 'hdr-custom' : ['logo-'+t.logoPosition, 'hdr-style-'+(t.headerStyle || 'logo-only')]"
+             [ngClass]="headerCustomFor(page) ? 'hdr-custom' : ['logo-'+logoPosFor(page), 'hdr-style-'+headerStyleFor(page)]"
              [class.hdr-transparent]="transparentFor(page)"
              [style.background]="transparentFor(page) ? 'transparent' : headerColorForPage(page)">
-          <ng-container *ngIf="!isCustomHeader">
-            <img *ngIf="showLogo" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-            <span class="nt title" *ngIf="showHeaderTitle">Newton Touch</span>
-            <span class="nt caption" *ngIf="showHeaderCaption">{{ pageCaption(page) }}</span>
+          <ng-container *ngIf="!headerCustomFor(page)">
+            <img *ngIf="logoVisibleFor(page)" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+            <span class="nt title" *ngIf="titleVisibleFor(page)">Newton Touch</span>
+            <span class="nt caption" *ngIf="captionVisibleFor(page)">{{ pageCaption(page) }}</span>
           </ng-container>
-          <ng-container *ngIf="isCustomHeader">
+          <ng-container *ngIf="headerCustomFor(page)">
             <div class="hzone left">
-              <img *ngIf="(t.logoPos||'left')==='left'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-              <span class="nt title" *ngIf="(t.titlePos||'center')==='left'">Newton Touch</span>
-              <span class="nt caption" *ngIf="(t.captionPos||'center')==='left'">{{ pageCaption(page) }}</span>
+              <img *ngIf="logoPosFor(page)==='left'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt title" *ngIf="titlePosFor(page)==='left'">Newton Touch</span>
+              <span class="nt caption" *ngIf="captionPosFor(page)==='left'">{{ pageCaption(page) }}</span>
             </div>
             <div class="hzone center">
-              <img *ngIf="(t.logoPos||'left')==='center'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-              <span class="nt title" *ngIf="(t.titlePos||'center')==='center'">Newton Touch</span>
-              <span class="nt caption" *ngIf="(t.captionPos||'center')==='center'">{{ pageCaption(page) }}</span>
+              <img *ngIf="logoPosFor(page)==='center'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt title" *ngIf="titlePosFor(page)==='center'">Newton Touch</span>
+              <span class="nt caption" *ngIf="captionPosFor(page)==='center'">{{ pageCaption(page) }}</span>
             </div>
             <div class="hzone right">
-              <img *ngIf="(t.logoPos||'left')==='right'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-              <span class="nt title" *ngIf="(t.titlePos||'center')==='right'">Newton Touch</span>
-              <span class="nt caption" *ngIf="(t.captionPos||'center')==='right'">{{ pageCaption(page) }}</span>
+              <img *ngIf="logoPosFor(page)==='right'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt title" *ngIf="titlePosFor(page)==='right'">Newton Touch</span>
+              <span class="nt caption" *ngIf="captionPosFor(page)==='right'">{{ pageCaption(page) }}</span>
             </div>
           </ng-container>
         </div>
@@ -688,7 +688,35 @@
             <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
             <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
           </div>
-          <p class="hint">Header background (solid/transparent), colours, sub-item details and navigation buttons are set on the next step.</p>
+          <ng-container *ngIf="t.intermediate.showHeader">
+            <div class="step-title sm">Header layout</div>
+            <div class="seg">
+              <button class="tile" [class.sel]="t.intermediate.headerLayout!=='custom'" (click)="t.intermediate.headerLayout='preset'">Preset combos</button>
+              <button class="tile" [class.sel]="t.intermediate.headerLayout==='custom'" (click)="t.intermediate.headerLayout='custom'">Custom (independent)</button>
+            </div>
+            <ng-container *ngIf="t.intermediate.headerLayout !== 'custom'">
+              <div class="step-title sm">Header style</div>
+              <div class="seg">
+                <button class="tile" *ngFor="let h of headerStyles" [class.sel]="(t.intermediate.headerStyle||'logo-only')===h.id" (click)="t.intermediate.headerStyle=h.id">{{ h.label }}</button>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="t.intermediate.headerLayout === 'custom'">
+              <p class="hint">Position each element independently, or hide it.</p>
+              <div class="step-title sm">Logo position</div>
+              <div class="seg">
+                <button class="tile" *ngFor="let p of headerItemPositions" [class.sel]="(t.intermediate.logoPos||'left')===p.id" (click)="t.intermediate.logoPos=p.id">{{ p.label }}</button>
+              </div>
+              <div class="step-title sm">Title position</div>
+              <div class="seg">
+                <button class="tile" *ngFor="let p of headerItemPositions" [class.sel]="(t.intermediate.titlePos||'center')===p.id" (click)="t.intermediate.titlePos=p.id">{{ p.label }}</button>
+              </div>
+              <div class="step-title sm">Caption position</div>
+              <div class="seg">
+                <button class="tile" *ngFor="let p of headerItemPositions" [class.sel]="(t.intermediate.captionPos||'center')===p.id" (click)="t.intermediate.captionPos=p.id">{{ p.label }}</button>
+              </div>
+            </ng-container>
+          </ng-container>
+          <p class="hint">Header colors and text appearance are configured on the Intermediate colors step.</p>
         </ng-container>
       </div>
 
@@ -697,7 +725,8 @@
         <div class="inherited-hint">
           <span>&#9432;</span> Colors pre-filled from your Home page — adjust below if needed.
         </div>
-        <app-color-picker label="Header / breadcrumb" [value]="t.intermediate.headerColor" (valueChange)="t.intermediate.headerColor=$event"></app-color-picker>
+        <app-color-picker *ngIf="t.intermediate.showHeader" label="Header / breadcrumb" [value]="t.intermediate.headerColor" (valueChange)="t.intermediate.headerColor=$event"></app-color-picker>
+        <app-color-picker *ngIf="t.intermediate.showHeader" label="Header text" hint="title and caption" [value]="t.intermediate.headerTextColor || '#FFFFFF'" (valueChange)="t.intermediate.headerTextColor=$event"></app-color-picker>
         <app-color-picker *ngIf="!t.intermediate.backgroundImage" label="Page background" [value]="t.intermediate.background" (valueChange)="t.intermediate.background=$event" [presets]="bgPresets"></app-color-picker>
         <div class="media-row">
           <button class="btn-o media-btn" (click)="pickBackground('inter')">{{ t.intermediate.backgroundImage ? 'Replace intermediate background image' : 'Upload intermediate background image' }}</button>
@@ -716,17 +745,7 @@
         <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
         <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Text overlay" hint="background behind overlaid finder card text" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
         <app-color-picker label="Accent / active" [value]="t.intermediate.accent" (valueChange)="t.intermediate.accent=$event"></app-color-picker>
-        <div class="step-title sm">Sub-item size</div>
-        <div class="slider-row">
-          <input type="range" class="nt-slider" min="0.7" [max]="intItemSizeMax" step="0.05" [value]="intItemSizeValue"
-                 (input)="setIntItemSize($any($event.target).value)" aria-label="Sub-item size" />
-          <span class="slider-val">{{ (intItemSizeValue * 100) | number:'1.0-0' }}%</span>
-        </div>
-        <div class="step-title sm">Header bar</div>
-        <div class="seg">
-          <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
-          <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
-        </div>
+
         <div class="step-title sm">Navigation buttons</div>
         <p class="hint">Style the Back and Home buttons. Set a position to “Hidden” to hide that button.</p>
         <div class="nav-btn-row">

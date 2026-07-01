@@ -228,8 +228,19 @@ export class ThemeWizardComponent implements OnInit {
     if (s === 'brand-rail' || s === 'card-strip') this.setInterScroll('horizontal');
     // finder-select replaces the global header/nav with its own fs-top + fs-hero
     // bars, so the standard intermediate header is force-hidden (#5a).
-    if (s === 'finder-select') this.t.intermediate.showHeader = false;
-    else if (wasFinderSelect) this.t.intermediate.showHeader = true;
+    if (s === 'finder-select') {
+      this.t.intermediate.showHeader = false;
+    } else if (wasFinderSelect) {
+      this.t.intermediate.showHeader = true;
+    }
+    // Default values inherit from home step respective values only if exists.
+    if (this.t.intermediate.showHeader) {
+      this.t.intermediate.headerStyle = this.t.intermediate.headerStyle || this.t.headerStyle;
+      this.t.intermediate.headerLayout = this.t.intermediate.headerLayout || this.t.headerLayout;
+      this.t.intermediate.logoPos = this.t.intermediate.logoPos || this.t.logoPos;
+      this.t.intermediate.titlePos = this.t.intermediate.titlePos || this.t.titlePos;
+      this.t.intermediate.captionPos = this.t.intermediate.captionPos || this.t.captionPos;
+    }
     // #2/#5 full-bleed styles must use an inner text position; #4 ensure content set.
     if (s === 'fullscreen' || s === 'card-strip') {
       this.coerceInnerTextPos();
@@ -955,10 +966,16 @@ export class ThemeWizardComponent implements OnInit {
       : page === 'saver' ? false
       : this.t.showHeader;
   }
+  get isCustomHeader(): boolean { return (this.t.headerLayout || 'preset') === 'custom'; }
   headerColorForPage(page: PreviewPage): string {
     return page === 'inter' ? this.t.intermediate.headerColor
       : page === 'result' ? this.resultHeaderColor
       : this.t.headerColor;
+  }
+  headerTextColorFor(page: PreviewPage): string {
+    return page === 'inter' ? (this.t.intermediate.headerTextColor || '#FFFFFF')
+      : page === 'result' ? '#FFFFFF'
+      : (this.t.headerTextColor || '#FFFFFF');
   }
   get resultHeaderColor(): string {
     return this.t.result.headerColor === 'transparent'
@@ -984,19 +1001,42 @@ export class ThemeWizardComponent implements OnInit {
   pageCaption(page: PreviewPage): string {
     return page === 'inter' ? 'Intermediate' : page === 'result' ? 'Result' : page === 'saver' ? 'Screensaver' : 'Home';
   }
-  get isCustomHeader(): boolean { return (this.t.headerLayout || 'preset') === 'custom'; }
-  get showLogo(): boolean {
-    if (this.isCustomHeader) return (this.t.logoPos || 'left') !== 'hidden';
-    const h = this.t.headerStyle || 'logo-only'; return h === 'logo-only' || h === 'logo+title' || h === 'logo+title+caption';
+
+  headerCustomFor(page: PreviewPage): boolean {
+    if (page === 'inter') return (this.t.intermediate.headerLayout || 'preset') === 'custom';
+    return (this.t.headerLayout || 'preset') === 'custom';
   }
-  get showHeaderTitle(): boolean {
-    if (this.isCustomHeader) return (this.t.titlePos || 'center') !== 'hidden';
-    return (this.t.headerStyle || 'logo-only') !== 'logo-only';
+  headerStyleFor(page: PreviewPage): string {
+    if (page === 'inter') return this.t.intermediate.headerStyle || 'logo-only';
+    return this.t.headerStyle || 'logo-only';
   }
-  get showHeaderCaption(): boolean {
-    if (this.isCustomHeader) return (this.t.captionPos || 'center') !== 'hidden';
-    return this.t.headerStyle === 'title+caption' || this.t.headerStyle === 'logo+title+caption';
+  logoPosFor(page: PreviewPage): string {
+    if (page === 'inter') return this.t.intermediate.logoPos || 'left';
+    return this.t.logoPos || this.t.logoPosition || 'left';
   }
+  titlePosFor(page: PreviewPage): string {
+    if (page === 'inter') return this.t.intermediate.titlePos || 'center';
+    return this.t.titlePos || 'center';
+  }
+  captionPosFor(page: PreviewPage): string {
+    if (page === 'inter') return this.t.intermediate.captionPos || 'center';
+    return this.t.captionPos || 'center';
+  }
+  logoVisibleFor(page: PreviewPage): boolean {
+    if (this.headerCustomFor(page)) return this.logoPosFor(page) !== 'hidden';
+    const s = this.headerStyleFor(page);
+    return s === 'logo-only' || s === 'logo+title' || s === 'logo+title+caption';
+  }
+  titleVisibleFor(page: PreviewPage): boolean {
+    if (this.headerCustomFor(page)) return this.titlePosFor(page) !== 'hidden';
+    return this.headerStyleFor(page) !== 'logo-only';
+  }
+  captionVisibleFor(page: PreviewPage): boolean {
+    if (this.headerCustomFor(page)) return this.captionPosFor(page) !== 'hidden';
+    const s = this.headerStyleFor(page);
+    return s === 'title+caption' || s === 'logo+title+caption';
+  }
+
   headerItemPositions: { id: 'left' | 'center' | 'right' | 'hidden'; label: string }[] = [
     { id: 'left', label: 'Left' }, { id: 'center', label: 'Center' }, { id: 'right', label: 'Right' }, { id: 'hidden', label: 'Hidden' },
   ];
@@ -1095,6 +1135,31 @@ export class ThemeWizardComponent implements OnInit {
     this.resultSynced = true;
   }
 
+  /**
+   * Inherit header layout and style from Home to Intermediate when first
+   * entering the intermediate design step. Only applies if intermediate header
+   * is shown and values aren't already set.
+   */
+  private syncHeaderToIntermediate(): void {
+    if (!this.t.intermediate.showHeader) return;
+    // Only inherit if not already customized (use || to check for undefined/null)
+    if (!this.t.intermediate.headerStyle) {
+      this.t.intermediate.headerStyle = this.t.headerStyle || 'logo-only';
+    }
+    if (!this.t.intermediate.headerLayout) {
+      this.t.intermediate.headerLayout = this.t.headerLayout || 'preset';
+    }
+    if (!this.t.intermediate.logoPos) {
+      this.t.intermediate.logoPos = this.t.logoPos || 'left';
+    }
+    if (!this.t.intermediate.titlePos) {
+      this.t.intermediate.titlePos = this.t.titlePos || 'center';
+    }
+    if (!this.t.intermediate.captionPos) {
+      this.t.intermediate.captionPos = this.t.captionPos || 'center';
+    }
+  }
+
   next(): void {
     if (this.stepIndex < this.visibleSteps.length - 1) this.stepIndex++;
     this.afterStepChange();
@@ -1125,6 +1190,10 @@ export class ThemeWizardComponent implements OnInit {
     if (this.visibleSteps[this.stepIndex]?.key === 'intStyle' && !this.intStyles.includes(this.t.intermediateStyle)) {
       this.t.intermediateStyle = 'columns';
       this.t.intermediate.align = 'center';
+    }
+    // Inherit header values from home when first entering intermediate design step
+    if (this.visibleSteps[this.stepIndex]?.key === 'intStyle') {
+      this.syncHeaderToIntermediate();
     }
     if (this.visibleSteps[this.stepIndex]?.page === 'inter') this.clampIntColumns();
     if (this.visibleSteps[this.stepIndex]?.page === 'result' && this.t.resultTemplate === 'map-list') {
