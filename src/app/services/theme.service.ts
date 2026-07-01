@@ -33,6 +33,7 @@ export class ThemeService {
   static defaultTokens(): ThemeTokens {
     return {
       headerColor: '#2F006D',
+      headerTextColor: '#FFFFFF',
       background: 'linear-gradient(135deg,#2F006D,#001973)',
       cardBackground: 'rgba(255,255,255,0.15)',
       cardText: '#FFFFFF',
@@ -109,6 +110,7 @@ export class ThemeService {
     }
     delete (out as any).cardStyle;
     out.showHeader = t?.showHeader ?? true;
+    out.headerTextColor = t?.headerTextColor ?? d.headerTextColor;
     out.headerStyle = t?.headerStyle ?? 'logo-only';
     out.headerLayout = t?.headerLayout ?? 'preset';
     out.logoPos = t?.logoPos ?? 'left';

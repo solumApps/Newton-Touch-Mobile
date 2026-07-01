@@ -309,6 +309,7 @@ export class ThemeWizardComponent implements OnInit {
    *  the card height constrains width on the landscape kiosk (1920×540). */
   get maxColumns(): number {
     const shape = this.t.cardShape;
+    if (this.columnLayouts.includes(this.t.homeLayout) && (shape === 'rect' || shape === 'pill')) return 5;
     if (shape === 'circle' || shape === 'hexagon') return 5;
     return MAX_COLUMNS;
   }
@@ -431,7 +432,8 @@ export class ThemeWizardComponent implements OnInit {
     this.clampCardGap();
   }
   setColumns(v: string): void {
-    this.t.columns = coerceColumns(v);
+    const next = coerceColumns(v);
+    this.t.columns = next == null ? next : Math.min(this.maxColumns, Math.max(this.minColumns, next));
     this.checkDefaultCardGap();
     this.clampCardGap();
   }
