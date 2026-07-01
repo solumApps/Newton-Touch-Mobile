@@ -285,8 +285,10 @@ export class ThemeWizardComponent implements OnInit {
     // mode (e.g. Column+Horizontal → Hero+List, which has no Horizontal option):
     // leaving a stale 'horizontal' applied the scroll-horizontal class to a
     // layout that can't lay out as a row and broke the preview/render.
-    if (!this.scrollModesFor.some((m) => m.id === this.t.scrollMode)) {
-      this.t.scrollMode = this.scrollModesFor[0]?.id || 'vertical';
+    // Fall back to the *visible* modes so a hidden 'vertical' (hideVerticalScroll)
+    // is never silently re-applied; default to 'horizontal' when none are visible.
+    if (!this.scrollModesVisible.some((m) => m.id === this.t.scrollMode)) {
+      this.t.scrollMode = this.scrollModesVisible[0]?.id || 'horizontal';
     }
     this.coerceTextPos();
     this.checkDefaultCardGap();
