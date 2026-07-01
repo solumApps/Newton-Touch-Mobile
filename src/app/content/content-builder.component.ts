@@ -896,7 +896,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   }
 
   /** Re-derive each leaf's products + the shared Result list from the tree paths. */
-  private syncResultProducts(): void {
+  syncResultProducts(): void {
     if (!this.draft) return;
     // Never wipe the persisted product lists when the API products aren't loaded
     // (e.g. after reopening the draft — apiProducts is transient and empty).
