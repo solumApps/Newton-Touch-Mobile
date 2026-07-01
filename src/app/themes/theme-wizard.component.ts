@@ -692,6 +692,22 @@ export class ThemeWizardComponent implements OnInit {
   /** #4 Card content applies to image-showing styles incl. card-strip + fullscreen. */
   get intContentMatters(): boolean { return this.intShapeMatters || this.t.intermediateStyle === 'card-strip' || this.t.intermediateStyle === 'fullscreen'; }
 
+  /** Effective intermediate card content for color-step visibility rules.
+   *  finder-select uses its own fs-card content selector. */
+  get interColorContent(): CardContent {
+    return this.t.intermediateStyle === 'finder-select'
+      ? (this.t.intermediate.fsCardContent || 'text-only')
+      : (this.t.intermediate.content || 'image-text');
+  }
+  /** Hide row/card background for image-based cards on Intermediate colors step. */
+  get showInterCardBackgroundColor(): boolean {
+    return this.interColorContent !== 'image-only' && this.interColorContent !== 'image-text';
+  }
+  /** Hide card text color only when cards are image-only. */
+  get showInterCardTextColor(): boolean {
+    return this.interColorContent !== 'image-only';
+  }
+
   /** #1 Scroll-direction helpers (Home uses global scrollMode; Intermediate its own). */
   private readonly innerTextPositions: CardTextPos[] = ['overlay-top', 'overlay-bottom', 'center'];
   get effectiveScrollMode(): ScrollMode {
