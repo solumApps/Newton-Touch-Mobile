@@ -101,7 +101,7 @@
 /* Transparent header — mirrors LCD .hdr.hdr-transparent: page background extends behind it. */
 .prev .hdr.hdr-transparent { background: transparent !important; position: absolute; left: 0; right: 0; top: 0; z-index: 2; }
 .prev .hdr .logo { height: 52%; }
-.prev .hdr .nt { font-family: 'Inter', sans-serif; font-weight: 700; color: #fff; font-size: 8px; margin-left: 6px; letter-spacing: 0; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prev .hdr .nt { font-family: 'Inter', sans-serif; font-weight: 700; color: var(--prev-header-text, #fff); font-size: 8px; margin-left: 6px; letter-spacing: 0; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .prev .hdr .caption { font-size: 6px; opacity: .75; margin-left: 5px; }
 .prev .hdr.logo-center { justify-content: center; }
 .prev .hdr.logo-right { justify-content: flex-end; }

@@ -113,6 +113,11 @@
   margin-top: calc(var(--nt-vh)*0.2);
 }
 
+.nt-home .hdr .title,
+.nt-home .hdr .caption {
+  color: var(--nt-header-text, #fff);
+}
+
 .nt-inter .hdr .title,
 .nt-result .hdr .title,
 .nt-inter .hdr .caption,
