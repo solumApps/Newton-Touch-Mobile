@@ -101,7 +101,7 @@
           <!-- L0 values (category1 / etc0) — unique, deduped. Pick which to build. -->
           <div class="sec"><span>L0 — {{ catLabel(0) }}</span></div>
           <label class="pick" *ngFor="let v of catValues(0)">
-            <input type="checkbox" [checked]="catSel[0].has(v)" (change)="toggleCat(0, v)" />
+            <input type="checkbox" [checked]="catSel[0].has(v)" (change)="toggleCat(0, v, $event)" />
             <span class="pn">{{ v }}<span class="pm">({{ catCount(0, v) }})</span></span>
           </label>
           <button class="btn-o" (click)="applySelection()">Use {{ catSel[0].size }} selected → build pages</button>
@@ -174,14 +174,14 @@
           <!-- L0 selector (Home Fields) -->
           <div class="sec"><span>Home Fields</span></div>
           <div class="seg fit-seg">
-            <button class="mini" *ngFor="let v of l0SegList" [class.sel]="activeL0===v" (click)="setActiveL0(v)">{{ v }}</button>
+            <button class="mini" *ngFor="let v of l0SegList" [class.sel]="activeL0===v" [class.missing-image-seg]="isSegOptionMissingImages('L0', v)" (click)="setActiveL0(v)">{{ v }}</button>
           </div>
 
           <!-- L1 options selector (inter2 / inter3) -->
           <ng-container *ngIf="interLevel >= 2">
             <div class="sec"><span>{{ catLabel(1) }} options</span></div>
             <div class="seg fit-seg">
-              <button class="mini" *ngFor="let v of l1SegList" [class.sel]="activeL1===v" (click)="setActiveL1(v)">{{ v }}</button>
+              <button class="mini" *ngFor="let v of l1SegList" [class.sel]="activeL1===v" [class.missing-image-seg]="isSegOptionMissingImages('L1', v)" (click)="setActiveL1(v)">{{ v }}</button>
             </div>
           </ng-container>
 
@@ -189,7 +189,7 @@
           <ng-container *ngIf="interLevel >= 3">
             <div class="sec"><span>{{ catLabel(2) }} options</span></div>
             <div class="seg fit-seg">
-              <button class="mini" *ngFor="let v of l2SegList" [class.sel]="activeL2===v" (click)="setActiveL2(v)">{{ v }}</button>
+              <button class="mini" *ngFor="let v of l2SegList" [class.sel]="activeL2===v" [class.missing-image-seg]="isSegOptionMissingImages('L2', v)" (click)="setActiveL2(v)">{{ v }}</button>
             </div>
           </ng-container>
 
@@ -617,14 +617,15 @@
 </div>
 
 <ion-footer class="foot" *ngIf="draft">
-  <div class="step-issues" *ngIf="stepErrors.length || stepWarnings.length">
+  <div class="step-issues" *ngIf="stepErrors.length || stepWarnings.length || hasMissingImagesForCurrentStep">
+    <div class="iss err" *ngIf="hasMissingImagesForCurrentStep">⛔ Upload all required images or thumbnails for this step before continuing.</div>
     <div class="iss err" *ngFor="let e of stepErrors">⛔ {{ e }}</div>
     <div class="iss warn" *ngFor="let w of stepWarnings">⚠️ {{ w }}<span class="iss-hint" *ngIf="!stepErrors.length"> — tap Next again to continue</span></div>
   </div>
   <div class="nav">
     <button class="btn-o" (click)="prev()" [disabled]="isFirst">‹ Back</button>
-    <button class="btn-y" *ngIf="!isLast" (click)="next()">Next ›</button>
-    <button class="btn-y" *ngIf="isLast" (click)="saveAndDeploy()">Save &amp; Deploy →</button>
+    <button class="btn-y" *ngIf="!isLast" (click)="next()" [disabled]="hasMissingImagesForCurrentStep">Next ›</button>
+    <button class="btn-y" *ngIf="isLast" (click)="saveAndDeploy()" [disabled]="hasMissingImagesForCurrentStep">Save &amp; Deploy →</button>
   </div>
 </ion-footer>
 

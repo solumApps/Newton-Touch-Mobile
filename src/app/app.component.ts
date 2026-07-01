@@ -1,6 +1,6 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { IonApp, IonIcon, IonModal, IonRouterOutlet } from '@ionic/angular/standalone';
+import { IonApp, IonIcon, IonModal, IonRouterOutlet, AlertController } from '@ionic/angular/standalone';
 import { App as CapacitorApp, BackButtonListenerEvent } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -8,6 +8,8 @@ import { addIcons } from 'ionicons';
 import { warningOutline } from 'ionicons/icons';
 import { filter } from 'rxjs';
 import { AppearanceService } from './services/appearance.service';
+import { AuthExpiredService } from './services/auth-expired.service';
+import { SessionService } from './services/session.service';
 
 @Component({
   selector: 'app-root',
@@ -42,8 +44,15 @@ export class AppComponent implements AfterViewInit {
   private prepareStatusBarPromise: Promise<void> | null = null;
   private statusBarReady = false;
   showExitAlert = false;
+  private is401ModalOpen = false;
 
-  constructor(private router: Router, appearance: AppearanceService) {
+  constructor(
+    private router: Router,
+    private appearance: AppearanceService,
+    private authExpired: AuthExpiredService,
+    private session: SessionService,
+    private alertController: AlertController
+  ) {
     addIcons({ warningOutline });
 
     // Apply persisted appearance (System/Light/Dark) before first paint settles.
@@ -54,6 +63,8 @@ export class AppComponent implements AfterViewInit {
       .subscribe(() => this.applyStatusBarColor());
 
     this.registerHardwareBackButton();
+
+    this.authExpired.expired$.subscribe(() => void this.handleAuthExpired());
   }
 
   ngAfterViewInit(): void {
@@ -75,6 +86,29 @@ export class AppComponent implements AfterViewInit {
     });
 
     await this.prepareStatusBarPromise;
+  }
+
+  private async handleAuthExpired(): Promise<void> {
+    if (this.is401ModalOpen) return;
+    this.is401ModalOpen = true;
+
+    await this.session.signOut();
+
+    const alert = await this.alertController.create({
+      header: 'Session Expired',
+      message: 'Your session has expired. Please log in again.',
+      backdropDismiss: false,
+      buttons: [
+        {
+          text: 'OK',
+          handler: () => {
+            this.is401ModalOpen = false;
+            this.router.navigateByUrl('/auth/login');
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   private registerHardwareBackButton(): void {
