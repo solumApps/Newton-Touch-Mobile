@@ -8973,6 +8973,10 @@
   margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.2) 0;
 }
 
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-pill .item {
+  margin: 0 calc(var(--int-col-gap-x, calc(var(--nt-vw)*1)) * 0.5);
+}
+
 .nt-inter .body.int-columns.int-shape-circle .item,
 .nt-inter .body.int-columns.int-shape-hexagon .item {
   flex: 0 0 auto;
@@ -10254,8 +10258,7 @@
   width: calc(100% + var(--nt-vw)*0);
   max-width: none;
   height: calc(var(--nt-vh) * 38 * var(--nt-int-scale, 1));
-  margin-left: calc(var(--nt-vw)*-2);
-  margin-right: calc(var(--nt-vw)*-2);
+  margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.8) calc(var(--nt-vw)*-2);
 }
 
 .nt-inter .body.int-columns.scroll-vertical.int-align-left .item {
@@ -10344,6 +10347,10 @@
   border-radius: 999px;
   height: calc(var(--nt-vh) * 38 * var(--nt-int-scale, 1));
   margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.2) 0;
+}
+
+.nt-inter .body.int-columns.scroll-horizontal.int-shape-pill .item {
+  margin: 0 calc(var(--int-col-gap-x, calc(var(--nt-vw)*1)) * 0.5);
 }
 
 .nt-inter .body.int-columns.int-shape-circle .item,
