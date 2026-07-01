@@ -310,11 +310,11 @@
               <button class="mini danger" (click)="clearImage($any(p))" title="Remove image">✕ Image</button>
             </div>
             <div class="prow">
-              <input class="inp" *ngIf="resultFieldOn('price')" [(ngModel)]="p.price" placeholder="Price" />
-              <input class="inp" *ngIf="resultFieldOn('zone')" [(ngModel)]="p.aisle" placeholder="Zone / Aisle" />
-              <input class="inp" *ngIf="resultFieldOn('shelf')" [(ngModel)]="p.shelf" placeholder="Shelf" />
+              <input class="inp" *ngIf="resultFieldOn('price')" [(ngModel)]="p.price" (ngModelChange)="syncResultProducts()" placeholder="Price" />
+              <input class="inp" *ngIf="resultFieldOn('zone')" [(ngModel)]="p.aisle" (ngModelChange)="syncResultProducts()" placeholder="Zone / Aisle" />
+              <input class="inp" *ngIf="resultFieldOn('shelf')" [(ngModel)]="p.shelf" (ngModelChange)="syncResultProducts()" placeholder="Shelf" />
             </div>
-            <input class="inp" *ngIf="resultFieldOn('articleId')" [(ngModel)]="p.articleId" placeholder="Article ID" />
+            <input class="inp" *ngIf="resultFieldOn('articleId')" [(ngModel)]="p.articleId" (ngModelChange)="syncResultProducts()" placeholder="Article ID" />
           </div>
           <p class="note" *ngIf="!(leaf.node.products && leaf.node.products.length)">No matching products.</p>
         </div>
