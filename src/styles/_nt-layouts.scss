@@ -847,7 +847,7 @@
    background shows through the bar — cards no longer overlap. */
 .nt-inter .hdr.hdr-transparent~.body,
 .nt-result .hdr.hdr-transparent~.body,
-.nt-home .hdr.hdr-transparent~.cards:not(.layout-fullscreen) {
+.nt-home .hdr.hdr-transparent~.cards:not(.layout-fullscreen):not(.layout-image-strip) {
   padding-top: calc(var(--nt-vh) * 15);
   box-sizing: border-box;
 }
@@ -855,7 +855,8 @@
 
 .nt-home .layout-image-strip {
   display: flex;
-  padding: 0;
+  padding: 0 !important;
+  height: 100%;
 }
 
 .nt-home .layout-image-strip .card {
@@ -3341,18 +3342,18 @@
 
 .nt-inter .int-image-grid[class*="int-textpos-overlay"] .item .name,
 .nt-inter .int-card-strip[class*="int-textpos-overlay"] .item .name {
-  position: absolute;
-  left: 8%;
-  right: 8%;
+  position: absolute !important;
+  left: 8% !important;
+  right: 8% !important;
   z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  background: var(--nt-overlay, rgba(0, 0, 0, .5));
-  border-radius: 999px;
-  color: #fff;
-  padding: calc(var(--nt-vh)*0.4) calc(var(--nt-vw)*0.5);
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  background: var(--nt-overlay, rgba(0, 0, 0, .5)) !important;
+  border-radius: 999px !important;
+  color: #fff !important;
+  padding: calc(var(--nt-vh)*0.4) calc(var(--nt-vw)*0.5) !important;
 }
 
 .nt-inter .int-image-grid.int-textpos-overlay-bottom .item .name,
@@ -3367,20 +3368,20 @@
 
 .nt-inter .int-image-grid.int-textpos-center .item .name,
 .nt-inter .int-card-strip.int-textpos-center .item .name {
-  position: absolute;
-  left: 8%;
-  right: 8%;
-  top: 50%;
-  transform: translateY(-50%);
+  position: absolute !important;
+  left: 8% !important;
+  right: 8% !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
   z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  background: var(--nt-overlay, rgba(0, 0, 0, .5));
-  border-radius: 999px;
-  color: #fff;
-  padding: calc(var(--nt-vh)*0.4) calc(var(--nt-vw)*0.5);
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  background: var(--nt-overlay, rgba(0, 0, 0, .5)) !important;
+  border-radius: 999px !important;
+  color: #fff !important;
+  padding: calc(var(--nt-vh)*0.4) calc(var(--nt-vw)*0.5) !important;
 }
 
 .nt-inter .int-image-grid.int-textpos-center .item .img,
@@ -3411,16 +3412,22 @@
 .nt-inter .body.int-textalign-left .item .name {
   text-align: left !important;
   justify-content: flex-start !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 .nt-inter .body.int-textalign-center .item .name {
   text-align: center !important;
   justify-content: center !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 .nt-inter .body.int-textalign-right .item .name {
   text-align: right !important;
   justify-content: flex-end !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 .nt-inter.surface-glass .item {
@@ -10882,7 +10889,7 @@
   justify-content: flex-start !important;
 }
 
-.nt-home .cards.scroll-vertical,
+.nt-home .cards.scroll-vertical:not(.layout-image-strip),
 .nt-inter .body.scroll-vertical {
   align-content: flex-start !important;
   padding-top: calc(var(--nt-vh)*2.5) !important;
