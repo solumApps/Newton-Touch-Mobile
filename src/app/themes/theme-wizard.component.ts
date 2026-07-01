@@ -333,6 +333,13 @@ export class ThemeWizardComponent implements OnInit {
     }
     return this.scrollModes;
   }
+  /** HIDDEN (not deleted): vertical overflow scrolling on Home + Intermediate caused
+   *  layout issues, so the option is hidden for now. Flip to false to re-enable it. */
+  readonly hideVerticalScroll = true;
+  /** Home overflow options shown in the UI (vertical hidden while hideVerticalScroll). */
+  get scrollModesVisible(): { id: ScrollMode; label: string }[] {
+    return this.hideVerticalScroll ? this.scrollModesFor.filter((m) => m.id !== 'vertical') : this.scrollModesFor;
+  }
   /** Intermediate content options (image layouts only). */
   interContents: { id: CardContent; label: string }[] = [
     { id: 'image-text', label: 'Image + Text' }, { id: 'image-only', label: 'Image only' }, { id: 'text-only', label: 'Text only' },
