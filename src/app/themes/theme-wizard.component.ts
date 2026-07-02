@@ -9,7 +9,7 @@ import { ThemeService, SavedTheme } from '../services/theme.service';
 import { ImagePickerService } from '../services/image-picker.service';
 import { FONTS } from '../shared/fonts';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, TextCase, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, NavButtonMode, NavButtonSize, SaverOverlayPosition, ScrollMode, ScreensaverMode } from '@contract/layout';
+import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, CardOverlayStyle, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, TextCase, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, NavButtonMode, NavButtonSize, SaverOverlayPosition, ScrollMode, ScreensaverMode } from '@contract/layout';
 import { MIN_COLUMNS, MAX_COLUMNS, columnsForLayout, coerceColumns, NAV_ICONS, navIconKind } from '@contract/layout';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
@@ -902,6 +902,54 @@ export class ThemeWizardComponent implements OnInit {
   heroPanelPresets = ['#172033', '#0F172A', '#1D3A66', '#123B3F', '#3B2F12', '#23262B'];
   textPresets = ['#FFFFFF', '#0F172A', '#FFCD00'];
   overlayPresets = ['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)', 'rgba(255,255,255,0.6)', 'rgba(47,0,109,0.7)'];
+  /** Text-overlay scrim styles (Home + Intermediate). 'None' doubles as the
+   *  overlay-off state — the old separate On/Off toggle folds into this. */
+  overlayStyles: { id: CardOverlayStyle; label: string }[] = [
+    { id: 'gradient', label: 'Gradient' }, { id: 'solid', label: 'Solid' }, { id: 'tint', label: 'Tint' }, { id: 'none', label: 'None' },
+  ];
+
+  /** Effective Home overlay style: 'none' when the overlay is off, else the
+   *  chosen scrim style (default 'gradient'). */
+  get cardOverlayEff(): CardOverlayStyle {
+    return this.t.cardTextOverlay === false ? 'none' : (this.t.cardOverlayStyle || 'gradient');
+  }
+  /** Pick a Home overlay style; 'none' turns the overlay off. Keeps
+   *  cardTextOverlay + cardOverlayStyle in sync so both the .no-overlay and
+   *  .ovl-none consumers render identically. */
+  setCardOverlay(id: CardOverlayStyle): void {
+    this.t.cardOverlayStyle = id;
+    this.t.cardTextOverlay = id !== 'none';
+  }
+  /** Effective Intermediate overlay style (mirrors cardOverlayEff). */
+  get interOverlayEff(): CardOverlayStyle {
+    return this.t.intermediate.textOverlay === false ? 'none' : (this.t.intermediate.overlayStyle || 'gradient');
+  }
+  setInterOverlay(id: CardOverlayStyle): void {
+    this.t.intermediate.overlayStyle = id;
+    this.t.intermediate.textOverlay = id !== 'none';
+  }
+
+  /** Overlay scrim strength (0–100%). Reads/writes the alpha channel of
+   *  overlayColor so it flows through the existing --nt-overlay/--prev-overlay
+   *  vars with no contract or CSS changes (works on-device unchanged). */
+  get overlayOpacity(): number {
+    return Math.round(this.parseRgba(this.t.overlayColor || 'rgba(0,0,0,0.6)').a * 100);
+  }
+  setOverlayOpacity(pct: number): void {
+    const a = Math.max(0, Math.min(100, Math.round(pct))) / 100;
+    const { r, g, b } = this.parseRgba(this.t.overlayColor || 'rgba(0,0,0,0.6)');
+    this.t.overlayColor = `rgba(${r},${g},${b},${a})`;
+  }
+  /** Parse rgb()/rgba()/#hex into {r,g,b,a}; falls back to opaque black. */
+  private parseRgba(c: string): { r: number; g: number; b: number; a: number } {
+    const s = (c || '').trim();
+    const m = s.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+)\s*)?\)/i);
+    if (m) return { r: +m[1], g: +m[2], b: +m[3], a: m[4] !== undefined ? +m[4] : 1 };
+    const hex = s.replace('#', '');
+    if (/^[0-9a-f]{6}$/i.test(hex)) return { r: parseInt(hex.slice(0, 2), 16), g: parseInt(hex.slice(2, 4), 16), b: parseInt(hex.slice(4, 6), 16), a: 1 };
+    if (/^[0-9a-f]{3}$/i.test(hex)) return { r: parseInt(hex[0] + hex[0], 16), g: parseInt(hex[1] + hex[1], 16), b: parseInt(hex[2] + hex[2], 16), a: 1 };
+    return { r: 0, g: 0, b: 0, a: 1 };
+  }
 
   phImg(i: number): string {
     const fills = ['%2386EFAC', '%23FDE68A', '%23FCA5A5', '%23A5B4FC', '%2367E8F9', '%23F9A8D4'];
