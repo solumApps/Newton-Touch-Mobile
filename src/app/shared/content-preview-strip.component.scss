@@ -53,10 +53,11 @@ app-content-preview-strip {
   box-sizing: border-box;
 }
 
-/* Create Content > Intermediate horizontal columns: show a 3-card viewport;
-   extra cards scroll sideways. */
+/* Create Content > Intermediate horizontal columns: size visible cards from the
+   selected column count, mirroring Home column layouts. */
 .prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal {
   --cps-shared-gap: calc(var(--nt-vw) * 1.4);
+  --cps-shared-card-w: calc((100% - (var(--int-cols, 3) - 1) * var(--cps-shared-gap)) / var(--int-cols, 3));
   flex-wrap: nowrap !important;
   align-items: center !important;
   overflow-x: auto !important;
@@ -75,7 +76,8 @@ app-content-preview-strip {
 // }
 
 .prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal .item {
-  width: calc((100% - var(--cps-shared-gap) - var(--cps-shared-gap)) / 3) !important;
+  flex: 0 0 var(--cps-shared-card-w) !important;
+  width: var(--cps-shared-card-w) !important;
   max-width: none !important;
   min-width: 0 !important;
   // height: calc(var(--nt-vh) * 72 * var(--nt-int-scale, 1)) !important;
