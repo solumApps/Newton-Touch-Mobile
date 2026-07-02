@@ -58,6 +58,7 @@ app-content-preview-strip {
 .prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal {
   --cps-shared-gap: calc(var(--nt-vw) * 1.4);
   --cps-shared-card-w: calc((100% - (var(--int-cols, 3) - 1) * var(--cps-shared-gap)) / var(--int-cols, 3));
+  --cps-shared-shape-w: min(var(--cps-shared-card-w), calc(var(--nt-vh) * 85 * var(--nt-int-scale, 1)));
   flex-wrap: nowrap !important;
   align-items: center !important;
   overflow-x: auto !important;
@@ -88,15 +89,19 @@ app-content-preview-strip {
   margin: calc(var(--int-col-gap-y, calc(var(--nt-vh) * 1)) * 0.2) 0 !important;
 }
 
-// .prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon) .item {
-//   flex: 0 0 calc(var(--nt-vh) * 45 * var(--nt-int-scale, 1)) !important;
-//   width: calc(var(--nt-vh) * 45 * var(--nt-int-scale, 1)) !important;
-//   height: calc(var(--nt-vh) * 45 * var(--nt-int-scale, 1)) !important;
-// }
+.prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon) .item {
+  flex: 0 0 var(--cps-shared-shape-w) !important;
+  width: var(--cps-shared-shape-w) !important;
+  height: var(--cps-shared-shape-w) !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
 
 /* Create Content > Intermediate vertical columns: keep the theme preview's
    column-card grid and let additional rows scroll vertically. */
 .prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-vertical {
+  --cps-shared-gap: calc(var(--nt-vh) * 1.4);
+  --cps-shared-shape-w: min(100%, calc(var(--nt-vh) * 85 * var(--nt-int-scale, 1)));
   display: grid !important;
   grid-template-columns: repeat(var(--int-cols, 3), minmax(0, 1fr)) !important;
   grid-auto-rows: max-content !important;
@@ -136,8 +141,8 @@ app-content-preview-strip {
 }
 
 .prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-vertical:is(.int-shape-circle, .int-shape-hexagon) .item {
-  width: calc(var(--nt-vh) * 58 * var(--nt-int-scale, 1)) !important;
-  height: calc(var(--nt-vh) * 58 * var(--nt-int-scale, 1)) !important;
+  width: var(--cps-shared-shape-w) !important;
+  height: var(--cps-shared-shape-w) !important;
   justify-self: center !important;
 }
 
