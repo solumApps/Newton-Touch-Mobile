@@ -338,6 +338,9 @@ export interface ResultProduct {
   labelId?: string;
   /** Category mode: name came from the SOLUM API — locked except case transform. */
   fromApi?: boolean; rawName?: string;
+  /** Display rank for ranked result lists. Lower values appear first in the
+   *  Popular sort; products without a rank keep their received order. */
+  rank?: number;
   /** Per-product map marker position (percentage 0–100 from the top-left).
    *  When set, the map template shows a dot at this location for the found product
    *  so routing varies per product instead of a single fixed marker. */
