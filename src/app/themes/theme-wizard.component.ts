@@ -9,7 +9,7 @@ import { ThemeService, SavedTheme } from '../services/theme.service';
 import { ImagePickerService } from '../services/image-picker.service';
 import { FONTS } from '../shared/fonts';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, TextCase, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, NavButtonMode, NavButtonSize, SaverOverlayPosition, ScrollMode, ScreensaverMode } from '@contract/layout';
+import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, CardOverlayStyle, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, TextCase, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, NavButtonMode, NavButtonSize, SaverOverlayPosition, ScrollMode, ScreensaverMode } from '@contract/layout';
 import { MIN_COLUMNS, MAX_COLUMNS, columnsForLayout, coerceColumns, NAV_ICONS, navIconKind } from '@contract/layout';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
@@ -929,6 +929,32 @@ export class ThemeWizardComponent implements OnInit {
   heroPanelPresets = ['#172033', '#0F172A', '#1D3A66', '#123B3F', '#3B2F12', '#23262B'];
   textPresets = ['#FFFFFF', '#0F172A', '#FFCD00'];
   overlayPresets = ['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)', 'rgba(255,255,255,0.6)', 'rgba(47,0,109,0.7)'];
+  /** Text-overlay scrim styles (Home + Intermediate). 'None' doubles as the
+   *  overlay-off state — the old separate On/Off toggle folds into this. */
+  overlayStyles: { id: CardOverlayStyle; label: string }[] = [
+    { id: 'gradient', label: 'Gradient' }, { id: 'solid', label: 'Solid' }, { id: 'tint', label: 'Tint' }, { id: 'none', label: 'None' },
+  ];
+
+  /** Effective Home overlay style: 'none' when the overlay is off, else the
+   *  chosen scrim style (default 'gradient'). */
+  get cardOverlayEff(): CardOverlayStyle {
+    return this.t.cardTextOverlay === false ? 'none' : (this.t.cardOverlayStyle || 'gradient');
+  }
+  /** Pick a Home overlay style; 'none' turns the overlay off. Keeps
+   *  cardTextOverlay + cardOverlayStyle in sync so both the .no-overlay and
+   *  .ovl-none consumers render identically. */
+  setCardOverlay(id: CardOverlayStyle): void {
+    this.t.cardOverlayStyle = id;
+    this.t.cardTextOverlay = id !== 'none';
+  }
+  /** Effective Intermediate overlay style (mirrors cardOverlayEff). */
+  get interOverlayEff(): CardOverlayStyle {
+    return this.t.intermediate.textOverlay === false ? 'none' : (this.t.intermediate.overlayStyle || 'gradient');
+  }
+  setInterOverlay(id: CardOverlayStyle): void {
+    this.t.intermediate.overlayStyle = id;
+    this.t.intermediate.textOverlay = id !== 'none';
+  }
 
   /** Overlay scrim strength (0–100%). Reads/writes the alpha channel of
    *  overlayColor so it flows through the existing --nt-overlay/--prev-overlay

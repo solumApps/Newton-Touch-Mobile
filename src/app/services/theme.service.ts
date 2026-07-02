@@ -54,6 +54,7 @@ export class ThemeService {
       cardShape: 'rect',
       cardContent: 'image-text',
       cardTextPos: 'overlay-bottom',
+      cardOverlayStyle: 'gradient',
       showHeader: true,
       headerStyle: 'logo-only',
       headerLayout: 'preset',

@@ -2745,9 +2745,11 @@
 .nt-home .cards.has-cols.cols-1.scroll-horizontal.align-center {
   justify-content: flex-start !important;
 }
+
 .nt-home .cards.has-cols.cols-1.scroll-horizontal.align-center .card:first-child {
   margin-left: auto !important;
 }
+
 .nt-home .cards.has-cols.cols-1.scroll-horizontal.align-center .card:last-child {
   margin-right: auto !important;
 }
@@ -2755,6 +2757,7 @@
 .nt-home .cards.has-cols.cols-1.scroll-horizontal.align-right {
   justify-content: flex-start !important;
 }
+
 .nt-home .cards.has-cols.cols-1.scroll-horizontal.align-right .card:first-child {
   margin-left: auto !important;
 }
@@ -2826,18 +2829,23 @@
 .nt-home .cards.shape.scroll-horizontal.align-left {
   justify-content: flex-start !important;
 }
+
 .nt-home .cards.shape.scroll-horizontal.align-center {
   justify-content: flex-start !important;
 }
+
 .nt-home .cards.shape.scroll-horizontal.align-center .card:first-child {
   margin-left: auto !important;
 }
+
 .nt-home .cards.shape.scroll-horizontal.align-center .card:last-child {
   margin-right: auto !important;
 }
+
 .nt-home .cards.shape.scroll-horizontal.align-right {
   justify-content: flex-start !important;
 }
+
 .nt-home .cards.shape.scroll-horizontal.align-right .card:first-child {
   margin-left: auto !important;
 }
@@ -3021,7 +3029,7 @@
 .nt-home .cards.shape.scroll-horizontal.has-cols[class*="layout-col-"] .card,
 .nt-home .cards.shape.scroll-horizontal.has-cols[class*="layout-grid-"] .card {
   flex: 0 0 min(calc((100% - var(--cols, 3) * var(--card-gap, calc(var(--nt-vw)*1.5))) / var(--cols, 3)), calc(var(--nt-vh) * 85));
-  width:  min(calc((100% - var(--cols, 3) * var(--card-gap, calc(var(--nt-vw)*1.5))) / var(--cols, 3)), calc(var(--nt-vh) * 85));
+  width: min(calc((100% - var(--cols, 3) * var(--card-gap, calc(var(--nt-vw)*1.5))) / var(--cols, 3)), calc(var(--nt-vh) * 85));
   height: auto;
   aspect-ratio: 1;
   margin: 0 calc(var(--card-gap, calc(var(--nt-vw)*1.5)) * 0.5);
@@ -3356,11 +3364,16 @@
   flex: none;
 }
 
+/* Pill hugs the label (auto side margins center it) — mirrors the Home pill. */
 .nt-inter .int-image-grid[class*="int-textpos-overlay"] .item .name,
 .nt-inter .int-card-strip[class*="int-textpos-overlay"] .item .name {
   position: absolute !important;
   left: 8% !important;
   right: 8% !important;
+  width: max-content;
+  max-width: 84%;
+  margin-left: auto !important;
+  margin-right: auto !important;
   z-index: 1;
   display: flex !important;
   align-items: center !important;
@@ -3369,7 +3382,8 @@
   background: var(--nt-overlay, rgba(0, 0, 0, .5)) !important;
   border-radius: 999px !important;
   color: #fff !important;
-  padding: calc(var(--nt-vh)*0.4) calc(var(--nt-vw)*0.5) !important;
+  padding: calc(var(--nt-vh)*0.45) calc(var(--nt-vw)*1.2) !important;
+  box-sizing: border-box;
 }
 
 .nt-inter .int-image-grid.int-textpos-overlay-bottom .item .name,
@@ -3392,6 +3406,10 @@
   top: 50% !important;
   bottom: auto !important;
   transform: translateY(-50%) !important;
+  width: max-content;
+  max-width: 84%;
+  margin-left: auto !important;
+  margin-right: auto !important;
   z-index: 1;
   display: flex !important;
   align-items: center !important;
@@ -3400,7 +3418,8 @@
   background: var(--nt-overlay, rgba(0, 0, 0, .5)) !important;
   border-radius: 999px !important;
   color: #fff !important;
-  padding: calc(var(--nt-vh)*0.4) calc(var(--nt-vw)*0.5) !important;
+  padding: calc(var(--nt-vh)*0.45) calc(var(--nt-vw)*1.2) !important;
+  box-sizing: border-box;
 }
 
 .nt-inter .int-image-grid.int-textpos-center .item .img,
@@ -4595,13 +4614,13 @@
   gap: calc(var(--nt-vh)*1.2) calc(var(--nt-vw)*1);
 }
 
-.nt-result.res-map-list .body > .map {
+.nt-result.res-map-list .body>.map {
   grid-column: 1;
   grid-row: 2;
   margin-right: 0;
 }
 
-.nt-result.res-map-list .body > .list {
+.nt-result.res-map-list .body>.list {
   grid-column: 2;
   grid-row: 2;
 }
@@ -4625,7 +4644,7 @@
   padding: 0 calc(var(--nt-vw)*1.6);
   border-radius: 999px;
   border: 0;
-  background: var(--nt-res-card, rgba(255,255,255,0.15));
+  background: var(--nt-res-card, rgba(255, 255, 255, 0.15));
   color: #ffff;
   font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw)*1);
   font-family: inherit;
@@ -4647,7 +4666,7 @@
 .nt-result .result-tools .res-sort button {
   min-width: calc(var(--nt-vw)*6.5);
   height: calc(var(--nt-vh)*7.7);
-  border: calc(var(--nt-vw)*0.12) solid var(--nt-res-card, rgba(255,255,255,0.15));
+  border: calc(var(--nt-vw)*0.12) solid var(--nt-res-card, rgba(255, 255, 255, 0.15));
   background: transparent;
   color: var(--nt-res-popular-text, var(--nt-res-text, #fff));
   border-radius: 999px;
@@ -7042,12 +7061,21 @@
 
 /* Gradient cards have no image layer, so the late background override must
    preserve the selected shape on the card itself. */
-.nt-home .card.shape-pill.content-gradient { border-radius:999px !important; clip-path:none !important; }
-.nt-home .card.shape-circle.content-gradient { border-radius:50% !important; clip-path:none !important; }
-.nt-home .card.shape-hexagon.content-gradient {
-  border-radius:0 !important;
-  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%) !important;
+.nt-home .card.shape-pill.content-gradient {
+  border-radius: 999px !important;
+  clip-path: none !important;
 }
+
+.nt-home .card.shape-circle.content-gradient {
+  border-radius: 50% !important;
+  clip-path: none !important;
+}
+
+.nt-home .card.shape-hexagon.content-gradient {
+  border-radius: 0 !important;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%) !important;
+}
+
 /* h-scroll hexagons: proper hexagon proportions (square clip looked squat/broken) */
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon {
   flex: 0 0 calc(var(--nt-vh)*55);
@@ -7495,161 +7523,6 @@
 
 .nt-inter .int-fullscreen.scroll-horizontal .item,
 .nt-inter .int-fullscreen.scroll-vertical .item {
-  display: flex !important;
-  flex: 0 0 100% !important;
-  width: 100% !important;
-  height: 100% !important;
-  scroll-snap-align: center;
-}
-
-/* Home fullscreen mirrors intermediate fullscreen: image fills the card, label
-   sits inside the image, and optional scroll mode becomes a full-slide carousel. */
-.nt-home .layout-fullscreen {
-  padding: calc(var(--card-gap, 0px) * 0.5) !important;
-  gap: var(--card-gap, 0px);
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.nt-home .layout-fullscreen .card {
-  position: relative;
-  overflow: hidden;
-}
-
-.nt-home .layout-fullscreen .card .img {
-  display: block !important;
-  position: absolute !important;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 100% !important;
-  height: 100% !important;
-  margin: 0 !important;
-  flex: none;
-  border-radius: 0 !important;
-  clip-path: none !important;
-}
-
-.nt-home .layout-fullscreen .card.content-image-only .meta {
-  display: none !important;
-}
-
-.nt-home .layout-fullscreen .card.content-text-only .img,
-.nt-home .layout-fullscreen .card.content-color-block .img,
-.nt-home .layout-fullscreen .card.content-gradient .img {
-  display: none !important;
-}
-
-/* Overlay top/bottom: the scrim hugs the label as a shrink-to-fit centred pill
-   instead of spanning 84% of the card (left/right 8%). max-width keeps long text
-   in bounds. pos-center is intentionally excluded — there the label carries its
-   own pill (.pos-center .name), so a meta scrim would double it. */
-.nt-home .layout-fullscreen .card:is(.pos-overlay-top, .pos-overlay-bottom) .meta {
-  position: absolute !important;
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
-  width: auto;
-  max-width: 84%;
-  z-index: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-width: 0;
-  margin: 0 !important;
-  padding: calc(var(--nt-vh)*0.6) calc(var(--nt-vw)*0.8);
-  background: var(--nt-overlay, rgba(0, 0, 0, .5));
-  border-radius: 999px;
-  text-align: center;
-  color: #fff;
-}
-
-.nt-home .layout-fullscreen .card.pos-overlay-top .meta {
-  top: 8%;
-  bottom: auto;
-}
-
-.nt-home .layout-fullscreen .card.pos-overlay-bottom .meta {
-  top: auto;
-  bottom: 8%;
-}
-
-/* Centre: transparent full-card wrapper that only centres the label — the pill
-   comes from .pos-center .name, so there is a single scrim, not two nested ones. */
-.nt-home .layout-fullscreen .card.pos-center .meta {
-  position: absolute !important;
-  inset: 0;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 !important;
-  padding: 0;
-  background: transparent;
-  color: #fff;
-}
-
-.nt-home .layout-fullscreen .card:is(.pos-overlay-top, .pos-overlay-bottom) .name {
-  display: block;
-  max-width: 100%;
-  color: #fff;
-  text-shadow: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.nt-home .layout-fullscreen .card.pos-below,
-.nt-home .layout-fullscreen .card.pos-above {
-  display: flex;
-  box-sizing: border-box;
-}
-
-.nt-home .layout-fullscreen .card.pos-below {
-  flex-direction: column;
-}
-
-.nt-home .layout-fullscreen .card.pos-above {
-  flex-direction: column-reverse;
-}
-
-.nt-home .layout-fullscreen .card:is(.pos-below, .pos-above) .img {
-  position: static !important;
-  flex: 1 1 auto !important;
-  width: 100% !important;
-  height: auto !important;
-  min-height: 0;
-}
-
-.nt-home .layout-fullscreen .card:is(.pos-below, .pos-above) .meta {
-  position: static !important;
-  flex: 0 0 auto;
-  margin: 0 !important;
-  padding: calc(var(--nt-vh)*1.4) calc(var(--nt-vw)*2);
-  background: transparent !important;
-  text-align: center;
-  color: var(--nt-text, #fff);
-}
-
-.nt-home .layout-fullscreen.scroll-horizontal {
-  flex-direction: row;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-}
-
-.nt-home .layout-fullscreen.scroll-vertical {
-  flex-direction: column;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  scroll-snap-type: y mandatory;
-  -webkit-overflow-scrolling: touch;
-}
-
-.nt-home .layout-fullscreen.scroll-horizontal .card,
-.nt-home .layout-fullscreen.scroll-vertical .card {
   display: flex !important;
   flex: 0 0 100% !important;
   width: 100% !important;
@@ -8905,12 +8778,39 @@
   text-transform: uppercase;
   letter-spacing: .04em;
 }
-.nt-inter .fs-top.fs-back-left .fs-back { order: 0; margin-right: auto; }
-.nt-inter .fs-top.fs-back-center .fs-back { order: 1; margin: 0 auto; }
-.nt-inter .fs-top.fs-back-right .fs-back { order: 3; margin-left: auto; }
-.nt-inter .fs-top.fs-prompt-left .fs-prompt { order: 0; margin-right: auto; text-align: left; }
-.nt-inter .fs-top.fs-prompt-center .fs-prompt { order: 2; flex: 1; text-align: center; }
-.nt-inter .fs-top.fs-prompt-right .fs-prompt { order: 3; margin-left: auto; text-align: right; }
+
+.nt-inter .fs-top.fs-back-left .fs-back {
+  order: 0;
+  margin-right: auto;
+}
+
+.nt-inter .fs-top.fs-back-center .fs-back {
+  order: 1;
+  margin: 0 auto;
+}
+
+.nt-inter .fs-top.fs-back-right .fs-back {
+  order: 3;
+  margin-left: auto;
+}
+
+.nt-inter .fs-top.fs-prompt-left .fs-prompt {
+  order: 0;
+  margin-right: auto;
+  text-align: left;
+}
+
+.nt-inter .fs-top.fs-prompt-center .fs-prompt {
+  order: 2;
+  flex: 1;
+  text-align: center;
+}
+
+.nt-inter .fs-top.fs-prompt-right .fs-prompt {
+  order: 3;
+  margin-left: auto;
+  text-align: right;
+}
 
 .nt-inter .fs-cards {
   flex: 1;
@@ -9178,6 +9078,7 @@
   border-radius: 0;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
+
 .nt-inter .body.int-columns.int-shape-hexagon .item .img {
   position: absolute;
   inset: 0;
@@ -10317,12 +10218,39 @@
   text-transform: uppercase;
   letter-spacing: .04em;
 }
-.nt-inter .fs-top.fs-back-left .fs-back { order: 0; margin-right: auto; }
-.nt-inter .fs-top.fs-back-center .fs-back { order: 1; margin: 0 auto; }
-.nt-inter .fs-top.fs-back-right .fs-back { order: 3; margin-left: auto; }
-.nt-inter .fs-top.fs-prompt-left .fs-prompt { order: 0; margin-right: auto; text-align: left; }
-.nt-inter .fs-top.fs-prompt-center .fs-prompt { order: 2; flex: 1; text-align: center; }
-.nt-inter .fs-top.fs-prompt-right .fs-prompt { order: 3; margin-left: auto; text-align: right; }
+
+.nt-inter .fs-top.fs-back-left .fs-back {
+  order: 0;
+  margin-right: auto;
+}
+
+.nt-inter .fs-top.fs-back-center .fs-back {
+  order: 1;
+  margin: 0 auto;
+}
+
+.nt-inter .fs-top.fs-back-right .fs-back {
+  order: 3;
+  margin-left: auto;
+}
+
+.nt-inter .fs-top.fs-prompt-left .fs-prompt {
+  order: 0;
+  margin-right: auto;
+  text-align: left;
+}
+
+.nt-inter .fs-top.fs-prompt-center .fs-prompt {
+  order: 2;
+  flex: 1;
+  text-align: center;
+}
+
+.nt-inter .fs-top.fs-prompt-right .fs-prompt {
+  order: 3;
+  margin-left: auto;
+  text-align: right;
+}
 
 .nt-inter .fs-cards {
   flex: 1;
@@ -10528,6 +10456,14 @@
   margin-bottom: auto;
 }
 
+/* Pill cards have semicircular ends (corner radius = half the card height):
+   keep the full-width bar but pad the text in by that radius so left/right
+   labels clear the rounded corners at any column count. */
+.nt-inter .body.int-columns.int-shape-pill[class*="int-textpos-overlay"] .item .name {
+  padding-left: calc(var(--nt-vh) * 18 * var(--nt-int-scale, 1));
+  padding-right: calc(var(--nt-vh) * 18 * var(--nt-int-scale, 1));
+}
+
 /* shapes — circle/hexagon are SQUARE (narrower than rect), image fills, name overlaid */
 .nt-inter .body.int-columns.int-shape-pill .item {
   border-radius: 999px;
@@ -10589,25 +10525,33 @@
 }
 
 /* Circle/hexagon: preserve the selected inner overlay position instead of
-   letting the shape's default bottom label placement override it. */
+   letting the shape's default bottom label placement override it.
+   The band spans full width (clipped to the shape outline) and is pulled in
+   from the tip (top/bottom 20%) where the shape is wide enough; only the TEXT
+   is padded in, so left/right-aligned labels stay inside the narrowing curve
+   without clipping while the band keeps its full-width look. */
 .nt-inter .body.int-columns.int-shape-circle.int-textpos-overlay-top .item .name,
 .nt-inter .body.int-columns.int-shape-hexagon.int-textpos-overlay-top .item .name {
   position: absolute;
-  left: 8%;
-  right: 8%;
-  top: 10%;
+  left: 0;
+  right: 0;
+  top: 20%;
   bottom: auto;
   margin: 0;
+  padding-left: 12%;
+  padding-right: 12%;
 }
 
 .nt-inter .body.int-columns.int-shape-circle.int-textpos-overlay-bottom .item .name,
 .nt-inter .body.int-columns.int-shape-hexagon.int-textpos-overlay-bottom .item .name {
   position: absolute;
-  left: 8%;
-  right: 8%;
+  left: 0;
+  right: 0;
   top: auto;
-  bottom: 10%;
+  bottom: 20%;
   margin: 0;
+  padding-left: 12%;
+  padding-right: 12%;
 }
 
 /* Columns: Center overlays the label at the card midpoint for every shape. */
@@ -10619,21 +10563,25 @@
   flex: none !important;
 }
 
+/* Center pill hugs the label — mirrors the Home card pos-center pill. */
 .nt-inter .body.int-columns.int-textpos-center .item .name {
   position: absolute !important;
-  left: 8%;
-  right: 8%;
+  left: 50%;
+  right: auto;
   top: 50% !important;
   bottom: auto !important;
-  transform: translateY(-50%);
+  transform: translate(-50%, -50%);
   z-index: 1;
   margin: 0;
+  width: max-content;
+  max-width: 90%;
   display: flex;
   align-items: center;
-  background: var(--nt-overlay, rgba(0, 0, 0, .5));
+  justify-content: center;
+  background: var(--nt-overlay, rgba(0, 0, 0, .6));
   border-radius: 999px;
   color: #fff;
-  padding: calc(var(--nt-vh)*0.6) calc(var(--nt-vw)*0.8);
+  padding: calc(var(--nt-vh) * 0.45) calc(var(--nt-vw) * 1.2);
   box-sizing: border-box;
 }
 
@@ -11056,7 +11004,7 @@
 /* Column cards can be narrower than the viewport, so their
    explicit card alignment remains useful during horizontal scrolling. */
 .nt-inter .body.int-columns.scroll-horizontal.int-align-center {
-  justify-content: space-around!important;
+  justify-content: space-around !important;
 }
 
 .nt-inter .body.int-columns.scroll-horizontal.int-align-right {
@@ -11198,6 +11146,7 @@
 .nt-inter .body.int-card-strip {
   scroll-padding-inline-end: calc(var(--nt-vw)*4);
 }
+
 /* ---- brand-rail message position + vertical alignment (#5) ---- */
 .nt-inter .int-brand-rail.int-brm-left::after {
   order: -1;
@@ -11208,22 +11157,55 @@
   justify-content: flex-start;
   text-align: left;
   padding: 0 calc(var(--nt-vw)*6) 0 calc(var(--nt-vw)*2.5) !important;
-  background: var(--int-brm-bg, linear-gradient(90deg, rgba(8,4,32,.88) 0%, rgba(8,4,32,.55) 65%, rgba(8,4,32,0) 100%));
+  background: var(--int-brm-bg, linear-gradient(90deg, rgba(8, 4, 32, .88) 0%, rgba(8, 4, 32, .55) 65%, rgba(8, 4, 32, 0) 100%));
   mask-image: linear-gradient(90deg, #000 0%, #000 70%, transparent 100%);
   -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 70%, transparent 100%);
 }
-.nt-inter .int-brand-rail.int-brmv-top::after { align-items:flex-start; }
-.nt-inter .int-brand-rail.int-brmv-center::after { align-items:center; }
-.nt-inter .int-brand-rail.int-brmv-bottom::after { align-items:flex-end; }
+
+.nt-inter .int-brand-rail.int-brmv-top::after {
+  align-items: flex-start;
+}
+
+.nt-inter .int-brand-rail.int-brmv-center::after {
+  align-items: center;
+}
+
+.nt-inter .int-brand-rail.int-brmv-bottom::after {
+  align-items: flex-end;
+}
+
 /* ---- brand-rail image-only: raw image, no card chrome (#4) ---- */
-.nt-inter .int-brand-rail.int-content-image-only .item { background:transparent !important; border:0 !important; box-shadow:none !important; padding:0 !important; }
-.nt-inter .int-brand-rail.int-content-image-only .item .img { background-color:transparent !important; }
+.nt-inter .int-brand-rail.int-content-image-only .item {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.nt-inter .int-brand-rail.int-content-image-only .item .img {
+  background-color: transparent !important;
+}
+
 /* ---- brand-rail gradient card (#6) ---- */
-.nt-inter .int-brand-rail.int-content-gradient .item { background:linear-gradient(135deg, var(--nt-int-accent,#2F006D), var(--nt-int-card,#06b6d4)) !important; }
-.nt-inter .int-brand-rail.int-content-gradient .item .img { display:none !important; }
-.nt-inter .int-brand-rail.int-content-gradient .item .name { color:#fff; }
+.nt-inter .int-brand-rail.int-content-gradient .item {
+  background: linear-gradient(135deg, var(--nt-int-accent, #2F006D), var(--nt-int-card, #06b6d4)) !important;
+}
+
+.nt-inter .int-brand-rail.int-content-gradient .item .img {
+  display: none !important;
+}
+
+.nt-inter .int-brand-rail.int-content-gradient .item .name {
+  color: #fff;
+}
+
 /* ---- brand-rail icon+text: smaller contained icon, not a full image (#8) ---- */
-.nt-inter .int-brand-rail.int-content-icon-text .item .img { background-size:contain !important; width:44% !important; height:42% !important; background-color:transparent !important; }
+.nt-inter .int-brand-rail.int-content-icon-text .item .img {
+  background-size: contain !important;
+  width: 44% !important;
+  height: 42% !important;
+  background-color: transparent !important;
+}
 
 /* ---- #16 brand-grid overflow: horizontal (nowrap, scroll-x) or vertical (wrap, scroll-y) ---- */
 .nt-inter .body.int-brand-grid.scroll-horizontal {
@@ -11278,80 +11260,485 @@
 }
 
 /* ---- finder-select fs-card: content / shape / text position + alignment (#5) ---- */
-.nt-inter .fs-hero { background:var(--prm-panel,#172033); }
-.nt-inter .fs-home { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); font-weight:800; }
-.nt-inter .fs-step { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); }
-.nt-inter .fs-step.current { background:rgba(255,255,255,.16); border-color:var(--prm-accent,#4ea1ff); box-shadow:0 0 calc(var(--nt-vw)*1.1) rgba(78,161,255,.22); }
-.nt-inter .fs-step.done { background:rgba(255,255,255,.11); }
-.nt-inter .fs-back { flex:0 0 auto; width:auto; min-width:calc(var(--nt-vw)*2.4); padding:0 calc(var(--nt-vw)*0.7); border-radius:999px; }
-.nt-inter .fs-top.fs-back-left .fs-back, .nt-inter .fs-top.fs-back-center .fs-back, .nt-inter .fs-top.fs-back-right .fs-back { order:0; margin:0; }
-.nt-inter .fs-top.fs-prompt-left .fs-prompt { order:1; flex:1; margin:0; text-align:left; }
-.nt-inter .fs-top.fs-prompt-center .fs-prompt { order:1; flex:1; margin:0; text-align:center; }
-.nt-inter .fs-top.fs-prompt-right .fs-prompt { order:1; flex:1; margin:0; text-align:right; }
-.nt-inter .fs-card { flex-direction:column; align-items:stretch; justify-content:flex-start; padding:0; overflow:hidden; position:relative; gap:0; }
-.nt-inter .fs-card-img { flex:1; min-height:0; width:100%; background-size:cover; background-position:center; background-repeat:no-repeat; background-color:rgba(0,0,0,.04); border-radius:0; }
-.nt-inter .fs-card-img.no-img { background-color:transparent !important; background-image:none !important; }
-.nt-inter .fs-card-nm { flex:0 0 auto; padding:calc(var(--nt-vh)*0.9) calc(var(--nt-vw)*0.7); font-size:calc(var(--nt-vw)*1.15); min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; box-sizing:border-box; }
-.nt-inter .fs-cards.content-image-only .fs-card-nm { display:none; }
-.nt-inter .fs-cards.content-image-only .fs-card-img { width:100%; height:100%; }
-.nt-inter .fs-cards.content-text-only .fs-card { align-items:center; justify-content:center; padding:calc(var(--nt-vw)*1); }
-.nt-inter .fs-cards.content-text-only .fs-card-img { display:none; }
-.nt-inter .fs-cards.content-text-only .fs-card-nm { padding:0; font-size:calc(var(--nt-vw)*1.3); }
-.nt-inter .fs-cards.content-icon-text .fs-card-img { flex:0 0 auto; width:42%; height:38%; margin:auto auto 0; background-size:contain; background-color:transparent; border-radius:0; }
-.nt-inter .fs-cards.textalign-left .fs-card, .nt-inter .fs-cards.textalign-left .fs-card-nm { text-align:left; }
-.nt-inter .fs-cards.textalign-center .fs-card, .nt-inter .fs-cards.textalign-center .fs-card-nm { text-align:center; }
-.nt-inter .fs-cards.textalign-right .fs-card, .nt-inter .fs-cards.textalign-right .fs-card-nm { text-align:right; }
-.nt-inter .fs-cards[class*="textpos-overlay"] .fs-card-img, .nt-inter .fs-cards.textpos-center .fs-card-img { position:absolute; left:0; right:0; top:0; bottom:0; width:100%; height:100%; flex:none; }
-.nt-inter .fs-cards[class*="textpos-overlay"] .fs-card-nm, .nt-inter .fs-cards.textpos-center .fs-card-nm { position:relative; z-index:1; margin:0 8%; background:var(--nt-overlay,rgba(0,0,0,.5)); border-radius:999px; color:#fff; text-align:center; }
-.nt-inter .fs-cards.textpos-overlay-top .fs-card { justify-content:flex-start; padding-top:calc(var(--nt-vh)*1.2); }
-.nt-inter .fs-cards.textpos-center .fs-card { justify-content:center; }
-.nt-inter .fs-cards.textpos-overlay-bottom .fs-card { justify-content:flex-end; padding-bottom:calc(var(--nt-vh)*1.2); }
-.nt-inter .fs-cards.shape-pill .fs-card { border-radius:999px; }
-.nt-inter .fs-cards.shape-circle .fs-card, .nt-inter .fs-cards.shape-hexagon .fs-card { width:calc(var(--nt-vh)*48 * var(--nt-int-scale,1)); min-width:calc(var(--nt-vh)*48 * var(--nt-int-scale,1)); height:calc(var(--nt-vh)*48 * var(--nt-int-scale,1)); }
-.nt-inter .fs-cards.shape-circle .fs-card { border-radius:50%; }
-.nt-inter .fs-cards.shape-hexagon .fs-card { border-radius:0; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
-.nt-inter .fs-cards.shape-circle .fs-card-img, .nt-inter .fs-cards.shape-hexagon .fs-card-img { position:absolute; left:0; right:0; top:0; bottom:0; width:100%; height:100%; flex:none; }
-.nt-inter .fs-cards.shape-circle .fs-card-nm, .nt-inter .fs-cards.shape-hexagon .fs-card-nm { position:absolute; left:8%; right:8%; bottom:12%; z-index:1; color:#fff; text-align:center; text-shadow:0 1px 3px rgba(0,0,0,.8); }
-.nt-inter.surface-glass .fs-card { background:rgba(255,255,255,.14); backdrop-filter:blur(calc(var(--nt-vw)*0.8)); -webkit-backdrop-filter:blur(calc(var(--nt-vw)*0.8)); border:calc(var(--nt-vw)*0.12) solid rgba(255,255,255,.55); box-shadow:inset 0 calc(var(--nt-vh)*0.45) 0 rgba(255,255,255,.28), inset 0 0 calc(var(--nt-vw)*2) rgba(255,255,255,.08); }
-.nt-inter.surface-raised .fs-card { border:0; box-shadow:0 calc(var(--nt-vh)*2.4) calc(var(--nt-vh)*3.6) rgba(0,0,0,.42), 0 calc(var(--nt-vh)*0.5) calc(var(--nt-vh)*1) rgba(0,0,0,.3); }
-.nt-inter.surface-outlined .fs-card { background:transparent; border:calc(var(--nt-vw)*0.14) solid var(--nt-int-accent,#FFCD00); }
-.nt-inter.surface-glow .fs-card { border:calc(var(--nt-vw)*0.14) solid var(--nt-int-accent,#FFCD00); box-shadow:0 0 calc(var(--nt-vw)*1.8) var(--nt-int-accent,#FFCD00); }
-.nt-inter .fs-cards.content-text-only .fs-card, .nt-inter .fs-cards.content-icon-text .fs-card { background:#eef3f8; }
-.nt-inter .fs-cards.content-text-only .fs-card { align-items:stretch; justify-content:center; padding:calc(var(--nt-vw)*1); }
-.nt-inter .fs-cards.content-text-only .fs-card-nm { width:100%; padding:0; font-size:calc(var(--nt-vw)*1.3); line-height:1.15; white-space:normal; color:var(--nt-int-text,#111827); }
-.nt-inter .fs-cards.content-icon-text .fs-card { align-items:center; justify-content:center; padding:calc(var(--nt-vh)*1.5) calc(var(--nt-vw)*1); }
-.nt-inter .fs-cards.content-icon-text .fs-card-img { position:relative; flex:0 0 auto; width:calc(var(--nt-vh)*14); height:calc(var(--nt-vh)*14); margin:0 auto calc(var(--nt-vh)*0.8); background-size:contain; background-repeat:no-repeat; background-position:center; background-color:transparent; border:0; box-shadow:none; }
-.nt-inter .fs-cards.content-icon-text .fs-card-img.no-img::before { content:'★'; position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); text-align:center; color:var(--prm-accent,#185fa5); font-size:calc(var(--nt-vw)*2.6); line-height:1; }
-.nt-inter .fs-cards.content-icon-text .fs-card-nm { width:100%; padding:0; line-height:1.12; white-space:normal; color:var(--nt-int-text,#111827); }
-.nt-inter .fs-cards.textalign-left .fs-card-nm { text-align:left; }
-.nt-inter .fs-cards.textalign-center .fs-card-nm { text-align:center; }
-.nt-inter .fs-cards.textalign-right .fs-card-nm { text-align:right; }
-.nt-inter .fs-cards.content-text-only.textpos-overlay-top .fs-card { justify-content:flex-start; padding-top:calc(var(--nt-vh)*2.2); padding-bottom:calc(var(--nt-vh)*1.2); }
-.nt-inter .fs-cards.content-text-only.textpos-center .fs-card { justify-content:center; padding-top:calc(var(--nt-vh)*1.2); padding-bottom:calc(var(--nt-vh)*1.2); }
-.nt-inter .fs-cards.content-text-only.textpos-overlay-bottom .fs-card { justify-content:flex-end; padding-top:calc(var(--nt-vh)*1.2); padding-bottom:calc(var(--nt-vh)*2.2); }
-.nt-inter .fs-cards.content-icon-text.textpos-overlay-top .fs-card { justify-content:flex-start; padding-top:calc(var(--nt-vh)*2.2); padding-bottom:calc(var(--nt-vh)*1.2); }
-.nt-inter .fs-cards.content-icon-text.textpos-center .fs-card { justify-content:center; padding-top:calc(var(--nt-vh)*1.2); padding-bottom:calc(var(--nt-vh)*1.2); }
-.nt-inter .fs-cards.content-icon-text.textpos-overlay-bottom .fs-card { justify-content:flex-end; padding-top:calc(var(--nt-vh)*1.2); padding-bottom:calc(var(--nt-vh)*2.2); }
-.nt-inter .fs-cards.content-text-only .fs-card-nm { position:static; margin:0; background:transparent; border-radius:0; color:var(--nt-int-text,#111827); }
-.nt-inter .fs-cards.content-text-only[class*="textpos-overlay"] .fs-card-nm, .nt-inter .fs-cards.content-text-only.textpos-center .fs-card-nm { width:auto; margin:0 8%; padding:calc(var(--nt-vh)*0.55) calc(var(--nt-vw)*0.7); background:var(--nt-overlay,rgba(0,0,0,.5)); border-radius:999px; color:#fff; }
-.nt-inter .fs-cards[class*="textpos-overlay"]:not(.content-text-only) .fs-card-nm, .nt-inter .fs-cards.textpos-center:not(.content-text-only) .fs-card-nm { background:var(--nt-overlay,rgba(0,0,0,.5)); }
-.nt-inter.surface-glass .fs-cards.content-text-only .fs-card, .nt-inter.surface-glass .fs-cards.content-icon-text .fs-card { background:rgba(255,255,255,.14); }
-.nt-inter.surface-raised .fs-cards.content-text-only .fs-card, .nt-inter.surface-raised .fs-cards.content-icon-text .fs-card { background:#eef3f8; }
-.nt-inter.surface-outlined .fs-cards.content-text-only .fs-card, .nt-inter.surface-outlined .fs-cards.content-icon-text .fs-card { background:transparent; }
-.nt-inter.surface-glow .fs-cards.content-text-only .fs-card, .nt-inter.surface-glow .fs-cards.content-icon-text .fs-card { background:#eef3f8; }
-.nt-inter .fs-cards.content-image-only .fs-card { border-radius:0 !important; clip-path:none !important; background:transparent; border:0; box-shadow:none; padding:0; }
-.nt-inter .fs-cards.content-image-only .fs-card-img { position:static !important; width:100% !important; height:100% !important; border-radius:0 !important; clip-path:none !important; flex:1 1 auto; }
+.nt-inter .fs-hero {
+  background: var(--prm-panel, #172033);
+}
 
-.nt-inter .fs-index { gap:calc(var(--nt-vw)*0.55); padding:calc(var(--nt-vh)*0.7) calc(var(--nt-vw)*0.8); background:transparent; border-radius:999px; }
-.nt-inter .fs-index-values { gap:calc(var(--nt-vw)*0.65); }
-.nt-inter .fs-letter, .nt-inter .fs-val { min-width:calc(var(--nt-vw)*2.1); text-align:center; padding:calc(var(--nt-vh)*0.45) calc(var(--nt-vw)*0.65); border-radius:999px; font-size:calc(var(--nt-vw)*0.78); font-weight:700; color:#6b7280; background:transparent; border:0; box-sizing:border-box; }
-.nt-inter .fs-letter.active, .nt-inter .fs-val.active { color:var(--prm-accent,#185fa5); background:transparent; border:0; font-weight:900; box-shadow:none; }
+.nt-inter .fs-home {
+  background: rgba(255, 255, 255, .12);
+  border: 1px solid rgba(255, 255, 255, .18);
+  font-weight: 800;
+}
+
+.nt-inter .fs-step {
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .12);
+}
+
+.nt-inter .fs-step.current {
+  background: rgba(255, 255, 255, .16);
+  border-color: var(--prm-accent, #4ea1ff);
+  box-shadow: 0 0 calc(var(--nt-vw)*1.1) rgba(78, 161, 255, .22);
+}
+
+.nt-inter .fs-step.done {
+  background: rgba(255, 255, 255, .11);
+}
+
+.nt-inter .fs-back {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: calc(var(--nt-vw)*2.4);
+  padding: 0 calc(var(--nt-vw)*0.7);
+  border-radius: 999px;
+}
+
+.nt-inter .fs-top.fs-back-left .fs-back,
+.nt-inter .fs-top.fs-back-center .fs-back,
+.nt-inter .fs-top.fs-back-right .fs-back {
+  order: 0;
+  margin: 0;
+}
+
+.nt-inter .fs-top.fs-prompt-left .fs-prompt {
+  order: 1;
+  flex: 1;
+  margin: 0;
+  text-align: left;
+}
+
+.nt-inter .fs-top.fs-prompt-center .fs-prompt {
+  order: 1;
+  flex: 1;
+  margin: 0;
+  text-align: center;
+}
+
+.nt-inter .fs-top.fs-prompt-right .fs-prompt {
+  order: 1;
+  flex: 1;
+  margin: 0;
+  text-align: right;
+}
+
+.nt-inter .fs-card {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  gap: 0;
+}
+
+.nt-inter .fs-card-img {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: rgba(0, 0, 0, .04);
+  border-radius: 0;
+}
+
+.nt-inter .fs-card-img.no-img {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+.nt-inter .fs-card-nm {
+  flex: 0 0 auto;
+  padding: calc(var(--nt-vh)*0.9) calc(var(--nt-vw)*0.7);
+  font-size: calc(var(--nt-vw)*1.15);
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+}
+
+.nt-inter .fs-cards.content-image-only .fs-card-nm {
+  display: none;
+}
+
+.nt-inter .fs-cards.content-image-only .fs-card-img {
+  width: 100%;
+  height: 100%;
+}
+
+.nt-inter .fs-cards.content-text-only .fs-card {
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--nt-vw)*1);
+}
+
+.nt-inter .fs-cards.content-text-only .fs-card-img {
+  display: none;
+}
+
+.nt-inter .fs-cards.content-text-only .fs-card-nm {
+  padding: 0;
+  font-size: calc(var(--nt-vw)*1.3);
+}
+
+.nt-inter .fs-cards.content-icon-text .fs-card-img {
+  flex: 0 0 auto;
+  width: 42%;
+  height: 38%;
+  margin: auto auto 0;
+  background-size: contain;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+.nt-inter .fs-cards.textalign-left .fs-card,
+.nt-inter .fs-cards.textalign-left .fs-card-nm {
+  text-align: left;
+}
+
+.nt-inter .fs-cards.textalign-center .fs-card,
+.nt-inter .fs-cards.textalign-center .fs-card-nm {
+  text-align: center;
+}
+
+.nt-inter .fs-cards.textalign-right .fs-card,
+.nt-inter .fs-cards.textalign-right .fs-card-nm {
+  text-align: right;
+}
+
+.nt-inter .fs-cards[class*="textpos-overlay"] .fs-card-img,
+.nt-inter .fs-cards.textpos-center .fs-card-img {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  flex: none;
+}
+
+.nt-inter .fs-cards[class*="textpos-overlay"] .fs-card-nm,
+.nt-inter .fs-cards.textpos-center .fs-card-nm {
+  position: relative;
+  z-index: 1;
+  margin: 0 8%;
+  background: var(--nt-overlay, rgba(0, 0, 0, .5));
+  border-radius: 999px;
+  color: #fff;
+  text-align: center;
+}
+
+.nt-inter .fs-cards.textpos-overlay-top .fs-card {
+  justify-content: flex-start;
+  padding-top: calc(var(--nt-vh)*1.2);
+}
+
+.nt-inter .fs-cards.textpos-center .fs-card {
+  justify-content: center;
+}
+
+.nt-inter .fs-cards.textpos-overlay-bottom .fs-card {
+  justify-content: flex-end;
+  padding-bottom: calc(var(--nt-vh)*1.2);
+}
+
+.nt-inter .fs-cards.shape-pill .fs-card {
+  border-radius: 999px;
+}
+
+.nt-inter .fs-cards.shape-circle .fs-card,
+.nt-inter .fs-cards.shape-hexagon .fs-card {
+  width: calc(var(--nt-vh)*48 * var(--nt-int-scale, 1));
+  min-width: calc(var(--nt-vh)*48 * var(--nt-int-scale, 1));
+  height: calc(var(--nt-vh)*48 * var(--nt-int-scale, 1));
+}
+
+.nt-inter .fs-cards.shape-circle .fs-card {
+  border-radius: 50%;
+}
+
+.nt-inter .fs-cards.shape-hexagon .fs-card {
+  border-radius: 0;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.nt-inter .fs-cards.shape-circle .fs-card-img,
+.nt-inter .fs-cards.shape-hexagon .fs-card-img {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  flex: none;
+}
+
+.nt-inter .fs-cards.shape-circle .fs-card-nm,
+.nt-inter .fs-cards.shape-hexagon .fs-card-nm {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 12%;
+  z-index: 1;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .8);
+}
+
+.nt-inter.surface-glass .fs-card {
+  background: rgba(255, 255, 255, .14);
+  backdrop-filter: blur(calc(var(--nt-vw)*0.8));
+  -webkit-backdrop-filter: blur(calc(var(--nt-vw)*0.8));
+  border: calc(var(--nt-vw)*0.12) solid rgba(255, 255, 255, .55);
+  box-shadow: inset 0 calc(var(--nt-vh)*0.45) 0 rgba(255, 255, 255, .28), inset 0 0 calc(var(--nt-vw)*2) rgba(255, 255, 255, .08);
+}
+
+.nt-inter.surface-raised .fs-card {
+  border: 0;
+  box-shadow: 0 calc(var(--nt-vh)*2.4) calc(var(--nt-vh)*3.6) rgba(0, 0, 0, .42), 0 calc(var(--nt-vh)*0.5) calc(var(--nt-vh)*1) rgba(0, 0, 0, .3);
+}
+
+.nt-inter.surface-outlined .fs-card {
+  background: transparent;
+  border: calc(var(--nt-vw)*0.14) solid var(--nt-int-accent, #FFCD00);
+}
+
+.nt-inter.surface-glow .fs-card {
+  border: calc(var(--nt-vw)*0.14) solid var(--nt-int-accent, #FFCD00);
+  box-shadow: 0 0 calc(var(--nt-vw)*1.8) var(--nt-int-accent, #FFCD00);
+}
+
+.nt-inter .fs-cards.content-text-only .fs-card,
+.nt-inter .fs-cards.content-icon-text .fs-card {
+  background: #eef3f8;
+}
+
+.nt-inter .fs-cards.content-text-only .fs-card {
+  align-items: stretch;
+  justify-content: center;
+  padding: calc(var(--nt-vw)*1);
+}
+
+.nt-inter .fs-cards.content-text-only .fs-card-nm {
+  width: 100%;
+  padding: 0;
+  font-size: calc(var(--nt-vw)*1.3);
+  line-height: 1.15;
+  white-space: normal;
+  color: var(--nt-int-text, #111827);
+}
+
+.nt-inter .fs-cards.content-icon-text .fs-card {
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--nt-vh)*1.5) calc(var(--nt-vw)*1);
+}
+
+.nt-inter .fs-cards.content-icon-text .fs-card-img {
+  position: relative;
+  flex: 0 0 auto;
+  width: calc(var(--nt-vh)*14);
+  height: calc(var(--nt-vh)*14);
+  margin: 0 auto calc(var(--nt-vh)*0.8);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.nt-inter .fs-cards.content-icon-text .fs-card-img.no-img::before {
+  content: '★';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+  color: var(--prm-accent, #185fa5);
+  font-size: calc(var(--nt-vw)*2.6);
+  line-height: 1;
+}
+
+.nt-inter .fs-cards.content-icon-text .fs-card-nm {
+  width: 100%;
+  padding: 0;
+  line-height: 1.12;
+  white-space: normal;
+  color: var(--nt-int-text, #111827);
+}
+
+.nt-inter .fs-cards.textalign-left .fs-card-nm {
+  text-align: left;
+}
+
+.nt-inter .fs-cards.textalign-center .fs-card-nm {
+  text-align: center;
+}
+
+.nt-inter .fs-cards.textalign-right .fs-card-nm {
+  text-align: right;
+}
+
+.nt-inter .fs-cards.content-text-only.textpos-overlay-top .fs-card {
+  justify-content: flex-start;
+  padding-top: calc(var(--nt-vh)*2.2);
+  padding-bottom: calc(var(--nt-vh)*1.2);
+}
+
+.nt-inter .fs-cards.content-text-only.textpos-center .fs-card {
+  justify-content: center;
+  padding-top: calc(var(--nt-vh)*1.2);
+  padding-bottom: calc(var(--nt-vh)*1.2);
+}
+
+.nt-inter .fs-cards.content-text-only.textpos-overlay-bottom .fs-card {
+  justify-content: flex-end;
+  padding-top: calc(var(--nt-vh)*1.2);
+  padding-bottom: calc(var(--nt-vh)*2.2);
+}
+
+.nt-inter .fs-cards.content-icon-text.textpos-overlay-top .fs-card {
+  justify-content: flex-start;
+  padding-top: calc(var(--nt-vh)*2.2);
+  padding-bottom: calc(var(--nt-vh)*1.2);
+}
+
+.nt-inter .fs-cards.content-icon-text.textpos-center .fs-card {
+  justify-content: center;
+  padding-top: calc(var(--nt-vh)*1.2);
+  padding-bottom: calc(var(--nt-vh)*1.2);
+}
+
+.nt-inter .fs-cards.content-icon-text.textpos-overlay-bottom .fs-card {
+  justify-content: flex-end;
+  padding-top: calc(var(--nt-vh)*1.2);
+  padding-bottom: calc(var(--nt-vh)*2.2);
+}
+
+.nt-inter .fs-cards.content-text-only .fs-card-nm {
+  position: static;
+  margin: 0;
+  background: transparent;
+  border-radius: 0;
+  color: var(--nt-int-text, #111827);
+}
+
+.nt-inter .fs-cards.content-text-only[class*="textpos-overlay"] .fs-card-nm,
+.nt-inter .fs-cards.content-text-only.textpos-center .fs-card-nm {
+  width: auto;
+  margin: 0 8%;
+  padding: calc(var(--nt-vh)*0.55) calc(var(--nt-vw)*0.7);
+  background: var(--nt-overlay, rgba(0, 0, 0, .5));
+  border-radius: 999px;
+  color: #fff;
+}
+
+.nt-inter .fs-cards[class*="textpos-overlay"]:not(.content-text-only) .fs-card-nm,
+.nt-inter .fs-cards.textpos-center:not(.content-text-only) .fs-card-nm {
+  background: var(--nt-overlay, rgba(0, 0, 0, .5));
+}
+
+.nt-inter.surface-glass .fs-cards.content-text-only .fs-card,
+.nt-inter.surface-glass .fs-cards.content-icon-text .fs-card {
+  background: rgba(255, 255, 255, .14);
+}
+
+.nt-inter.surface-raised .fs-cards.content-text-only .fs-card,
+.nt-inter.surface-raised .fs-cards.content-icon-text .fs-card {
+  background: #eef3f8;
+}
+
+.nt-inter.surface-outlined .fs-cards.content-text-only .fs-card,
+.nt-inter.surface-outlined .fs-cards.content-icon-text .fs-card {
+  background: transparent;
+}
+
+.nt-inter.surface-glow .fs-cards.content-text-only .fs-card,
+.nt-inter.surface-glow .fs-cards.content-icon-text .fs-card {
+  background: #eef3f8;
+}
+
+.nt-inter .fs-cards.content-image-only .fs-card {
+  border-radius: 0 !important;
+  clip-path: none !important;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.nt-inter .fs-cards.content-image-only .fs-card-img {
+  position: static !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+  clip-path: none !important;
+  flex: 1 1 auto;
+}
+
+.nt-inter .fs-index {
+  gap: calc(var(--nt-vw)*0.55);
+  padding: calc(var(--nt-vh)*0.7) calc(var(--nt-vw)*0.8);
+  background: transparent;
+  border-radius: 999px;
+}
+
+.nt-inter .fs-index-values {
+  gap: calc(var(--nt-vw)*0.65);
+}
+
+.nt-inter .fs-letter,
+.nt-inter .fs-val {
+  min-width: calc(var(--nt-vw)*2.1);
+  text-align: center;
+  padding: calc(var(--nt-vh)*0.45) calc(var(--nt-vw)*0.65);
+  border-radius: 999px;
+  font-size: calc(var(--nt-vw)*0.78);
+  font-weight: 700;
+  color: #6b7280;
+  background: transparent;
+  border: 0;
+  box-sizing: border-box;
+}
+
+.nt-inter .fs-letter.active,
+.nt-inter .fs-val.active {
+  color: var(--prm-accent, #185fa5);
+  background: transparent;
+  border: 0;
+  font-weight: 900;
+  box-shadow: none;
+}
 
 /* ---- finder-select progress row value + hero spacing (#5) ---- */
-.nt-inter .fs-step-val { margin-left: auto; font-size: calc(var(--nt-vw)*0.72); font-weight: 800; color: #fff; max-width: 46%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: right; }
-.nt-inter .fs-step.done .fs-step-val { color: var(--prm-accent, #4ea1ff); }
-.nt-inter .fs-step.todo .fs-step-val { color: #aab0b8; }
-.nt-inter .fs-hero { padding-top: calc(var(--nt-vh)*3.4); }
+.nt-inter .fs-step-val {
+  margin-left: auto;
+  font-size: calc(var(--nt-vw)*0.72);
+  font-weight: 800;
+  color: #fff;
+  max-width: 46%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+
+.nt-inter .fs-step.done .fs-step-val {
+  color: var(--prm-accent, #4ea1ff);
+}
+
+.nt-inter .fs-step.todo .fs-step-val {
+  color: #aab0b8;
+}
+
+.nt-inter .fs-hero {
+  padding-top: calc(var(--nt-vh)*3.4);
+}
 
 /* Finder Detail hero spacing and compact-list thumbnail sizing. */
 .nt-result.res-finder-detail .fd-chip {
