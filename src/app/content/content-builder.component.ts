@@ -330,8 +330,16 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   /** Intermediate styles that render an image/logo per item — drives image upload UI. */
   get intermediateNeedsImage(): boolean {
     const s = this.draft?.themeTokens.intermediateStyle;
-    return s === 'image-grid' || s === 'circular' || s === 'card-strip' || s === 'fullscreen'
-      || s === 'brand-rail';
+    const inter = this.draft?.themeTokens.intermediate;
+    if (s === 'finder-select') {
+      const c = inter?.fsCardContent || 'text-only';
+      return c === 'image-text' || c === 'image-only' || c === 'icon-text';
+    }
+    if (s === 'drill-stair' || s === 'accordion' || s === 'pill-tabs' || s === 'scroll-list') {
+      return false;
+    }
+    const c = inter?.content || 'image-text';
+    return c === 'image-text' || c === 'image-only' || c === 'icon-text';
   }
 
   /** Show the flat intermediate editor only when the theme includes an intermediate page
