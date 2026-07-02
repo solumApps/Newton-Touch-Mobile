@@ -11003,9 +11003,9 @@
 
 /* Column cards can be narrower than the viewport, so their
    explicit card alignment remains useful during horizontal scrolling. */
-.nt-inter .body.int-columns.scroll-horizontal.int-align-center {
-  justify-content: space-around !important;
-}
+// .nt-inter .body.int-columns.scroll-horizontal.int-align-center {
+//   justify-content: space-around!important;
+// }
 
 .nt-inter .body.int-columns.scroll-horizontal.int-align-right {
   justify-content: safe flex-end !important;
