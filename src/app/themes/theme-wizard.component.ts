@@ -724,6 +724,14 @@ export class ThemeWizardComponent implements OnInit {
   get isHomeHorizontalScroll(): boolean { return this.effectiveScrollMode === 'horizontal' || this.t.homeLayout === 'h-scroll'; }
   get isInterVerticalScroll(): boolean { return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'vertical'; }
   get isInterHorizontalScroll(): boolean { return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'horizontal' || this.t.intermediateStyle === 'brand-rail' || this.t.intermediateStyle === 'card-strip'; }
+  get effectiveInterScrollMode(): 'vertical' | 'horizontal' {
+    if (this.t.intermediateStyle === 'brand-rail' || this.t.intermediateStyle === 'card-strip') return 'horizontal';
+    return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'horizontal' ? 'horizontal' : 'vertical';
+  }
+  get effectiveResultScrollMode(): 'vertical' | 'horizontal' {
+    if (this.t.resultTemplate === 'card-grid' || this.t.resultTemplate === 'shelf') return 'horizontal';
+    return this.t.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
+  }
   /** Set Home scroll + coerce alignment to a safe, non-clipping default. */
   setHomeScroll(m: ScrollMode): void {
     this.t.scrollMode = m;
