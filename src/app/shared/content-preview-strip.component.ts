@@ -631,8 +631,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       if (this.theme?.result?.cardShape) cls.push('res-shape-' + this.theme.result.cardShape);
       if (this.resTpl === 'map-filter-list' && this.theme?.result?.filterPos) cls.push('res-filter-pos-' + this.theme.result.filterPos);
       if (!this.fixedResultTemplate) {
-        if (this.theme?.scrollMode === 'vertical') cls.push('scroll-vertical');
-        if (this.theme?.scrollMode === 'horizontal') cls.push('scroll-horizontal');
+        cls.push(`scroll-${this.resultScrollMode}`);
       }
     } else if (this.page === 'home') {
       cls.push('nt-home');
@@ -759,6 +758,10 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     const style = this.theme?.intermediateStyle;
     if (style === 'card-strip' || style === 'brand-rail') return 'horizontal';
     return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal';
+  }
+  get resultScrollMode(): 'vertical' | 'horizontal' {
+    if (this.resTpl === 'card-grid' || this.resTpl === 'shelf') return 'horizontal';
+    return this.theme?.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
   }
   get interVisibleColumns(): number {
     const cols = Math.max(1, this.theme?.intermediate?.columns || 3);
