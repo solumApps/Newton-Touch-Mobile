@@ -10446,6 +10446,14 @@
   margin-bottom: auto;
 }
 
+/* Pill cards have semicircular ends (corner radius = half the card height):
+   keep the full-width bar but pad the text in by that radius so left/right
+   labels clear the rounded corners at any column count. */
+.nt-inter .body.int-columns.int-shape-pill[class*="int-textpos-overlay"] .item .name {
+  padding-left: calc(var(--nt-vh) * 18 * var(--nt-int-scale, 1));
+  padding-right: calc(var(--nt-vh) * 18 * var(--nt-int-scale, 1));
+}
+
 /* shapes — circle/hexagon are SQUARE (narrower than rect), image fills, name overlaid */
 .nt-inter .body.int-columns.int-shape-pill .item {
   border-radius: 999px;
@@ -10507,25 +10515,33 @@
 }
 
 /* Circle/hexagon: preserve the selected inner overlay position instead of
-   letting the shape's default bottom label placement override it. */
+   letting the shape's default bottom label placement override it.
+   The band spans full width (clipped to the shape outline) and is pulled in
+   from the tip (top/bottom 20%) where the shape is wide enough; only the TEXT
+   is padded in, so left/right-aligned labels stay inside the narrowing curve
+   without clipping while the band keeps its full-width look. */
 .nt-inter .body.int-columns.int-shape-circle.int-textpos-overlay-top .item .name,
 .nt-inter .body.int-columns.int-shape-hexagon.int-textpos-overlay-top .item .name {
   position: absolute;
-  left: 8%;
-  right: 8%;
-  top: 10%;
+  left: 0;
+  right: 0;
+  top: 20%;
   bottom: auto;
   margin: 0;
+  padding-left: 12%;
+  padding-right: 12%;
 }
 
 .nt-inter .body.int-columns.int-shape-circle.int-textpos-overlay-bottom .item .name,
 .nt-inter .body.int-columns.int-shape-hexagon.int-textpos-overlay-bottom .item .name {
   position: absolute;
-  left: 8%;
-  right: 8%;
+  left: 0;
+  right: 0;
   top: auto;
-  bottom: 10%;
+  bottom: 20%;
   margin: 0;
+  padding-left: 12%;
+  padding-right: 12%;
 }
 
 /* Columns: Center overlays the label at the card midpoint for every shape. */
