@@ -61,6 +61,10 @@ export type CardStyle =
 export type CardShape = 'rect' | 'pill' | 'circle' | 'hexagon' | 'none';
 export type CardContent = 'image-text' | 'image-only' | 'text-only' | 'icon-text' | 'color-block' | 'gradient';
 export type CardTextPos = 'overlay-top' | 'overlay-bottom' | 'below' | 'center' | 'above';
+/** Text-overlay scrim style. gradient = fade band (default), solid = flat band,
+ *  tint = whole image darkened with the overlay colour, none = no scrim (text-shadow
+ *  only). Applied on Home cards and Intermediate items. */
+export type CardOverlayStyle = 'gradient' | 'solid' | 'tint' | 'none';
 
 export type IntermediateStyle =
   | 'accordion' | 'pill-tabs' | 'image-grid' | 'hex-grid'
@@ -216,6 +220,11 @@ export interface ThemeTokens {
   cardContent: CardContent;
   cardTextPos: CardTextPos;
   cardTextOverlay?: boolean;
+  /** Text-overlay scrim style for Home cards. Default 'gradient'. */
+  cardOverlayStyle?: CardOverlayStyle;
+  /** Drop-shadow behind Home card text for legibility (works in any position,
+   *  independent of the overlay scrim). Default off. */
+  cardTextShadow?: boolean;
   /** Optional fine-grained card-size multiplier (slider). When set it scales the
    *  card box continuously (via CSS zoom) on top of the cardSize bucket. Absent =
    *  use cardSize only. Range ~0.8–1.25. */
@@ -243,7 +252,7 @@ export interface ThemeTokens {
   includeIntermediate: boolean;
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
-  intermediate: { headerColor: string; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; textAlign?: 'left' | 'center' | 'right'; scrollMode?: ScrollMode; valign?: 'top' | 'middle' | 'bottom'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: CardContent; textPos?: CardTextPos; textOverlay?: boolean; brandRailMessagePos?: 'left' | 'right'; brandRailMessageAlign?: 'top' | 'center' | 'bottom';
+  intermediate: { headerColor: string; headerTextColor?: string; headerStyle?: HeaderStyle; headerLayout?: HeaderLayoutMode; logoPos?: HeaderItemPos; titlePos?: HeaderItemPos; captionPos?: HeaderItemPos; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; textAlign?: 'left' | 'center' | 'right'; scrollMode?: ScrollMode; valign?: 'top' | 'middle' | 'bottom'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: CardContent; textPos?: CardTextPos; textOverlay?: boolean; overlayStyle?: CardOverlayStyle; textShadow?: boolean; brandRailMessagePos?: 'left' | 'right'; brandRailMessageAlign?: 'top' | 'center' | 'bottom';
     /** brand-rail: blur message container background + text colour. */
     brandRailMessageBgColor?: string; brandRailMessageTextColor?: string;
     /** finder-select template: dark hero rail + selection cards + index strip. */
@@ -329,6 +338,9 @@ export interface ResultProduct {
   labelId?: string;
   /** Category mode: name came from the SOLUM API — locked except case transform. */
   fromApi?: boolean; rawName?: string;
+  /** Display rank for ranked result lists. Lower values appear first in the
+   *  Popular sort; products without a rank keep their received order. */
+  rank?: number;
   /** Per-product map marker position (percentage 0–100 from the top-left).
    *  When set, the map template shows a dot at this location for the found product
    *  so routing varies per product instead of a single fixed marker. */
@@ -406,6 +418,7 @@ export const THEME_ENUM_VALUES = {
   cardShape: ['rect', 'pill', 'circle', 'hexagon', 'none'],
   cardContent: ['image-text', 'image-only', 'text-only', 'icon-text', 'color-block', 'gradient'],
   cardTextPos: ['overlay-top', 'overlay-bottom', 'below', 'center', 'above'],
+  cardOverlayStyle: ['gradient', 'solid', 'tint', 'none'],
   cardSurface: ['flat', 'glass', 'raised', 'outlined', 'glow'],
   navStyle: ['floating', 'edge', 'bottom-center', 'hidden'],
   navButtonPosition: ['bottom-left', 'bottom-center', 'bottom-right', 'side-left', 'side-right', 'header-left', 'header-right', 'hidden'],

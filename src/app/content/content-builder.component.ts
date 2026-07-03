@@ -330,8 +330,16 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   /** Intermediate styles that render an image/logo per item — drives image upload UI. */
   get intermediateNeedsImage(): boolean {
     const s = this.draft?.themeTokens.intermediateStyle;
-    return s === 'image-grid' || s === 'circular' || s === 'card-strip' || s === 'fullscreen'
-      || s === 'brand-rail';
+    const inter = this.draft?.themeTokens.intermediate;
+    if (s === 'finder-select') {
+      const c = inter?.fsCardContent || 'text-only';
+      return c === 'image-text' || c === 'image-only' || c === 'icon-text';
+    }
+    if (s === 'drill-stair' || s === 'accordion' || s === 'pill-tabs' || s === 'scroll-list') {
+      return false;
+    }
+    const c = inter?.content || 'image-text';
+    return c === 'image-text' || c === 'image-only' || c === 'icon-text';
   }
 
   /** Show the flat intermediate editor only when the theme includes an intermediate page
@@ -559,18 +567,31 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     const dataUrl = await this.picker.pick();
     if (dataUrl) this.setHeader('logo', dataUrl);
   }
+  clearLogo(): void {
+    if (this.draft?.header) {
+      delete this.draft.header.logo;
+    }
+  }
 
   constructor(private content: ContentService, private themes: ThemeService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private alertController: AlertController) {}
 
   async pickImage(item: CardItem | ResultProduct): Promise<void> {
     const dataUrl = await this.picker.pick();
-    if (dataUrl) item.image = dataUrl;
+    if (dataUrl) {
+      item.image = dataUrl;
+      if (this.draft?.appMode === 'category') {
+        this.syncResultProducts();
+      }
+    }
   }
 
   /** Remove an uploaded image so the item falls back to its default placeholder. */
   clearImage(item: CardItem | ResultProduct): void {
     item.image = undefined;
     item.imageFit = undefined;
+    if (this.draft?.appMode === 'category') {
+      this.syncResultProducts();
+    }
   }
 
   /** Per-image fit segment (shown when an image is set). 'cover' = default → field omitted. */
@@ -578,6 +599,9 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   fitOf(item: CardItem | ResultProduct): ImageFit { return item.imageFit || 'cover'; }
   setFit(item: CardItem | ResultProduct, fit: ImageFit): void {
     item.imageFit = fit === 'cover' ? undefined : fit;
+    if (this.draft?.appMode === 'category') {
+      this.syncResultProducts();
+    }
   }
 
   async fetch(): Promise<void> {
@@ -885,13 +909,88 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   }
 
   /** Re-derive each leaf's products + the shared Result list from the tree paths. */
-  private syncResultProducts(): void {
+  syncResultProducts(): void {
     if (!this.draft) return;
     // Never wipe the persisted product lists when the API products aren't loaded
     // (e.g. after reopening the draft — apiProducts is transient and empty).
     if (!this.apiProducts.length) return;
+
+    // Collect all existing user edits by product ID
+    const productEdits = new Map<string, Partial<ResultProduct>>();
+    if (this.draft.result?.products) {
+      for (const p of this.draft.result.products) {
+        if (p.id) {
+          productEdits.set(p.id, {
+            image: p.image,
+            imageFit: p.imageFit,
+            price: p.price,
+            aisle: p.aisle,
+            shelf: p.shelf,
+            mapX: p.mapX,
+            mapY: p.mapY,
+            markerColor: p.markerColor,
+            description: p.description,
+            onSale: p.onSale,
+            salePrice: p.salePrice,
+            specs: p.specs,
+            fitments: p.fitments
+          });
+        }
+      }
+    }
+    const collectFromNodes = (items: CardItem[]): void => {
+      for (const c of items) {
+        if (c.products) {
+          for (const p of c.products) {
+            if (p.id) {
+              productEdits.set(p.id, {
+                image: p.image,
+                imageFit: p.imageFit,
+                price: p.price,
+                aisle: p.aisle,
+                shelf: p.shelf,
+                mapX: p.mapX,
+                mapY: p.mapY,
+                markerColor: p.markerColor,
+                description: p.description,
+                onSale: p.onSale,
+                salePrice: p.salePrice,
+                specs: p.specs,
+                fitments: p.fitments
+              });
+            }
+          }
+        }
+        if (c.children) {
+          collectFromNodes(c.children);
+        }
+      }
+    };
+    collectFromNodes(this.draft.home || []);
+
     const dedupe = (arr: ApiProduct[]): ApiProduct[] => { const seen = new Set<string>(); return arr.filter((p) => (seen.has(p.productId) ? false : (seen.add(p.productId), true))); };
-    const toProduct = (p: ApiProduct): ResultProduct => ({ id: p.productId, ...this.mk(p.name), price: p.price, articleId: p.articleId, labelId: p.labelId, shelf: p.shelf, aisle: p.zone } as ResultProduct);
+    const toProduct = (p: ApiProduct): ResultProduct => {
+      const edit = productEdits.get(p.productId) || {};
+      return {
+        id: p.productId,
+        ...this.mk(p.name),
+        price: edit.price !== undefined ? edit.price : p.price,
+        articleId: p.articleId,
+        labelId: p.labelId,
+        shelf: edit.shelf !== undefined ? edit.shelf : p.shelf,
+        aisle: edit.aisle !== undefined ? edit.aisle : p.zone,
+        image: edit.image,
+        imageFit: edit.imageFit,
+        mapX: edit.mapX,
+        mapY: edit.mapY,
+        markerColor: edit.markerColor,
+        description: edit.description,
+        onSale: edit.onSale,
+        salePrice: edit.salePrice,
+        specs: edit.specs,
+        fitments: edit.fitments
+      } as ResultProduct;
+    };
     const all: ApiProduct[] = [];
     const walk = (node: CardItem, path: string[]): void => {
       const kids = node.children || [];
@@ -1133,6 +1232,9 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     p.mapX = x; p.mapY = y;
     // New products array reference so the preview strip re-renders the dot immediately.
     this.setCurResult({ ...cur, products: [...products] });
+    if (this.draft?.appMode === 'category') {
+      this.syncResultProducts();
+    }
   }
 
   /** Place a marker on a product owned by an individual intermediate end-item. */

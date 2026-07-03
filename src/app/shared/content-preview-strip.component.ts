@@ -41,7 +41,9 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-int-card-align]="interCardAlignCss"
            [style.--nt-font]="theme?.typography?.fontFamily"
            [style.--nt-base-text]="theme?.typography?.baseTextColor"
-           [style.--nt-header-text]="page === 'home' ? (theme?.headerTextColor || '#FFFFFF') : null"
+           [style.--nt-header-text]="headerTextColor"
+           [style.--nt-int-header-text]="theme?.intermediate?.headerTextColor || '#FFFFFF'"
+           [style.--nt-res-header-text]="'#FFFFFF'"
            [style.--nt-accent]="theme?.accent"
            [style.--nt-card]="theme?.cardBackground"
            [style.--nt-text]="theme?.cardText"
@@ -79,7 +81,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
              [ngClass]="isCustomHeader ? '' : ('hdr-style-' + headerStyle)"
              [style.background]="isTransparentHeader ? 'transparent' : headerColor">
           <ng-container *ngIf="!isCustomHeader">
-            <img *ngIf="showLogo" src="assets/solum-logo-white.svg" alt="Logo" class="brand-logo" />
+            <img *ngIf="showLogo" [src]="header?.logo || 'assets/solum-logo-white.svg'" alt="Logo" class="brand-logo" />
             <div class="brand-text" *ngIf="showTitle || showHeaderCaption">
               <span class="title" *ngIf="showTitle">{{ titleText }}</span>
               <span class="caption" *ngIf="showHeaderCaption">{{ captionText }}</span>
@@ -87,17 +89,17 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </ng-container>
           <ng-container *ngIf="isCustomHeader">
             <div class="hzone left">
-              <img *ngIf="logoPos==='left'" src="assets/solum-logo-white.svg" alt="Logo" class="brand-logo" />
+              <img *ngIf="logoPos==='left'" [src]="header?.logo || 'assets/solum-logo-white.svg'" alt="Logo" class="brand-logo" />
               <span class="title" *ngIf="titlePos==='left'">{{ titleText }}</span>
               <span class="caption" *ngIf="captionPos==='left'">{{ captionText }}</span>
             </div>
             <div class="hzone center">
-              <img *ngIf="logoPos==='center'" src="assets/solum-logo-white.svg" alt="Logo" class="brand-logo" />
+              <img *ngIf="logoPos==='center'" [src]="header?.logo || 'assets/solum-logo-white.svg'" alt="Logo" class="brand-logo" />
               <span class="title" *ngIf="titlePos==='center'">{{ titleText }}</span>
               <span class="caption" *ngIf="captionPos==='center'">{{ captionText }}</span>
             </div>
             <div class="hzone right">
-              <img *ngIf="logoPos==='right'" src="assets/solum-logo-white.svg" alt="Logo" class="brand-logo" />
+              <img *ngIf="logoPos==='right'" [src]="header?.logo || 'assets/solum-logo-white.svg'" alt="Logo" class="brand-logo" />
               <span class="title" *ngIf="titlePos==='right'">{{ titleText }}</span>
               <span class="caption" *ngIf="captionPos==='right'">{{ captionText }}</span>
             </div>
@@ -125,7 +127,9 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let c of homeCells; let i=index" [class.active]="i===0">{{ c.name }}</span></div>
           </div>
         </div>
-        <div *ngIf="theme?.homeLayout!=='finder-select'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} valign-{{theme?.cardVAlign||'middle'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
+        <div *ngIf="theme?.homeLayout!=='finder-select'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} valign-{{theme?.cardVAlign||'middle'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}} ovl-{{theme?.cardOverlayStyle||'gradient'}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
+             [class.txt-shadow]="theme?.cardTextShadow"
+             [style.--nt-overlay-base]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
              [class.has-cols]="cols !== undefined" [style.--cols]="cols" [style.--card-gap]="cardGapPx" [class.cols-1]="cols === 1"
              [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [class.no-overlay]="theme?.cardTextOverlay === false">
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
@@ -209,7 +213,9 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           </ng-container>
           <ng-template #flatInter>
-            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{$any(theme?.intermediateStyle)==='side-rail' ? 'left' : (theme?.intermediateStyle==='columns' ? 'center' : (theme?.intermediate?.align||'center'))}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-valign-{{theme?.intermediate?.valign||'middle'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'overlay-bottom'}} int-brm-{{theme?.intermediate?.brandRailMessagePos||'right'}} int-brmv-{{theme?.intermediate?.brandRailMessageAlign||'center'}}"
+            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{$any(theme?.intermediateStyle)==='side-rail' ? 'left' : (theme?.intermediateStyle==='columns' ? 'center' : (theme?.intermediate?.align||'center'))}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-valign-{{theme?.intermediate?.valign||'middle'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'overlay-bottom'}} int-brm-{{theme?.intermediate?.brandRailMessagePos||'right'}} int-brmv-{{theme?.intermediate?.brandRailMessageAlign||'center'}} ovl-{{theme?.intermediate?.overlayStyle||'gradient'}}"
+                 [style.--nt-overlay-base]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
+                 [class.txt-shadow]="theme?.intermediate?.textShadow"
                  [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && (theme?.intermediate?.columns || 3)===1" [class.int-scroll-peek]="interColumnsScrollPeek" [class.int-strip-few]="theme?.intermediateStyle==='card-strip' && interStripRenderedCount<=3" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [class.cols-2]="(theme?.intermediate?.columns || 3) === 2" [class.cols-3]="(theme?.intermediate?.columns || 3) === 3" [style.--int-cols]="interVisibleColumns" [style.--int-strip-card-width]="interStripCardWidth" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1" [style.--int-brm-bg]="theme?.intermediate?.brandRailMessageBgColor || null" [style.--int-brm-text]="theme?.intermediate?.brandRailMessageTextColor || null" [style.--card-gap]="theme?.intermediate?.gapNum != null ? (theme?.intermediate?.gapNum + 'px') : null">
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0" [class.has-img]="!!it.image || interUsePh">
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
@@ -526,7 +532,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   @Input() intermediateCreatePreview = false;
   @Input() result?: { mapImage?: string; promoImage?: string; products: ResultProduct[]; route?: { kind?: 'line' | 'dot' | 'none'; x?: number; y?: number; w?: number; color?: string } };
   @Input() screensaver?: Screensaver;
-  @Input() header?: { title?: string; caption?: string };
+  @Input() header?: { title?: string; caption?: string; logo?: string };
   /** Optional caption override under the strip. */
   @Input() caption?: string;
   /** Set false to hide the caption text under the preview. */
@@ -627,8 +633,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       if (this.theme?.result?.cardShape) cls.push('res-shape-' + this.theme.result.cardShape);
       if (this.resTpl === 'map-filter-list' && this.theme?.result?.filterPos) cls.push('res-filter-pos-' + this.theme.result.filterPos);
       if (!this.fixedResultTemplate) {
-        if (this.theme?.scrollMode === 'vertical') cls.push('scroll-vertical');
-        if (this.theme?.scrollMode === 'horizontal') cls.push('scroll-horizontal');
+        cls.push(`scroll-${this.resultScrollMode}`);
       }
     } else if (this.page === 'home') {
       cls.push('nt-home');
@@ -756,6 +761,10 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     if (style === 'card-strip' || style === 'brand-rail') return 'horizontal';
     return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal';
   }
+  get resultScrollMode(): 'vertical' | 'horizontal' {
+    if (this.resTpl === 'card-grid' || this.resTpl === 'shelf') return 'horizontal';
+    return this.theme?.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
+  }
   get interVisibleColumns(): number {
     const cols = Math.max(1, this.theme?.intermediate?.columns || 3);
     if (this.theme?.intermediateStyle === 'columns') {
@@ -813,6 +822,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return (this.theme?.navStyle || 'floating') !== 'hidden' && (this.theme?.nav?.position || 'bottom-left') !== 'hidden';
   }
   get saverShowContent(): boolean { return this.theme?.saverOverlay?.showContent !== false; }
+  get headerTextColor(): string {
+    if (this.page === 'inter') return (this.theme?.intermediate?.headerTextColor || '#FFFFFF');
+    // Result header text is always white.
+    if (this.page === 'result') return '#FFFFFF';
+    return this.theme?.headerTextColor || '#FFFFFF';
+  }
   get headerColor(): string | undefined {
     return this.page === 'inter' ? this.theme?.intermediate?.headerColor
       : this.page === 'result' ? this.resultHeaderColor
@@ -968,19 +983,41 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return m === 'single-image' ? 'Single image' : m === 'video' ? 'Video' : 'Slideshow';
   }
 
-  // Header style logic mirrors the LCD home component.
-  get headerStyle(): string { return this.theme?.headerStyle || 'logo-only'; }
-  get logoRight(): boolean { return this.theme?.logoPosition === 'right'; }
-  get logoCenter(): boolean { return this.theme?.logoPosition === 'center'; }
+  // Header style logic — per-page aware
+  get headerStyle(): string {
+    if (this.page === 'inter') return this.theme?.intermediate?.headerStyle || 'logo-only';
+    if (this.page === 'result') return '#FFFFFF'; // Result always uses white
+    return this.theme?.headerStyle || 'logo-only';
+  }
+  get logoRight(): boolean {
+    if (this.page === 'inter') return false; // Intermediate uses headerLayout mode
+    return this.theme?.logoPosition === 'right';
+  }
+  get logoCenter(): boolean {
+    if (this.page === 'inter') return false; // Intermediate uses headerLayout mode
+    return this.theme?.logoPosition === 'center';
+  }
   get isTransparentHeader(): boolean {
     if (this.page === 'inter') return !!this.theme?.intermediate?.transparentHeader;
     if (this.page === 'result') return !!this.theme?.result?.transparentHeader;
     return !!this.theme?.transparentHeader;
   }
-  get isCustomHeader(): boolean { return (this.theme?.headerLayout || 'preset') === 'custom'; }
-  get logoPos(): string { return this.theme?.logoPos || 'left'; }
-  get titlePos(): string { return this.theme?.titlePos || 'center'; }
-  get captionPos(): string { return this.theme?.captionPos || 'center'; }
+  get isCustomHeader(): boolean {
+    if (this.page === 'inter') return (this.theme?.intermediate?.headerLayout || 'preset') === 'custom';
+    return (this.theme?.headerLayout || 'preset') === 'custom';
+  }
+  get logoPos(): string {
+    if (this.page === 'inter') return this.theme?.intermediate?.logoPos || 'left';
+    return this.theme?.logoPos || 'left';
+  }
+  get titlePos(): string {
+    if (this.page === 'inter') return this.theme?.intermediate?.titlePos || 'center';
+    return this.theme?.titlePos || 'center';
+  }
+  get captionPos(): string {
+    if (this.page === 'inter') return this.theme?.intermediate?.captionPos || 'center';
+    return this.theme?.captionPos || 'center';
+  }
   get showLogo(): boolean {
     if (this.isCustomHeader) return this.logoPos !== 'hidden';
     return this.headerStyle === 'logo-only' || this.headerStyle === 'logo+title' || this.headerStyle === 'logo+title+caption';
