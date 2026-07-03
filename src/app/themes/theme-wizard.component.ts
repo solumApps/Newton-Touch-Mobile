@@ -299,7 +299,9 @@ export class ThemeWizardComponent implements OnInit {
     // Fall back to the *visible* modes so a hidden 'vertical' (hideVerticalScroll)
     // is never silently re-applied; default to 'horizontal' when none are visible.
     if (!this.scrollModesVisible.some((m) => m.id === this.t.scrollMode)) {
-      this.t.scrollMode = this.scrollModesVisible[0]?.id || 'horizontal';
+      this.t.scrollMode = this.scrollModesVisible.find((m) => m.id === 'horizontal')?.id
+        || this.scrollModesVisible[0]?.id
+        || 'horizontal';
     }
     this.coerceTextPos();
     this.checkDefaultCardGap();
@@ -716,7 +718,7 @@ export class ThemeWizardComponent implements OnInit {
   get effectiveScrollMode(): ScrollMode {
     const m = this.t.scrollMode || 'auto';
     if (m === 'auto') {
-      return this.columnLayouts.includes(this.t.homeLayout) ? 'vertical' : 'horizontal';
+      return 'horizontal';
     }
     return m;
   }
@@ -1001,6 +1003,10 @@ export class ThemeWizardComponent implements OnInit {
     this.nameError = '';
     this.name = '';
     this.t = ThemeService.defaultTokens();
+    // New themes should start with horizontal overflow on Home (including Columns).
+    if ((this.t.scrollMode || 'auto') === 'auto') this.t.scrollMode = 'horizontal';
+    // New themes should start with horizontal overflow on Intermediate Columns.
+    if (this.t.intermediateStyle === 'columns') this.t.intermediate.scrollMode = 'horizontal';
     this.saverMode = this.t.screensaver?.mode ?? 'slideshow';
     this.id = this.route.snapshot.paramMap.get('id');
     this.openedFromPreview = this.route.snapshot.queryParamMap.get('from') === 'theme-preview';

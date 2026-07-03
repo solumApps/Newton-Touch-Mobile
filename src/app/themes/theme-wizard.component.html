@@ -292,7 +292,7 @@
              when relevant (hidden for vertical scrolling on grid layouts). -->
         <ng-container *ngIf="scrollMatters && !isHeroStart && scrollModesVisible.length > 1">
           <div class="step-title sm">Overflow scrolling</div>
-          <p class="hint">When items don't fit: Auto picks the layout's natural direction (grids vertical, rails horizontal).</p>
+          <p class="hint">When items don't fit: new themes default to Horizontal, and you can switch to Vertical anytime.</p>
           <div class="seg">
             <button class="tile" *ngFor="let m of scrollModesVisible" [class.sel]="effectiveScrollMode===m.id" (click)="setHomeScroll(m.id)">{{ m.label }}</button>
           </div>
