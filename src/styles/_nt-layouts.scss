@@ -11175,7 +11175,7 @@
   left: 0;
   right: auto;
   margin-left: calc(var(--nt-vw)*-4);
-  margin-right: auto;
+  margin-right: 0;
   justify-content: flex-start;
   text-align: left;
   padding: 0 calc(var(--nt-vw)*6) 0 calc(var(--nt-vw)*2.5) !important;
@@ -11194,6 +11194,14 @@
 
 .nt-inter .int-brand-rail.int-brmv-bottom::after {
   align-items: flex-end;
+}
+
+.nt-inter .int-brand-rail.int-brm-right {
+  justify-content: flex-end !important;
+}
+
+.nt-inter .int-brand-rail.int-brm-right::after {
+  margin-left: 0 !important;
 }
 
 /* ---- brand-rail image-only: raw image, no card chrome (#4) ---- */
