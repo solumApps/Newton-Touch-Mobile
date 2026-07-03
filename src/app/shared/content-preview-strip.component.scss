@@ -58,7 +58,7 @@ app-content-preview-strip {
 .prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal {
   --cps-shared-gap: calc(var(--nt-vw) * 1.4);
   --cps-shared-card-w: calc((100% - (var(--int-cols, 3) - 1) * var(--cps-shared-gap)) / var(--int-cols, 3));
-  --cps-shared-shape-w: min(var(--cps-shared-card-w), calc(var(--nt-vh) * 85 * var(--nt-int-scale, 1)));
+  --cps-shared-shape-w: min(var(--cps-shared-card-w), calc(var(--nt-vh) * 63 * var(--nt-int-scale, 1)));
   flex-wrap: nowrap !important;
   align-items: center !important;
   overflow-x: auto !important;
@@ -79,9 +79,9 @@ app-content-preview-strip {
 .prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal .item {
   flex: 0 0 var(--cps-shared-card-w) !important;
   width: var(--cps-shared-card-w) !important;
-  max-width: none !important;
+  max-width: none;
   min-width: 0 !important;
-  // height: calc(var(--nt-vh) * 72 * var(--nt-int-scale, 1)) !important;
+  height: calc(var(--nt-vh) * 65 * var(--nt-int-scale, 1)) !important;
 }
 
 .prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal.int-shape-pill .item {
@@ -92,7 +92,7 @@ app-content-preview-strip {
 .prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal:is(.int-shape-circle, .int-shape-hexagon) .item {
   flex: 0 0 var(--cps-shared-shape-w) !important;
   width: var(--cps-shared-shape-w) !important;
-  height: var(--cps-shared-shape-w) !important;
+  height: var(--cps-shared-shape-w);
   max-width: none !important;
   min-width: 0 !important;
 }
@@ -101,7 +101,7 @@ app-content-preview-strip {
    column-card grid and let additional rows scroll vertically. */
 .prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-vertical {
   --cps-shared-gap: calc(var(--nt-vh) * 1.4);
-  --cps-shared-shape-w: min(100%, calc(var(--nt-vh) * 85 * var(--nt-int-scale, 1)));
+  --cps-shared-shape-w: min(100%, calc(var(--nt-vh) * 63 * var(--nt-int-scale, 1)));
   display: grid !important;
   grid-template-columns: repeat(var(--int-cols, 3), minmax(0, 1fr)) !important;
   grid-auto-rows: max-content !important;
@@ -144,6 +144,23 @@ app-content-preview-strip {
   width: var(--cps-shared-shape-w) !important;
   height: var(--cps-shared-shape-w) !important;
   justify-self: center !important;
+}
+
+.prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns:is(.int-shape-circle, .int-shape-hexagon):is(.int-textpos-above, .int-textpos-below) .item .img {
+  width: 78% !important;
+  height: 0 !important;
+  padding-top: 78% !important;
+  align-self: center !important;
+  justify-self: center !important;
+  flex: 0 0 auto !important;
+}
+
+.prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns:is(.int-shape-circle, .int-shape-hexagon):is(.int-textpos-above, .int-textpos-below) .item .name {
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  line-height: 1.15 !important;
 }
 
 /* placeholder tiles (no image yet) */

@@ -8968,7 +8968,7 @@
 .nt-inter .body.int-columns.int-single-col .item {
   flex-basis: calc(var(--nt-vw)*40);
   width: calc(var(--nt-vw)*40);
-  max-width: calc(var(--nt-vw)*40);
+  max-width: calc(var(--nt-vw)*40) !important;
   margin-left: auto;
   margin-right: auto;
 }
@@ -10381,7 +10381,7 @@
 .nt-inter .body.int-columns.int-single-col .item {
   flex-basis: calc(var(--nt-vw)*40);
   width: calc(var(--nt-vw)*40);
-  max-width: calc(var(--nt-vw)*40);
+  max-width: calc(var(--nt-vw)*40) !important;
 }
 
 /* rect cards: 1/cols of the row width, tall enough to read; one row fills, extras overflow */
