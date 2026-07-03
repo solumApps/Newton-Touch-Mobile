@@ -31,31 +31,31 @@
       <div class="prev" [ngClass]="['fit-'+t.typography.textFit, 'surface-'+(t.cardSurface || 'flat'), 'nav-'+(t.navStyle || 'floating')]"
            [style.background]="backgroundForPage(page)"
            [style.fontFamily]="t.typography.fontFamily" [style.--prev-scale]="scaleNum"
-           [style.--prev-header-text]="page === 'home' ? (t.headerTextColor || '#FFFFFF') : null" [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [style.--prev-res-card]="t.result.cardBackground" [style.--prev-res-text]="t.result.cardText" [style.--prev-res-popular-text]="t.result.popularText || t.result.cardText" [style.--prev-overlay]="t.overlayColor || 'rgba(0,0,0,0.6)'" [ngSwitch]="page">
+           [style.--prev-header-text]="headerTextColorFor(page)" [style.--prev-accent]="t.accent" [style.--prev-card]="t.cardBackground" [style.--prev-text]="t.cardText" [style.--prev-res-card]="t.result.cardBackground" [style.--prev-res-text]="t.result.cardText" [style.--prev-res-popular-text]="t.result.popularText || t.result.cardText" [style.--prev-overlay]="t.overlayColor || 'rgba(0,0,0,0.6)'" [ngSwitch]="page">
         <div class="hdr" *ngIf="headerVisibleFor(page)"
-             [ngClass]="isCustomHeader ? 'hdr-custom' : ['logo-'+t.logoPosition, 'hdr-style-'+(t.headerStyle || 'logo-only')]"
+             [ngClass]="headerCustomFor(page) ? 'hdr-custom' : ['logo-'+logoPosFor(page), 'hdr-style-'+headerStyleFor(page)]"
              [class.hdr-transparent]="transparentFor(page)"
              [style.background]="transparentFor(page) ? 'transparent' : headerColorForPage(page)">
-          <ng-container *ngIf="!isCustomHeader">
-            <img *ngIf="showLogo" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-            <span class="nt title" *ngIf="showHeaderTitle">Newton Touch</span>
-            <span class="nt caption" *ngIf="showHeaderCaption">{{ pageCaption(page) }}</span>
+          <ng-container *ngIf="!headerCustomFor(page)">
+            <img *ngIf="logoVisibleFor(page)" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+            <span class="nt title" *ngIf="titleVisibleFor(page)">Newton Touch</span>
+            <span class="nt caption" *ngIf="captionVisibleFor(page)">{{ pageCaption(page) }}</span>
           </ng-container>
-          <ng-container *ngIf="isCustomHeader">
+          <ng-container *ngIf="headerCustomFor(page)">
             <div class="hzone left">
-              <img *ngIf="(t.logoPos||'left')==='left'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-              <span class="nt title" *ngIf="(t.titlePos||'center')==='left'">Newton Touch</span>
-              <span class="nt caption" *ngIf="(t.captionPos||'center')==='left'">{{ pageCaption(page) }}</span>
+              <img *ngIf="logoPosFor(page)==='left'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt title" *ngIf="titlePosFor(page)==='left'">Newton Touch</span>
+              <span class="nt caption" *ngIf="captionPosFor(page)==='left'">{{ pageCaption(page) }}</span>
             </div>
             <div class="hzone center">
-              <img *ngIf="(t.logoPos||'left')==='center'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-              <span class="nt title" *ngIf="(t.titlePos||'center')==='center'">Newton Touch</span>
-              <span class="nt caption" *ngIf="(t.captionPos||'center')==='center'">{{ pageCaption(page) }}</span>
+              <img *ngIf="logoPosFor(page)==='center'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt title" *ngIf="titlePosFor(page)==='center'">Newton Touch</span>
+              <span class="nt caption" *ngIf="captionPosFor(page)==='center'">{{ pageCaption(page) }}</span>
             </div>
             <div class="hzone right">
-              <img *ngIf="(t.logoPos||'left')==='right'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
-              <span class="nt title" *ngIf="(t.titlePos||'center')==='right'">Newton Touch</span>
-              <span class="nt caption" *ngIf="(t.captionPos||'center')==='right'">{{ pageCaption(page) }}</span>
+              <img *ngIf="logoPosFor(page)==='right'" src="assets/solum-logo-white.svg" class="logo" alt="SOLUM" />
+              <span class="nt title" *ngIf="titlePosFor(page)==='right'">Newton Touch</span>
+              <span class="nt caption" *ngIf="captionPosFor(page)==='right'">{{ pageCaption(page) }}</span>
             </div>
           </ng-container>
         </div>
@@ -292,7 +292,7 @@
              when relevant (hidden for vertical scrolling on grid layouts). -->
         <ng-container *ngIf="scrollMatters && !isHeroStart && scrollModesVisible.length > 1">
           <div class="step-title sm">Overflow scrolling</div>
-          <p class="hint">When items don't fit: Auto picks the layout's natural direction (grids vertical, rails horizontal).</p>
+          <p class="hint">When items don't fit: new themes default to Horizontal, and you can switch to Vertical anytime.</p>
           <div class="seg">
             <button class="tile" *ngFor="let m of scrollModesVisible" [class.sel]="effectiveScrollMode===m.id" (click)="setHomeScroll(m.id)">{{ m.label }}</button>
           </div>
@@ -486,7 +486,7 @@
           <div class="slider-row"><span class="slider-lbl">Zoom</span><input type="range" class="nt-slider" min="100" max="300" step="5" [value]="t.bgImageZoom ?? 100" (input)="t.bgImageZoom=+$any($event.target).value" aria-label="Background zoom" /><span class="slider-val">{{ t.bgImageZoom ?? 100 }}%</span></div>
         </ng-container>
         <app-color-picker *ngIf="t.cardContent !== 'image-only' && t.cardContent !== 'image-text'" label="Card background" [allowGradient]="true" [value]="t.cardBackground" (valueChange)="t.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
-        <app-color-picker label="Card text" [value]="t.cardText" (valueChange)="t.cardText=$event" [presets]="textPresets"></app-color-picker>
+        <app-color-picker *ngIf="t.cardContent !== 'image-only'" label="Card text" [value]="t.cardText" (valueChange)="t.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker *ngIf="t.homeLayout==='finder-select'" label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
         <app-color-picker *ngIf="overlayRelevant || t.homeLayout==='finder-select'" label="Text overlay" hint="background behind text on cards" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
         <app-color-picker label="Accent / highlight" [value]="t.accent" (valueChange)="t.accent=$event"></app-color-picker>
@@ -713,7 +713,7 @@
             <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
             <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
           </div>
-          <p class="hint">Header background (solid/transparent), colours, sub-item details and navigation buttons are set on the next step.</p>
+          <p class="hint">Header bar, header layout, and header style are inherited from Home.</p>
         </ng-container>
       </div>
 
@@ -722,30 +722,16 @@
         <div class="inherited-hint">
           <span>&#9432;</span> Colors pre-filled from your Home page — adjust below if needed.
         </div>
-        <app-color-picker label="Header / breadcrumb" [value]="t.intermediate.headerColor" (valueChange)="t.intermediate.headerColor=$event"></app-color-picker>
-        <app-color-picker *ngIf="!t.intermediate.backgroundImage" label="Page background" [value]="t.intermediate.background" (valueChange)="t.intermediate.background=$event" [presets]="bgPresets"></app-color-picker>
-        <div class="media-row">
-          <button class="btn-o media-btn" (click)="pickBackground('inter')">{{ t.intermediate.backgroundImage ? 'Replace intermediate background image' : 'Upload intermediate background image' }}</button>
-          <button class="btn-o media-clear" *ngIf="t.intermediate.backgroundImage" (click)="clearBackground('inter')">Clear</button>
-        </div>
-        <p class="hint" *ngIf="t.intermediate.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
-        <ng-container *ngIf="t.intermediate.backgroundImage">
-          <div class="step-title sm">Background framing</div>
-          <p class="hint">Pan and zoom to choose which part of the image shows.</p>
-          <div class="slider-row"><span class="slider-lbl">Pan X</span><input type="range" class="nt-slider" min="0" max="100" step="1" [value]="t.intermediate.bgImageX ?? 50" (input)="t.intermediate.bgImageX=+$any($event.target).value" aria-label="Background pan X" /><span class="slider-val">{{ t.intermediate.bgImageX ?? 50 }}%</span></div>
-          <div class="slider-row"><span class="slider-lbl">Pan Y</span><input type="range" class="nt-slider" min="0" max="100" step="1" [value]="t.intermediate.bgImageY ?? 50" (input)="t.intermediate.bgImageY=+$any($event.target).value" aria-label="Background pan Y" /><span class="slider-val">{{ t.intermediate.bgImageY ?? 50 }}%</span></div>
-          <div class="slider-row"><span class="slider-lbl">Zoom</span><input type="range" class="nt-slider" min="100" max="300" step="5" [value]="t.intermediate.bgImageZoom ?? 100" (input)="t.intermediate.bgImageZoom=+$any($event.target).value" aria-label="Background zoom" /><span class="slider-val">{{ t.intermediate.bgImageZoom ?? 100 }}%</span></div>
-        </ng-container>
-        <app-color-picker label="Row / card background" [value]="t.intermediate.cardBackground" (valueChange)="t.intermediate.cardBackground=$event" [presets]="intCardPresets"></app-color-picker>
-        <app-color-picker label="Card text" [value]="t.intermediate.cardText" (valueChange)="t.intermediate.cardText=$event" [presets]="textPresets"></app-color-picker>
+        <app-color-picker *ngIf="t.intermediate.showHeader" label="Header background" [value]="t.intermediate.headerColor" (valueChange)="t.intermediate.headerColor=$event"></app-color-picker>
+        <app-color-picker *ngIf="t.intermediate.showHeader" label="Header text color" [value]="t.intermediate.headerTextColor || '#FFFFFF'" (valueChange)="t.intermediate.headerTextColor=$event"></app-color-picker>
+        <app-color-picker label="Page background" [value]="t.intermediate.background" (valueChange)="t.intermediate.background=$event" [presets]="bgPresets"></app-color-picker>
+        <p class="hint">Header colors start from Home values, then you can customize them for Intermediate.</p>
+        <p class="hint">Page background starts from Home, then you can customize it for Intermediate.</p>
+        <app-color-picker *ngIf="showInterCardBackgroundColor" label="Row / card background" [value]="t.intermediate.cardBackground" (valueChange)="t.intermediate.cardBackground=$event" [presets]="intCardPresets"></app-color-picker>
+        <app-color-picker *ngIf="showInterCardTextColor" label="Card text" [value]="t.intermediate.cardText" (valueChange)="t.intermediate.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
         <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Text overlay" hint="background behind overlaid finder card text" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
         <app-color-picker label="Accent / active" [value]="t.intermediate.accent" (valueChange)="t.intermediate.accent=$event"></app-color-picker>
-        <div class="step-title sm">Header bar</div>
-        <div class="seg">
-          <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
-          <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
-        </div>
         <div class="step-title sm">Navigation buttons</div>
         <p class="hint">Style the Back and Home buttons. Set a position to “Hidden” to hide that button.</p>
         <div class="nav-btn-row">

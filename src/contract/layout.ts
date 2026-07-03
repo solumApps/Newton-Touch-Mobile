@@ -252,7 +252,7 @@ export interface ThemeTokens {
   includeIntermediate: boolean;
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
-  intermediate: { headerColor: string; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; textAlign?: 'left' | 'center' | 'right'; scrollMode?: ScrollMode; valign?: 'top' | 'middle' | 'bottom'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: CardContent; textPos?: CardTextPos; textOverlay?: boolean; overlayStyle?: CardOverlayStyle; textShadow?: boolean; brandRailMessagePos?: 'left' | 'right'; brandRailMessageAlign?: 'top' | 'center' | 'bottom';
+  intermediate: { headerColor: string; headerTextColor?: string; headerStyle?: HeaderStyle; headerLayout?: HeaderLayoutMode; logoPos?: HeaderItemPos; titlePos?: HeaderItemPos; captionPos?: HeaderItemPos; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; textAlign?: 'left' | 'center' | 'right'; scrollMode?: ScrollMode; valign?: 'top' | 'middle' | 'bottom'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: CardContent; textPos?: CardTextPos; textOverlay?: boolean; overlayStyle?: CardOverlayStyle; textShadow?: boolean; brandRailMessagePos?: 'left' | 'right'; brandRailMessageAlign?: 'top' | 'center' | 'bottom';
     /** brand-rail: blur message container background + text colour. */
     brandRailMessageBgColor?: string; brandRailMessageTextColor?: string;
     /** finder-select template: dark hero rail + selection cards + index strip. */
@@ -338,6 +338,9 @@ export interface ResultProduct {
   labelId?: string;
   /** Category mode: name came from the SOLUM API — locked except case transform. */
   fromApi?: boolean; rawName?: string;
+  /** Display rank for ranked result lists. Lower values appear first in the
+   *  Popular sort; products without a rank keep their received order. */
+  rank?: number;
   /** Per-product map marker position (percentage 0–100 from the top-left).
    *  When set, the map template shows a dot at this location for the found product
    *  so routing varies per product instead of a single fixed marker. */

@@ -41,7 +41,9 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-int-card-align]="interCardAlignCss"
            [style.--nt-font]="theme?.typography?.fontFamily"
            [style.--nt-base-text]="theme?.typography?.baseTextColor"
-           [style.--nt-header-text]="page === 'home' ? (theme?.headerTextColor || '#FFFFFF') : null"
+           [style.--nt-header-text]="headerTextColor"
+           [style.--nt-int-header-text]="theme?.intermediate?.headerTextColor || '#FFFFFF'"
+           [style.--nt-res-header-text]="'#FFFFFF'"
            [style.--nt-accent]="theme?.accent"
            [style.--nt-card]="theme?.cardBackground"
            [style.--nt-text]="theme?.cardText"
@@ -820,6 +822,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return (this.theme?.navStyle || 'floating') !== 'hidden' && (this.theme?.nav?.position || 'bottom-left') !== 'hidden';
   }
   get saverShowContent(): boolean { return this.theme?.saverOverlay?.showContent !== false; }
+  get headerTextColor(): string {
+    if (this.page === 'inter') return (this.theme?.intermediate?.headerTextColor || '#FFFFFF');
+    // Result header text is always white.
+    if (this.page === 'result') return '#FFFFFF';
+    return this.theme?.headerTextColor || '#FFFFFF';
+  }
   get headerColor(): string | undefined {
     return this.page === 'inter' ? this.theme?.intermediate?.headerColor
       : this.page === 'result' ? this.resultHeaderColor
@@ -975,19 +983,41 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return m === 'single-image' ? 'Single image' : m === 'video' ? 'Video' : 'Slideshow';
   }
 
-  // Header style logic mirrors the LCD home component.
-  get headerStyle(): string { return this.theme?.headerStyle || 'logo-only'; }
-  get logoRight(): boolean { return this.theme?.logoPosition === 'right'; }
-  get logoCenter(): boolean { return this.theme?.logoPosition === 'center'; }
+  // Header style logic — per-page aware
+  get headerStyle(): string {
+    if (this.page === 'inter') return this.theme?.intermediate?.headerStyle || 'logo-only';
+    if (this.page === 'result') return '#FFFFFF'; // Result always uses white
+    return this.theme?.headerStyle || 'logo-only';
+  }
+  get logoRight(): boolean {
+    if (this.page === 'inter') return false; // Intermediate uses headerLayout mode
+    return this.theme?.logoPosition === 'right';
+  }
+  get logoCenter(): boolean {
+    if (this.page === 'inter') return false; // Intermediate uses headerLayout mode
+    return this.theme?.logoPosition === 'center';
+  }
   get isTransparentHeader(): boolean {
     if (this.page === 'inter') return !!this.theme?.intermediate?.transparentHeader;
     if (this.page === 'result') return !!this.theme?.result?.transparentHeader;
     return !!this.theme?.transparentHeader;
   }
-  get isCustomHeader(): boolean { return (this.theme?.headerLayout || 'preset') === 'custom'; }
-  get logoPos(): string { return this.theme?.logoPos || 'left'; }
-  get titlePos(): string { return this.theme?.titlePos || 'center'; }
-  get captionPos(): string { return this.theme?.captionPos || 'center'; }
+  get isCustomHeader(): boolean {
+    if (this.page === 'inter') return (this.theme?.intermediate?.headerLayout || 'preset') === 'custom';
+    return (this.theme?.headerLayout || 'preset') === 'custom';
+  }
+  get logoPos(): string {
+    if (this.page === 'inter') return this.theme?.intermediate?.logoPos || 'left';
+    return this.theme?.logoPos || 'left';
+  }
+  get titlePos(): string {
+    if (this.page === 'inter') return this.theme?.intermediate?.titlePos || 'center';
+    return this.theme?.titlePos || 'center';
+  }
+  get captionPos(): string {
+    if (this.page === 'inter') return this.theme?.intermediate?.captionPos || 'center';
+    return this.theme?.captionPos || 'center';
+  }
   get showLogo(): boolean {
     if (this.isCustomHeader) return this.logoPos !== 'hidden';
     return this.headerStyle === 'logo-only' || this.headerStyle === 'logo+title' || this.headerStyle === 'logo+title+caption';

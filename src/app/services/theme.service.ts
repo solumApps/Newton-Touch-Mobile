@@ -47,7 +47,7 @@ export class ThemeService {
       // pre-selected "Columns" tile in the wizard exactly.
       homeLayout: 'col-3',
       columns: 3,
-      scrollMode: 'vertical',
+      scrollMode: 'horizontal',
       cardSize: 'normal',
       cardAlign: 'center',
       cardGap: 'normal',
@@ -64,7 +64,7 @@ export class ThemeService {
       includeIntermediate: true,
       intermediateStyle: 'columns',
       resultTemplate: 'map-list',
-      intermediate: { headerColor: 'rgba(0,0,0,0.45)', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', scrollMode: 'vertical', valign: 'top', gap: 'normal', textPos: 'overlay-bottom' },
+  intermediate: { headerColor: 'rgba(0,0,0,0.45)', headerTextColor: '#FFFFFF', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'top', gap: 'normal', textPos: 'overlay-bottom' },
       result: { headerColor: 'transparent', background: '#1a0036', cardBackground: '#0f172a', cardText: '#FFFFFF', accent: '#ffcd00', popularText: '#FFFFFF', pathColor: '#ffcd00', pathStyle: 'dashed', showHeader: true },
       // Default to no page transition — faster, more responsive navigation
       // (per team feedback). The transition options remain available in the
@@ -149,10 +149,9 @@ export class ThemeService {
     out.columns = coerceColumns(t?.columns);
     let sm = t?.scrollMode;
     if (!sm || sm === 'auto') {
-      const columnLayouts = ['grid-2x3', 'grid-2x2', 'col-2', 'col-3', 'col-4', 'hero-list'];
-      sm = columnLayouts.includes(out.homeLayout) ? 'vertical' : 'horizontal';
+      sm = 'horizontal';
     }
-    out.scrollMode = coerceEnum(sm, E.scrollMode, 'vertical', 'scrollMode');
+    out.scrollMode = coerceEnum(sm, E.scrollMode, 'horizontal', 'scrollMode');
     out.cardAlign = coerceEnum(out.cardAlign, E.align, 'center', 'cardAlign');
     if (out.homeLayout === 'promo-categories' && out.cardAlign === 'center') {
       out.cardAlign = 'left';
@@ -182,7 +181,7 @@ export class ThemeService {
     out.intermediate.cardShape = coerceEnum(out.intermediate.cardShape, E.cardShape, 'rect', 'intermediate.cardShape');
     out.intermediate.align = coerceEnum(out.intermediate.align, E.align, 'center', 'intermediate.align');
     out.intermediate.textAlign = coerceEnum(out.intermediate.textAlign, E.align, 'center', 'intermediate.textAlign');
-    out.intermediate.scrollMode = coerceEnum(out.intermediate.scrollMode, E.scrollMode, 'vertical', 'intermediate.scrollMode');
+    out.intermediate.scrollMode = coerceEnum(out.intermediate.scrollMode, E.scrollMode, 'horizontal', 'intermediate.scrollMode');
     out.intermediate.valign = coerceEnum(out.intermediate.valign, E.valign, 'middle', 'intermediate.valign');
     out.intermediate.gap = coerceEnum(out.intermediate.gap, E.gap, 'normal', 'intermediate.gap');
     out.intermediate.textPos = coerceEnum(out.intermediate.textPos, E.cardTextPos, d.intermediate.textPos || 'overlay-bottom', 'intermediate.textPos');
