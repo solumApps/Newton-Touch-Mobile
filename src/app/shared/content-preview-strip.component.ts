@@ -647,7 +647,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   get resTpl(): string { return this.theme?.resultTemplate || 'map-list'; }
   get fixedResultTemplate(): boolean {
-    return this.resTpl === 'promo-map-rank' || this.resTpl === 'finder-detail';
+    return ['promo-list', 'product-focus', 'hero-product', 'promo-map-rank', 'finder-detail'].includes(this.resTpl);
   }
   get specialResult(): boolean {
     return ['drill-stair', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'product-focus', 'hero-product', 'shelf', 'promo-map-rank', 'finder-detail'].includes(this.resTpl);
