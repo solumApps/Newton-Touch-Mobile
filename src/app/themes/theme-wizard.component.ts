@@ -9,7 +9,7 @@ import { ThemeService, SavedTheme } from '../services/theme.service';
 import { ImagePickerService } from '../services/image-picker.service';
 import { FONTS } from '../shared/fonts';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, CardOverlayStyle, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, TextCase, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, NavButtonMode, NavButtonSize, SaverOverlayPosition, ScrollMode, ScreensaverMode } from '@contract/layout';
+import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, CardOverlayStyle, OverlayShape, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, TextCase, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, NavButtonMode, NavButtonSize, SaverOverlayPosition, ScrollMode, ScreensaverMode } from '@contract/layout';
 import { MIN_COLUMNS, MAX_COLUMNS, columnsForLayout, coerceColumns, NAV_ICONS, navIconKind } from '@contract/layout';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
@@ -94,7 +94,7 @@ export class ThemeWizardComponent implements OnInit {
       : this.cardContents;
   }
   cardTextPositions: { id: CardTextPos; label: string }[] = [
-    { id: 'overlay-top', label: 'Inner Top' }, { id: 'overlay-bottom', label: 'Inner Bottom' }, { id: 'center', label: 'Center' }, { id: 'above', label: 'Top (above)' }, { id: 'below', label: 'Below' },
+    { id: 'overlay-top', label: 'Inner Top' }, { id: 'overlay-bottom', label: 'Inner Bottom' }, { id: 'center', label: 'Center' }, { id: 'below', label: 'Below' },
   ];
   /** Text-position applies to every content with a label (all except image-only),
    *  and to hero-start (it positions the hero copy). */
@@ -957,6 +957,17 @@ export class ThemeWizardComponent implements OnInit {
     this.t.intermediate.overlayStyle = id;
     this.t.intermediate.textOverlay = id !== 'none';
   }
+
+  /** Overlay label geometry (Home + Intermediate): footer bar vs floating pill. */
+  overlayShapes: { id: OverlayShape; label: string }[] = [
+    { id: 'pill', label: 'Floating pill' }, { id: 'bar', label: 'Footer bar' },
+  ];
+  /** Effective Home overlay geometry. Unset falls back to the legacy per-shape
+   *  look so the picker highlights what actually renders (rect = bar, shapes = pill). */
+  get cardOverlayShapeEff(): OverlayShape { return this.t.cardOverlayShape || (this.t.cardShape === 'rect' ? 'bar' : 'pill'); }
+  setCardOverlayShape(id: OverlayShape): void { this.t.cardOverlayShape = id; }
+  get interOverlayShapeEff(): OverlayShape { return this.t.intermediate.overlayShape || 'bar'; }
+  setInterOverlayShape(id: OverlayShape): void { this.t.intermediate.overlayShape = id; }
 
   /** Overlay scrim strength (0–100%). Reads/writes the alpha channel of
    *  overlayColor so it flows through the existing --nt-overlay/--prev-overlay

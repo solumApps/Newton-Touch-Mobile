@@ -406,6 +406,10 @@
             <div class="seg">
               <button class="tile" *ngFor="let s of overlayStyles" [class.sel]="cardOverlayEff===s.id" (click)="setCardOverlay(s.id)">{{ s.label }}</button>
             </div>
+            <div class="step-title sm" *ngIf="cardOverlayEff !== 'none' && (t.cardTextPos||'overlay-bottom')==='overlay-bottom'">Overlay shape</div>
+            <div class="seg" *ngIf="cardOverlayEff !== 'none' && (t.cardTextPos||'overlay-bottom')==='overlay-bottom'">
+              <button class="tile" *ngFor="let s of overlayShapes" [class.sel]="cardOverlayShapeEff===s.id" (click)="setCardOverlayShape(s.id)">{{ s.label }}</button>
+            </div>
             <div class="slider-row" *ngIf="cardOverlayEff !== 'none'">
               <span class="slider-lbl">Opacity</span>
               <input type="range" class="nt-slider" min="0" max="100" step="5" [value]="overlayOpacity"
@@ -650,6 +654,10 @@
           <div class="step-title sm">Text Overlay</div>
           <div class="seg">
             <button class="tile" *ngFor="let s of overlayStyles" [class.sel]="interOverlayEff===s.id" (click)="setInterOverlay(s.id)">{{ s.label }}</button>
+          </div>
+          <div class="step-title sm" *ngIf="interOverlayEff !== 'none' && (t.intermediate.textPos||'overlay-bottom')==='overlay-bottom'">Overlay shape</div>
+          <div class="seg" *ngIf="interOverlayEff !== 'none' && (t.intermediate.textPos||'overlay-bottom')==='overlay-bottom'">
+            <button class="tile" *ngFor="let s of overlayShapes" [class.sel]="interOverlayShapeEff===s.id" (click)="setInterOverlayShape(s.id)">{{ s.label }}</button>
           </div>
           <div class="slider-row" *ngIf="interOverlayEff !== 'none'">
             <span class="slider-lbl">Opacity</span>
