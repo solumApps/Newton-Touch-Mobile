@@ -731,7 +731,6 @@ export class ThemeWizardComponent implements OnInit {
     return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'horizontal' ? 'horizontal' : 'vertical';
   }
   get effectiveResultScrollMode(): 'vertical' | 'horizontal' {
-    if (this.t.resultTemplate === 'card-grid' || this.t.resultTemplate === 'shelf') return 'horizontal';
     return this.t.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
   }
   /** Set Home scroll + coerce alignment to a safe, non-clipping default. */
