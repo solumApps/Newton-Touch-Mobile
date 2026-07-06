@@ -11,8 +11,8 @@
    measured stage width (height = width * 540/1920).
 
    Device target: Android 7/8 stock WebView (~Chromium 60).
-   Keep this file on old-WebView-safe CSS only. Avoid modern sizing helpers,
-   selector-list pseudo functions, container queries, and shorthand offsets.
+   FORBIDDEN here: gap/row-gap/column-gap (flex+grid), aspect-ratio, clamp(),
+   min()/max(), :is()/:where(), container queries.
    ========================================================================== */
 
 /* ---- stage base (positioning [fixed/inset] stays app-specific) ---- */
@@ -768,10 +768,10 @@
 }
 
 /* hero + list: fixed grid — hero pinned left (46% × 3 rows), uniform rows right.
-   Former grid spacing is implemented with half-space card margins for Chromium 60. */
+   (grid gap:1.2vh 1vw → half-gap card margins for Chromium 60) */
 .nt-home .layout-hero-list {
   display: grid;
-  grid-template-columns: 46% 1fr;
+  grid-template-columns: 46% minmax(0, 1fr);
   grid-auto-rows: 30%;
   align-content: start;
   align-items: stretch;
@@ -1052,7 +1052,7 @@
 }
 
 /* promo tiles: icon/image on top + label below, chromeless.
-   Image uses explicit square stage units. */
+   (img was height:60% + aspect-ratio:1 → explicit square in stage units) */
 .nt-home .layout-promo-categories .promo-rail .card {
   flex-direction: column;
   clip-path: none;
@@ -1284,7 +1284,8 @@
   flex: 1;
 }
 
-/* ---- shape (circle/hexagon) arrangements — squares are explicit stage units ---- */
+/* ---- shape (circle/hexagon) arrangements — squares are explicit stage units
+   (was width:auto + aspect-ratio:1) ---- */
 .nt-home .cards.shape.layout-grid-2x3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1942,12 +1943,13 @@
   font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw) * 0.9);
 }
 
-/* circle/hexagon 'below': image clipped to shape, label beneath using a square shim. */
+/* circle/hexagon 'below': image clipped to shape, label beneath.
+   (img was height:100% + aspect-ratio:1 → padding-top square hack) */
 .nt-home .cards.shape .card.content-image-text.pos-below {
   clip-path: none;
   border-radius: 0;
   display: grid;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   align-items: stretch;
   justify-items: stretch;
   background: transparent !important;
@@ -2039,7 +2041,7 @@
 }
 
 /* clipped shapes OUTSIDE shape-grids (e.g. bento): explicit squares so circles
-   stay perfectly round and hexagons keep their ratio on Cr60. */
+   stay perfectly round and hexagons keep their ratio (no aspect-ratio on Cr60) */
 .nt-home .layout-bento .card.shape-circle,
 .nt-home .layout-bento .card.shape-hexagon {
   width: calc(var(--nt-vh)*30);
@@ -2144,7 +2146,7 @@
   border-radius: 999px;
 }
 
-/* circle/hexagon: explicit square dimensions. */
+/* circle/hexagon: explicit square (was width:auto + aspect-ratio:1, height:84%) */
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-circle,
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon {
   flex: 0 0 calc(var(--nt-vh)*63);
@@ -2198,7 +2200,7 @@
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-circle.content-image-text.pos-below,
 .nt-home .layout-h-scroll .h-scroll-rail .card.shape-hexagon.content-image-text.pos-below {
   display: grid;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   flex: 0 0 calc(var(--nt-vw)*14);
   width: calc(var(--nt-vw)*14);
   height: 92%;
@@ -2486,7 +2488,7 @@
 
 /* Bento + has-cols: use column count for right side rows */
 .nt-home .layout-bento.has-cols {
-  grid-template-columns: 30% repeat(calc(var(--cols, 4) - 1), 1fr);
+  grid-template-columns: minmax(30%, 1fr) repeat(calc(var(--cols, 4) - 1), 1fr);
   grid-template-rows: 1fr 1fr;
 }
 
@@ -2740,9 +2742,10 @@
   margin-left: auto !important;
 }
 
-/* shape has-cols spacing: apply --card-gap to circle/hex grid */
+/* shape has-cols gap: apply --card-gap to circle/hex grid */
 .nt-home .cards.shape.has-cols[style*="--card-gap"] {
-  grid-gap: var(--card-gap) !important;
+  grid-column-gap: var(--card-gap) !important;
+  grid-row-gap: var(--card-gap) !important;
 }
 
 /* ---- scrollMode override ---- */
@@ -3000,8 +3003,9 @@
   justify-content: flex-start;
 }
 
-/* B2a: shape + horizontal scroll + has-cols — card size is height-capped
-   while max-width keeps the requested column count visible before overflow. */
+/* B2a: shape + horizontal scroll + has-cols — card size is the SMALLER of
+   (screen-width / cols) and (available height), ensuring the card stays square
+   via aspect-ratio. Exactly --cols cards fit on screen; extra ones scroll. */
 .nt-home .cards.shape.scroll-horizontal.has-cols[class*="layout-col-"] .card,
 .nt-home .cards.shape.scroll-horizontal.has-cols[class*="layout-grid-"] .card {
   flex: 0 0 calc(var(--nt-vh) * 85);
@@ -3545,7 +3549,7 @@
   justify-content: flex-end;
 }
 
-/* shape applied to item IMAGES — explicit squares per layout. */
+/* shape applied to item IMAGES — explicit squares per layout (was aspect-ratio:1) */
 .nt-inter .int-shape-rect .item .img {
   border-radius: 8px;
   clip-path: none;
@@ -4421,7 +4425,7 @@
   opacity: .7;
 }
 
-/* scrollMode override uses item margin-bottom. */
+/* scrollMode override (row-gap:1.2vh → item margin-bottom) */
 .nt-inter .body.scroll-vertical {
   overflow-y: auto !important;
   overflow-x: hidden !important;
@@ -4580,8 +4584,8 @@
 /* G-3: Map-List search + sort bar */
 .nt-result.res-map-list .body {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   grid-gap: calc(var(--nt-vh)*1.2) calc(var(--nt-vw)*1);
 }
 
@@ -5680,7 +5684,7 @@
   text-overflow: ellipsis;
 }
 
-/* product-focus uses sibling margins; disc has explicit square dimensions. */
+/* product-focus (flex gap:3vw → sibling margins; disc was aspect-ratio:1/1) */
 .nt-result.res-product-focus .product-focus-body {
   align-items: center;
   justify-content: center;
@@ -8962,9 +8966,10 @@
   --int-col-gap-x: 4px;
   --int-col-gap-y: 20px;
   display: grid;
-  grid-gap: 0 var(--int-col-gap-h);
+  grid-row-gap: 0;
+  grid-column-gap: var(--int-col-gap-h);
   /* compute column width from the same math used by the flex layout, then apply the int scale so size changes affect both axes */
-  grid-template-columns: repeat(var(--int-cols, 3), calc(((100% - (var(--int-cols, 3) - 1) * var(--int-col-gap-h)) / var(--int-cols, 3)) * var(--nt-int-scale, 1)));
+  grid-template-columns: repeat(var(--int-cols, 3), minmax(0, calc(((100% - (var(--int-cols, 3) - 1) * var(--int-col-gap-h)) / var(--int-cols, 3)) * var(--nt-int-scale, 1))));
   grid-auto-rows: calc(var(--nt-vh)*60 * var(--nt-int-scale, 1));
   align-items: start;
 }
@@ -10449,7 +10454,7 @@
 
 .nt-inter .body.int-columns.scroll-vertical {
   display: grid;
-  grid-template-columns: repeat(var(--int-cols, 3), 1fr);
+  grid-template-columns: repeat(var(--int-cols, 3), minmax(0, 1fr));
   grid-auto-rows: max-content;
   align-items: start;
 }
