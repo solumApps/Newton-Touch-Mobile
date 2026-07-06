@@ -136,7 +136,7 @@
       <!-- HOME CARDS -->
       <div class="sec">
         <span>Home cards ({{ d.home.length }}<ng-container *ngIf="maxHomeItems"> / {{ maxHomeItems }}</ng-container>)</span>
-        <button class="mini" (click)="addCard()" [disabled]="atHomeCap">+ Add</button>
+        <button class="mini" *ngIf="d.appMode !== 'category'" (click)="addCard()" [disabled]="atHomeCap">+ Add</button>
       </div>
       <p class="note" *ngIf="atHomeCap">This featured theme is designed for up to <b>{{ maxHomeItems }}</b> home items — remove one to add another.</p>
       <div class="pcard" *ngFor="let c of d.home; let i = index">
