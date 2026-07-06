@@ -4687,10 +4687,17 @@
   cursor: pointer;
 }
 
+.nt-result .result-tools .res-sort button:focus {
+  outline: 0;
+  box-shadow: none;
+}
+
 .nt-result .result-tools .res-sort button.active {
   background: var(--nt-res-accent, #ffcd00);
   color: var(--nt-res-popular-text, var(--nt-res-text, #fff));
-  border-color: var(--nt-res-accent, #ffcd00);
+  border-color: transparent;
+  outline: 0;
+  box-shadow: none;
 }
 
 .nt-result.res-content-text-only .prod .info {
