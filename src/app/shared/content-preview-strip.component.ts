@@ -86,6 +86,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <span class="title" *ngIf="showTitle">{{ titleText }}</span>
               <span class="caption" *ngIf="showHeaderCaption">{{ captionText }}</span>
             </div>
+            <div class="crumb" *ngIf="page==='inter' && interTracklistVisible">{{ interTrackText }}</div>
+            <div class="ctx" *ngIf="page==='result' && resultTracklistVisible">{{ resultTrackText }}<span *ngIf="found?.aisle"> — Aisle {{ found?.aisle }}</span></div>
           </ng-container>
           <ng-container *ngIf="isCustomHeader">
             <div class="hzone left">
@@ -102,6 +104,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <img *ngIf="logoPos==='right'" [src]="header?.logo || 'assets/solum-logo-white.svg'" alt="Logo" class="brand-logo" />
               <span class="title" *ngIf="titlePos==='right'">{{ titleText }}</span>
               <span class="caption" *ngIf="captionPos==='right'">{{ captionText }}</span>
+              <span class="crumb" *ngIf="page==='inter' && interTracklistVisible">{{ interTrackText }}</span>
+              <span class="ctx" *ngIf="page==='result' && resultTracklistVisible">{{ resultTrackText }}</span>
             </div>
           </ng-container>
         </div>
@@ -1039,6 +1043,28 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
      (title → content name, caption → 'Welcome'). */
   get titleText(): string { return this.header?.title || this.draftName || 'Newton Touch'; }
   get captionText(): string { return this.header?.caption || 'Welcome'; }
+  get interTracklistVisible(): boolean { return this.theme?.intermediate?.showTracklist !== false; }
+  get resultTracklistVisible(): boolean { return this.theme?.result?.showTracklist !== false; }
+  get interTrackText(): string {
+    const values = this.previewTrackValues;
+    return values.length ? values.join(' › ') : this.titleText;
+  }
+  get resultTrackText(): string {
+    const values = this.previewTrackValues;
+    if (values.length) return values.join(' › ');
+    return this.found?.name || 'Result';
+  }
+  private get previewTrackValues(): string[] {
+    if (this.theme?.intermediateStyle === 'finder-select') {
+      const stepValues = this.fsStepRows.map((s) => s.value).filter((v) => !!v && v !== '-');
+      if (stepValues.length) return stepValues.slice(0, 4);
+    }
+    const picked = this.drillFilterColumns
+      .map((col) => col.items[col.pickedIndex]?.name || '')
+      .filter(Boolean);
+    if (picked.length) return picked.slice(0, 4);
+    return this.interCells.slice(0, 4).map((it) => it.name).filter(Boolean);
+  }
 
   /* Marker dot position — mirrors LCD ResultComponent (mapY/mapX %, default 30/25);
      a content-level 'dot' annotation overrides the per-product marker position. */
