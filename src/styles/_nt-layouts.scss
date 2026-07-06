@@ -2355,6 +2355,20 @@
   top: 58%;
 }
 
+.nt-home .cards .card.content-icon-text.pos-above .meta::before,
+.nt-home .cards .card.content-icon-text.pos-above.has-img .img {
+  top: 62%;
+}
+
+.nt-home .cards .card.content-icon-text.pos-above .name {
+  top: 8%;
+  bottom: auto;
+  padding: calc(var(--nt-vh)*0.35) calc(var(--nt-vw)*0.45);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--nt-text, #fff);
+}
+
 /* ---- card size variants ---- */
 .nt-home .card-size-xs .card {
   font-size: 0.72em;
@@ -7116,6 +7130,74 @@
   height: calc(var(--nt-vh)*66);
 }
 
+/* Promo circle/hexagon must stay a true shape for every content type. Earlier
+   content-specific rules can reintroduce square color/gradient cards; this final
+   assertion keeps the selected shape visible in both the studio preview and LCD. */
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle {
+  border-radius: 50% !important;
+  clip-path: none !important;
+  overflow: hidden !important;
+}
+
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon {
+  border-radius: 0 !important;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%) !important;
+  overflow: hidden !important;
+}
+
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-color-block,
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-gradient,
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-icon-text,
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-text-only,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon.content-color-block,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon.content-gradient,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon.content-icon-text,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon.content-text-only {
+  flex: 0 0 calc(var(--nt-vh)*58) !important;
+  width: calc(var(--nt-vh)*58) !important;
+  height: calc(var(--nt-vh)*58) !important;
+  align-self: center;
+}
+
+.nt-home .layout-promo-categories.card-size-xs .promo-rail .card.shape-circle.content-color-block,
+.nt-home .layout-promo-categories.card-size-xs .promo-rail .card.shape-circle.content-gradient,
+.nt-home .layout-promo-categories.card-size-xs .promo-rail .card.shape-circle.content-icon-text,
+.nt-home .layout-promo-categories.card-size-xs .promo-rail .card.shape-circle.content-text-only,
+.nt-home .layout-promo-categories.card-size-xs .promo-rail .card.shape-hexagon.content-color-block,
+.nt-home .layout-promo-categories.card-size-xs .promo-rail .card.shape-hexagon.content-gradient,
+.nt-home .layout-promo-categories.card-size-xs .promo-rail .card.shape-hexagon.content-icon-text,
+.nt-home .layout-promo-categories.card-size-xs .promo-rail .card.shape-hexagon.content-text-only {
+  flex-basis: calc(var(--nt-vh)*46) !important;
+  width: calc(var(--nt-vh)*46) !important;
+  height: calc(var(--nt-vh)*46) !important;
+}
+
+.nt-home .layout-promo-categories.card-size-small .promo-rail .card.shape-circle.content-color-block,
+.nt-home .layout-promo-categories.card-size-small .promo-rail .card.shape-circle.content-gradient,
+.nt-home .layout-promo-categories.card-size-small .promo-rail .card.shape-circle.content-icon-text,
+.nt-home .layout-promo-categories.card-size-small .promo-rail .card.shape-circle.content-text-only,
+.nt-home .layout-promo-categories.card-size-small .promo-rail .card.shape-hexagon.content-color-block,
+.nt-home .layout-promo-categories.card-size-small .promo-rail .card.shape-hexagon.content-gradient,
+.nt-home .layout-promo-categories.card-size-small .promo-rail .card.shape-hexagon.content-icon-text,
+.nt-home .layout-promo-categories.card-size-small .promo-rail .card.shape-hexagon.content-text-only {
+  flex-basis: calc(var(--nt-vh)*52) !important;
+  width: calc(var(--nt-vh)*52) !important;
+  height: calc(var(--nt-vh)*52) !important;
+}
+
+.nt-home .layout-promo-categories.card-size-large .promo-rail .card.shape-circle.content-color-block,
+.nt-home .layout-promo-categories.card-size-large .promo-rail .card.shape-circle.content-gradient,
+.nt-home .layout-promo-categories.card-size-large .promo-rail .card.shape-circle.content-icon-text,
+.nt-home .layout-promo-categories.card-size-large .promo-rail .card.shape-circle.content-text-only,
+.nt-home .layout-promo-categories.card-size-large .promo-rail .card.shape-hexagon.content-color-block,
+.nt-home .layout-promo-categories.card-size-large .promo-rail .card.shape-hexagon.content-gradient,
+.nt-home .layout-promo-categories.card-size-large .promo-rail .card.shape-hexagon.content-icon-text,
+.nt-home .layout-promo-categories.card-size-large .promo-rail .card.shape-hexagon.content-text-only {
+  flex-basis: calc(var(--nt-vh)*66) !important;
+  width: calc(var(--nt-vh)*66) !important;
+  height: calc(var(--nt-vh)*66) !important;
+}
+
 /* h-scroll: card size works for pill / circle / hexagon */
 .nt-home .layout-h-scroll.card-size-xs .h-scroll-rail .card.shape-pill {
   flex-basis: calc(var(--nt-vw)*16) !important;
@@ -10809,6 +10891,116 @@
   border: calc(var(--nt-vw)*0.16) solid rgba(255, 255, 255, .74);
   box-sizing: border-box;
   box-shadow: 0 calc(var(--nt-vh)*1.1) calc(var(--nt-vh)*1.8) rgba(0, 0, 0, .24) !important;
+}
+
+/* Generic Intermediate: Icon + Text respects the text-position control for
+   every flat item layout. Columns has extra sizing rules below, but this base
+   layer prevents Image Grid, Card Strip, Circular, Fullscreen, and Center Tiles
+   from ignoring the selected text position. */
+.nt-inter .body.int-content-icon-text .item {
+  position: relative;
+  overflow: hidden;
+}
+
+.nt-inter .body.int-content-icon-text .item .img {
+  display: none;
+}
+
+.nt-inter .body.int-content-icon-text .item::before {
+  content: '\2605';
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  color: var(--nt-int-accent, #FFCD00);
+  font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw)*3);
+  line-height: 1;
+  z-index: 1;
+}
+
+.nt-inter .body.int-content-icon-text .item.has-img::before {
+  display: none;
+}
+
+.nt-inter .body.int-content-icon-text .item.has-img .img {
+  display: block;
+  position: absolute !important;
+  left: 50% !important;
+  top: 38% !important;
+  width: 34% !important;
+  height: 34% !important;
+  transform: translate(-50%, -50%);
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  z-index: 1;
+}
+
+.nt-inter .body.int-content-icon-text .item .name {
+  position: absolute !important;
+  left: 8% !important;
+  right: 8% !important;
+  top: 60% !important;
+  bottom: auto !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  text-align: center;
+  z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nt-inter .body.int-content-icon-text.int-textpos-overlay-top .item::before,
+.nt-inter .body.int-content-icon-text.int-textpos-overlay-top .item.has-img .img {
+  top: 58% !important;
+}
+
+.nt-inter .body.int-content-icon-text.int-textpos-overlay-top .item .name {
+  top: 9% !important;
+  bottom: auto !important;
+}
+
+.nt-inter .body.int-content-icon-text.int-textpos-overlay-bottom .item::before,
+.nt-inter .body.int-content-icon-text.int-textpos-overlay-bottom .item.has-img .img {
+  top: 40% !important;
+}
+
+.nt-inter .body.int-content-icon-text.int-textpos-overlay-bottom .item .name {
+  top: auto !important;
+  bottom: 9% !important;
+}
+
+.nt-inter .body.int-content-icon-text.int-textpos-center .item::before,
+.nt-inter .body.int-content-icon-text.int-textpos-center .item.has-img .img {
+  top: 36% !important;
+}
+
+.nt-inter .body.int-content-icon-text.int-textpos-center .item .name {
+  top: 58% !important;
+  bottom: auto !important;
+}
+
+.nt-inter .body.int-content-icon-text.int-textpos-below .item::before,
+.nt-inter .body.int-content-icon-text.int-textpos-below .item.has-img .img {
+  top: 34% !important;
+}
+
+.nt-inter .body.int-content-icon-text.int-textpos-below .item .name {
+  top: 66% !important;
+  bottom: auto !important;
+}
+
+.nt-inter .body.int-content-icon-text.int-textpos-above .item::before,
+.nt-inter .body.int-content-icon-text.int-textpos-above .item.has-img .img {
+  top: 62% !important;
+}
+
+.nt-inter .body.int-content-icon-text.int-textpos-above .item .name {
+  top: 8% !important;
+  bottom: auto !important;
 }
 
 /* Intermediate Columns: Icon + Text mirrors Home. Use the uploaded icon when
