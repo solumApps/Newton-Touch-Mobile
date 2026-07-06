@@ -209,6 +209,22 @@ export class DeployComponent implements OnInit, OnDestroy {
     return Math.min(2000, this.SEND_DELAY_MS + Math.round(charLen / 350));
   }
 
+  private async sendDeploySessionStart(totalPayloads: number): Promise<void> {
+    const msg = JSON.stringify({
+      kind: 'deploySession',
+      action: 'start',
+      totalPayloads: Math.max(1, totalPayloads),
+      contentName: this.draft?.name || 'Receiving content',
+    });
+    try {
+      if (this.transfer.isNative) await this.transfer.send(this.targetHost, this.targetPort, msg, () => {});
+      else await this.transfer.sendRelayNoAck(this.targetHost, msg);
+      await this.sleep(this.SEND_DELAY_MS);
+    } catch {
+      this.pushStep('⚠ Display did not acknowledge deploy-session progress; continuing deploy');
+    }
+  }
+
   /** Stream a media blob (image/video) to the LCD in small base64 chunks so its
    *  V8 heap never holds the whole multi-MB string (the OOM crash). Each chunk's
    *  base64 length is a multiple of 4, so the receiver can decode + append it to
@@ -314,6 +330,21 @@ export class DeployComponent implements OnInit, OnDestroy {
 
     this.sending = true; this.percent = 0; this.doneMsg = ''; this.steps = [];
     try {
+      const needsServerConfig = this.draft.appMode !== 'prototype' && this.draft.appMode !== 'media';
+      let serverConfig = '';
+      let serverConfigSummary = '';
+      if (needsServerConfig) {
+        const creds = await this.workspace.creds();
+        const w = await this.workspace.get();
+        if (creds) {
+          const cred = await this.session.getCredentials();
+          if (!cred.password) this.pushStep('⚠ No saved password — sign out & sign in again so the LCD can log in to ESL');
+          const encUser = await encryptText(cred.username);
+          const encPass = await encryptText(cred.password);
+          serverConfigSummary = `server=${creds.serverUrl} company=${creds.companyId} store=${creds.storeId}`;
+          serverConfig = JSON.stringify({ kind: 'serverConfig', serverUrl: creds.serverUrl, username: encUser, password: encPass, companyId: creds.companyId, storeId: creds.storeId, ledColour: this.draft.ledColour || 'Red', ledDuration: this.draft.ledDuration || '10s', environment: w.environment });
+        }
+      }
       // Built inside the branch, but sent LAST (after serverConfig) so nothing can
       // clobber the layout transfer — see note before the layout send below.
       let layoutJson = '';
@@ -330,6 +361,7 @@ export class DeployComponent implements OnInit, OnDestroy {
         );
         layout.imageFallbacks = await this.buildFallbacks(images);
         const total = images.length + videos.length + 1;
+        await this.sendDeploySessionStart(total + (serverConfig ? 1 : 0));
         this.pushStep(`Preparing ${images.length} image(s)${videos.length ? ` + ${videos.length} video(s)` : ''} + layout (browser/relay)`);
         for (let i = 0; i < images.length; i++) {
           const img = images[i];
@@ -370,6 +402,8 @@ export class DeployComponent implements OnInit, OnDestroy {
         // (the layout was being dropped). Keep the native layout small & reliable.
         layout.imageFallbacks = {};
         const total = images.length + videos.length + 1;
+        const sessionPayloads = images.length + (videos.length * 2) + (media ? 2 : 0) + (serverConfig ? 1 : 0) + 1;
+        await this.sendDeploySessionStart(sessionPayloads);
         this.pushStep(`Preparing ${images.length} image(s)${videos.length ? ` + ${videos.length} video(s)` : ''} + layout`);
         for (let i = 0; i < images.length; i++) {
           const img = images[i];
@@ -425,20 +459,10 @@ export class DeployComponent implements OnInit, OnDestroy {
       // were dropping layout.json while plain Prototype, which sends no serverConfig,
       // worked). Throttle between each so the receiver flushes one before the next.
       await this.sleep(this.SEND_DELAY_MS);
-      if (this.draft.appMode !== 'prototype' && this.draft.appMode !== 'media') {
-        const creds = await this.workspace.creds();
-        const w = await this.workspace.get();
-        if (creds) {
-          // Forward CREDENTIALS (not a token) so the LCD logs in and manages its
-          // own token lifecycle (generate + refresh) exactly like the sample apps.
-          // Username/password are AES-GCM encrypted; the LCD decrypts them.
-          const cred = await this.session.getCredentials();
-          if (!cred.password) this.pushStep('⚠ No saved password — sign out & sign in again so the LCD can log in to ESL');
-          const encUser = await encryptText(cred.username);
-          const encPass = await encryptText(cred.password);
-          this.pushStep(`▸ serverConfig … (encrypted creds, NO token · server=${creds.serverUrl} company=${creds.companyId} store=${creds.storeId})`);
+      if (needsServerConfig) {
+        if (serverConfig) {
+          this.pushStep(`▸ serverConfig … (encrypted creds, NO token · ${serverConfigSummary})`);
           if (this.draft.appMode === 'category') this.pushStep(`  • category: LED ${this.draft.ledColour || 'Red'}/${this.draft.ledDuration || '10s'} · LCD will self-login + fetch category API on load`);
-          const serverConfig = JSON.stringify({ kind: 'serverConfig', serverUrl: creds.serverUrl, username: encUser, password: encPass, companyId: creds.companyId, storeId: creds.storeId, ledColour: this.draft.ledColour || 'Red', ledDuration: this.draft.ledDuration || '10s', environment: w.environment });
           try { await this.transfer.send(this.targetHost, this.targetPort, serverConfig, () => {}); await this.sleep(this.SEND_DELAY_MS); this.pushStep('  ✓ serverConfig sent'); }
           catch { this.pushStep('  ⚠ serverConfig send failed (non-fatal)'); }
         } else {
