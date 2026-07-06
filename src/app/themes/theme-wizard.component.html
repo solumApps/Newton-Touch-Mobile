@@ -713,6 +713,13 @@
             <button class="tile" [class.sel]="t.intermediate.showHeader" (click)="t.intermediate.showHeader=true">Show</button>
             <button class="tile" [class.sel]="!t.intermediate.showHeader" (click)="t.intermediate.showHeader=false">Hide</button>
           </div>
+          <ng-container *ngIf="t.intermediate.showHeader">
+            <div class="step-title sm">Header tracklist</div>
+            <div class="seg">
+              <button class="tile" [class.sel]="t.intermediate.showTracklist!==false" (click)="t.intermediate.showTracklist=true">Show</button>
+              <button class="tile" [class.sel]="t.intermediate.showTracklist===false" (click)="t.intermediate.showTracklist=false">Hide</button>
+            </div>
+          </ng-container>
           <p class="hint">Header bar, header layout, and header style are inherited from Home.</p>
         </ng-container>
       </div>
@@ -941,6 +948,13 @@
             <button class="tile" [class.sel]="t.result.showHeader" (click)="t.result.showHeader=true">Show</button>
             <button class="tile" [class.sel]="!t.result.showHeader" (click)="t.result.showHeader=false">Hide</button>
           </div>
+          <ng-container *ngIf="t.result.showHeader">
+            <div class="step-title sm">Header tracklist</div>
+            <div class="seg">
+              <button class="tile" [class.sel]="t.result.showTracklist!==false" (click)="t.result.showTracklist=true">Show</button>
+              <button class="tile" [class.sel]="t.result.showTracklist===false" (click)="t.result.showTracklist=false">Hide</button>
+            </div>
+          </ng-container>
         </ng-container>
         <div class="step-title sm">Navigation buttons</div>
         <p class="hint">Style the Back and Home buttons. Set a position to “Hidden” to hide that button.</p>

@@ -64,8 +64,8 @@ export class ThemeService {
       includeIntermediate: true,
       intermediateStyle: 'columns',
       resultTemplate: 'map-list',
-  intermediate: { headerColor: 'rgba(0,0,0,0.45)', headerTextColor: '#FFFFFF', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'top', gap: 'normal', textPos: 'overlay-bottom' },
-      result: { headerColor: 'transparent', background: '#1a0036', cardBackground: '#0f172a', cardText: '#FFFFFF', accent: '#ffcd00', popularText: '#FFFFFF', pathColor: '#ffcd00', pathStyle: 'dashed', showHeader: true },
+    intermediate: { headerColor: 'rgba(0,0,0,0.45)', headerTextColor: '#FFFFFF', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, showTracklist: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'top', gap: 'normal', textPos: 'overlay-bottom' },
+      result: { headerColor: 'transparent', background: '#1a0036', cardBackground: '#0f172a', cardText: '#FFFFFF', accent: '#ffcd00', popularText: '#FFFFFF', pathColor: '#ffcd00', pathStyle: 'dashed', showHeader: true, showTracklist: true },
       // Default to no page transition — faster, more responsive navigation
       // (per team feedback). The transition options remain available in the
       // Motion step for anyone who wants them.
@@ -129,8 +129,18 @@ export class ThemeService {
     if ((out.intermediateStyle as string) === 'scroll-list') out.intermediateStyle = 'card-strip';
     const nav = { ...d.nav, ...(t?.nav || {}) };
     out.nav = nav;
-    out.intermediate = { ...d.intermediate, ...(t?.intermediate || {}), showHeader: t?.intermediate?.showHeader ?? true };
-    out.result = { ...d.result, ...(t?.result || {}), showHeader: t?.result?.showHeader ?? true };
+    out.intermediate = {
+      ...d.intermediate,
+      ...(t?.intermediate || {}),
+      showHeader: t?.intermediate?.showHeader ?? true,
+      showTracklist: t?.intermediate?.showTracklist ?? true,
+    };
+    out.result = {
+      ...d.result,
+      ...(t?.result || {}),
+      showHeader: t?.result?.showHeader ?? true,
+      showTracklist: t?.result?.showTracklist ?? true,
+    };
     // Deep-merge animation + loader too — a partial object from an older/newer
     // .solumtheme file must never leave undefined fields behind.
     out.animation = { ...d.animation, ...(t?.animation || {}) };
