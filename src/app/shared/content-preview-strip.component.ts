@@ -316,7 +316,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 <div class="ftab active">Popular</div>
                 <div class="ftab">Alphabetical</div>
               </div>
-              <div class="prod" [class.found]="isFound(i)" *ngFor="let p of resultCells.slice(0,5); let i = index" (click)="selectResult(i)">
+              <div class="prod" [class.found]="isFound(i)" *ngFor="let p of promoResultCells; let i = index" (click)="selectResult(i)">
                 <div class="img" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="info">
                   <div class="nm">{{ p.name }}<span class="price" *ngIf="p.price"> · {{ p.price }}</span></div>
@@ -762,7 +762,6 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal';
   }
   get resultScrollMode(): 'vertical' | 'horizontal' {
-    if (this.resTpl === 'card-grid' || this.resTpl === 'shelf') return 'horizontal';
     return this.theme?.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
   }
   get interVisibleColumns(): number {
@@ -977,6 +976,11 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     const real = (this.result?.products || []).slice(0, 6);
     if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
     return [0, 1, 2].map(i => ({ id: 'ph' + i, name: 'Product ' + (i + 1) } as ResultProduct));
+  }
+  get promoResultCells(): ResultProduct[] {
+    const real = this.result?.products || [];
+    if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
+    return Array.from({ length: 8 }, (_, i) => ({ id: 'promo-ph' + i, name: 'Product ' + (i + 1) } as ResultProduct));
   }
   get saverBadge(): string {
     const m = this.screensaver?.mode;

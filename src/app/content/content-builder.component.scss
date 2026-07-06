@@ -114,6 +114,7 @@
   color: var(--nt-text);
   box-shadow: var(--nt-shadow-1);
   transition: border-color 150ms ease, box-shadow 150ms ease;
+  margin: 2px;
 }
 .inp:focus { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
 .del { border: none; background: none; color: var(--nt-muted); font-size: 15px; cursor: pointer; padding: 6px; }

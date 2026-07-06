@@ -4628,13 +4628,21 @@
 
 .nt-result.res-map-list .body>.map {
   grid-column: 1;
-  grid-row: 2;
+  grid-row: 1 / 3;
   margin-right: 0;
+  min-height: 0;
 }
 
 .nt-result.res-map-list .body>.list {
   grid-column: 2;
   grid-row: 2;
+  min-height: 0;
+}
+
+.nt-result.res-map-list .body>.result-tools {
+  grid-column: 2;
+  grid-row: 1;
+  margin-bottom: 6px;
 }
 
 .nt-result .result-tools {
@@ -5632,8 +5640,9 @@
 }
 
 .nt-result.res-promo-list .promo-products {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
+  min-height: 0;
   padding: calc(var(--nt-vh)*2) calc(var(--nt-vw)*2);
   box-sizing: border-box;
   background: var(--nt-res-card, transparent);
@@ -5655,10 +5664,16 @@
 }
 
 .nt-result.res-promo-list .promo-products .filter-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  padding-bottom: calc(var(--nt-vh)*1);
   margin-bottom: calc(var(--nt-vh)*1);
+  background: var(--nt-res-card, var(--nt-res-bg, transparent));
 }
 
 .nt-result.res-promo-list .promo-products .ftab {
@@ -5679,6 +5694,7 @@
 }
 
 .nt-result.res-promo-list .promo-products .prod {
+  flex: 0 0 auto;
   background: transparent;
   border-bottom: 1px solid rgba(0, 0, 0, .16);
   border-radius: 0;
@@ -5813,7 +5829,7 @@
 .nt-result.scroll-vertical .filter-list {
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .nt-result.scroll-vertical.res-map-list.res-content-text-only .prod {
