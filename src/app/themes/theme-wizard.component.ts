@@ -415,7 +415,7 @@ export class ThemeWizardComponent implements OnInit {
   }
   /** Result: custom templates have fixed internal panels, not global list scrolling. */
   get resOverflowMatters(): boolean {
-    return !['drill-stair', 'promo-map-rank', 'finder-detail'].includes(this.t.resultTemplate);
+    return !['drill-stair', 'promo-list', 'product-focus', 'hero-product', 'promo-map-rank', 'finder-detail'].includes(this.t.resultTemplate);
   }
   /** Result: card shape applies to templates with product cards/thumbnails. */
   get resShapeMatters(): boolean {
