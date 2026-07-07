@@ -790,7 +790,8 @@
   gap: 4px;
 }
 .prev .stage.result.res-map-list .result-tools {
-  grid-column: 1 / -1;
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -833,6 +834,20 @@
 .prev .stage.result.res-map-list .map,
 .prev .stage.result.res-map-list .list {
   min-height: 0;
+}
+.prev .stage.result.res-map-list .map {
+  grid-column: 1;
+  grid-row: 1 / 3;
+}
+.prev .stage.result.res-map-list .list {
+  grid-column: 2;
+  grid-row: 2;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.prev .stage.result.res-map-list .list::-webkit-scrollbar {
+  display: none;
 }
 /* map-full: map only */
 .prev .stage.result.res-map-full .list { display: none; }

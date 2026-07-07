@@ -86,6 +86,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <span class="title" *ngIf="showTitle">{{ titleText }}</span>
               <span class="caption" *ngIf="showHeaderCaption">{{ captionText }}</span>
             </div>
+            <div class="crumb" *ngIf="page==='inter' && interTracklistVisible">{{ interTrackText }}</div>
+            <div class="ctx" *ngIf="page==='result' && resultTracklistVisible">{{ resultTrackText }}<span *ngIf="found?.aisle"> — Aisle {{ found?.aisle }}</span></div>
           </ng-container>
           <ng-container *ngIf="isCustomHeader">
             <div class="hzone left">
@@ -102,6 +104,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <img *ngIf="logoPos==='right'" [src]="header?.logo || 'assets/solum-logo-white.svg'" alt="Logo" class="brand-logo" />
               <span class="title" *ngIf="titlePos==='right'">{{ titleText }}</span>
               <span class="caption" *ngIf="captionPos==='right'">{{ captionText }}</span>
+              <span class="crumb" *ngIf="page==='inter' && interTracklistVisible">{{ interTrackText }}</span>
+              <span class="ctx" *ngIf="page==='result' && resultTracklistVisible">{{ resultTrackText }}</span>
             </div>
           </ng-container>
         </div>
@@ -316,7 +320,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 <div class="ftab active">Popular</div>
                 <div class="ftab">Alphabetical</div>
               </div>
-              <div class="prod" [class.found]="isFound(i)" *ngFor="let p of resultCells.slice(0,5); let i = index" (click)="selectResult(i)">
+              <div class="prod" [class.found]="isFound(i)" *ngFor="let p of promoResultCells; let i = index" (click)="selectResult(i)">
                 <div class="img" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="info">
                   <div class="nm">{{ p.name }}<span class="price" *ngIf="p.price"> · {{ p.price }}</span></div>
@@ -643,7 +647,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   get resTpl(): string { return this.theme?.resultTemplate || 'map-list'; }
   get fixedResultTemplate(): boolean {
-    return this.resTpl === 'promo-map-rank' || this.resTpl === 'finder-detail';
+    return ['promo-list', 'product-focus', 'hero-product', 'promo-map-rank', 'finder-detail'].includes(this.resTpl);
   }
   get specialResult(): boolean {
     return ['drill-stair', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'product-focus', 'hero-product', 'shelf', 'promo-map-rank', 'finder-detail'].includes(this.resTpl);
@@ -762,7 +766,6 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal';
   }
   get resultScrollMode(): 'vertical' | 'horizontal' {
-    if (this.resTpl === 'card-grid' || this.resTpl === 'shelf') return 'horizontal';
     return this.theme?.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
   }
   get interVisibleColumns(): number {
@@ -978,6 +981,11 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
     return [0, 1, 2].map(i => ({ id: 'ph' + i, name: 'Product ' + (i + 1) } as ResultProduct));
   }
+  get promoResultCells(): ResultProduct[] {
+    const real = this.result?.products || [];
+    if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
+    return Array.from({ length: 8 }, (_, i) => ({ id: 'promo-ph' + i, name: 'Product ' + (i + 1) } as ResultProduct));
+  }
   get saverBadge(): string {
     const m = this.screensaver?.mode;
     return m === 'single-image' ? 'Single image' : m === 'video' ? 'Video' : 'Slideshow';
@@ -1035,6 +1043,28 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
      (title → content name, caption → 'Welcome'). */
   get titleText(): string { return this.header?.title || this.draftName || 'Newton Touch'; }
   get captionText(): string { return this.header?.caption || 'Welcome'; }
+  get interTracklistVisible(): boolean { return this.theme?.intermediate?.showTracklist !== false; }
+  get resultTracklistVisible(): boolean { return this.theme?.result?.showTracklist !== false; }
+  get interTrackText(): string {
+    const values = this.previewTrackValues;
+    return values.length ? values.join(' › ') : this.titleText;
+  }
+  get resultTrackText(): string {
+    const values = this.previewTrackValues;
+    if (values.length) return values.join(' › ');
+    return this.found?.name || 'Result';
+  }
+  private get previewTrackValues(): string[] {
+    if (this.theme?.intermediateStyle === 'finder-select') {
+      const stepValues = this.fsStepRows.map((s) => s.value).filter((v) => !!v && v !== '-');
+      if (stepValues.length) return stepValues.slice(0, 4);
+    }
+    const picked = this.drillFilterColumns
+      .map((col) => col.items[col.pickedIndex]?.name || '')
+      .filter(Boolean);
+    if (picked.length) return picked.slice(0, 4);
+    return this.interCells.slice(0, 4).map((it) => it.name).filter(Boolean);
+  }
 
   /* Marker dot position — mirrors LCD ResultComponent (mapY/mapX %, default 30/25);
      a content-level 'dot' annotation overrides the per-product marker position. */
