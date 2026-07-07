@@ -64,8 +64,8 @@ export class ThemeService {
       includeIntermediate: true,
       intermediateStyle: 'columns',
       resultTemplate: 'map-list',
-    intermediate: { headerColor: 'rgba(0,0,0,0.45)', headerTextColor: '#FFFFFF', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, showTracklist: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'top', gap: 'normal', textPos: 'overlay-bottom' },
-      result: { headerColor: 'transparent', background: '#1a0036', cardBackground: '#0f172a', cardText: '#FFFFFF', accent: '#ffcd00', popularText: '#FFFFFF', pathColor: '#ffcd00', pathStyle: 'dashed', showHeader: true, showTracklist: true },
+    intermediate: { headerColor: 'rgba(0,0,0,0.45)', headerTextColor: '#FFFFFF', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, showTracklist: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'top', gap: 'normal', textPos: 'overlay-bottom', navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right' },
+      result: { headerColor: 'transparent', background: '#1a0036', cardBackground: '#0f172a', cardText: '#FFFFFF', accent: '#ffcd00', popularText: '#FFFFFF', pathColor: '#ffcd00', pathStyle: 'dashed', showHeader: true, showTracklist: true, navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right' },
       // Default to no page transition — faster, more responsive navigation
       // (per team feedback). The transition options remain available in the
       // Motion step for anyone who wants them.
@@ -134,12 +134,20 @@ export class ThemeService {
       ...(t?.intermediate || {}),
       showHeader: t?.intermediate?.showHeader ?? true,
       showTracklist: t?.intermediate?.showTracklist ?? true,
+      navPosition: t?.intermediate?.navPosition ?? (t?.nav?.position ?? d.intermediate.navPosition),
+      navSplit: t?.intermediate?.navSplit ?? (t?.nav?.split ?? d.intermediate.navSplit),
+      navBackPosition: t?.intermediate?.navBackPosition ?? (t?.nav?.backPosition ?? d.intermediate.navBackPosition),
+      navHomePosition: t?.intermediate?.navHomePosition ?? (t?.nav?.homePosition ?? d.intermediate.navHomePosition),
     };
     out.result = {
       ...d.result,
       ...(t?.result || {}),
       showHeader: t?.result?.showHeader ?? true,
       showTracklist: t?.result?.showTracklist ?? true,
+      navPosition: t?.result?.navPosition ?? (t?.nav?.position ?? d.result.navPosition),
+      navSplit: t?.result?.navSplit ?? (t?.nav?.split ?? d.result.navSplit),
+      navBackPosition: t?.result?.navBackPosition ?? (t?.nav?.backPosition ?? d.result.navBackPosition),
+      navHomePosition: t?.result?.navHomePosition ?? (t?.nav?.homePosition ?? d.result.navHomePosition),
     };
     // Deep-merge animation + loader too — a partial object from an older/newer
     // .solumtheme file must never leave undefined fields behind.
@@ -188,6 +196,9 @@ export class ThemeService {
     nav.backIcon = coerceNavIcon(nav.backIcon);
     nav.homeIcon = coerceNavIcon(nav.homeIcon);
     out.intermediate.itemSize = coerceEnum(out.intermediate.itemSize, E.itemSize, d.intermediate.itemSize, 'intermediate.itemSize');
+    if (out.intermediate.navPosition !== undefined) out.intermediate.navPosition = coerceEnum(out.intermediate.navPosition, E.navButtonPosition, 'bottom-left', 'intermediate.navPosition');
+    if (out.intermediate.navBackPosition !== undefined) out.intermediate.navBackPosition = coerceEnum(out.intermediate.navBackPosition, E.navButtonPosition, 'bottom-left', 'intermediate.navBackPosition');
+    if (out.intermediate.navHomePosition !== undefined) out.intermediate.navHomePosition = coerceEnum(out.intermediate.navHomePosition, E.navButtonPosition, 'bottom-right', 'intermediate.navHomePosition');
     out.intermediate.cardShape = coerceEnum(out.intermediate.cardShape, E.cardShape, 'rect', 'intermediate.cardShape');
     out.intermediate.align = coerceEnum(out.intermediate.align, E.align, 'center', 'intermediate.align');
     out.intermediate.textAlign = coerceEnum(out.intermediate.textAlign, E.align, 'center', 'intermediate.textAlign');
@@ -196,6 +207,9 @@ export class ThemeService {
     out.intermediate.gap = coerceEnum(out.intermediate.gap, E.gap, 'normal', 'intermediate.gap');
     out.intermediate.textPos = coerceEnum(out.intermediate.textPos, E.cardTextPos, d.intermediate.textPos || 'overlay-bottom', 'intermediate.textPos');
     out.result.pathStyle = coerceEnum(out.result.pathStyle, E.pathStyle, d.result.pathStyle, 'result.pathStyle');
+    if (out.result.navPosition !== undefined) out.result.navPosition = coerceEnum(out.result.navPosition, E.navButtonPosition, 'bottom-left', 'result.navPosition');
+    if (out.result.navBackPosition !== undefined) out.result.navBackPosition = coerceEnum(out.result.navBackPosition, E.navButtonPosition, 'bottom-left', 'result.navBackPosition');
+    if (out.result.navHomePosition !== undefined) out.result.navHomePosition = coerceEnum(out.result.navHomePosition, E.navButtonPosition, 'bottom-right', 'result.navHomePosition');
     out.animation.transition = coerceEnum(out.animation.transition, E.transition, d.animation.transition, 'animation.transition');
     out.animation.speed = coerceEnum(out.animation.speed, E.animSpeed, d.animation.speed, 'animation.speed');
     out.loader.style = coerceEnum(out.loader.style, E.loaderStyle, d.loader.style, 'loader.style');
