@@ -3146,7 +3146,11 @@
   border-radius: 50%;
 }
 
-/* circle/hexagon promo cards: text centered IN the shape (not the bottom bubble) */
+/* circle/hexagon promo cards: text centered IN the shape (not the bottom bubble).
+   transform:none cancels the pos-center pill's translateY(-50%) (see the
+   .card.pos-center .meta rule): these no-image contents fill the shape (top/bottom
+   0) and centre via flex, so the -50% shift would push the label off the top edge
+   where the rail clips it. */
 .nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-text-only .meta,
 .nt-home .layout-promo-categories .promo-rail .card.shape-hexagon.content-text-only .meta,
 .nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-color-block .meta,
@@ -3164,6 +3168,7 @@
   justify-content: center;
   background: transparent !important;
   padding: 0;
+  transform: none !important;
 }
 
 .nt-home .layout-promo-categories .promo-rail .card.shape-circle.content-icon-text .meta,
@@ -3175,6 +3180,7 @@
   bottom: 0 !important;
   background: transparent !important;
   padding: 0;
+  transform: none !important;
 }
 
 /* surface treatment matches other layouts on these contents */
