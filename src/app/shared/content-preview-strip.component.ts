@@ -131,7 +131,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let c of homeCells; let i=index" [class.active]="i===0">{{ c.name }}</span></div>
           </div>
         </div>
-        <div *ngIf="theme?.homeLayout!=='finder-select'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} valign-{{theme?.cardVAlign||'middle'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}} ovl-{{theme?.cardOverlayStyle||'gradient'}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
+        <div *ngIf="theme?.homeLayout!=='finder-select'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} valign-{{theme?.cardVAlign||'middle'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}} ovl-{{theme?.cardOverlayStyle||'gradient'}} oshape-{{theme?.cardOverlayShape||''}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
              [class.txt-shadow]="theme?.cardTextShadow"
              [style.--nt-overlay-base]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
              [class.has-cols]="cols !== undefined" [style.--cols]="cols" [style.--card-gap]="cardGapPx" [class.cols-1]="cols === 1" [class.cols-2]="cols === 2" [class.cols-3]="cols === 3" [class.cols-4]="cols === 4" [class.cols-5]="cols === 5"
@@ -217,7 +217,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           </ng-container>
           <ng-template #flatInter>
-            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{$any(theme?.intermediateStyle)==='side-rail' ? 'left' : (theme?.intermediateStyle==='columns' ? 'center' : (theme?.intermediate?.align||'center'))}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-valign-{{theme?.intermediate?.valign||'middle'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'overlay-bottom'}} int-brm-{{theme?.intermediate?.brandRailMessagePos||'right'}} int-brmv-{{theme?.intermediate?.brandRailMessageAlign||'center'}} ovl-{{theme?.intermediate?.overlayStyle||'gradient'}}"
+            <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{$any(theme?.intermediateStyle)==='side-rail' ? 'left' : (theme?.intermediateStyle==='columns' ? 'center' : (theme?.intermediate?.align||'center'))}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-valign-{{theme?.intermediate?.valign||'middle'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'overlay-bottom'}} int-brm-{{theme?.intermediate?.brandRailMessagePos||'right'}} int-brmv-{{theme?.intermediate?.brandRailMessageAlign||'center'}} ovl-{{theme?.intermediate?.overlayStyle||'gradient'}} oshape-{{theme?.intermediate?.overlayShape||''}}"
                  [style.--nt-overlay-base]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
                  [class.txt-shadow]="theme?.intermediate?.textShadow"
                  [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && (theme?.intermediate?.columns || 3)===1" [class.int-scroll-peek]="interColumnsScrollPeek" [class.int-strip-few]="theme?.intermediateStyle==='card-strip' && interStripRenderedCount<=3" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [class.cols-2]="interVisibleColumns === 2" [class.cols-3]="interVisibleColumns === 3" [class.cols-4]="interVisibleColumns === 4" [class.cols-5]="interVisibleColumns === 5" [style.--int-cols]="interVisibleColumns" [style.--int-strip-card-width]="interStripCardWidth" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1" [style.--int-brm-bg]="theme?.intermediate?.brandRailMessageBgColor || null" [style.--int-brm-text]="theme?.intermediate?.brandRailMessageTextColor || null" [style.--card-gap]="theme?.intermediate?.gapNum != null ? (theme?.intermediate?.gapNum + 'px') : null">
@@ -479,16 +479,16 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <span class="fb-lbl" *ngIf="navMode !== 'icon'">{{ navHomeLabel }}</span>
             </div>
           </ng-template>
-          <div class="nav nav-pos-{{theme?.nav?.position || 'bottom-left'}}"
-               *ngIf="!theme?.nav?.split && (theme?.nav?.position || 'bottom-left') !== 'hidden'">
+          <div class="nav nav-pos-{{navGroupedPosition}}"
+               *ngIf="!navSplit && navGroupedPosition !== 'hidden'">
             <ng-container *ngTemplateOutlet="backBtn"></ng-container>
             <ng-container *ngTemplateOutlet="homeBtn"></ng-container>
           </div>
-          <ng-container *ngIf="theme?.nav?.split">
-            <div class="nav nav-single nav-pos-{{theme?.nav?.backPosition || 'bottom-left'}}" *ngIf="(theme?.nav?.backPosition || 'bottom-left') !== 'hidden'">
+          <ng-container *ngIf="navSplit">
+            <div class="nav nav-single nav-pos-{{navBackPosition}}" *ngIf="navBackPosition !== 'hidden'">
               <ng-container *ngTemplateOutlet="backBtn"></ng-container>
             </div>
-            <div class="nav nav-single nav-pos-{{theme?.nav?.homePosition || 'bottom-right'}}" *ngIf="(theme?.nav?.homePosition || 'bottom-right') !== 'hidden'">
+            <div class="nav nav-single nav-pos-{{navHomePosition}}" *ngIf="navHomePosition !== 'hidden'">
               <ng-container *ngTemplateOutlet="homeBtn"></ng-container>
             </div>
           </ng-container>
@@ -797,6 +797,26 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get cardCase(): string { return textCaseCss(this.theme?.typography?.cardTextCase); }
   get headerCase(): string { return textCaseCss(this.theme?.typography?.headerTextCase); }
   get navBtnSize(): number { return navBtnSizeNum(this.theme?.nav?.size); }
+  get navSplit(): boolean {
+    if (this.page === 'inter') return this.theme?.intermediate?.navSplit ?? this.theme?.nav?.split ?? false;
+    if (this.page === 'result') return this.theme?.result?.navSplit ?? this.theme?.nav?.split ?? false;
+    return this.theme?.nav?.split ?? false;
+  }
+  get navGroupedPosition(): string {
+    if (this.page === 'inter') return this.theme?.intermediate?.navPosition || this.theme?.nav?.position || 'bottom-left';
+    if (this.page === 'result') return this.theme?.result?.navPosition || this.theme?.nav?.position || 'bottom-left';
+    return this.theme?.nav?.position || 'bottom-left';
+  }
+  get navBackPosition(): string {
+    if (this.page === 'inter') return this.theme?.intermediate?.navBackPosition || this.theme?.nav?.backPosition || 'bottom-left';
+    if (this.page === 'result') return this.theme?.result?.navBackPosition || this.theme?.nav?.backPosition || 'bottom-left';
+    return this.theme?.nav?.backPosition || 'bottom-left';
+  }
+  get navHomePosition(): string {
+    if (this.page === 'inter') return this.theme?.intermediate?.navHomePosition || this.theme?.nav?.homePosition || 'bottom-right';
+    if (this.page === 'result') return this.theme?.result?.navHomePosition || this.theme?.nav?.homePosition || 'bottom-right';
+    return this.theme?.nav?.homePosition || 'bottom-right';
+  }
   /* Nav button mode / icons / labels — mirrors LCD intermediate/result pages. */
   get navMode(): string { return this.theme?.nav?.mode || 'icon'; }
   get navBackLabel(): string { return this.theme?.nav?.backLabel || 'Back'; }

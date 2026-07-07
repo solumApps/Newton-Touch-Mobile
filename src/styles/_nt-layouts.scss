@@ -1870,6 +1870,7 @@
   display: block;
   width: 100%;
   max-width: 100%;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: var(--nt-card-align, center);
@@ -5785,6 +5786,27 @@
   text-transform: uppercase;
 }
 
+.nt-result .hero-product-body .hp-info button,
+.nt-result.res-product-focus .focus-copy button {
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.nt-result .hero-product-body .hp-info button:focus,
+.nt-result .hero-product-body .hp-info button:focus-visible,
+.nt-result .hero-product-body .hp-info button:active,
+.nt-result.res-product-focus .focus-copy button:focus,
+.nt-result.res-product-focus .focus-copy button:focus-visible,
+.nt-result.res-product-focus .focus-copy button:active {
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .nt-result.res-product-focus .focus-image {
   flex: 0 0 auto;
   height: calc(var(--nt-vh)*62);
@@ -8287,7 +8309,7 @@
 
 .nt-result.res-promo-map-rank .prm-pill.active {
   background: #2c2c2a;
-  color: inherit;
+  color: #fff;
   border-color: #2c2c2a;
 }
 
@@ -8307,15 +8329,39 @@
 }
 
 .nt-result.res-promo-map-rank .prm-sub {
-  color: var(--prm-secondary-text, inherit);
+  color: var(--prm-secondary-text, #fff);
   font-weight: 600;
   cursor: pointer;
   font-size: calc(var(--nt-vw)*0.88);
 }
 
 .nt-result.res-promo-map-rank .prm-sub.active {
-  color: var(--prm-secondary-text, inherit);
+  color: var(--prm-secondary-text, #fff);
   font-weight: 800;
+}
+
+.nt-result.res-promo-map-rank .prm-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--nt-vh)*6);
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1);
+  border-radius: 6px;
+  font-size: calc(var(--nt-vw)*0.82);
+  font-weight: 700;
+  text-align: center;
+}
+
+.nt-result.res-promo-map-rank .prm-empty-secondary {
+  flex: 1;
+  color: var(--prm-secondary-text, #fff);
+  // border: 1px dashed rgba(255, 255, 255, .35);
+}
+
+.nt-result.res-promo-map-rank .prm-empty-products {
+  height: 100%;
+  color: var(--nt-res-text, #2c2c2a);
+  border: 1px dashed rgba(44, 44, 42, .25);
 }
 
 .nt-result.res-promo-map-rank .prm-listwrap {
@@ -8368,6 +8414,10 @@
   padding: calc(var(--nt-vh)*0.9) 0;
   border-bottom: 1px solid #ececec;
   cursor: pointer;
+}
+
+.nt-result.res-promo-map-rank .prm-row.found {
+  border-bottom: calc(var(--nt-vh)*0.28) solid var(--prm-subpanel, #5f5e5a);
 }
 
 .nt-result.res-promo-map-rank .prm-rank {
@@ -9070,6 +9120,17 @@
   margin-bottom: auto;
 }
 
+/* Rectangle overlay label — match Home gradient scrim (.nt-home .card.content-image-text.pos-overlay-bottom .meta). */
+.nt-inter .body.int-columns.int-shape-rect.int-textpos-overlay-bottom .item .name {
+  background: linear-gradient(transparent, var(--nt-overlay, rgba(0, 0, 0, .6)));
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8);
+}
+
+.nt-inter .body.int-columns.int-shape-rect.int-textpos-overlay-top .item .name {
+  background: linear-gradient(var(--nt-overlay, rgba(0, 0, 0, .6)), transparent);
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8);
+}
+
 /* shapes — circle/hexagon are SQUARE (narrower than rect), image fills, name overlaid */
 .nt-inter .body.int-columns.int-shape-pill .item {
   border-radius: 999px;
@@ -9721,15 +9782,39 @@
 }
 
 .nt-result.res-promo-map-rank .prm-sub {
-  color: var(--prm-secondary-text, inherit);
+  color: var(--prm-secondary-text, #fff);
   font-weight: 600;
   cursor: pointer;
   font-size: calc(var(--nt-vw)*0.88);
 }
 
 .nt-result.res-promo-map-rank .prm-sub.active {
-  color: var(--prm-secondary-text, inherit);
+  color: var(--prm-secondary-text, #fff);
   font-weight: 800;
+}
+
+.nt-result.res-promo-map-rank .prm-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--nt-vh)*6);
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1);
+  border-radius: 6px;
+  font-size: calc(var(--nt-vw)*0.82);
+  font-weight: 700;
+  text-align: center;
+}
+
+.nt-result.res-promo-map-rank .prm-empty-secondary {
+  flex: 1;
+  color: var(--prm-secondary-text, #fff);
+  // border: 1px dashed rgba(255, 255, 255, .35);
+}
+
+.nt-result.res-promo-map-rank .prm-empty-products {
+  height: 100%;
+  color: var(--nt-res-text, #2c2c2a);
+  border: 1px dashed rgba(44, 44, 42, .25);
 }
 
 .nt-result.res-promo-map-rank .prm-listwrap {
@@ -9782,6 +9867,10 @@
   padding: calc(var(--nt-vh)*0.9) 0;
   border-bottom: 1px solid #ececec;
   cursor: pointer;
+}
+
+.nt-result.res-promo-map-rank .prm-row.found {
+  border-bottom: calc(var(--nt-vh)*0.28) solid var(--prm-subpanel, #5f5e5a);
 }
 
 .nt-result.res-promo-map-rank .prm-rank {
@@ -10445,6 +10534,17 @@
 .nt-inter .body.int-columns.int-textpos-overlay-top .item .name {
   margin-top: 0;
   margin-bottom: auto;
+}
+
+/* Rectangle overlay label — match Home gradient scrim (.nt-home .card.content-image-text.pos-overlay-bottom .meta). */
+.nt-inter .body.int-columns.int-shape-rect.int-textpos-overlay-bottom .item .name {
+  background: linear-gradient(transparent, var(--nt-overlay, rgba(0, 0, 0, .6)));
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8);
+}
+
+.nt-inter .body.int-columns.int-shape-rect.int-textpos-overlay-top .item .name {
+  background: linear-gradient(var(--nt-overlay, rgba(0, 0, 0, .6)), transparent);
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8);
 }
 
 /* Pill cards have semicircular ends (corner radius = half the card height):
@@ -11953,4 +12053,190 @@
 
 .nt-inter .fs-index-values > * + * {
   margin-left: calc(var(--nt-vw)*0.65);
+}
+
+/* ============================================================================
+   Overlay label geometry — cardOverlayShape / intermediate.overlayShape.
+   Unset = legacy per-shape look (unchanged): rect Home cards + Intermediate items
+   render a full-width footer bar; pill/circle/hexagon Home cards render a floating
+   pill. The container class oshape-{bar|pill}, emitted only when the user picks a
+   value, forces that geometry. Emitted identically by the LCD renderer and mobile
+   preview. Chromium-60/66-safe: explicit sizes, margins, %/var units; no gap /
+   clamp() / min() / max() / :is() / :where() / aspect-ratio.
+   KEEP THIS BLOCK BYTE-IDENTICAL IN BOTH APPS (lcd + mobile).
+   ========================================================================== */
+
+/* Home — PILL selected on a rectangle image card: drop the full-width scrim and
+   float the label as a centered rounded chip, inset from all edges (Image 1). */
+.nt-home .cards.oshape-pill .card.shape-rect.content-image-text.pos-overlay-bottom .meta {
+  left: 0;
+  right: 0;
+  top: auto;
+  bottom: calc(var(--nt-vh)*1.4);
+  background: none;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.nt-home .cards.oshape-pill .card.shape-rect.content-image-text.pos-overlay-top .meta {
+  left: 0;
+  right: 0;
+  bottom: auto;
+  top: calc(var(--nt-vh)*1.4);
+  background: none;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.nt-home .cards.oshape-pill .card.shape-rect.content-image-text.pos-overlay-bottom .name,
+.nt-home .cards.oshape-pill .card.shape-rect.content-image-text.pos-overlay-top .name {
+  display: inline-block;
+  width: auto;
+  max-width: 84%;
+  background: var(--nt-overlay, rgba(0, 0, 0, .6));
+  border-radius: 999px;
+  padding: calc(var(--nt-vh)*0.5) calc(var(--nt-vw)*1.2);
+  box-sizing: border-box;
+}
+
+/* Home — respect the overlay-off toggle: no chip scrim when overlay is off. */
+.nt-home .cards.no-overlay.oshape-pill .card.shape-rect.content-image-text.pos-overlay-bottom .name,
+.nt-home .cards.no-overlay.oshape-pill .card.shape-rect.content-image-text.pos-overlay-top .name {
+  background: transparent !important;
+}
+
+/* Home — BAR selected on a pill-shaped card: convert its floating pill into a
+   full-width footer bar fused to the bottom edge (Image 2). The card overflow:
+   hidden + border-radius clip the bar bottom corners to the card outline, giving
+   the slight bottom rounding. Rect cards are already a footer bar by default;
+   circle/hexagon keep their floating pill (a full-width bar does not fit those
+   outlines). */
+.nt-home .cards.oshape-bar .card.shape-pill.content-image-text.pos-overlay-bottom .meta {
+  left: 0;
+  right: 0;
+  top: auto;
+  bottom: 0;
+  border-radius: 0;
+  background: var(--nt-overlay, rgba(0, 0, 0, .6));
+  padding: calc(var(--nt-vh)*0.9) calc(var(--nt-vw)*0.8);
+}
+
+.nt-home .cards.oshape-bar .card.shape-pill.content-image-text.pos-overlay-top .meta {
+  left: 0;
+  right: 0;
+  bottom: auto;
+  top: 0;
+  border-radius: 0;
+  background: var(--nt-overlay, rgba(0, 0, 0, .6));
+  padding: calc(var(--nt-vh)*0.9) calc(var(--nt-vw)*0.8);
+}
+
+.nt-home .cards.oshape-bar .card.shape-pill.content-image-text.pos-overlay-bottom .name,
+.nt-home .cards.oshape-bar .card.shape-pill.content-image-text.pos-overlay-top .name {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Intermediate — PILL selected: float the item label as a centered rounded chip
+   for the overlay text positions, across the overlay-capable styles (columns
+   [rect/circle/hexagon], image-grid, card-strip, fullscreen). Mirrors the
+   existing center-position pill but keeps the selected top/bottom placement. */
+.nt-inter .body.oshape-pill.int-columns.int-textpos-overlay-bottom .item .name,
+.nt-inter .body.oshape-pill.int-columns.int-textpos-overlay-top .item .name,
+.nt-inter .body.oshape-pill.int-image-grid.int-textpos-overlay-bottom .item .name,
+.nt-inter .body.oshape-pill.int-image-grid.int-textpos-overlay-top .item .name,
+.nt-inter .body.oshape-pill.int-card-strip.int-textpos-overlay-bottom .item .name,
+.nt-inter .body.oshape-pill.int-card-strip.int-textpos-overlay-top .item .name,
+.nt-inter .body.oshape-pill.int-fullscreen.int-textpos-overlay-bottom .item .name,
+.nt-inter .body.oshape-pill.int-fullscreen.int-textpos-overlay-top .item .name {
+  position: absolute !important;
+  z-index: 1;
+  left: 10% !important;
+  right: 10% !important;
+  width: auto !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  background: var(--nt-overlay, rgba(0, 0, 0, .52)) !important;
+  border-radius: 999px !important;
+  color: #fff !important;
+  padding: calc(var(--nt-vh)*0.45) calc(var(--nt-vw)*0.5) !important;
+  box-sizing: border-box;
+}
+
+.nt-inter .body.oshape-pill.int-columns.int-textpos-overlay-bottom .item .name,
+.nt-inter .body.oshape-pill.int-image-grid.int-textpos-overlay-bottom .item .name,
+.nt-inter .body.oshape-pill.int-card-strip.int-textpos-overlay-bottom .item .name,
+.nt-inter .body.oshape-pill.int-fullscreen.int-textpos-overlay-bottom .item .name {
+  top: auto !important;
+  bottom: 11% !important;
+}
+
+.nt-inter .body.oshape-pill.int-columns.int-textpos-overlay-top .item .name,
+.nt-inter .body.oshape-pill.int-image-grid.int-textpos-overlay-top .item .name,
+.nt-inter .body.oshape-pill.int-card-strip.int-textpos-overlay-top .item .name,
+.nt-inter .body.oshape-pill.int-fullscreen.int-textpos-overlay-top .item .name {
+  bottom: auto !important;
+  top: 11% !important;
+}
+
+/* Intermediate — respect the overlay-off toggle: drop the chip scrim. */
+.nt-inter .body.no-overlay.oshape-pill.int-columns.int-textpos-overlay-bottom .item .name,
+.nt-inter .body.no-overlay.oshape-pill.int-columns.int-textpos-overlay-top .item .name,
+.nt-inter .body.no-overlay.oshape-pill.int-image-grid.int-textpos-overlay-bottom .item .name,
+.nt-inter .body.no-overlay.oshape-pill.int-image-grid.int-textpos-overlay-top .item .name,
+.nt-inter .body.no-overlay.oshape-pill.int-card-strip.int-textpos-overlay-bottom .item .name,
+.nt-inter .body.no-overlay.oshape-pill.int-card-strip.int-textpos-overlay-top .item .name,
+.nt-inter .body.no-overlay.oshape-pill.int-fullscreen.int-textpos-overlay-bottom .item .name,
+.nt-inter .body.no-overlay.oshape-pill.int-fullscreen.int-textpos-overlay-top .item .name {
+  background: transparent !important;
+}
+
+/* Hexagon tapers toward the top/bottom, so a 10% inset floating pill overflows
+   the shape outline. Pull it in further (20%) so it stays inside the shape.
+   Circle and pill-shape (stadium) cards stay at 10% — circle is round all the
+   way around (no taper) and needs the extra width to fit a legible label. */
+.nt-home .card.shape-hexagon.content-image-text.pos-overlay-bottom .meta,
+.nt-home .card.shape-hexagon.content-image-text.pos-overlay-top .meta {
+  left: 20%;
+  right: 20%;
+}
+
+.nt-inter .body.oshape-pill.int-shape-hexagon.int-textpos-overlay-bottom .item .name,
+.nt-inter .body.oshape-pill.int-shape-hexagon.int-textpos-overlay-top .item .name {
+  left: 20% !important;
+  right: 20% !important;
+}
+
+/* Hexagon tapers to a point near the bottom, so a bottom-anchored pill must be
+   either very narrow (hiding the label) or overflow. Instead keep a readable
+   width (20% inset) and lift the pill into the wide middle band, so the label
+   stays visible AND inside the outline. Circle keeps its default position. */
+.nt-home .card.shape-hexagon.content-image-text.pos-overlay-bottom .meta {
+  left: 20%;
+  right: 20%;
+  bottom: 20%;
+}
+
+.nt-home .card.shape-hexagon.content-image-text.pos-overlay-top .meta {
+  left: 20%;
+  right: 20%;
+  top: 20%;
+}
+
+.nt-inter .body.oshape-pill.int-shape-hexagon.int-textpos-overlay-bottom .item .name {
+  left: 20% !important;
+  right: 20% !important;
+  bottom: 20% !important;
+}
+
+.nt-inter .body.oshape-pill.int-shape-hexagon.int-textpos-overlay-top .item .name {
+  left: 20% !important;
+  right: 20% !important;
+  top: 20% !important;
 }

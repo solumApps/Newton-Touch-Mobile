@@ -65,6 +65,8 @@ export type CardTextPos = 'overlay-top' | 'overlay-bottom' | 'below' | 'center' 
  *  tint = whole image darkened with the overlay colour, none = no scrim (text-shadow
  *  only). Applied on Home cards and Intermediate items. */
 export type CardOverlayStyle = 'gradient' | 'solid' | 'tint' | 'none';
+/** Overlay text-label geometry. bar = full-width footer strip fused to the card edge. pill = floating rounded chip inset from the card edges. Applied on Home cards and Intermediate items. */
+export type OverlayShape = 'bar' | 'pill';
 
 export type IntermediateStyle =
   | 'accordion' | 'pill-tabs' | 'image-grid' | 'hex-grid'
@@ -222,6 +224,8 @@ export interface ThemeTokens {
   cardTextOverlay?: boolean;
   /** Text-overlay scrim style for Home cards. Default 'gradient'. */
   cardOverlayStyle?: CardOverlayStyle;
+  /** Overlay label geometry for Home cards. Unset = legacy per-shape look (rect = footer bar, pill/circle/hexagon = floating pill). 'bar' forces a fused footer bar; 'pill' forces a floating chip. */
+  cardOverlayShape?: OverlayShape;
   /** Drop-shadow behind Home card text for legibility (works in any position,
    *  independent of the overlay scrim). Default off. */
   cardTextShadow?: boolean;
@@ -252,7 +256,9 @@ export interface ThemeTokens {
   includeIntermediate: boolean;
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
-  intermediate: { headerColor: string; headerTextColor?: string; headerStyle?: HeaderStyle; headerLayout?: HeaderLayoutMode; logoPos?: HeaderItemPos; titlePos?: HeaderItemPos; captionPos?: HeaderItemPos; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; showTracklist?: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; textAlign?: 'left' | 'center' | 'right'; scrollMode?: ScrollMode; valign?: 'top' | 'middle' | 'bottom'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: CardContent; textPos?: CardTextPos; textOverlay?: boolean; overlayStyle?: CardOverlayStyle; textShadow?: boolean; brandRailMessagePos?: 'left' | 'right'; brandRailMessageAlign?: 'top' | 'center' | 'bottom';
+  intermediate: { headerColor: string; headerTextColor?: string; headerStyle?: HeaderStyle; headerLayout?: HeaderLayoutMode; logoPos?: HeaderItemPos; titlePos?: HeaderItemPos; captionPos?: HeaderItemPos; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; showTracklist?: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; textAlign?: 'left' | 'center' | 'right'; scrollMode?: ScrollMode; valign?: 'top' | 'middle' | 'bottom'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: CardContent; textPos?: CardTextPos; textOverlay?: boolean; overlayStyle?: CardOverlayStyle; overlayShape?: OverlayShape; textShadow?: boolean; brandRailMessagePos?: 'left' | 'right'; brandRailMessageAlign?: 'top' | 'center' | 'bottom';
+    /** Optional nav-position override for the Intermediate page only. */
+    navPosition?: NavButtonPosition; navSplit?: boolean; navBackPosition?: NavButtonPosition; navHomePosition?: NavButtonPosition;
     /** brand-rail: blur message container background + text colour. */
     brandRailMessageBgColor?: string; brandRailMessageTextColor?: string;
     /** finder-select template: dark hero rail + selection cards + index strip. */
@@ -265,6 +271,8 @@ export interface ThemeTokens {
     /** finder-select fs-card appearance (independent of the brand-rail/columns card controls). */
     fsCardContent?: CardContent; fsCardShape?: CardShape; fsTextPos?: CardTextPos; fsTextAlign?: 'left' | 'center' | 'right'; };
   result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; showTracklist?: boolean; transparentHeader?: boolean; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; cardShape?: CardShape; popularText?: string;
+    /** Optional nav-position override for the Result page only. */
+    navPosition?: NavButtonPosition; navSplit?: boolean; navBackPosition?: NavButtonPosition; navHomePosition?: NavButtonPosition;
     /** Position of the filter section in Map-Filter-List (G-2). Default 'top'. */
     filterPos?: 'top' | 'bottom' | 'left' | 'right';
     /** promo-map-rank: header countdown timer (mm:ss start) + alert bell. */

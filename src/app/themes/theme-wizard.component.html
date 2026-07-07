@@ -406,6 +406,10 @@
             <div class="seg">
               <button class="tile" *ngFor="let s of overlayStyles" [class.sel]="cardOverlayEff===s.id" (click)="setCardOverlay(s.id)">{{ s.label }}</button>
             </div>
+            <div class="step-title sm" *ngIf="cardOverlayEff !== 'none' && (t.cardTextPos||'overlay-bottom')==='overlay-bottom'">Overlay shape</div>
+            <div class="seg" *ngIf="cardOverlayEff !== 'none' && (t.cardTextPos||'overlay-bottom')==='overlay-bottom'">
+              <button class="tile" *ngFor="let s of overlayShapes" [class.sel]="cardOverlayShapeEff===s.id" (click)="setCardOverlayShape(s.id)">{{ s.label }}</button>
+            </div>
             <div class="slider-row" *ngIf="cardOverlayEff !== 'none'">
               <span class="slider-lbl">Opacity</span>
               <input type="range" class="nt-slider" min="0" max="100" step="5" [value]="overlayOpacity"
@@ -651,6 +655,10 @@
           <div class="seg">
             <button class="tile" *ngFor="let s of overlayStyles" [class.sel]="interOverlayEff===s.id" (click)="setInterOverlay(s.id)">{{ s.label }}</button>
           </div>
+          <div class="step-title sm" *ngIf="interOverlayEff !== 'none' && (t.intermediate.textPos||'overlay-bottom')==='overlay-bottom'">Overlay shape</div>
+          <div class="seg" *ngIf="interOverlayEff !== 'none' && (t.intermediate.textPos||'overlay-bottom')==='overlay-bottom'">
+            <button class="tile" *ngFor="let s of overlayShapes" [class.sel]="interOverlayShapeEff===s.id" (click)="setInterOverlayShape(s.id)">{{ s.label }}</button>
+          </div>
           <div class="slider-row" *ngIf="interOverlayEff !== 'none'">
             <span class="slider-lbl">Opacity</span>
             <input type="range" class="nt-slider" min="0" max="100" step="5" [value]="overlayOpacity"
@@ -795,23 +803,23 @@
         </div>
         <div class="step-title sm">Button layout</div>
         <div class="seg">
-          <button class="tile" [class.sel]="!t.nav?.split" (click)="t.nav!.split=false">Grouped together</button>
-          <button class="tile" [class.sel]="t.nav?.split" (click)="t.nav!.split=true">Separate (independent)</button>
+          <button class="tile" [class.sel]="!navSplitFor('intermediate')" (click)="setNavSplit('intermediate', false)">Grouped together</button>
+          <button class="tile" [class.sel]="navSplitFor('intermediate')" (click)="setNavSplit('intermediate', true)">Separate (independent)</button>
         </div>
-        <ng-container *ngIf="!t.nav?.split">
+        <ng-container *ngIf="!navSplitFor('intermediate')">
           <div class="step-title sm">Button position</div>
           <div class="seg">
-            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="navPositionFor('intermediate')===p.id" (click)="setNavPosition('intermediate', p.id)">{{ p.label }}</button>
           </div>
         </ng-container>
-        <ng-container *ngIf="t.nav?.split">
+        <ng-container *ngIf="navSplitFor('intermediate')">
           <div class="step-title sm">&#8249; Back position</div>
           <div class="seg">
-            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.backPosition||'bottom-left')===p.id" (click)="t.nav!.backPosition=p.id">{{ p.label }}</button>
+            <button class="tile" *ngFor="let p of navPositionsFor('intermediate', 'back')" [class.sel]="navBackPositionFor('intermediate')===p.id" (click)="setNavBackPosition('intermediate', p.id)">{{ p.label }}</button>
           </div>
           <div class="step-title sm">&#8962; Home position</div>
           <div class="seg">
-            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.homePosition||'bottom-right')===p.id" (click)="t.nav!.homePosition=p.id">{{ p.label }}</button>
+            <button class="tile" *ngFor="let p of navPositionsFor('intermediate', 'home')" [class.sel]="navHomePositionFor('intermediate')===p.id" (click)="setNavHomePosition('intermediate', p.id)">{{ p.label }}</button>
           </div>
         </ng-container>
       </div>
@@ -883,32 +891,6 @@
           </div>
         </ng-container>
 
-        <div class="step-title sm">Nav bar style</div>
-        <div class="seg">
-          <button class="tile" *ngFor="let s of navStyles" [class.sel]="(t.navStyle||'floating')===s.id" (click)="t.navStyle=s.id">{{ s.label }}</button>
-        </div>
-        <div class="step-title sm">Button layout</div>
-        <div class="seg">
-          <button class="tile" [class.sel]="!t.nav?.split" (click)="t.nav!.split=false">Grouped together</button>
-          <button class="tile" [class.sel]="t.nav?.split" (click)="t.nav!.split=true">Separate (independent)</button>
-        </div>
-        <ng-container *ngIf="!t.nav?.split">
-          <div class="step-title sm">Button position</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
-          </div>
-        </ng-container>
-        <ng-container *ngIf="t.nav?.split">
-          <div class="step-title sm">&#8249; Back position</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.backPosition||'bottom-left')===p.id" (click)="t.nav!.backPosition=p.id">{{ p.label }}</button>
-          </div>
-          <div class="step-title sm">&#8962; Home position</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.homePosition||'bottom-right')===p.id" (click)="t.nav!.homePosition=p.id">{{ p.label }}</button>
-          </div>
-        </ng-container>
-        <p class="hint">Button colors are on the Result colors step.</p>
       </div>
 
       <div *ngSwitchCase="'resColors'">
@@ -1012,23 +994,23 @@
         </div>
         <div class="step-title sm">Button layout</div>
         <div class="seg">
-          <button class="tile" [class.sel]="!t.nav?.split" (click)="t.nav!.split=false">Grouped together</button>
-          <button class="tile" [class.sel]="t.nav?.split" (click)="t.nav!.split=true">Separate (independent)</button>
+          <button class="tile" [class.sel]="!navSplitFor('result')" (click)="setNavSplit('result', false)">Grouped together</button>
+          <button class="tile" [class.sel]="navSplitFor('result')" (click)="setNavSplit('result', true)">Separate (independent)</button>
         </div>
-        <ng-container *ngIf="!t.nav?.split">
+        <ng-container *ngIf="!navSplitFor('result')">
           <div class="step-title sm">Button position</div>
           <div class="seg">
-            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="navPositionFor('result')===p.id" (click)="setNavPosition('result', p.id)">{{ p.label }}</button>
           </div>
         </ng-container>
-        <ng-container *ngIf="t.nav?.split">
+        <ng-container *ngIf="navSplitFor('result')">
           <div class="step-title sm">&#8249; Back position</div>
           <div class="seg">
-            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.backPosition||'bottom-left')===p.id" (click)="t.nav!.backPosition=p.id">{{ p.label }}</button>
+            <button class="tile" *ngFor="let p of navPositionsFor('result', 'back')" [class.sel]="navBackPositionFor('result')===p.id" (click)="setNavBackPosition('result', p.id)">{{ p.label }}</button>
           </div>
           <div class="step-title sm">&#8962; Home position</div>
           <div class="seg">
-            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.homePosition||'bottom-right')===p.id" (click)="t.nav!.homePosition=p.id">{{ p.label }}</button>
+            <button class="tile" *ngFor="let p of navPositionsFor('result', 'home')" [class.sel]="navHomePositionFor('result')===p.id" (click)="setNavHomePosition('result', p.id)">{{ p.label }}</button>
           </div>
         </ng-container>
       </div>
@@ -1062,13 +1044,15 @@
           <div class="step-title sm">Overlay text</div>
           <div class="fld">
             <label>Title</label>
-            <input class="inp" [value]="t.saverOverlay?.title || 'Newton Touch'"
+                 <input class="inp" [value]="t.saverOverlay?.title ?? ''"
+                   (focus)="(t.saverOverlay?.title ?? '') === 'Newton Touch' ? (t.saverOverlay!.title = '') : null"
                    (input)="t.saverOverlay!.title=$any($event.target).value"
                    placeholder="Newton Touch" />
           </div>
           <div class="fld">
             <label>Subtitle / CTA</label>
-            <input class="inp" [value]="t.saverOverlay?.subtitle || 'Touch screen to begin'"
+                 <input class="inp" [value]="t.saverOverlay?.subtitle ?? ''"
+                   (focus)="(t.saverOverlay?.subtitle ?? '') === 'Touch screen to begin' ? (t.saverOverlay!.subtitle = '') : null"
                    (input)="t.saverOverlay!.subtitle=$any($event.target).value"
                    placeholder="Touch screen to begin" />
           </div>
