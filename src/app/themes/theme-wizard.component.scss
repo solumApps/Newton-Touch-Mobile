@@ -1416,3 +1416,15 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 .nav-btn-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-bottom: 4px; }
 .nav-btn-grp { min-width: 0; background: var(--nt-surface); border: 1.5px solid var(--nt-border); border-radius: var(--nt-r); padding: 10px 12px; }
 .nav-btn-lbl { display: block; font-size: 13px; font-weight: 800; color: var(--nt-text); margin-bottom: 8px; }
+
+/* ===== Card text shadow toggle (cardTextShadow / intermediate.textShadow) =====
+   Mirrors the shared LCD/preview rule (.nt-home .cards.txt-shadow / .nt-inter
+   .body.txt-shadow in _nt-layouts.scss) for the wizard's own scaled live preview,
+   which uses this scoped stylesheet instead of the shared one. !important so it
+   wins over the many per-position .name text-shadow defaults above; toggling Off
+   drops the class and restores them. */
+.prev .stage.txt-shadow .card .name,
+.prev .stage.txt-shadow .card .price,
+.prev .stage.int.txt-shadow .item .name {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .8) !important;
+}

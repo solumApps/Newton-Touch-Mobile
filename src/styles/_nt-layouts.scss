@@ -12219,3 +12219,23 @@
   right: 20% !important;
   top: 20% !important;
 }
+
+/* ============================================================================
+   Card text shadow — cardTextShadow (Home) / intermediate.textShadow (Inter).
+   Off by default. When the user turns it On, the renderer adds .txt-shadow to
+   the cards/body container and this paints a legibility drop-shadow behind the
+   card/item label, independent of the overlay scrim and the text position.
+   !important so it applies in every shape/position combo (many per-position
+   rules set their own decorative .name shadow); toggling Off simply drops the
+   class and restores those defaults. Emitted identically by the LCD renderer and
+   the mobile preview. Chromium-60/66-safe: text-shadow + calc()/var() only.
+   KEEP THIS BLOCK BYTE-IDENTICAL IN BOTH APPS (lcd + mobile).
+   ========================================================================== */
+.nt-home .cards.txt-shadow .card .name,
+.nt-home .cards.txt-shadow .card .price {
+  text-shadow: 0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.5) rgba(0, 0, 0, .8) !important;
+}
+
+.nt-inter .body.txt-shadow .item .name {
+  text-shadow: 0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.5) rgba(0, 0, 0, .8) !important;
+}
