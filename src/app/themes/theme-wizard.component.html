@@ -891,32 +891,6 @@
           </div>
         </ng-container>
 
-        <div class="step-title sm">Nav bar style</div>
-        <div class="seg">
-          <button class="tile" *ngFor="let s of navStyles" [class.sel]="(t.navStyle||'floating')===s.id" (click)="t.navStyle=s.id">{{ s.label }}</button>
-        </div>
-        <div class="step-title sm">Button layout</div>
-        <div class="seg">
-          <button class="tile" [class.sel]="!t.nav?.split" (click)="t.nav!.split=false">Grouped together</button>
-          <button class="tile" [class.sel]="t.nav?.split" (click)="t.nav!.split=true">Separate (independent)</button>
-        </div>
-        <ng-container *ngIf="!t.nav?.split">
-          <div class="step-title sm">Button position</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.position||'bottom-left')===p.id" (click)="t.nav!.position=p.id">{{ p.label }}</button>
-          </div>
-        </ng-container>
-        <ng-container *ngIf="t.nav?.split">
-          <div class="step-title sm">&#8249; Back position</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.backPosition||'bottom-left')===p.id" (click)="t.nav!.backPosition=p.id">{{ p.label }}</button>
-          </div>
-          <div class="step-title sm">&#8962; Home position</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="(t.nav?.homePosition||'bottom-right')===p.id" (click)="t.nav!.homePosition=p.id">{{ p.label }}</button>
-          </div>
-        </ng-container>
-        <p class="hint">Button colors are on the Result colors step.</p>
       </div>
 
       <div *ngSwitchCase="'resColors'">
