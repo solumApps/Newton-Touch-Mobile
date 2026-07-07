@@ -1870,6 +1870,7 @@
   display: block;
   width: 100%;
   max-width: 100%;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: var(--nt-card-align, center);
@@ -12175,20 +12176,17 @@
   background: transparent !important;
 }
 
-/* Circle/hexagon cards taper toward the top/bottom, so a 10% inset floating
-   pill overflows the shape outline. Pull it in further (20%) so it stays inside
-   the shape. Pill-shape (stadium) cards stay at 10% (they are wide at the ends). */
-.nt-home .card.shape-circle.content-image-text.pos-overlay-bottom .meta,
+/* Hexagon tapers toward the top/bottom, so a 10% inset floating pill overflows
+   the shape outline. Pull it in further (20%) so it stays inside the shape.
+   Circle and pill-shape (stadium) cards stay at 10% — circle is round all the
+   way around (no taper) and needs the extra width to fit a legible label. */
 .nt-home .card.shape-hexagon.content-image-text.pos-overlay-bottom .meta,
-.nt-home .card.shape-circle.content-image-text.pos-overlay-top .meta,
 .nt-home .card.shape-hexagon.content-image-text.pos-overlay-top .meta {
   left: 20%;
   right: 20%;
 }
 
-.nt-inter .body.oshape-pill.int-shape-circle.int-textpos-overlay-bottom .item .name,
 .nt-inter .body.oshape-pill.int-shape-hexagon.int-textpos-overlay-bottom .item .name,
-.nt-inter .body.oshape-pill.int-shape-circle.int-textpos-overlay-top .item .name,
 .nt-inter .body.oshape-pill.int-shape-hexagon.int-textpos-overlay-top .item .name {
   left: 20% !important;
   right: 20% !important;
