@@ -1070,13 +1070,15 @@
           <div class="step-title sm">Overlay text</div>
           <div class="fld">
             <label>Title</label>
-            <input class="inp" [value]="t.saverOverlay?.title || 'Newton Touch'"
+                 <input class="inp" [value]="t.saverOverlay?.title ?? ''"
+                   (focus)="(t.saverOverlay?.title ?? '') === 'Newton Touch' ? (t.saverOverlay!.title = '') : null"
                    (input)="t.saverOverlay!.title=$any($event.target).value"
                    placeholder="Newton Touch" />
           </div>
           <div class="fld">
             <label>Subtitle / CTA</label>
-            <input class="inp" [value]="t.saverOverlay?.subtitle || 'Touch screen to begin'"
+                 <input class="inp" [value]="t.saverOverlay?.subtitle ?? ''"
+                   (focus)="(t.saverOverlay?.subtitle ?? '') === 'Touch screen to begin' ? (t.saverOverlay!.subtitle = '') : null"
                    (input)="t.saverOverlay!.subtitle=$any($event.target).value"
                    placeholder="Touch screen to begin" />
           </div>

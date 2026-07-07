@@ -1332,6 +1332,12 @@ export class ThemeWizardComponent implements OnInit {
     this.clampIntColumns();
     this.clampIntItemSize();
     this.syncInterFromHome();
+    const saverTitle = (this.t.saverOverlay?.title || '').trim();
+    const saverSubtitle = (this.t.saverOverlay?.subtitle || '').trim();
+    if (this.t.saverOverlay) {
+      this.t.saverOverlay.title = saverTitle ? saverTitle : undefined;
+      this.t.saverOverlay.subtitle = saverSubtitle ? saverSubtitle : undefined;
+    }
     this.t = { ...this.t, screensaver: { mode: this.saverMode } };
     const theme: SavedTheme = { id: this.id ?? 'thm_' + Date.now(), name, tokens: this.t, updatedAt: Date.now() };
     await this.themes.save(theme);
