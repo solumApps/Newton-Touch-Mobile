@@ -8287,7 +8287,7 @@
 
 .nt-result.res-promo-map-rank .prm-pill.active {
   background: #2c2c2a;
-  color: inherit;
+  color: #fff;
   border-color: #2c2c2a;
 }
 
@@ -8307,15 +8307,39 @@
 }
 
 .nt-result.res-promo-map-rank .prm-sub {
-  color: var(--prm-secondary-text, inherit);
+  color: var(--prm-secondary-text, #fff);
   font-weight: 600;
   cursor: pointer;
   font-size: calc(var(--nt-vw)*0.88);
 }
 
 .nt-result.res-promo-map-rank .prm-sub.active {
-  color: var(--prm-secondary-text, inherit);
+  color: var(--prm-secondary-text, #fff);
   font-weight: 800;
+}
+
+.nt-result.res-promo-map-rank .prm-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--nt-vh)*6);
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1);
+  border-radius: 6px;
+  font-size: calc(var(--nt-vw)*0.82);
+  font-weight: 700;
+  text-align: center;
+}
+
+.nt-result.res-promo-map-rank .prm-empty-secondary {
+  flex: 1;
+  color: var(--prm-secondary-text, #fff);
+  // border: 1px dashed rgba(255, 255, 255, .35);
+}
+
+.nt-result.res-promo-map-rank .prm-empty-products {
+  height: 100%;
+  color: var(--nt-res-text, #2c2c2a);
+  border: 1px dashed rgba(44, 44, 42, .25);
 }
 
 .nt-result.res-promo-map-rank .prm-listwrap {
@@ -8368,6 +8392,10 @@
   padding: calc(var(--nt-vh)*0.9) 0;
   border-bottom: 1px solid #ececec;
   cursor: pointer;
+}
+
+.nt-result.res-promo-map-rank .prm-row.found {
+  border-bottom: calc(var(--nt-vh)*0.28) solid var(--prm-subpanel, #5f5e5a);
 }
 
 .nt-result.res-promo-map-rank .prm-rank {
@@ -9070,6 +9098,17 @@
   margin-bottom: auto;
 }
 
+/* Rectangle overlay label — match Home gradient scrim (.nt-home .card.content-image-text.pos-overlay-bottom .meta). */
+.nt-inter .body.int-columns.int-shape-rect.int-textpos-overlay-bottom .item .name {
+  background: linear-gradient(transparent, var(--nt-overlay, rgba(0, 0, 0, .6)));
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8);
+}
+
+.nt-inter .body.int-columns.int-shape-rect.int-textpos-overlay-top .item .name {
+  background: linear-gradient(var(--nt-overlay, rgba(0, 0, 0, .6)), transparent);
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8);
+}
+
 /* shapes — circle/hexagon are SQUARE (narrower than rect), image fills, name overlaid */
 .nt-inter .body.int-columns.int-shape-pill .item {
   border-radius: 999px;
@@ -9721,15 +9760,39 @@
 }
 
 .nt-result.res-promo-map-rank .prm-sub {
-  color: var(--prm-secondary-text, inherit);
+  color: var(--prm-secondary-text, #fff);
   font-weight: 600;
   cursor: pointer;
   font-size: calc(var(--nt-vw)*0.88);
 }
 
 .nt-result.res-promo-map-rank .prm-sub.active {
-  color: var(--prm-secondary-text, inherit);
+  color: var(--prm-secondary-text, #fff);
   font-weight: 800;
+}
+
+.nt-result.res-promo-map-rank .prm-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--nt-vh)*6);
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1);
+  border-radius: 6px;
+  font-size: calc(var(--nt-vw)*0.82);
+  font-weight: 700;
+  text-align: center;
+}
+
+.nt-result.res-promo-map-rank .prm-empty-secondary {
+  flex: 1;
+  color: var(--prm-secondary-text, #fff);
+  // border: 1px dashed rgba(255, 255, 255, .35);
+}
+
+.nt-result.res-promo-map-rank .prm-empty-products {
+  height: 100%;
+  color: var(--nt-res-text, #2c2c2a);
+  border: 1px dashed rgba(44, 44, 42, .25);
 }
 
 .nt-result.res-promo-map-rank .prm-listwrap {
@@ -9782,6 +9845,10 @@
   padding: calc(var(--nt-vh)*0.9) 0;
   border-bottom: 1px solid #ececec;
   cursor: pointer;
+}
+
+.nt-result.res-promo-map-rank .prm-row.found {
+  border-bottom: calc(var(--nt-vh)*0.28) solid var(--prm-subpanel, #5f5e5a);
 }
 
 .nt-result.res-promo-map-rank .prm-rank {
@@ -10445,6 +10512,17 @@
 .nt-inter .body.int-columns.int-textpos-overlay-top .item .name {
   margin-top: 0;
   margin-bottom: auto;
+}
+
+/* Rectangle overlay label — match Home gradient scrim (.nt-home .card.content-image-text.pos-overlay-bottom .meta). */
+.nt-inter .body.int-columns.int-shape-rect.int-textpos-overlay-bottom .item .name {
+  background: linear-gradient(transparent, var(--nt-overlay, rgba(0, 0, 0, .6)));
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8);
+}
+
+.nt-inter .body.int-columns.int-shape-rect.int-textpos-overlay-top .item .name {
+  background: linear-gradient(var(--nt-overlay, rgba(0, 0, 0, .6)), transparent);
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8);
 }
 
 /* Pill cards have semicircular ends (corner radius = half the card height):
