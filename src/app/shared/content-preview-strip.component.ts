@@ -33,6 +33,10 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-gscale]="scaleNum"
            [style.--nt-card-text-scale]="cardScaleNum"
            [style.--nt-header-text-scale]="headerScaleNum"
+           [style.--nt-promo-copy-text-scale]="promoCopyScaleNum"
+           [style.--nt-promo-card-text-scale]="promoCardScaleNum"
+           [style.--nt-inter-text-scale]="interScaleNum"
+           [style.--nt-result-text-scale]="resultScaleNum"
            [style.--nt-card-text-case]="cardCase"
            [style.--nt-header-text-case]="headerCase"
            [style.--nt-nav-btn-size]="navBtnSize"
@@ -551,6 +555,13 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
 
   readonly placeholderSlots = [0, 1, 2, 3, 4, 5];
   readonly placeholderLabels = ['Bakery', 'Dairy', 'Produce', 'Meat', 'Frozen', 'Drinks'];
+  private readonly themeLabelSets: { match: RegExp; home: string[]; result: string[] }[] = [
+    { match: /electro|volt|electronics/i, home: ['Phones', 'Laptops', 'Audio', 'Gaming', 'Smart Home', 'Accessories'], result: ['Noise Cancelling Headphones', 'UltraBook 14', 'Smart Watch', 'Gaming Controller', 'Wireless Charger', 'Bluetooth Speaker'] },
+    { match: /bakery|bread|fresh market/i, home: ['Bread', 'Pastries', 'Cakes', 'Cookies', 'Coffee', 'Offers'], result: ['Sourdough Loaf', 'Butter Croissant', 'Chocolate Cake', 'Cookie Box', 'Cold Brew', 'Fresh Muffins'] },
+    { match: /tool|hardware|drive finder/i, home: ['Bolts', 'Nuts', 'Screws', 'Drill Bits', 'Hand Tools', 'Adhesives'], result: ['Eye Bolt M6', 'Hex Nut Set', 'Screw Bolt 8mm', 'Drill Bit Kit', 'Tape Measure', 'Epoxy Pack'] },
+    { match: /dairy|fresh/i, home: ['Milk', 'Yogurt', 'Cheese', 'Butter', 'Cream', 'Desserts'], result: ['Organic Milk 1L', 'Greek Yogurt', 'Cheddar Block', 'Salted Butter', 'Fresh Cream', 'Pudding Cups'] },
+    { match: /beauty|skin|cosmetic/i, home: ['Shampoo', 'Conditioner', 'Treatment', 'Styling', 'Vegan', 'Color Care'], result: ['Repair Shampoo', 'Silk Conditioner', 'Hair Serum', 'Styling Cream', 'Vegan Wash', 'Color Mask'] },
+  ];
 
   /** Dummy preview images: when the card content shows an image but the cell has
    *  none (theme wizard placeholders), render a colored sample so the user sees
@@ -580,6 +591,11 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   phImg(i: number): string {
     const c = ContentPreviewStripComponent.PH_FILLS[i % ContentPreviewStripComponent.PH_FILLS.length];
     return `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'%3E%3Crect width='160' height='100' fill='${c}'/%3E%3Cpolygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/%3E%3C/svg%3E")`;
+  }
+  private previewLabels(kind: 'home' | 'result' = 'home'): string[] {
+    const key = `${this.draftName || ''} ${this.theme?.saverOverlay?.title || ''}`;
+    const set = this.themeLabelSets.find((s) => s.match.test(key));
+    return set ? set[kind] : this.placeholderLabels;
   }
 
   private imageContent(content?: string): boolean {
@@ -792,8 +808,22 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     const n = this.theme?.cardGapNum;
     return typeof n === 'number' ? n + 'px' : null;
   }
-  get cardScaleNum(): number { const s = this.theme?.typography?.cardTextScale; return s ? textScaleNum(s) : 1; }
-  get headerScaleNum(): number { const s = this.theme?.typography?.headerTextScale; return s ? textScaleNum(s) : 1; }
+  get cardScaleNum(): number {
+    const n = this.theme?.typography?.cardTextScaleNum;
+    if (typeof n === 'number' && n > 0) return n;
+    const s = this.theme?.typography?.cardTextScale;
+    return s ? textScaleNum(s) : 1;
+  }
+  get headerScaleNum(): number {
+    const n = this.theme?.typography?.headerTextScaleNum;
+    if (typeof n === 'number' && n > 0) return n;
+    const s = this.theme?.typography?.headerTextScale;
+    return s ? textScaleNum(s) : 1;
+  }
+  get promoCopyScaleNum(): number { const n = this.theme?.typography?.promoCopyTextScaleNum; return typeof n === 'number' && n > 0 ? n : 1; }
+  get promoCardScaleNum(): number { const n = this.theme?.typography?.promoCardTextScaleNum; return typeof n === 'number' && n > 0 ? n : this.cardScaleNum; }
+  get interScaleNum(): number { const n = this.theme?.typography?.intermediateTextScaleNum; return typeof n === 'number' && n > 0 ? n : this.cardScaleNum; }
+  get resultScaleNum(): number { const n = this.theme?.typography?.resultTextScaleNum; return typeof n === 'number' && n > 0 ? n : 1; }
   get cardCase(): string { return textCaseCss(this.theme?.typography?.cardTextCase); }
   get headerCase(): string { return textCaseCss(this.theme?.typography?.headerTextCase); }
   get navBtnSize(): number { return navBtnSizeNum(this.theme?.nav?.size); }
@@ -914,7 +944,8 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     const n = this.cellCount;
     const real = (this.home || []).slice(0, n);
     if (real.length) return real.map(c => ({ ...c, name: c.name || 'Item' }));
-    return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: this.placeholderLabels[i % this.placeholderLabels.length] } as CardItem));
+    const labels = this.previewLabels('home');
+    return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: labels[i % labels.length] } as CardItem));
   }
   get intermediateSource(): CardItem[] {
     if (this.forceSharedIntermediate) return this.intermediate || [];
@@ -964,7 +995,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       const minCount = this.interScrollMode === 'vertical' ? (cols || 3) : 3;
       const dummy = Array.from({ length: Math.max(0, minCount - real.length) }, (_, i) => ({
         id: 'inter-shared-ph' + i,
-        name: this.placeholderLabels[(real.length + i) % this.placeholderLabels.length]
+        name: this.previewLabels('home')[(real.length + i) % this.previewLabels('home').length]
       } as CardItem));
       return [...real, ...dummy];
     }
@@ -975,7 +1006,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       const real = source.slice(0, cardCount).map(c => ({ ...c, name: c.name || 'Item' }));
       const dummy = Array.from({ length: cardCount - real.length }, (_, i) => ({
         id: 'inter-scroll-ph' + i,
-        name: this.placeholderLabels[(real.length + i) % this.placeholderLabels.length]
+        name: this.previewLabels('home')[(real.length + i) % this.previewLabels('home').length]
       } as CardItem));
       return [...real, ...dummy];
     }
@@ -985,7 +1016,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       const real = source.slice(0, cardCount).map(c => ({ ...c, name: c.name || 'Item' }));
       const dummy = Array.from({ length: cardCount - real.length }, (_, i) => ({
         id: 'inter-scroll-ph' + i,
-        name: this.placeholderLabels[(real.length + i) % this.placeholderLabels.length]
+        name: this.previewLabels('home')[(real.length + i) % this.previewLabels('home').length]
       } as CardItem));
       return [...real, ...dummy];
     }
@@ -994,17 +1025,21 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       : 6;
     const real = source.slice(0, n);
     if (real.length) return real.map(c => ({ ...c, name: c.name || 'Item' }));
-    return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: this.placeholderLabels[i % this.placeholderLabels.length] } as CardItem));
+    const labels = this.previewLabels('home');
+    return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: labels[i % labels.length] } as CardItem));
   }
   get resultCells(): ResultProduct[] {
     const real = (this.result?.products || []).slice(0, 6);
     if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
-    return [0, 1, 2].map(i => ({ id: 'ph' + i, name: 'Product ' + (i + 1) } as ResultProduct));
+    const labels = this.previewLabels('result');
+    const count = this.resTpl === 'catalog-grid' ? 6 : 3;
+    return Array.from({ length: count }, (_, i) => ({ id: 'ph' + i, name: labels[i % labels.length] } as ResultProduct));
   }
   get promoResultCells(): ResultProduct[] {
     const real = this.result?.products || [];
     if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
-    return Array.from({ length: 8 }, (_, i) => ({ id: 'promo-ph' + i, name: 'Product ' + (i + 1) } as ResultProduct));
+    const labels = this.previewLabels('result');
+    return Array.from({ length: 8 }, (_, i) => ({ id: 'promo-ph' + i, name: labels[i % labels.length] } as ResultProduct));
   }
   get saverBadge(): string {
     const m = this.screensaver?.mode;

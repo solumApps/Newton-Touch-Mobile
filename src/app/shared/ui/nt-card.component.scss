@@ -3,15 +3,15 @@
   border: 1px solid var(--nt-border);
   border-radius: var(--nt-r);
   padding: 14px;
-  transition: box-shadow 200ms ease, transform 200ms ease, border-color 150ms ease;
+  transition: box-shadow 200ms var(--nt-ease), transform 200ms var(--nt-ease), border-color 160ms var(--nt-ease), background-color 160ms var(--nt-ease);
 }
 .nt-card.el-flat     { box-shadow: none; }
 .nt-card.el-raised   { box-shadow: var(--nt-shadow-2); }
 .nt-card.el-floating { box-shadow: var(--nt-shadow-3); }
 .nt-card.interactive { cursor: pointer; }
 .nt-card.interactive:hover {
-  box-shadow: var(--nt-shadow-3);
-  transform: translateY(-1px);
+  box-shadow: var(--nt-shadow-soft);
+  transform: translateY(-2px);
   border-color: var(--nt-brand-tint-border);
 }
-.nt-card.interactive:active { transform: translateY(0); }
+.nt-card.interactive:active { transform: translateY(0) scale(.995); }

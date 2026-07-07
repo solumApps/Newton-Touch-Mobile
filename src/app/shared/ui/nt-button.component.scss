@@ -10,12 +10,13 @@
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 150ms ease, color 150ms ease, transform 120ms ease, box-shadow 150ms ease;
+  transition: background-color 180ms var(--nt-ease), color 180ms var(--nt-ease), transform 160ms var(--nt-ease), box-shadow 180ms var(--nt-ease), border-color 180ms var(--nt-ease);
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   letter-spacing: .1px;
 }
-.nt-btn:active:not(:disabled) { transform: translateY(1px); }
+.nt-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.nt-btn:active:not(:disabled) { transform: translateY(0) scale(.99); }
 .nt-btn:disabled {
   opacity: .45;
   cursor: not-allowed;
@@ -25,7 +26,7 @@
   border-color: var(--nt-border);
   color: var(--nt-muted);
 }
-.nt-btn:focus-visible { outline: 2px solid var(--nt-purple); outline-offset: 2px; }
+.nt-btn:focus-visible { outline: 3px solid rgba(255,205,0,.55); outline-offset: 2px; }
 .nt-btn.block { width: 100%; }
 
 /* Sizes — touch targets ≥44px on md/lg */
@@ -35,26 +36,26 @@
 
 /* Variants */
 .nt-btn.v-primary {
-  background: var(--nt-yellow);
+  background: linear-gradient(180deg, #FFD84A 0%, var(--nt-yellow) 100%);
   color: #000;
-  font-weight: 800;
-  box-shadow: var(--nt-shadow-1);
+  font-weight: 850;
+  box-shadow: 0 8px 18px rgba(255, 205, 0, .22);
 }
-.nt-btn.v-primary:hover:not(:disabled) { background: #FFD927; box-shadow: var(--nt-shadow-2); }
+.nt-btn.v-primary:hover:not(:disabled) { background: linear-gradient(180deg, #FFE06B 0%, #FFD21A 100%); box-shadow: var(--nt-shadow-soft); }
 
 .nt-btn.v-secondary {
-  background: var(--nt-purple);
+  background: linear-gradient(135deg, var(--nt-purple), var(--nt-blue));
   color: #fff;
   box-shadow: var(--nt-shadow-1);
 }
-.nt-btn.v-secondary:hover:not(:disabled) { background: #3D0E89; box-shadow: var(--nt-shadow-2); }
+.nt-btn.v-secondary:hover:not(:disabled) { box-shadow: var(--nt-shadow-soft); }
 
 .nt-btn.v-outline {
   background: var(--nt-card);
   color: var(--nt-brand-ink);
   border: 2px solid var(--nt-brand-ink);
 }
-.nt-btn.v-outline:hover:not(:disabled) { background: var(--nt-tint); }
+.nt-btn.v-outline:hover:not(:disabled) { background: var(--nt-tint); box-shadow: var(--nt-shadow-1); }
 
 .nt-btn.v-ghost {
   background: transparent;
@@ -66,4 +67,4 @@
   background: var(--nt-danger);
   color: #fff;
 }
-.nt-btn.v-danger:hover:not(:disabled) { background: #B91C1C; }
+.nt-btn.v-danger:hover:not(:disabled) { background: #B91C1C; box-shadow: var(--nt-shadow-2); }

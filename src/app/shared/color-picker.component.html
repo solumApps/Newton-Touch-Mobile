@@ -3,7 +3,7 @@
 
   <!-- Tap a swatch to pick. "+" opens an in-app custom picker (no OS dialog). -->
   <div class="cp-grid">
-    <button *ngFor="let c of presets" class="sw" [class.sel]="sameColor(c, value)" [style.background]="c" (click)="pick(c)">
+    <button *ngFor="let c of allPresets" class="sw" [class.sel]="sameColor(c, value)" [style.background]="c" (click)="pick(c)">
       <span class="tick" *ngIf="sameColor(c, value)">✓</span>
     </button>
     <button *ngIf="allowTransparent" class="sw transparent-sw" [class.sel]="sameColor(value, transparentValue)" (click)="pick(transparentValue)" title="Transparent">
@@ -103,7 +103,7 @@
       <input type="range" min="0" max="100" [value]="light" class="cc-slider" [style.background]="lightTrack"
              (input)="light = +$any($event.target).value; applyHsl()" />
     </label>
-    <button type="button" class="cc-done" (click)="closeCustom()">Done</button>
+    <button type="button" class="cc-done" (click)="doneCustom()">Done</button>
   </div>
 
   <!-- Current selection at a glance (hidden while the custom panel is open) -->

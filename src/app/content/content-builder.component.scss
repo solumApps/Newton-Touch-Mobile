@@ -17,11 +17,16 @@
   --background: linear-gradient(180deg, var(--nt-card) 0, var(--nt-surface) 100%);
 }
 
+:host {
+  display: block;
+  animation: builder-in 240ms var(--nt-ease);
+}
+
 .tband {
   display: flex; align-items: center; gap: 10px; margin: 0 0 12px;
   padding: 12px;
   background: var(--nt-card); border: 1px solid var(--nt-border); border-radius: var(--nt-r-lg);
-  box-shadow: var(--nt-shadow-1);
+  box-shadow: var(--nt-shadow-2);
 }
 .tband .sw { width: 38px; height: 38px; border-radius: var(--nt-r); flex-shrink: 0; border: 1px solid var(--nt-border); }
 .tband .nm { font-size: 14px; font-weight: 900; color: var(--nt-text); }
@@ -32,8 +37,9 @@
   border: 1.5px solid var(--nt-brand-ink); color: var(--nt-brand-ink); background: var(--nt-card);
   border-radius: 999px; padding: 7px 13px; font-size: 12px; font-weight: 900;
   font-family: inherit; cursor: pointer; box-shadow: var(--nt-shadow-1);
+  transition: background-color 160ms var(--nt-ease), color 160ms var(--nt-ease), transform 160ms var(--nt-ease), box-shadow 160ms var(--nt-ease);
 }
-.mini:hover { background: var(--nt-tint); }
+.mini:hover { background: var(--nt-tint); transform: translateY(-1px); box-shadow: var(--nt-shadow-2); }
 .mini:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
 /* Tap-to-place map marker (Result step) — 1920:540-ish map preview with dots. */
@@ -66,7 +72,8 @@
 /* blocking save overlay (large drafts persist slowly — show progress) */
 .save-overlay {
   position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
-  background: rgba(15, 10, 40, .45);
+  background: rgba(15, 10, 40, .48);
+  backdrop-filter: blur(8px);
 }
 .save-box {
   display: flex; align-items: center; gap: 10px; background: var(--nt-card, #fff); color: var(--nt-ink, #111);
@@ -96,6 +103,7 @@
 
 .erow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .thumb { width: 44px; height: 44px; border-radius: var(--nt-r); border: 1.5px dashed var(--nt-border); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; flex-shrink: 0; background-color: var(--nt-card); }
+.thumb:hover { border-color: var(--nt-brand-ink); background-color: var(--nt-tint); }
 .mini.missing-image-seg { border-color: var(--nt-danger, #C0262C); color: var(--nt-danger, #C0262C); background-color: rgba(192, 38, 44, 0.05); animation: nt-pulse-error 1.5s infinite alternate; }
 .mini.missing-image-seg.sel { background: var(--nt-danger, #C0262C); color: #fff; border-color: var(--nt-danger, #C0262C); }
 @keyframes nt-pulse-error { from { box-shadow: 0 0 0 0 rgba(192, 38, 44, 0.2); } to { box-shadow: 0 0 0 4px rgba(192, 38, 44, 0.4); } }
@@ -113,10 +121,10 @@
   background: var(--nt-card);
   color: var(--nt-text);
   box-shadow: var(--nt-shadow-1);
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  transition: border-color 160ms var(--nt-ease), box-shadow 160ms var(--nt-ease), background-color 160ms var(--nt-ease);
   margin: 2px;
 }
-.inp:focus { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
+.inp:focus { border-color: var(--nt-brand-ink); box-shadow: var(--nt-shadow-focus); }
 .del { border: none; background: none; color: var(--nt-muted); font-size: 15px; cursor: pointer; padding: 6px; }
 
 /* Per-image fit segment (Cover / Contain / Fill) — shown only when an image is set. */
@@ -265,7 +273,7 @@ table.sum td:first-child {
   background: var(--nt-surface);
   padding: 0 0 8px;
   margin-bottom: 8px;
-  box-shadow: 0 8px 20px rgba(15,23,42,.06);
+  box-shadow: 0 10px 24px rgba(15,23,42,.08);
 }
 /* Cap by WIDTH (strip is aspect-ratio 1920/540) so the whole LCD frame always
    fits within ~30vh — never crop it (clipped bottom edge on wide/desktop web). */
@@ -278,7 +286,7 @@ table.sum td:first-child {
 .foot {
   padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
   background: var(--nt-card); border-top: 1px solid var(--nt-border);
-  box-shadow: 0 -8px 24px rgba(15,23,42,.06);
+  box-shadow: 0 -10px 26px rgba(15,23,42,.08);
   backdrop-filter: blur(10px);
 }
 /* Grid forces exact 50/50 split regardless of intrinsic button width / border math. */
@@ -289,3 +297,8 @@ table.sum td:first-child {
 
 /* Category mode: API-sourced names are read-only (case transform only). */
 .inp.locked { background: var(--nt-surface-2, #f3f3ef); color: var(--nt-text-2, #6b6b66); cursor: not-allowed; }
+
+@keyframes builder-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

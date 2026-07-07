@@ -1,11 +1,11 @@
-.wrap { padding: 16px 16px 24px; }
+.wrap { padding: 16px 16px 24px; animation: page-in 260ms var(--nt-ease); }
 
 /* Hero */
 .hero { margin-bottom: 18px; }
 .hero-title {
   margin: 0;
   font-size: 28px;
-  font-weight: 800;
+  font-weight: 850;
   letter-spacing: -.4px;
   color: var(--nt-text);
   line-height: 1.15;
@@ -71,9 +71,9 @@
   font-family: inherit;
   cursor: pointer;
   text-align: left;
-  transition: background 150ms ease;
+  transition: background 160ms var(--nt-ease), transform 160ms var(--nt-ease);
 }
-.row:hover { background: var(--nt-surface); }
+.row:hover { background: var(--nt-surface); transform: translateX(1px); }
 .row:last-child { border-bottom: none; }
 .row .ico {
   width: 36px; height: 36px;
@@ -119,9 +119,9 @@
   color: var(--nt-text-2);
   font-family: inherit;
   cursor: pointer;
-  transition: background 150ms ease, color 150ms ease;
+  transition: background 160ms var(--nt-ease), color 160ms var(--nt-ease), transform 160ms var(--nt-ease);
 }
-.seg-b:hover { color: var(--nt-text); }
+.seg-b:hover { color: var(--nt-text); transform: translateY(-1px); }
 .seg-b.on {
   background: var(--nt-purple);
   color: #fff;
@@ -146,25 +146,19 @@
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
-  transition: background 150ms ease;
+  transition: background 160ms var(--nt-ease), transform 160ms var(--nt-ease), box-shadow 160ms var(--nt-ease);
 }
-.signout:hover { background: var(--nt-danger-tint); }
+.signout:hover { background: var(--nt-danger-tint); transform: translateY(-1px); box-shadow: var(--nt-shadow-1); }
 .signout ion-icon { font-size: 18px; }
 
 .ver { text-align: center; color: var(--nt-muted); font-size: 11px; margin-top: 16px; }
 
 
-.nt-confirm { background: var(--nt-card); padding: 24px 22px 22px; text-align: center; }
-.nt-confirm-ic {
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  background: var(--nt-warn-tint);
-  color: var(--nt-warn-ink);
-  margin: 0 auto 14px;
-  display: flex; align-items: center; justify-content: center;
+@media (min-width: 720px) {
+  .wrap { max-width: 760px; margin: 0 auto; }
 }
-.nt-confirm-ic.warn { background: var(--nt-warn-tint); color: var(--nt-warn-ink); }
-.nt-confirm-ic ion-icon { font-size: 26px; }
-.nt-confirm h2 { margin: 0 0 6px; font-size: 18px; font-weight: 800; color: var(--nt-text); }
-.nt-confirm p { margin: 0 0 18px; font-size: 13px; line-height: 1.5; color: var(--nt-text-2); }
-.nt-confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
