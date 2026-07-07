@@ -906,6 +906,64 @@ export class ThemeWizardComponent implements OnInit {
     { id: 'header-right',  label: 'In header (right)' },
     { id: 'hidden',        label: 'Hidden' },
   ];
+
+  private navScope(page: 'intermediate' | 'result') {
+    const nav = this.t.nav || {};
+    const target = page === 'intermediate' ? this.t.intermediate : this.t.result;
+    const split = target.navSplit ?? nav.split ?? false;
+    const position = target.navPosition || nav.position || 'bottom-left';
+    const backPosition = target.navBackPosition || nav.backPosition || 'bottom-left';
+    const homePosition = target.navHomePosition || nav.homePosition || 'bottom-right';
+    return { split, position, backPosition, homePosition };
+  }
+
+  navSplitFor(page: 'intermediate' | 'result'): boolean {
+    return this.navScope(page).split;
+  }
+
+  navPositionFor(page: 'intermediate' | 'result'): NavButtonPosition {
+    return this.navScope(page).position;
+  }
+
+  navBackPositionFor(page: 'intermediate' | 'result'): NavButtonPosition {
+    return this.navScope(page).backPosition;
+  }
+
+  navHomePositionFor(page: 'intermediate' | 'result'): NavButtonPosition {
+    return this.navScope(page).homePosition;
+  }
+
+  setNavSplit(page: 'intermediate' | 'result', split: boolean): void {
+    if (page === 'intermediate') this.t.intermediate.navSplit = split;
+    else this.t.result.navSplit = split;
+  }
+
+  setNavPosition(page: 'intermediate' | 'result', pos: NavButtonPosition): void {
+    if (page === 'intermediate') this.t.intermediate.navPosition = pos;
+    else this.t.result.navPosition = pos;
+  }
+
+  setNavBackPosition(page: 'intermediate' | 'result', pos: NavButtonPosition): void {
+    if (page === 'intermediate') this.t.intermediate.navBackPosition = pos;
+    else this.t.result.navBackPosition = pos;
+  }
+
+  setNavHomePosition(page: 'intermediate' | 'result', pos: NavButtonPosition): void {
+    if (page === 'intermediate') this.t.intermediate.navHomePosition = pos;
+    else this.t.result.navHomePosition = pos;
+  }
+
+  navPositionsFor(page: 'intermediate' | 'result', side: 'back' | 'home'): { id: NavButtonPosition; label: string }[] {
+    const scope = this.navScope(page);
+    if (!scope.split) return this.navButtonPositions;
+
+    const blocked = side === 'back' ? scope.homePosition : scope.backPosition;
+    const current = side === 'back' ? scope.backPosition : scope.homePosition;
+    if (blocked === 'hidden') return this.navButtonPositions;
+
+    return this.navButtonPositions.filter((p) => p.id === current || p.id !== blocked);
+  }
+
   saverPositions: { id: SaverOverlayPosition; label: string }[] = [
     { id: 'center',       label: 'Center' },
     { id: 'bottom',       label: 'Bottom' },
@@ -1332,6 +1390,12 @@ export class ThemeWizardComponent implements OnInit {
     this.clampIntColumns();
     this.clampIntItemSize();
     this.syncInterFromHome();
+    const saverTitle = (this.t.saverOverlay?.title || '').trim();
+    const saverSubtitle = (this.t.saverOverlay?.subtitle || '').trim();
+    if (this.t.saverOverlay) {
+      this.t.saverOverlay.title = saverTitle ? saverTitle : undefined;
+      this.t.saverOverlay.subtitle = saverSubtitle ? saverSubtitle : undefined;
+    }
     this.t = { ...this.t, screensaver: { mode: this.saverMode } };
     const theme: SavedTheme = { id: this.id ?? 'thm_' + Date.now(), name, tokens: this.t, updatedAt: Date.now() };
     await this.themes.save(theme);

@@ -139,12 +139,12 @@
         <button class="mini" *ngIf="d.appMode !== 'category'" (click)="addCard()" [disabled]="atHomeCap">+ Add</button>
       </div>
       <p class="note" *ngIf="atHomeCap">This featured theme is designed for up to <b>{{ maxHomeItems }}</b> home items — remove one to add another.</p>
-      <div class="pcard" *ngFor="let c of d.home; let i = index">
+      <div class="pcard" *ngFor="let c of d.home.slice().reverse(); let i = index">
         <div class="erow">
           <div class="thumb" *ngIf="needsImage" [style.background-image]="c.image ? 'url('+c.image+')' : null" (click)="pickImage(c)">{{ c.image ? '' : '📷' }}</div>
           <input *ngIf="!c.fromApi" class="inp" [(ngModel)]="c.name" placeholder="Card name" />
           <input *ngIf="c.fromApi" class="inp locked" [value]="c.name" readonly title="From API — edit text case below" />
-          <button class="del" (click)="removeCard(i)">✕</button>
+          <button class="del" (click)="removeCard(d.home.length - 1 - i)">✕</button>
         </div>
         <div class="seg fit-seg" *ngIf="needsImage && c.image">
           <span class="fit-lbl">Fit</span>
@@ -251,12 +251,12 @@
       <ng-container *ngIf="d.appMode !== 'category' && showIntermediateEditor">
         <p class="note"><b>Common mode</b> — every home card opens this one shared page.</p>
         <div class="sec"><span>Intermediate items ({{ d.intermediate.length }})</span><button class="mini" (click)="addIntermediate()">+ Add</button></div>
-        <ng-container *ngFor="let it of d.intermediate; let i = index">
+        <ng-container *ngFor="let it of d.intermediate.slice().reverse(); let i = index">
           <div class="erow">
             <div class="thumb" *ngIf="intermediateNeedsImage" [style.background-image]="it.image ? 'url('+it.image+')' : null" (click)="pickImage(it)">{{ it.image ? '' : '📷' }}</div>
             <input *ngIf="!it.fromApi" class="inp" [(ngModel)]="it.name" placeholder="Item name" />
             <input *ngIf="it.fromApi" class="inp locked" [value]="it.name" readonly title="From API — edit text case below" />
-            <button class="del" (click)="removeIntermediate(i)">✕</button>
+            <button class="del" (click)="removeIntermediate(d.intermediate.length - 1 - i)">✕</button>
           </div>
           <div class="seg fit-seg" *ngIf="intermediateNeedsImage && it.image">
             <span class="fit-lbl">Fit</span>
@@ -413,12 +413,12 @@
         <p class="note">Each end item gets its own products. Items left empty fall back to the shared list at the bottom.</p>
         <div class="pcard" *ngFor="let leaf of resultLeaves">
           <div class="sec"><span>{{ leaf.label }}</span><button class="mini" (click)="addLeafProduct(leaf.node)">+ Add</button></div>
-          <ng-container *ngFor="let p of leaf.node.products || []; let pi = index">
+          <ng-container *ngFor="let p of (leaf.node.products || []).slice().reverse(); let pi = index">
             <div class="erow">
               <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
               <input *ngIf="!p.fromApi" class="inp" [(ngModel)]="p.name" placeholder="Product name" />
           <input *ngIf="p.fromApi" class="inp locked" [value]="p.name" readonly title="From API — edit text case below" />
-              <button class="del" (click)="removeLeafProduct(leaf.node, pi)">✕</button>
+              <button class="del" (click)="removeLeafProduct(leaf.node, (leaf.node.products || []).length - 1 - pi)">✕</button>
             </div>
             <div class="prow">
               <input class="inp" [(ngModel)]="p.price" placeholder="Price" />
@@ -459,12 +459,12 @@
 
       <ng-container *ngIf="d.appMode !== 'category'">
       <div class="sec"><span>{{ perItemActive ? ('Products — ' + activeCardLabel) : (resultMode==='individual' && !skipsIntermediate) ? 'Shared / fallback products' : 'Result products' }} ({{ curResult.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>
-      <div class="pcard" *ngFor="let p of curResult.products; let i = index">
+      <div class="pcard" *ngFor="let p of curResult.products.slice().reverse(); let i = index">
         <div class="erow">
           <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>
           <input *ngIf="!p.fromApi" class="inp" [(ngModel)]="p.name" placeholder="Product name" />
           <input *ngIf="p.fromApi" class="inp locked" [value]="p.name" readonly title="From API — edit text case below" />
-          <button class="del" (click)="removeProduct(i)">✕</button>
+          <button class="del" (click)="removeProduct(curResult.products.length - 1 - i)">✕</button>
         </div>
         <div class="seg fit-seg" *ngIf="p.image">
           <span class="fit-lbl">Fit</span>

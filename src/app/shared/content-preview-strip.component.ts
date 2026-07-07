@@ -479,16 +479,16 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <span class="fb-lbl" *ngIf="navMode !== 'icon'">{{ navHomeLabel }}</span>
             </div>
           </ng-template>
-          <div class="nav nav-pos-{{theme?.nav?.position || 'bottom-left'}}"
-               *ngIf="!theme?.nav?.split && (theme?.nav?.position || 'bottom-left') !== 'hidden'">
+          <div class="nav nav-pos-{{navGroupedPosition}}"
+               *ngIf="!navSplit && navGroupedPosition !== 'hidden'">
             <ng-container *ngTemplateOutlet="backBtn"></ng-container>
             <ng-container *ngTemplateOutlet="homeBtn"></ng-container>
           </div>
-          <ng-container *ngIf="theme?.nav?.split">
-            <div class="nav nav-single nav-pos-{{theme?.nav?.backPosition || 'bottom-left'}}" *ngIf="(theme?.nav?.backPosition || 'bottom-left') !== 'hidden'">
+          <ng-container *ngIf="navSplit">
+            <div class="nav nav-single nav-pos-{{navBackPosition}}" *ngIf="navBackPosition !== 'hidden'">
               <ng-container *ngTemplateOutlet="backBtn"></ng-container>
             </div>
-            <div class="nav nav-single nav-pos-{{theme?.nav?.homePosition || 'bottom-right'}}" *ngIf="(theme?.nav?.homePosition || 'bottom-right') !== 'hidden'">
+            <div class="nav nav-single nav-pos-{{navHomePosition}}" *ngIf="navHomePosition !== 'hidden'">
               <ng-container *ngTemplateOutlet="homeBtn"></ng-container>
             </div>
           </ng-container>
@@ -797,6 +797,26 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get cardCase(): string { return textCaseCss(this.theme?.typography?.cardTextCase); }
   get headerCase(): string { return textCaseCss(this.theme?.typography?.headerTextCase); }
   get navBtnSize(): number { return navBtnSizeNum(this.theme?.nav?.size); }
+  get navSplit(): boolean {
+    if (this.page === 'inter') return this.theme?.intermediate?.navSplit ?? this.theme?.nav?.split ?? false;
+    if (this.page === 'result') return this.theme?.result?.navSplit ?? this.theme?.nav?.split ?? false;
+    return this.theme?.nav?.split ?? false;
+  }
+  get navGroupedPosition(): string {
+    if (this.page === 'inter') return this.theme?.intermediate?.navPosition || this.theme?.nav?.position || 'bottom-left';
+    if (this.page === 'result') return this.theme?.result?.navPosition || this.theme?.nav?.position || 'bottom-left';
+    return this.theme?.nav?.position || 'bottom-left';
+  }
+  get navBackPosition(): string {
+    if (this.page === 'inter') return this.theme?.intermediate?.navBackPosition || this.theme?.nav?.backPosition || 'bottom-left';
+    if (this.page === 'result') return this.theme?.result?.navBackPosition || this.theme?.nav?.backPosition || 'bottom-left';
+    return this.theme?.nav?.backPosition || 'bottom-left';
+  }
+  get navHomePosition(): string {
+    if (this.page === 'inter') return this.theme?.intermediate?.navHomePosition || this.theme?.nav?.homePosition || 'bottom-right';
+    if (this.page === 'result') return this.theme?.result?.navHomePosition || this.theme?.nav?.homePosition || 'bottom-right';
+    return this.theme?.nav?.homePosition || 'bottom-right';
+  }
   /* Nav button mode / icons / labels — mirrors LCD intermediate/result pages. */
   get navMode(): string { return this.theme?.nav?.mode || 'icon'; }
   get navBackLabel(): string { return this.theme?.nav?.backLabel || 'Back'; }
