@@ -5786,6 +5786,27 @@
   text-transform: uppercase;
 }
 
+.nt-result .hero-product-body .hp-info button,
+.nt-result.res-product-focus .focus-copy button {
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.nt-result .hero-product-body .hp-info button:focus,
+.nt-result .hero-product-body .hp-info button:focus-visible,
+.nt-result .hero-product-body .hp-info button:active,
+.nt-result.res-product-focus .focus-copy button:focus,
+.nt-result.res-product-focus .focus-copy button:focus-visible,
+.nt-result.res-product-focus .focus-copy button:active {
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .nt-result.res-product-focus .focus-image {
   flex: 0 0 auto;
   height: calc(var(--nt-vh)*62);
