@@ -23,7 +23,6 @@ type Sort = 'Name' | 'Recent';
 export class ThemesPage implements OnInit, OnDestroy {
   q = '';
   filter = 'All';
-  filters = ['All', 'Grid', 'Hero', 'List', 'Dark', 'Light'];
   sort: Sort = 'Name';
   predefined: SavedTheme[] = [];
   mine: SavedTheme[] = [];
@@ -100,15 +99,38 @@ export class ThemesPage implements OnInit, OnDestroy {
     return card.offsetWidth + (Number.isFinite(gap) ? gap : 0);
   }
 
+  get filters(): string[] {
+    const labels = new Set<string>();
+    for (const theme of this.mine) labels.add(this.themeFilterLabel(theme));
+    return ['All', ...Array.from(labels).sort((a, b) => a.localeCompare(b))];
+  }
+
+  themeFilterLabel(t: SavedTheme): string {
+    const layout = t.tokens.homeLayout;
+    const labels: Partial<Record<string, string>> = {
+      'promo-categories': 'Promo',
+      'finder-select': 'Finder',
+      'image-strip': 'Catalog',
+      bento: 'Bento',
+      fullscreen: 'Fullscreen',
+      'col-2': 'Columns',
+      'col-3': 'Columns',
+      'col-4': 'Columns',
+      'grid-2x2': 'Columns',
+      'grid-2x3': 'Columns',
+      'h-scroll': 'Rail',
+      'hero-list': 'Hero list',
+      list: 'Rows',
+      'hero-start': 'Hero start',
+    };
+    return labels[layout] || layout;
+  }
+
   get filteredMine(): SavedTheme[] {
     const q = this.q.toLowerCase();
     let list = q ? this.mine.filter((t) => t.name.toLowerCase().includes(q)) : [...this.mine];
     if (this.filter !== 'All') {
-      const f = this.filter.toLowerCase();
-      list = list.filter((t) =>
-        t.tokens.homeLayout.toLowerCase().includes(f) ||
-        (f === 'dark' && /#0|#1|gradient/i.test(t.tokens.background)) ||
-        (f === 'light' && /#f|#fff/i.test(t.tokens.background)));
+      list = list.filter((t) => this.themeFilterLabel(t) === this.filter);
     }
     list.sort((a, b) => this.sort === 'Name' ? a.name.localeCompare(b.name) : b.updatedAt - a.updatedAt);
     return list;

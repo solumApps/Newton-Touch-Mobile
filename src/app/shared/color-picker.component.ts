@@ -109,8 +109,9 @@ export class ColorPickerComponent {
   onHex(h: string): void {
     if (/^[0-9a-fA-F]{6}$/.test(h)) {
       const c = '#' + h.toUpperCase();
-      this.customColors.add(c);
       this.pick(c);
+      const { h: hh, s, l } = this.hexToHsl(c);
+      this.hue = Math.round(hh); this.sat = Math.round(s); this.light = Math.round(l);
     }
   }
   strip(v: string): string { return v?.startsWith('#') ? v.slice(1) : ''; }
@@ -129,9 +130,15 @@ export class ColorPickerComponent {
     this.customOpen = true;
   }
   closeCustom(): void { this.customOpen = false; }
+  doneCustom(): void {
+    const c = this.toHex(this.value).toUpperCase();
+    if (/^#[0-9A-F]{6}$/.test(c)) {
+      this.customColors.add(c);
+    }
+    this.customOpen = false;
+  }
   applyHsl(): void {
     const c = this.hslToHex(this.hue, this.sat, this.light).toUpperCase();
-    this.customColors.add(c);
     this.pick(c);
   }
 

@@ -103,7 +103,7 @@
       <input type="range" min="0" max="100" [value]="light" class="cc-slider" [style.background]="lightTrack"
              (input)="light = +$any($event.target).value; applyHsl()" />
     </label>
-    <button type="button" class="cc-done" (click)="closeCustom()">Done</button>
+    <button type="button" class="cc-done" (click)="doneCustom()">Done</button>
   </div>
 
   <!-- Current selection at a glance (hidden while the custom panel is open) -->

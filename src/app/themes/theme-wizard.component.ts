@@ -489,6 +489,27 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   setIntermediateTextScale(v: string | number): void { this.setTextZone('intermediateTextScaleNum', v); }
   get resultTextScaleValue(): number { return this.textZoneValue('resultTextScaleNum'); }
   setResultTextScale(v: string | number): void { this.setTextZone('resultTextScaleNum', v); }
+  get showCardTextScaleControl(): boolean {
+    if (this.previewPage !== 'home') return false;
+    if (this.t.homeLayout === 'promo-categories') return false;
+    if (this.t.cardContent === 'image-only') return false;
+    return !['fullscreen', 'hero-start'].includes(this.t.homeLayout);
+  }
+  get showPromoTypographyControls(): boolean {
+    return this.previewPage === 'home' && this.t.homeLayout === 'promo-categories';
+  }
+  get showIntermediateTextScaleControl(): boolean {
+    return this.previewPage === 'inter' && this.t.includeIntermediate;
+  }
+  get showResultTextScaleControl(): boolean {
+    return this.previewPage === 'result';
+  }
+  get showHeaderTextScaleControl(): boolean {
+    return this.headerVisibleFor(this.previewPage);
+  }
+  get showCardTextCaseControl(): boolean {
+    return this.showCardTextScaleControl || this.showPromoTypographyControls;
+  }
 
   /** Fine-grained card size (slider). Seeds from the legacy bucket; keeps the
    *  bucket loosely in sync for consumers that still read cardSize. */
