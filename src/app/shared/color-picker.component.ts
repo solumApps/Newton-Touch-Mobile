@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ThemeCustomColorService } from '../services/theme-custom-color.service';
 
 /**
  * Reusable colour field for the theme wizard. Preset swatches + a fully in-app
@@ -33,6 +34,8 @@ export class ColorPickerComponent {
   /** Enable the two-stop linear-gradient builder (B-3). */
   @Input() allowGradient = false;
 
+  constructor(private customColors: ThemeCustomColorService) {}
+
   customOpen = false;
   hue = 270; sat = 65; light = 45;
 
@@ -44,6 +47,17 @@ export class ColorPickerComponent {
 
   get isGradient(): boolean { return /gradient/i.test(this.value || ''); }
   get gradientCss(): string { return `linear-gradient(${this.gAngle}deg, ${this.g1}, ${this.g2})`; }
+  get allPresets(): string[] {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const c of [...(this.presets || []), ...this.customColors.colors]) {
+      const k = (c || '').trim().toLowerCase();
+      if (!k || seen.has(k)) continue;
+      seen.add(k);
+      out.push(c);
+    }
+    return out;
+  }
   
   openGradient(): void {
     this.customOpen = false;
@@ -92,7 +106,13 @@ export class ColorPickerComponent {
 
   pick(c: string): void { this.value = c; this.valueChange.emit(c); }
   doReset(): void { this.customOpen = false; this.reset.emit(); }
-  onHex(h: string): void { if (/^[0-9a-fA-F]{6}$/.test(h)) this.pick('#' + h); }
+  onHex(h: string): void {
+    if (/^[0-9a-fA-F]{6}$/.test(h)) {
+      const c = '#' + h.toUpperCase();
+      this.customColors.add(c);
+      this.pick(c);
+    }
+  }
   strip(v: string): string { return v?.startsWith('#') ? v.slice(1) : ''; }
   toHex(v: string): string { return /^#[0-9a-fA-F]{6}$/.test(v) ? v : '#2F006D'; }
   sameColor(a: string, b: string): boolean {
@@ -109,7 +129,11 @@ export class ColorPickerComponent {
     this.customOpen = true;
   }
   closeCustom(): void { this.customOpen = false; }
-  applyHsl(): void { this.pick(this.hslToHex(this.hue, this.sat, this.light)); }
+  applyHsl(): void {
+    const c = this.hslToHex(this.hue, this.sat, this.light).toUpperCase();
+    this.customColors.add(c);
+    this.pick(c);
+  }
 
   get preview(): string { return this.hslToHex(this.hue, this.sat, this.light); }
   /** CSS gradient for the saturation track (grey → full colour at current hue/light). */

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,8 +9,10 @@ import { ThemeService, SavedTheme } from '../services/theme.service';
 import { ImagePickerService } from '../services/image-picker.service';
 import { FONTS } from '../shared/fonts';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Subscription } from 'rxjs';
 import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, CardOverlayStyle, OverlayShape, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, TextCase, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, NavButtonMode, NavButtonSize, SaverOverlayPosition, ScrollMode, ScreensaverMode } from '@contract/layout';
 import { MIN_COLUMNS, MAX_COLUMNS, columnsForLayout, coerceColumns, NAV_ICONS, navIconKind } from '@contract/layout';
+import { ThemeCustomColorService } from '../services/theme-custom-color.service';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 interface Step { key: string; page: PreviewPage; }
@@ -24,7 +26,7 @@ interface Step { key: string; page: PreviewPage; }
   templateUrl: './theme-wizard.component.html',
   styleUrls: ['./theme-wizard.component.scss'],
 })
-export class ThemeWizardComponent implements OnInit {
+export class ThemeWizardComponent implements OnInit, OnDestroy {
   readonly resultTransparentHeaderColor = 'transparent';
   @ViewChild('wizardSteps') wizardSteps?: ElementRef<HTMLElement>;
   @ViewChild(IonContent) content?: IonContent;
@@ -37,6 +39,7 @@ export class ThemeWizardComponent implements OnInit {
   stepIndex = 0;
   /** Shown on the Review step when the chosen name collides with an existing theme. */
   nameError = '';
+  private customColorSub?: Subscription;
 
   private allSteps: Step[] = [
     { key: 'home', page: 'home' },
@@ -467,6 +470,25 @@ export class ThemeWizardComponent implements OnInit {
     this.t.typography.textScaleNum = n;
     this.t.typography.textScale = n < 0.95 ? 'compact' : n > 1.12 ? 'large' : 'normal';
   }
+  private textZoneValue(key: 'cardTextScaleNum' | 'headerTextScaleNum' | 'promoCopyTextScaleNum' | 'promoCardTextScaleNum' | 'intermediateTextScaleNum' | 'resultTextScaleNum', fallback = 1): number {
+    const n = this.t.typography[key];
+    return typeof n === 'number' ? n : fallback;
+  }
+  private setTextZone(key: 'cardTextScaleNum' | 'headerTextScaleNum' | 'promoCopyTextScaleNum' | 'promoCardTextScaleNum' | 'intermediateTextScaleNum' | 'resultTextScaleNum', v: string | number): void {
+    this.t.typography[key] = Math.min(2.0, Math.max(0.6, Number(v)));
+  }
+  get cardTextScaleValue(): number { return this.textZoneValue('cardTextScaleNum', this.t.typography.cardTextScale ? (this.t.typography.cardTextScale === 'compact' ? 0.8 : this.t.typography.cardTextScale === 'large' ? 1.25 : 1) : 1); }
+  setCardTextScale(v: string | number): void { this.setTextZone('cardTextScaleNum', v); }
+  get headerTextScaleValue(): number { return this.textZoneValue('headerTextScaleNum', this.t.typography.headerTextScale ? (this.t.typography.headerTextScale === 'compact' ? 0.8 : this.t.typography.headerTextScale === 'large' ? 1.25 : 1) : 1); }
+  setHeaderTextScale(v: string | number): void { this.setTextZone('headerTextScaleNum', v); }
+  get promoCopyTextScaleValue(): number { return this.textZoneValue('promoCopyTextScaleNum'); }
+  setPromoCopyTextScale(v: string | number): void { this.setTextZone('promoCopyTextScaleNum', v); }
+  get promoCardTextScaleValue(): number { return this.textZoneValue('promoCardTextScaleNum', this.cardTextScaleValue); }
+  setPromoCardTextScale(v: string | number): void { this.setTextZone('promoCardTextScaleNum', v); }
+  get intermediateTextScaleValue(): number { return this.textZoneValue('intermediateTextScaleNum', this.cardTextScaleValue); }
+  setIntermediateTextScale(v: string | number): void { this.setTextZone('intermediateTextScaleNum', v); }
+  get resultTextScaleValue(): number { return this.textZoneValue('resultTextScaleNum'); }
+  setResultTextScale(v: string | number): void { this.setTextZone('resultTextScaleNum', v); }
 
   /** Fine-grained card size (slider). Seeds from the legacy bucket; keeps the
    *  bucket loosely in sync for consumers that still read cardSize. */
@@ -1054,9 +1076,13 @@ export class ThemeWizardComponent implements OnInit {
     return `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'%3E%3Crect width='160' height='100' fill='${fill}'/%3E%3Cpolygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/%3E%3C/svg%3E")`;
   }
 
-  constructor(private themes: ThemeService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private sanitizer: DomSanitizer) {}
+  constructor(private themes: ThemeService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private sanitizer: DomSanitizer, private customColors: ThemeCustomColorService) {}
 
   async ngOnInit(): Promise<void> { await this.init(); }
+  ngOnDestroy(): void {
+    this.customColorSub?.unsubscribe();
+    this.customColors.reset();
+  }
 
   /** Ionic re-enters cached page views without re-running ngOnInit. Re-initialise
    *  on every entry so "New Theme" always starts on the Home step with a clean
@@ -1090,6 +1116,15 @@ export class ThemeWizardComponent implements OnInit {
         this.coerceTextPos();
       }
     }
+    this.bindCustomColors();
+  }
+
+  private bindCustomColors(): void {
+    this.customColorSub?.unsubscribe();
+    this.customColors.reset(this.t.customColors || []);
+    this.customColorSub = this.customColors.colors$.subscribe((colors) => {
+      this.t.customColors = colors.length ? colors : undefined;
+    });
   }
 
   /** Steps actually shown (intermediate steps drop out when skipped). */
@@ -1105,7 +1140,7 @@ export class ThemeWizardComponent implements OnInit {
     return !['image-strip', 'fullscreen', 'hero-start', 'promo-categories', 'h-scroll', 'bento'].includes(this.t.homeLayout);
   }
 
-  get scaleNum(): number { return this.t.typography.textScale === 'compact' ? 0.8 : this.t.typography.textScale === 'large' ? 1.25 : 1; }
+  get scaleNum(): number { return this.textScaleValue; }
 
   /** Header visibility per page (saver never shows a header). */
   headerVisibleFor(page: PreviewPage): boolean {

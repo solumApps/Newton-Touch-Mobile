@@ -127,6 +127,11 @@ export class ThemeService {
     if ((out.homeLayout as string) === 'list') out.homeLayout = 'grid-2x3';
     if ((out.intermediateStyle as string) === 'accordion') out.intermediateStyle = 'pill-tabs';
     if ((out.intermediateStyle as string) === 'scroll-list') out.intermediateStyle = 'card-strip';
+    out.customColors = Array.isArray(t?.customColors)
+      ? Array.from(new Set<string>(t.customColors
+          .filter((c: unknown): c is string => typeof c === 'string' && /^#[0-9a-fA-F]{6}$/.test(c))
+          .map((c: string) => c.toUpperCase()))).slice(0, 24)
+      : undefined;
     const nav = { ...d.nav, ...(t?.nav || {}) };
     out.nav = nav;
     out.intermediate = {
@@ -229,6 +234,16 @@ export class ThemeService {
     const tsn = Number(out.typography.textScaleNum);
     out.typography.textScaleNum = out.typography.textScaleNum !== undefined && Number.isFinite(tsn)
       ? Math.min(2.0, Math.max(0.7, tsn)) : undefined;
+    const clampScale = (v: unknown): number | undefined => {
+      const n = Number(v);
+      return v !== undefined && Number.isFinite(n) ? Math.min(2.0, Math.max(0.6, n)) : undefined;
+    };
+    out.typography.cardTextScaleNum = clampScale(out.typography.cardTextScaleNum);
+    out.typography.headerTextScaleNum = clampScale(out.typography.headerTextScaleNum);
+    out.typography.promoCopyTextScaleNum = clampScale(out.typography.promoCopyTextScaleNum);
+    out.typography.promoCardTextScaleNum = clampScale(out.typography.promoCardTextScaleNum);
+    out.typography.intermediateTextScaleNum = clampScale(out.typography.intermediateTextScaleNum);
+    out.typography.resultTextScaleNum = clampScale(out.typography.resultTextScaleNum);
     // Optional fine-grained card-size multiplier (slider).
     const csn = Number(out.cardSizeScale);
     out.cardSizeScale = out.cardSizeScale !== undefined && Number.isFinite(csn)
@@ -257,102 +272,60 @@ export class ThemeService {
       typography: { ...d.typography, ...(over.typography || {}) },
     });
     return [
-      // 1) Fresh Market — vibrant grocery kiosk · promo rail with big featured copy · garden greens.
-      { id: 'pre_fresh_market', name: 'Fresh Market', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#15803D', background: 'linear-gradient(135deg,#F0FDF4,#DCFCE7)', cardBackground: '#FFFFFF', cardText: '#14532D', accent: '#22C55E', overlayColor: 'rgba(20,83,45,0.65)',
-        logoPosition: 'left', homeLayout: 'promo-categories', maxHomeItems: 6, cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-bottom',
-        cardSize: 'large', cardAlign: 'left', cardGap: 'normal', cardSurface: 'raised',
-        showHeader: true, headerStyle: 'logo+title',
-        includeIntermediate: true, intermediateStyle: 'columns', resultTemplate: 'promo-list',
-        intermediate: { headerColor: '#15803D', background: '#F0FDF4', cardBackground: '#FFFFFF', cardText: '#14532D', accent: '#22C55E', itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', gap: 'normal', content: 'image-text', textPos: 'below' },
-        result: { headerColor: '#15803D', background: '#F0FDF4', cardBackground: '#FFFFFF', cardText: '#14532D', accent: '#16A34A', pathColor: '#16A34A', pathStyle: 'solid', showHeader: true },
-        animation: { transition: 'fade-slide', speed: 'normal', applyToAll: true },
-        loader: { style: 'progress', color: '#22C55E' },
-        typography: { fontFamily: font('source'), textScale: 'normal', textFit: 'wrap', baseTextColor: '#14532D' },
-        saverOverlay: { showContent: true, title: 'Fresh Market', subtitle: 'Touch to find today’s freshest picks', position: 'bottom', textColor: '#FFFFFF', bgColor: 'rgba(20,83,45,0.55)' },
-      }) },
-
-      // 2) Volt Mega Store — dark electronics superstore · neon-cyan bento tiles · glow surface.
-      { id: 'pre_volt', name: 'Volt Mega Store', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#0B1220', background: 'linear-gradient(135deg,#050B14,#0E1B2C)', cardBackground: 'rgba(34,211,238,0.08)', cardText: '#E6FBFF', accent: '#22D3EE', overlayColor: 'rgba(2,12,27,0.72)',
-        logoPosition: 'left', homeLayout: 'bento', maxHomeItems: 6, cardShape: 'rect', cardContent: 'gradient', cardTextPos: 'center',
-        cardSize: 'normal', cardAlign: 'center', cardGap: 'tight', cardSurface: 'glow',
-        showHeader: true, headerStyle: 'logo+title+caption',
-        includeIntermediate: true, intermediateStyle: 'columns', resultTemplate: 'card-grid',
-        intermediate: { headerColor: '#0B1220', background: '#050B14', cardBackground: 'rgba(34,211,238,0.07)', cardText: '#E6FBFF', accent: '#22D3EE', itemSize: 'large', showHeader: true, cardShape: 'rect', align: 'left', gap: 'tight' },
-        result: { headerColor: '#0B1220', background: '#070F1A', cardBackground: 'rgba(255,255,255,0.06)', cardText: '#E6FBFF', accent: '#22D3EE', pathColor: '#22D3EE', pathStyle: 'animated', showHeader: true },
-        animation: { transition: 'slide-left', speed: 'fast', applyToAll: true },
-        loader: { style: 'dot-pulse', color: '#22D3EE' },
-        typography: { fontFamily: font('inter'), textScale: 'normal', textFit: 'shrink', baseTextColor: '#E6FBFF' },
-        saverOverlay: { showContent: true, title: 'Volt Mega Store', subtitle: 'Tap to explore the latest tech', position: 'bottom-right', textColor: '#22D3EE', bgColor: 'rgba(5,11,20,0.6)' },
-      }) },
-
-      // 3) Atelier Mode — elegant fashion boutique · horizontal pill lookbook rail, no intermediate.
-      { id: 'pre_atelier', name: 'Atelier Mode', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#1C1917', background: 'linear-gradient(160deg,#FAF7F2,#EDE5DA)', cardBackground: '#FFFFFF', cardText: '#1C1917', accent: '#A16207', overlayColor: 'rgba(28,25,23,0.55)',
-        logoPosition: 'center', homeLayout: 'h-scroll', maxHomeItems: 8, cardShape: 'pill', cardContent: 'image-text', cardTextPos: 'below',
-        cardSize: 'large', cardAlign: 'center', cardGap: 'loose', cardSurface: 'flat',
-        showHeader: true, headerStyle: 'title+caption',
-        includeIntermediate: false, intermediateStyle: 'card-strip', resultTemplate: 'shelf',
-        intermediate: { headerColor: '#1C1917', background: '#FAF7F2', cardBackground: '#FFFFFF', cardText: '#1C1917', accent: '#A16207', itemSize: 'medium', showHeader: true, cardShape: 'pill', align: 'center', gap: 'loose' },
-        result: { headerColor: '#1C1917', background: '#FAF7F2', cardBackground: '#FFFFFF', cardText: '#1C1917', accent: '#A16207', pathColor: '#A16207', pathStyle: 'dotted', showHeader: true },
-        animation: { transition: 'shimmer', speed: 'normal', applyToAll: true },
-        loader: { style: 'skeleton', color: '#A16207' },
-        typography: { fontFamily: font('nunito'), textScale: 'normal', textFit: 'wrap', baseTextColor: '#1C1917' },
-        saverOverlay: { showContent: true, title: 'Atelier Mode', subtitle: 'Touch to browse the collection', position: 'center', textColor: '#FFFFFF', bgColor: 'transparent' },
-      }) },
-
-      // 4) Summit Sports — bold sports & outdoor wall · full-height image strips · blaze orange.
-      { id: 'pre_summit', name: 'Summit Sports', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#EA580C', background: 'linear-gradient(135deg,#1C1917,#292524)', cardBackground: 'rgba(255,255,255,0.10)', cardText: '#FFFFFF', accent: '#F97316', overlayColor: 'rgba(0,0,0,0.45)',
-        logoPosition: 'center', homeLayout: 'image-strip', maxHomeItems: 5, cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-top',
-        cardSize: 'normal', cardAlign: 'center', cardGap: 'tight', cardSurface: 'outlined',
-        showHeader: true, headerStyle: 'title-only',
-        includeIntermediate: true, intermediateStyle: 'columns', resultTemplate: 'map-full',
-        intermediate: { headerColor: '#EA580C', background: '#1C1917', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#F97316', itemSize: 'large', showHeader: true, cardShape: 'rect', align: 'center', gap: 'tight', content: 'image-text', textPos: 'below' },
-        result: { headerColor: '#EA580C', background: '#171412', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#F97316', pathColor: '#F97316', pathStyle: 'solid', showHeader: true },
-        animation: { transition: 'scale-up', speed: 'fast', applyToAll: true },
-        loader: { style: 'spinner', color: '#F97316' },
-        typography: { fontFamily: font('bebas'), textScale: 'large', textFit: 'shrink', baseTextColor: '#FFFFFF' },
-        saverOverlay: { showContent: true, title: 'Summit Sports', subtitle: 'Touch to gear up', position: 'bottom-left', textColor: '#FFFFFF', bgColor: 'rgba(0,0,0,0.45)' },
-      }) },
-
-      // 5) Maison Lumière — premium gold-on-black · hexagon text tiles · glass surface · hero product reveal.
-      { id: 'pre_maison', name: 'Maison Lumière', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#0A0A0A', background: 'linear-gradient(135deg,#050505,#1A1408)', cardBackground: 'rgba(212,175,55,0.10)', cardText: '#F5E7C6', accent: '#D4AF37', overlayColor: 'rgba(10,10,10,0.70)',
-        logoPosition: 'center', homeLayout: 'grid-2x2', columns: 4, maxHomeItems: 8, scrollMode: 'auto', cardShape: 'hexagon', cardContent: 'text-only', cardTextPos: 'center',
-        cardSize: 'small', cardAlign: 'center', cardGap: 'loose', cardSurface: 'glass',
-        showHeader: true, headerStyle: 'logo+title',
-        includeIntermediate: true, intermediateStyle: 'columns', resultTemplate: 'product-focus',
-        intermediate: { headerColor: '#0A0A0A', background: '#0B0905', cardBackground: 'rgba(212,175,55,0.10)', cardText: '#F5E7C6', accent: '#D4AF37', itemSize: 'medium', showHeader: true, cardShape: 'hexagon', align: 'center', gap: 'loose', content: 'text-only', textPos: 'center' },
-        result: { headerColor: '#0A0A0A', background: '#0B0905', cardBackground: 'rgba(245,231,198,0.06)', cardText: '#F5E7C6', accent: '#D4AF37', pathColor: '#D4AF37', pathStyle: 'dashed', showHeader: true },
-        animation: { transition: 'fade-slide', speed: 'slow', applyToAll: true },
-        loader: { style: 'logo', color: '#D4AF37' },
-        typography: { fontFamily: font('jakarta'), textScale: 'normal', textFit: 'shrink', baseTextColor: '#F5E7C6' },
-        saverOverlay: { showContent: true, title: 'Maison Lumière', subtitle: 'Touch to discover the collection', position: 'center', textColor: '#F5E7C6', bgColor: 'transparent' },
-      }) },
-
-      // 6) Drive Finder — automotive parts finder · dark hero progress rail + big
-      //    selection cards (finder-select) · electric blue · finder-detail result.
-      { id: 'pre_drive_finder', name: 'Drive Finder', predefined: true, updatedAt: 0, tokens: mk({
-        headerColor: '#0F172A', background: 'linear-gradient(135deg,#0B1220,#111C32)', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#3B82F6', overlayColor: 'rgba(15,23,42,0.65)',
-        logoPosition: 'left', homeLayout: 'col-3', maxHomeItems: 6, cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'below',
-        cardSize: 'normal', cardAlign: 'center', cardGap: 'normal', cardSurface: 'flat',
-        showHeader: true, headerStyle: 'logo+title',
+      { id: 'pre_electro_pulse', name: 'Electro Pulse', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#070B18', headerTextColor: '#EAFBFF', background: 'linear-gradient(135deg,#050816,#10213A)', cardBackground: 'rgba(34,211,238,0.12)', cardText: '#EAFBFF', accent: '#22D3EE', overlayColor: 'rgba(5,8,22,0.72)',
+        logoPosition: 'left', homeLayout: 'bento', maxHomeItems: 7, cardShape: 'rect', cardContent: 'gradient', cardTextPos: 'center',
+        cardSize: 'normal', cardAlign: 'center', cardGap: 'tight', cardSurface: 'glow', showHeader: true, headerStyle: 'logo+title+caption',
         includeIntermediate: true, intermediateStyle: 'finder-select', resultTemplate: 'finder-detail',
-        intermediate: {
-          headerColor: '#0F172A', background: '#0B1220', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#3B82F6',
-          itemSize: 'medium', showHeader: true, cardShape: 'rect', align: 'center', gap: 'normal',
-          heroColor: '#101A30',
-          fsCardContent: 'image-text', fsCardShape: 'rect', fsTextPos: 'center', fsTextAlign: 'center',
-          fsShowPrompt: true, fsShowBack: true, fsBackPos: 'left', fsPromptPos: 'center',
-          promptPrefix: 'TOUCH YOUR', stepLabels: ['Make', 'Model', 'Year'],
-        },
-        result: { headerColor: '#0F172A', background: '#0B1220', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#3B82F6', pathColor: '#3B82F6', pathStyle: 'solid', showHeader: true, railBg: '#101A30' },
-        animation: { transition: 'fade-slide', speed: 'normal', applyToAll: true },
-        loader: { style: 'dot-pulse', color: '#3B82F6' },
-        typography: { fontFamily: font('inter'), textScale: 'normal', textFit: 'shrink', baseTextColor: '#0F172A' },
-        saverOverlay: { showContent: true, title: 'Drive Finder', subtitle: 'Touch to find the right part', position: 'bottom-left', textColor: '#FFFFFF', bgColor: 'rgba(11,18,32,0.6)' },
+        intermediate: { headerColor: '#070B18', headerTextColor: '#EAFBFF', background: '#07101F', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#22D3EE', itemSize: 'medium', showHeader: false, cardShape: 'rect', align: 'center', gap: 'normal', heroColor: '#0D1930', fsCardContent: 'image-text', fsCardShape: 'rect', fsTextPos: 'center', fsTextAlign: 'center', fsShowPrompt: true, fsShowBack: true, promptPrefix: 'SELECT YOUR', stepLabels: ['Device', 'Brand', 'Model'] },
+        result: { headerColor: '#070B18', background: '#07101F', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#22D3EE', pathColor: '#22D3EE', pathStyle: 'animated', showHeader: true, railBg: '#0D1930', findColor: '#0EA5E9' },
+        animation: { transition: 'slide-left', speed: 'fast', applyToAll: true }, loader: { style: 'dot-pulse', color: '#22D3EE' },
+        typography: { fontFamily: font('inter'), textScale: 'normal', textFit: 'shrink', baseTextColor: '#EAFBFF', cardTextScaleNum: 1.05, headerTextScaleNum: 1.05, intermediateTextScaleNum: 1, resultTextScaleNum: 0.95 },
+        saverOverlay: { showContent: true, title: 'Electro Pulse', subtitle: 'Touch to compare the latest devices', position: 'bottom-right', textColor: '#EAFBFF', bgColor: 'rgba(7,11,24,0.62)' },
+      }) },
+      { id: 'pre_fresh_market', name: 'Bakery Glow', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#7C2D12', headerTextColor: '#FFF7ED', background: 'linear-gradient(135deg,#FFF7ED,#FED7AA)', cardBackground: '#FFFFFF', cardText: '#431407', accent: '#EA580C', overlayColor: 'rgba(67,20,7,0.58)',
+        logoPosition: 'left', homeLayout: 'promo-categories', maxHomeItems: 6, cardShape: 'pill', cardContent: 'image-text', cardTextPos: 'overlay-bottom',
+        cardSize: 'large', cardAlign: 'left', cardGap: 'normal', cardSurface: 'raised', showHeader: true, headerStyle: 'logo+title',
+        includeIntermediate: true, intermediateStyle: 'brand-rail', resultTemplate: 'promo-list',
+        intermediate: { headerColor: '#7C2D12', headerTextColor: '#FFF7ED', background: 'linear-gradient(135deg,#FFF7ED,#FDBA74)', cardBackground: '#FFF7ED', cardText: '#431407', accent: '#EA580C', itemSize: 'large', showHeader: true, cardShape: 'circle', align: 'center', gap: 'normal', content: 'image-text', textPos: 'below', brandRailMessagePos: 'right', brandRailMessageAlign: 'center', brandRailMessageBgColor: 'rgba(124,45,18,0.22)', brandRailMessageTextColor: '#431407' },
+        result: { headerColor: '#7C2D12', background: '#FFF7ED', cardBackground: '#FFFFFF', cardText: '#431407', accent: '#EA580C', pathColor: '#EA580C', pathStyle: 'solid', showHeader: true },
+        animation: { transition: 'fade-slide', speed: 'normal', applyToAll: true }, loader: { style: 'progress', color: '#EA580C' },
+        typography: { fontFamily: font('source'), textScale: 'normal', textFit: 'wrap', baseTextColor: '#431407', promoCopyTextScaleNum: 1.12, promoCardTextScaleNum: 0.95, cardTextScaleNum: 1 },
+        saverOverlay: { showContent: true, title: 'Bakery Glow', subtitle: 'Tap for fresh offers and aisle help', position: 'bottom', textColor: '#FFF7ED', bgColor: 'rgba(124,45,18,0.55)' },
+      }) },
+      { id: 'pre_tool_works', name: 'Tool Works', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#111827', headerTextColor: '#FACC15', background: 'linear-gradient(135deg,#1F2937,#111827)', cardBackground: '#FACC15', cardText: '#111827', accent: '#FACC15', overlayColor: 'rgba(17,24,39,0.72)',
+        logoPosition: 'left', homeLayout: 'finder-select', maxHomeItems: 6, cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'below',
+        cardSize: 'normal', cardAlign: 'center', cardGap: 'normal', cardSurface: 'outlined', showHeader: true, headerStyle: 'logo+title',
+        includeIntermediate: true, intermediateStyle: 'finder-select', resultTemplate: 'drill-filter',
+        intermediate: { headerColor: '#111827', headerTextColor: '#FACC15', background: '#F3F4F6', cardBackground: '#FFFFFF', cardText: '#111827', accent: '#FACC15', itemSize: 'medium', showHeader: false, cardShape: 'rect', align: 'center', gap: 'normal', heroColor: '#111827', fsCardContent: 'icon-text', fsCardShape: 'rect', fsTextPos: 'center', fsTextAlign: 'center', fsShowPrompt: true, fsShowBack: true, promptPrefix: 'CHOOSE', stepLabels: ['Fastener', 'Type', 'Size'] },
+        result: { headerColor: '#111827', background: '#F3F4F6', cardBackground: '#FFFFFF', cardText: '#111827', accent: '#FACC15', pathColor: '#FACC15', pathStyle: 'solid', showHeader: true },
+        animation: { transition: 'scale-up', speed: 'fast', applyToAll: true }, loader: { style: 'spinner', color: '#FACC15' },
+        typography: { fontFamily: font('jakarta'), textScale: 'normal', textFit: 'shrink', baseTextColor: '#111827', cardTextScaleNum: 1.08, intermediateTextScaleNum: 1.05, resultTextScaleNum: 0.92 },
+        saverOverlay: { showContent: true, title: 'Tool Works', subtitle: 'Touch to find the right part', position: 'bottom-left', textColor: '#FACC15', bgColor: 'rgba(17,24,39,0.72)' },
+      }) },
+      { id: 'pre_dairy_fresh', name: 'Dairy Fresh', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#075985', headerTextColor: '#ECFEFF', background: 'linear-gradient(135deg,#E0F2FE,#F0FDFA)', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#14B8A6', overlayColor: 'rgba(7,89,133,0.56)',
+        logoPosition: 'center', homeLayout: 'col-4', columns: 4, maxHomeItems: 8, cardShape: 'circle', cardContent: 'image-text', cardTextPos: 'below',
+        cardSize: 'normal', cardAlign: 'center', cardGap: 'loose', cardSurface: 'glass', showHeader: true, headerStyle: 'logo+title',
+        includeIntermediate: true, intermediateStyle: 'columns', resultTemplate: 'shelf',
+        intermediate: { headerColor: '#075985', headerTextColor: '#ECFEFF', background: '#E0F2FE', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#14B8A6', itemSize: 'medium', showHeader: true, cardShape: 'circle', align: 'center', gap: 'loose', content: 'image-text', textPos: 'below' },
+        result: { headerColor: '#075985', background: '#F8FAFC', cardBackground: '#FFFFFF', cardText: '#0F172A', accent: '#14B8A6', pathColor: '#14B8A6', pathStyle: 'dashed', showHeader: true },
+        animation: { transition: 'fade-slide', speed: 'normal', applyToAll: true }, loader: { style: 'skeleton', color: '#14B8A6' },
+        typography: { fontFamily: font('nunito'), textScale: 'normal', textFit: 'wrap', baseTextColor: '#0F172A', cardTextScaleNum: 1, intermediateTextScaleNum: 1, resultTextScaleNum: 0.95 },
+        saverOverlay: { showContent: true, title: 'Dairy Fresh', subtitle: 'Touch for chilled picks and offers', position: 'center', textColor: '#ECFEFF', bgColor: 'rgba(7,89,133,0.46)' },
+      }) },
+      { id: 'pre_beauty_lane', name: 'Beauty Lane', predefined: true, updatedAt: 0, tokens: mk({
+        headerColor: '#000000', headerTextColor: '#FFFFFF', background: '#FFFFFF', cardBackground: '#FFFFFF', cardText: '#111827', accent: '#EC4899', overlayColor: 'rgba(0,0,0,0.52)',
+        logoPosition: 'left', homeLayout: 'image-strip', columns: 4, maxHomeItems: 4, cardShape: 'rect', cardContent: 'image-text', cardTextPos: 'overlay-bottom',
+        cardSize: 'large', cardAlign: 'center', cardGap: 'tight', cardSurface: 'flat', showHeader: true, headerStyle: 'logo+title',
+        includeIntermediate: false, intermediateStyle: 'card-strip', resultTemplate: 'catalog-grid',
+        intermediate: { headerColor: '#000000', headerTextColor: '#FFFFFF', background: '#FFFFFF', cardBackground: '#FFFFFF', cardText: '#111827', accent: '#EC4899', itemSize: 'medium', showHeader: true, cardShape: 'pill', align: 'center', gap: 'normal', content: 'image-text', textPos: 'below' },
+        result: { headerColor: '#000000', background: '#FFFFFF', cardBackground: '#FFFFFF', cardText: '#111827', accent: '#EC4899', pathColor: '#EC4899', pathStyle: 'dotted', showHeader: true },
+        animation: { transition: 'shimmer', speed: 'normal', applyToAll: true }, loader: { style: 'logo', color: '#EC4899' },
+        typography: { fontFamily: font('inter'), textScale: 'normal', textFit: 'shrink', baseTextColor: '#111827', cardTextScaleNum: 0.95, headerTextScaleNum: 0.95, resultTextScaleNum: 0.9 },
+        saverOverlay: { showContent: true, title: 'Beauty Lane', subtitle: 'Touch to browse by concern or finish', position: 'bottom-right', textColor: '#FFFFFF', bgColor: 'rgba(0,0,0,0.46)' },
       }) },
     ];
   }

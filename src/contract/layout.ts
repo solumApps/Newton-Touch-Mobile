@@ -177,6 +177,10 @@ export interface SaverOverlay {
 }
 
 export interface ThemeTokens {
+  /** Theme Studio convenience: custom solid colours added during this theme
+   *  creation/editing flow. Renderers ignore this; it is persisted with drafts
+   *  so the same colour can be reused across all picker fields. */
+  customColors?: string[];
   headerColor: string;
   /** Home header title/caption text color. Logo image is unchanged. */
   headerTextColor?: string;
@@ -305,7 +309,12 @@ export interface ThemeTokens {
     cardTextCase?: TextCase; headerTextCase?: TextCase;
     /** Optional fine-grained global text multiplier (slider). When set it
      *  overrides the textScale bucket; absent = use textScale. Range ~0.7–1.6. */
-    textScaleNum?: number; };
+    textScaleNum?: number;
+    /** Optional fine-grained per-zone text multipliers. Undefined = inherit the
+     *  legacy bucket/default for backward-compatible rendering. */
+    cardTextScaleNum?: number; headerTextScaleNum?: number;
+    promoCopyTextScaleNum?: number; promoCardTextScaleNum?: number;
+    intermediateTextScaleNum?: number; resultTextScaleNum?: number; };
   /** Screensaver overlay content styling (title, subtitle, position, colors). */
   saverOverlay?: SaverOverlay;
   /** Theme-level default for content screensaver mode. Media is content-specific. */

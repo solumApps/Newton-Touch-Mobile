@@ -1129,6 +1129,8 @@
   border-radius: 999px;
   width: calc(var(--nt-vh)*48) !important;
   height: calc(var(--nt-vh)*27) !important;
+  margin-left: auto;
+  margin-right: auto;
   background-size: cover;
 }
 
@@ -1165,7 +1167,9 @@
 
 /* pill promo tiles: card flex width matches the pill image's width to prevent clipping */
 .nt-home .layout-promo-categories .promo-rail .card.shape-pill {
-  flex: 0 0 calc(var(--nt-vh)*48);
+  flex: 0 0 calc(var(--nt-vh)*56);
+  width: calc(var(--nt-vh)*56);
+  overflow: visible;
 }
 
 /* circle/hexagon promo tiles: the CARD becomes a true square shape (a 50% radius
@@ -4701,6 +4705,11 @@
   box-shadow: none;
 }
 
+.nt-result .result-tools .res-sort button:active {
+  outline: 0;
+  box-shadow: none;
+}
+
 .nt-result .result-tools .res-sort button.active {
   background: var(--nt-res-accent, #ffcd00);
   color: var(--nt-res-popular-text, var(--nt-res-text, #fff));
@@ -5797,10 +5806,8 @@
 }
 
 .nt-result .hero-product-body .hp-info button:focus,
-.nt-result .hero-product-body .hp-info button:focus-visible,
 .nt-result .hero-product-body .hp-info button:active,
 .nt-result.res-product-focus .focus-copy button:focus,
-.nt-result.res-product-focus .focus-copy button:focus-visible,
 .nt-result.res-product-focus .focus-copy button:active {
   border: 0 !important;
   outline: none !important;
@@ -7980,15 +7987,31 @@
    values that keep the pre-existing look when the theme lacks the new tokens).
    Vars: --nt-gscale (mirror of the global --nt-text-scale, set wherever
    --nt-text-scale is set), --nt-card-text-scale / --nt-header-text-scale
+   / --nt-promo-copy-text-scale / --nt-promo-card-text-scale
+   / --nt-inter-text-scale / --nt-result-text-scale
    (multipliers, default 1), --nt-card-text-case / --nt-header-text-case
    (text-transform, default none), --nt-nav-btn-size (multiplier, default 1).
    ========================================================================== */
 /* card/item text scale: names re-derive their scale as global × card multiplier */
 .nt-home .card,
-.nt-home .hero-copy,
-.nt-home .promo-copy,
-.nt-inter .body .item {
+.nt-home .hero-copy {
   --nt-text-scale: calc(var(--nt-gscale, 1) * var(--nt-card-text-scale, 1));
+}
+
+.nt-home .promo-copy {
+  --nt-text-scale: calc(var(--nt-gscale, 1) * var(--nt-promo-copy-text-scale, 1));
+}
+
+.nt-home .layout-promo-categories .promo-rail .card {
+  --nt-text-scale: calc(var(--nt-gscale, 1) * var(--nt-promo-card-text-scale, var(--nt-card-text-scale, 1)));
+}
+
+.nt-inter .body .item {
+  --nt-text-scale: calc(var(--nt-gscale, 1) * var(--nt-inter-text-scale, var(--nt-card-text-scale, 1)));
+}
+
+.nt-result {
+  --nt-text-scale: calc(var(--nt-gscale, 1) * var(--nt-result-text-scale, 1));
 }
 
 /* card/item text case (color-block keeps its decorative uppercase by default) */
@@ -9433,15 +9456,31 @@
    values that keep the pre-existing look when the theme lacks the new tokens).
    Vars: --nt-gscale (mirror of the global --nt-text-scale, set wherever
    --nt-text-scale is set), --nt-card-text-scale / --nt-header-text-scale
+   / --nt-promo-copy-text-scale / --nt-promo-card-text-scale
+   / --nt-inter-text-scale / --nt-result-text-scale
    (multipliers, default 1), --nt-card-text-case / --nt-header-text-case
    (text-transform, default none), --nt-nav-btn-size (multiplier, default 1).
    ========================================================================== */
 /* card/item text scale: names re-derive their scale as global × card multiplier */
 .nt-home .card,
-.nt-home .hero-copy,
-.nt-home .promo-copy,
-.nt-inter .body .item {
+.nt-home .hero-copy {
   --nt-text-scale: calc(var(--nt-gscale, 1) * var(--nt-card-text-scale, 1));
+}
+
+.nt-home .promo-copy {
+  --nt-text-scale: calc(var(--nt-gscale, 1) * var(--nt-promo-copy-text-scale, 1));
+}
+
+.nt-home .layout-promo-categories .promo-rail .card {
+  --nt-text-scale: calc(var(--nt-gscale, 1) * var(--nt-promo-card-text-scale, var(--nt-card-text-scale, 1)));
+}
+
+.nt-inter .body .item {
+  --nt-text-scale: calc(var(--nt-gscale, 1) * var(--nt-inter-text-scale, var(--nt-card-text-scale, 1)));
+}
+
+.nt-result {
+  --nt-text-scale: calc(var(--nt-gscale, 1) * var(--nt-result-text-scale, 1));
 }
 
 /* card/item text case (color-block keeps its decorative uppercase by default) */
@@ -12259,4 +12298,18 @@
 
 .nt-inter .body.txt-shadow .item .name {
   text-shadow: 0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.5) rgba(0, 0, 0, .8) !important;
+}
+
+/* LCD/touch renderer buttons should not show browser focus rings after taps.
+   Selection styling is handled by the active/found classes in each template. */
+.nt-stage button,
+.nt-stage [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nt-stage button:focus,
+.nt-stage button:active,
+.nt-stage [role="button"]:focus,
+.nt-stage [role="button"]:active {
+  outline: 0;
 }
