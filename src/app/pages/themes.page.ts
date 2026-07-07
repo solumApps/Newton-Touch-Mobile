@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { IonContent, IonList, IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonIcon, IonModal } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { searchOutline, swapVerticalOutline, chevronForward, cloudUploadOutline, trashOutline, colorPaletteOutline } from 'ionicons/icons';
+import { searchOutline, swapVerticalOutline, chevronForward, cloudUploadOutline, trashOutline, colorPaletteOutline, createOutline } from 'ionicons/icons';
 import { ThemeService, SavedTheme } from '../services/theme.service';
 import { WorkspaceService } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
@@ -43,7 +43,7 @@ export class ThemesPage implements OnInit, OnDestroy {
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
-    addIcons({ searchOutline, swapVerticalOutline, chevronForward, cloudUploadOutline, trashOutline, colorPaletteOutline });
+    addIcons({ searchOutline, swapVerticalOutline, chevronForward, cloudUploadOutline, trashOutline, colorPaletteOutline, createOutline });
   }
 
   private themesSub?: Subscription;
@@ -135,6 +135,7 @@ export class ThemesPage implements OnInit, OnDestroy {
 
   use(t: SavedTheme): void { this.router.navigateByUrl('/theme-preview/' + t.id); }
   createNew(): void { this.router.navigateByUrl('/theme-wizard'); }
+  edit(t: SavedTheme): void { this.router.navigate(['/theme-wizard', t.id], { queryParams: { from: 'themes' } }); }
 
   async onImport(ev: Event): Promise<void> {
     const input = ev.target as HTMLInputElement;
