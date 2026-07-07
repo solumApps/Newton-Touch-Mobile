@@ -1,14 +1,22 @@
 .hd { padding: 6px 14px; --brand-logo-h: 22px; --brand-sub-size: 11px; }
-.wrap { padding: 16px 20px; }
-h2 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 800; font-size: 24px; color: var(--nt-text); margin: 6px 0 4px; }
+.wrap { padding: 16px 20px; animation: auth-in 260ms var(--nt-ease); }
+h2 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 850; font-size: 26px; color: var(--nt-text); margin: 6px 0 4px; letter-spacing: -.35px; }
 .lede { font-size: 13px; color: var(--nt-text-2); margin: 0 0 20px; }
 .step { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--nt-text-2); margin: 14px 0 8px; }
 .step .sp { color: var(--nt-muted); font-weight: 400; text-transform: none; }
 .center { text-align: center; padding: 30px; }
 .err { color: #DC2626; font-size: 13px; }
 .btn-resignin {
-  margin-top: 12px; padding: 12px 18px; border: none; border-radius: 12px;
+  margin-top: 12px; padding: 12px 18px; border: none; border-radius: 999px;
   background: var(--nt-purple, #2F006D); color: #fff; font-weight: 700; font-size: 14px;
-  &:active { opacity: .85; }
+  box-shadow: var(--nt-shadow-2);
+  transition: transform 160ms var(--nt-ease), box-shadow 160ms var(--nt-ease);
+  &:hover { transform: translateY(-1px); box-shadow: var(--nt-shadow-soft); }
+  &:active { opacity: .85; transform: translateY(0); }
 }
 .ft { padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); background: var(--nt-card); border-top: 1px solid var(--nt-border); }
+
+@keyframes auth-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

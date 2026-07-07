@@ -12,41 +12,81 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": { "base": "www", "browser": "" },
+            "outputPath": {
+              "base": "www",
+              "browser": ""
+            },
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
-            "assets": ["src/assets"],
+            "assets": [
+              "src/assets"
+            ],
             "styles": [
-              "@fontsource/inter/400.css", "@fontsource/inter/700.css",
-              "@fontsource/nunito/400.css", "@fontsource/nunito/700.css",
+              "@fontsource/inter/400.css",
+              "@fontsource/inter/700.css",
+              "@fontsource/nunito/400.css",
+              "@fontsource/nunito/700.css",
               "@fontsource/bebas-neue/400.css",
-              "@fontsource/source-sans-3/400.css", "@fontsource/source-sans-3/700.css",
-              "@fontsource/roboto-slab/400.css", "@fontsource/roboto-slab/700.css",
+              "@fontsource/source-sans-3/400.css",
+              "@fontsource/source-sans-3/700.css",
+              "@fontsource/roboto-slab/400.css",
+              "@fontsource/roboto-slab/700.css",
               "src/global.scss"
             ],
             "scripts": []
           },
           "configurations": {
             "production": {
-              "budgets": [{ "type": "initial", "maximumWarning": "2mb", "maximumError": "6mb" }],
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "6mb"
+                }
+              ],
               "outputHashing": "all"
             },
-            "development": { "optimization": false, "sourceMap": true }
+            "development": {
+              "optimization": false,
+              "sourceMap": true
+            }
           },
           "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": { "proxyConfig": "src/proxy.conf.json" },
+          "options": {
+            "proxyConfig": "src/proxy.conf.json"
+          },
           "configurations": {
-            "production": { "buildTarget": "app:build:production" },
-            "development": { "buildTarget": "app:build:development" }
+            "production": {
+              "buildTarget": "app:build:production"
+            },
+            "development": {
+              "buildTarget": "app:build:development"
+            }
           },
           "defaultConfiguration": "development"
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     }
+  },
+  "cli": {
+    "schematicCollections": [
+      "angular-eslint"
+    ]
   }
 }

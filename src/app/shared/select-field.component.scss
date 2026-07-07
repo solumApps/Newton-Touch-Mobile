@@ -5,25 +5,36 @@
 }
 .sf-trigger {
   width: 100%; display: flex; align-items: center; justify-content: space-between;
-  background: var(--nt-card, #fff); border: 1.5px solid var(--nt-border, #e2e8f0); border-radius: 10px;
+  background: var(--nt-card, #fff); border: 1.5px solid var(--nt-border, #e2e8f0); border-radius: 12px;
   padding: 13px 14px; font-size: 14px; font-family: inherit; color: var(--nt-text, #0f172a);
   cursor: pointer;
+  transition: border-color 160ms var(--nt-ease), box-shadow 160ms var(--nt-ease), background-color 160ms var(--nt-ease);
 }
-.sf-trigger.open { border-color: var(--nt-purple, #2f006d); }
+.sf-trigger:hover { border-color: var(--nt-brand-tint-border, #2f006d); box-shadow: var(--nt-shadow-1); }
+.sf-trigger.open { border-color: var(--nt-purple, #2f006d); box-shadow: var(--nt-shadow-focus); }
+.sf-trigger:focus-visible { outline: 3px solid rgba(255,205,0,.55); outline-offset: 2px; }
 .sf-trigger:disabled { opacity: .5; }
 .sf-val.ph { color: var(--nt-muted, #94a3b8); }
 .sf-caret { color: var(--nt-brand-ink, #2f006d); font-size: 12px; margin-left: 8px; }
 .sf-list {
   margin-top: 6px; background: var(--nt-card, #fff); border: 1.5px solid var(--nt-border, #e2e8f0);
-  border-radius: 10px; overflow: hidden; max-height: 280px; overflow-y: auto;
+  border-radius: 12px; overflow: hidden; max-height: 280px; overflow-y: auto;
+  box-shadow: var(--nt-shadow-soft);
+  animation: select-in 160ms var(--nt-ease);
 }
 .sf-opt {
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 14px; cursor: pointer; border-bottom: 1px solid var(--nt-border, #e2e8f0);
 }
 .sf-opt:last-child { border-bottom: none; }
+.sf-opt:hover { background: var(--nt-surface, #f8fafc); }
 .sf-opt.sel { background: var(--nt-tint, #f8f5ff); }
 .sf-opt-label { font-size: 14px; font-weight: 600; color: var(--nt-text, #0f172a); }
 .sf-opt-sub { font-size: 11px; color: var(--nt-muted, #94a3b8); margin-top: 2px; }
 .sf-tick { color: var(--nt-brand-ink, #2f006d); font-weight: 800; }
 .sf-empty { padding: 14px; font-size: 13px; color: var(--nt-muted, #94a3b8); text-align: center; }
+
+@keyframes select-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
