@@ -26,7 +26,13 @@
           <ion-item-sliding *ngFor="let c of g.drafts">
             <ion-item button detail="false" (click)="open(c)">
               <div class="item">
-                <div class="sw" [style.background]="c.themeTokens.background || '#2F006D'"></div>
+                <div
+                  class="sw"
+                  [style.background]="c.themeTokens.background || '#2F006D'"
+                  [style.background-image]="c.header?.logo ? 'url(' + (c.header?.logo || '') + ')' : null"
+                  [style.background-size]="c.header?.logo ? 'cover' : null"
+                  [style.background-position]="c.header?.logo ? 'center' : null"
+                  [style.background-repeat]="c.header?.logo ? 'no-repeat' : null"></div>
                 <div class="meta">
                   <div class="top">
                     <div class="nm">{{ c.name }}</div>
