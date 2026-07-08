@@ -5,6 +5,7 @@ const launchColor = '#2F006D';
 const config: CapacitorConfig = {
   appId: 'com.solum.newtontouch.mobile',
   appName: 'Newton Touch',
+  hideLogs: true,
   webDir: 'www',
   android: {
     backgroundColor: launchColor,
@@ -12,7 +13,7 @@ const config: CapacitorConfig = {
   plugins: {
     CapacitorHttp: { enabled: true }, // native HTTP for the Category API fetch
     SplashScreen: {
-      launchShowDuration: 1200,
+      launchAutoHide: false,
       backgroundColor: launchColor,
       showSpinner: false,
     },
