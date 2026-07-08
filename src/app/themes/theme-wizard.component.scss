@@ -388,6 +388,23 @@
   padding: 1px 4px !important;
   transform: none !important;
 }
+/* Text/colour/gradient/icon promo tiles have no image, so centre the label IN the
+   shape (matching the shared LCD render .card.shape-*.content-* .meta) instead of
+   the bottom pill above, which is meant for image tiles. */
+.prev .stage.layout-promo-categories .promo-rail .card.shape-circle.content-text-only .meta,
+.prev .stage.layout-promo-categories .promo-rail .card.shape-hexagon.content-text-only .meta,
+.prev .stage.layout-promo-categories .promo-rail .card.shape-circle.content-color-block .meta,
+.prev .stage.layout-promo-categories .promo-rail .card.shape-hexagon.content-color-block .meta,
+.prev .stage.layout-promo-categories .promo-rail .card.shape-circle.content-gradient .meta,
+.prev .stage.layout-promo-categories .promo-rail .card.shape-hexagon.content-gradient .meta,
+.prev .stage.layout-promo-categories .promo-rail .card.shape-circle.content-icon-text .meta,
+.prev .stage.layout-promo-categories .promo-rail .card.shape-hexagon.content-icon-text .meta {
+  top: 0 !important;
+  bottom: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  transform: none !important;
+}
 .prev .stage.layout-promo-categories .promo-rail .card.shape-circle .name,
 .prev .stage.layout-promo-categories .promo-rail .card.shape-hexagon .name {
   color: var(--prev-text, #fff);
