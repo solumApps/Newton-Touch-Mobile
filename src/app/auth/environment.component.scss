@@ -1,12 +1,5 @@
-.blank-header { padding-top: env(safe-area-inset-top); }
-.blank-header ion-toolbar {
-  --background: var(--nt-surface);
-  --color: var(--nt-text);
-  --min-height: 56px;
-  padding-left: 8px;
-  padding-right: 8px;
-}
-.wrap { padding: 8px 20px 96px; animation: auth-in 260ms var(--nt-ease); }
+.blank-header ion-toolbar { --background: var(--nt-surface); --color: var(--nt-text); padding-left: 6px;}
+.wrap { padding: 8px 20px 24px; animation: auth-in 260ms var(--nt-ease); }
 .brand-center {
   display: block; text-align: center; margin: 24px 0 8px;
   --brand-logo-h: 30px;
@@ -28,16 +21,11 @@
   background: var(--nt-card); border: 1.5px solid var(--nt-border); border-radius: 12px;
   padding: 14px; margin-bottom: 10px; font-family: inherit; cursor: pointer; text-align: left;
   box-shadow: var(--nt-shadow-1);
-  box-sizing: border-box;
-  min-height: 72px;
-  -webkit-appearance: none;
-  appearance: none;
   transition: border-color 160ms var(--nt-ease), background-color 160ms var(--nt-ease), transform 120ms var(--nt-ease), box-shadow 160ms var(--nt-ease);
 }
 .server-row:hover { border-color: var(--nt-brand-tint-border); box-shadow: var(--nt-shadow-2); transform: translateY(-1px); }
 .server-row:active { transform: scale(0.98); }
 .server-row.selected { border-color: var(--nt-brand-ink); background: var(--nt-tint); }
-.srv { flex: 1; min-width: 0; }
 .srv-name { font-size: 15px; font-weight: 700; color: var(--nt-text); }
 .srv-url { font-size: 11px; color: var(--nt-muted); margin-top: 2px; }
 .chev { color: var(--nt-brand-ink); font-size: 22px; font-weight: 700; }
@@ -48,11 +36,6 @@
   width: 100%; border: 1.5px solid var(--nt-border); border-radius: 10px;
   padding: 13px 14px; font-size: 14px; font-family: inherit; margin-top: 6px; outline: none;
   background: var(--nt-card); color: var(--nt-text);
-  display: block;
-  min-height: 48px;
-  box-sizing: border-box;
-  -webkit-appearance: none;
-  appearance: none;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 .fld:focus { border-color: var(--nt-brand-ink); box-shadow: var(--nt-shadow-focus); }
@@ -62,10 +45,7 @@
 .ft { padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); background: var(--nt-card); border-top: 1px solid var(--nt-border); }
 ion-header { box-shadow: none; }
 .private-server-btn {
-  min-height: 34px;
-  padding: 0 6px;
-  font-size: 10px;
-  white-space: nowrap;
+  font-size:10px
 }
 
 @keyframes auth-in {

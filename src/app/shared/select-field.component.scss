@@ -7,10 +7,6 @@
   width: 100%; display: flex; align-items: center; justify-content: space-between;
   background: var(--nt-card, #fff); border: 1.5px solid var(--nt-border, #e2e8f0); border-radius: 12px;
   padding: 13px 14px; font-size: 14px; font-family: inherit; color: var(--nt-text, #0f172a);
-  min-height: 48px;
-  box-sizing: border-box;
-  -webkit-appearance: none;
-  appearance: none;
   cursor: pointer;
   transition: border-color 160ms var(--nt-ease), box-shadow 160ms var(--nt-ease), background-color 160ms var(--nt-ease);
 }
