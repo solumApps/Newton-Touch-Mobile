@@ -65,7 +65,7 @@ export class ThemeService {
       intermediateStyle: 'columns',
       resultTemplate: 'map-list',
     intermediate: { headerColor: 'rgba(0,0,0,0.45)', headerTextColor: '#FFFFFF', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, showTracklist: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'top', gap: 'normal', textPos: 'overlay-bottom', navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right' },
-      result: { headerColor: 'transparent', background: '#1a0036', cardBackground: '#0f172a', cardText: '#FFFFFF', accent: '#ffcd00', popularText: '#FFFFFF', pathColor: '#ffcd00', pathStyle: 'dashed', showHeader: true, showTracklist: true, navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right' },
+      result: { headerColor: 'transparent', background: '#1a0036', cardBackground: '#0f172a', cardText: '#FFFFFF', accent: '#ffcd00', popularText: '#FFFFFF', pathColor: '#ffcd00', pathStyle: 'dashed', showHeader: true, showTracklist: true, navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right', filterPos: 'center' },
       // Default to no page transition — faster, more responsive navigation
       // (per team feedback). The transition options remain available in the
       // Motion step for anyone who wants them.
@@ -215,6 +215,7 @@ export class ThemeService {
     if (out.result.navPosition !== undefined) out.result.navPosition = coerceEnum(out.result.navPosition, E.navButtonPosition, 'bottom-left', 'result.navPosition');
     if (out.result.navBackPosition !== undefined) out.result.navBackPosition = coerceEnum(out.result.navBackPosition, E.navButtonPosition, 'bottom-left', 'result.navBackPosition');
     if (out.result.navHomePosition !== undefined) out.result.navHomePosition = coerceEnum(out.result.navHomePosition, E.navButtonPosition, 'bottom-right', 'result.navHomePosition');
+    out.result.filterPos = coerceEnum(out.result.filterPos, E.filterPosition, 'center', 'result.filterPos');
     out.animation.transition = coerceEnum(out.animation.transition, E.transition, d.animation.transition, 'animation.transition');
     out.animation.speed = coerceEnum(out.animation.speed, E.animSpeed, d.animation.speed, 'animation.speed');
     out.loader.style = coerceEnum(out.loader.style, E.loaderStyle, d.loader.style, 'loader.style');

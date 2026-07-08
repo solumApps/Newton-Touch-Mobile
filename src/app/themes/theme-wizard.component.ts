@@ -625,8 +625,8 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   ];
 
   /** Map-Filter-List filter section position (G-2). */
-  filterPositions: { id: 'top' | 'bottom' | 'left' | 'right'; label: string }[] = [
-    { id: 'top', label: 'Top' }, { id: 'bottom', label: 'Bottom' }, { id: 'left', label: 'Left' }, { id: 'right', label: 'Right' },
+  filterPositions: { id: 'center' | 'top' | 'bottom' | 'left' | 'right'; label: string }[] = [
+    { id: 'center', label: 'Center' }, { id: 'top', label: 'Top' }, { id: 'bottom', label: 'Bottom' }, { id: 'left', label: 'Left' }, { id: 'right', label: 'Right' },
   ];
   resetColumns(): void { this.t.columns = undefined; }
 
@@ -830,6 +830,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     if (o === 'promo-map-rank') this.applyPromoMapRankDefaults();
     else if (o === 'finder-detail') this.applyFinderDetailDefaults();
     else this.applyMapListDefaults();
+    if (o === 'map-filter-list') this.t.result.filterPos = 'center';
   }
   private applyMapListDefaults(): void {
     Object.assign(this.t.result, {

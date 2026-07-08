@@ -5546,7 +5546,11 @@
   flex-direction: column;
 }
 
-/* G-2: reposition the filter bar. No class = current middle rail (default). */
+/* G-2: reposition the filter bar. Center keeps the original middle rail (default). */
+.nt-result.res-map-filter-list.res-filter-pos-center .filter-rail {
+  order: 0;
+}
+
 .nt-result.res-map-filter-list.res-filter-pos-left .filter-rail {
   order: -1;
 }
@@ -5557,26 +5561,57 @@
 
 .nt-result.res-map-filter-list.res-filter-pos-top .map-filter-body,
 .nt-result.res-map-filter-list.res-filter-pos-bottom .map-filter-body {
-  flex-wrap: wrap;
-  align-content: flex-start;
+  display: grid;
+  grid-template-columns: minmax(0, 50%) minmax(0, 1fr);
+  gap: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1.5);
+  align-items: stretch;
+}
+
+.nt-result.res-map-filter-list.res-filter-pos-top .map-filter-body {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.nt-result.res-map-filter-list.res-filter-pos-bottom .map-filter-body {
+  grid-template-rows: minmax(0, 1fr) auto;
 }
 
 .nt-result.res-map-filter-list.res-filter-pos-top .filter-rail,
 .nt-result.res-map-filter-list.res-filter-pos-bottom .filter-rail {
-  flex: 0 0 100%;
+  grid-column: 1 / -1;
   flex-direction: row;
   justify-content: center;
   align-items: center;
 }
 
+.nt-result.res-map-filter-list.res-filter-pos-top .map,
+.nt-result.res-map-filter-list.res-filter-pos-bottom .map {
+  grid-column: 1;
+  min-height: 0;
+  margin-right: 0;
+}
+
+.nt-result.res-map-filter-list.res-filter-pos-top .filter-list,
+.nt-result.res-map-filter-list.res-filter-pos-bottom .filter-list {
+  grid-column: 2;
+  min-height: 0;
+}
+
 .nt-result.res-map-filter-list.res-filter-pos-top .filter-rail {
-  order: -1;
-  margin-bottom: calc(var(--nt-vh)*1);
+  grid-row: 1;
 }
 
 .nt-result.res-map-filter-list.res-filter-pos-bottom .filter-rail {
-  order: 99;
-  margin-top: calc(var(--nt-vh)*1);
+  grid-row: 2;
+}
+
+.nt-result.res-map-filter-list.res-filter-pos-top .map,
+.nt-result.res-map-filter-list.res-filter-pos-top .filter-list {
+  grid-row: 2;
+}
+
+.nt-result.res-map-filter-list.res-filter-pos-bottom .map,
+.nt-result.res-map-filter-list.res-filter-pos-bottom .filter-list {
+  grid-row: 1;
 }
 
 .nt-result.res-map-filter-list .fitem {
@@ -5584,7 +5619,7 @@
   align-items: center;
   padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1.2);
   border-radius: 6px;
-  margin-bottom: calc(var(--nt-vh)*0.6);
+  margin-bottom: calc(var(--nt-vh)*1.6);
   cursor: pointer;
   background: var(--nt-res-card, rgba(255, 255, 255, .06));
   min-width: 0;

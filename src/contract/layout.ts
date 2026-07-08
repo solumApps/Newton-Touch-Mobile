@@ -312,8 +312,8 @@ export interface ThemeTokens {
   result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; showTracklist?: boolean; transparentHeader?: boolean; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; cardShape?: CardShape; popularText?: string;
     /** Optional nav-position override for the Result page only. */
     navPosition?: NavButtonPosition; navSplit?: boolean; navBackPosition?: NavButtonPosition; navHomePosition?: NavButtonPosition;
-    /** Position of the filter section in Map-Filter-List (G-2). Default 'top'. */
-    filterPos?: 'top' | 'bottom' | 'left' | 'right';
+    /** Position of the filter section in Map-Filter-List (G-2). Default 'center'. */
+    filterPos?: 'center' | 'top' | 'bottom' | 'left' | 'right';
     /** promo-map-rank: header countdown timer (mm:ss start) + alert bell. */
     showTimer?: boolean; timerSeconds?: number; showBell?: boolean;
     /** promo-map-rank: floor selector labels (top→bottom), e.g. ['3F','2F','1F']. */
@@ -495,6 +495,7 @@ export const THEME_ENUM_VALUES = {
   textFit: ['shrink', 'wrap', 'clip'],
   imageFit: ['cover', 'contain', 'fill'],
   saverOverlayPosition: ['center', 'bottom', 'top', 'bottom-left', 'bottom-right'],
+  filterPosition: ['center', 'top', 'bottom', 'left', 'right'],
 } as const;
 
 /** Coerce a (possibly unknown) enum value to a member of `allowed`. Unknown

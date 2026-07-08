@@ -901,7 +901,7 @@
           <div class="step-title sm">Filter position</div>
           <p class="hint">Where the Popular / A–Z filter bar sits relative to the list.</p>
           <div class="seg">
-            <button class="tile" *ngFor="let p of filterPositions" [class.sel]="(t.result.filterPos||'top')===p.id" (click)="t.result.filterPos=p.id">{{ p.label }}</button>
+            <button class="tile" *ngFor="let p of filterPositions" [class.sel]="(t.result.filterPos||'center')===p.id" (click)="t.result.filterPos=p.id">{{ p.label }}</button>
           </div>
         </ng-container>
 
