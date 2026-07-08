@@ -327,6 +327,11 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     return this.draft?.themeTokens.cardContent === 'icon-text';
   }
 
+  /** Result product media follows the Result card content setting. */
+  get resultNeedsImage(): boolean {
+    return (this.draft?.themeTokens.result?.content || 'image-text') !== 'text-only';
+  }
+
   /** Intermediate styles that render an image/logo per item — drives image upload UI. */
   get intermediateNeedsImage(): boolean {
     const s = this.draft?.themeTokens.intermediateStyle;
