@@ -303,10 +303,10 @@
 
         <ng-container *ngIf="columnsMatter">
           <div class="step-title sm">{{ itemCountMatters ? 'Items' : 'Columns' }}</div>
-          <p class="hint">{{ itemCountMatters ? 'How many items to show — the layout fills the screen and extra items scroll.' : 'Free column count (' + minColumns + '–' + maxColumns + '). Extra rows scroll vertically.' }}</p>
+          <p class="hint">{{ itemCountMatters ? 'How many items to show — the layout fills the screen and extra items scroll.' : 'Free column count (' + homeColumnsMin + '–' + maxColumns + '). Extra rows scroll vertically.' }}</p>
           <div class="seg cols-stepper">
-            <button class="tile" (click)="stepColumns(-1)" [disabled]="effectiveColumns <= minColumns" aria-label="Fewer columns">−</button>
-            <input class="inp cols-inp" type="number" [min]="minColumns" [max]="maxColumns"
+            <button class="tile" (click)="stepColumns(-1)" [disabled]="effectiveColumns <= homeColumnsMin" aria-label="Fewer columns">−</button>
+            <input class="inp cols-inp" type="number" [min]="homeColumnsMin" [max]="maxColumns"
                    [value]="effectiveColumns" (change)="setColumns($any($event.target).value)" aria-label="Column count" />
             <button class="tile" (click)="stepColumns(1)" [disabled]="effectiveColumns >= maxColumns" aria-label="More columns">+</button>
             <!-- Auto reset removed per requirement -->
@@ -585,8 +585,8 @@
           <div class="step-title sm">{{ t.intermediateStyle==='card-strip' ? 'Visible cards' : 'Columns' }}</div>
           <p class="hint">{{ t.intermediateStyle==='card-strip' ? 'How many cards are visible at once in the strip.' : 'How many sub-category cards per row.' }}</p>
           <div class="seg cols-stepper">
-            <button class="tile" (click)="stepIntColumns(-1)" [disabled]="intColumnsValue<=1" aria-label="Fewer">−</button>
-            <input class="inp cols-inp" type="number" min="1" [max]="maxVisibleCards" [value]="intColumnsValue" (input)="setIntColumns(+$any($event.target).value)" aria-label="Columns" />
+            <button class="tile" (click)="stepIntColumns(-1)" [disabled]="intColumnsValue<=intColumnsMin" aria-label="Fewer">−</button>
+            <input class="inp cols-inp" type="number" [min]="intColumnsMin" [max]="maxVisibleCards" [value]="intColumnsValue" (input)="setIntColumns(+$any($event.target).value)" aria-label="Columns" />
             <button class="tile" (click)="stepIntColumns(1)" [disabled]="intColumnsValue>=maxVisibleCards" aria-label="More">+</button>
           </div>
         </ng-container>
