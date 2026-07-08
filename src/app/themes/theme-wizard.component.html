@@ -1059,8 +1059,11 @@
       </div>
 
       <div *ngSwitchCase="'anim'">
-        <div class="step-title">Loader</div>
-        <p class="hint">Page transitions are turned off for faster, more responsive navigation.</p>
+        <div class="step-title">Animations &amp; loader</div>
+        <div class="step-title sm">Page transition <button class="replay" (click)="replayTransition()">▶ Preview</button></div>
+        <div class="seg"><button class="tile" *ngFor="let o of transitions" [class.sel]="t.animation.transition===o" (click)="t.animation.transition=o; replayTransition()">{{ o }}</button></div>
+        <div class="step-title sm">Speed</div>
+        <div class="seg"><button class="tile" *ngFor="let o of speeds" [class.sel]="t.animation.speed===o" (click)="t.animation.speed=o; replayTransition()">{{ o }}</button></div>
         <div class="step-title sm">Loader style <button class="replay" (click)="replayLoader()">▶ Preview</button></div>
         <div class="tiles ldr-tiles">
           <button class="tile ldr-tile" *ngFor="let o of loaders" [class.sel]="t.loader.style===o" (click)="t.loader.style=o; replayLoader()">

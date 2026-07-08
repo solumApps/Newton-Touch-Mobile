@@ -61,7 +61,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     intColors: 'Intermediate colors',
     resTemplate: 'Result',
     resColors: 'Result colors',
-    anim: 'Loader',
+    anim: 'Animations',
     saver: 'Screensaver',
     review: 'Review',
   };

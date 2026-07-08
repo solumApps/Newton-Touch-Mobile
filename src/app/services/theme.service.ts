@@ -66,10 +66,10 @@ export class ThemeService {
       resultTemplate: 'map-list',
     intermediate: { headerColor: 'rgba(0,0,0,0.45)', headerTextColor: '#FFFFFF', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, showTracklist: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'top', gap: 'normal', textPos: 'overlay-bottom', navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right' },
       result: { headerColor: 'transparent', background: '#1a0036', cardBackground: '#0f172a', cardText: '#FFFFFF', accent: '#ffcd00', popularText: '#FFFFFF', pathColor: '#ffcd00', pathStyle: 'dashed', showHeader: true, showTracklist: true, navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right', filterPos: 'center' },
-      // Default to no page transition — faster, more responsive navigation
-      // (per team feedback). The transition options remain available in the
-      // Motion step for anyone who wants them.
-      animation: { transition: 'none', speed: 'normal', applyToAll: true },
+      // Default to fade-slide transition (original default).
+      // The transition options remain available in the
+      // Animations step for anyone who wants them.
+      animation: { transition: 'fade-slide', speed: 'normal', applyToAll: true },
       loader: { style: 'spinner', color: '#FFCD00' },
       typography: { fontFamily: DEFAULT_FONT, textScale: 'normal', textFit: 'shrink', baseTextColor: '#FFFFFF' },
       saverOverlay: { ...DEFAULT_SAVER_OVERLAY },
