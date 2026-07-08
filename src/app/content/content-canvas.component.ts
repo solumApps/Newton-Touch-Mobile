@@ -33,7 +33,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
       </div>
 
       <div class="stage" [style.background]="canvas.background" (pointerdown)="selectCanvas()">
-        <div *ngFor="let el of sortedElements"
+        <div *ngFor="let el of sortedElements; trackBy: trackElement"
              class="el"
              [class.sel]="selected?.id===el.id"
              [class.locked]="el.locked"
@@ -50,12 +50,12 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
           <ng-container [ngSwitch]="el.kind">
             <div *ngSwitchCase="'text'" class="text-el"
                  [style.color]="el.color || '#ffffff'"
-                 [style.font-size.px]="el.fontSize || 42"
+                 [style.font-size]="previewFontSize(el, 42)"
                  [style.font-family]="el.fontFamily || 'Inter, sans-serif'"
                  [style.font-weight]="el.bold ? 900 : 700"
                  [style.font-style]="el.italic ? 'italic' : 'normal'">{{ el.text || 'Text' }}</div>
             <div *ngSwitchCase="'shape'" class="shape-el" [style.background]="el.fill || '#FFCD00'" [style.clip-path]="el.shape==='custom' ? el.customShape : null">
-              <span [style.color]="el.color || '#12002D'" [style.font-size.px]="el.fontSize || 34">{{ el.text }}</span>
+              <span [style.color]="el.color || '#12002D'" [style.font-size]="previewFontSize(el, 34)">{{ el.text }}</span>
             </div>
             <div *ngSwitchCase="'image'" class="media-el">
               <img *ngIf="el.src" [src]="el.src" [style.object-fit]="objectFit(el)" alt="" />
@@ -245,7 +245,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
       font-weight:900;
     }
     .add-main { background:#FFCD00; color:#12002D; border:0; min-width:120px; }
-    .stage { position:relative; width:100%; height:0; padding-top:28.125%; overflow:hidden; border-radius:16px; box-shadow:0 16px 34px rgba(15,23,42,.16); touch-action:none; }
+    .stage { position:relative; width:100%; height:0; padding-top:28.125%; overflow:hidden; border-radius:16px; box-shadow:0 16px 34px rgba(15,23,42,.16); touch-action:none; container-type: inline-size; }
     .el { position:absolute; box-sizing:border-box; overflow:hidden; border:1.5px solid transparent; touch-action:none; }
     .el.sel { border-color:#FFCD00; box-shadow:0 0 0 2px rgba(47,0,109,.72); }
     .el.locked:after { content:'Locked'; position:absolute; right:4px; top:4px; background:rgba(0,0,0,.55); color:#fff; font-size:10px; padding:2px 5px; border-radius:999px; }
@@ -338,6 +338,14 @@ export class ContentCanvasComponent implements OnInit {
   objectFit(el: CanvasElement): string { return el.fit === 'fit' ? 'contain' : el.fit === 'fill' ? 'fill' : 'cover'; }
   opacityValue(el: CanvasElement): number { return el.opacity === undefined || el.opacity === null ? 1 : el.opacity; }
   opacityPercent(el: CanvasElement): number { return Math.round(this.opacityValue(el) * 100); }
+  
+  previewFontSize(el: CanvasElement, defaultSize: number): string {
+    const size = el.fontSize || defaultSize;
+    return (size / 19.2) + 'cqw';
+  }
+
+  trackElement = (_: number, el: CanvasElement): string => el.id;
+
   elementName(el: CanvasElement): string {
     if (el.kind === 'shape') return `${el.shape || 'rect'} shape`;
     if (el.kind === 'text') return (el.text || 'Text').slice(0, 22);
