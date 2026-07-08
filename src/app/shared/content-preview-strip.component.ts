@@ -119,13 +119,12 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         <div class="body fs-body" *ngIf="theme?.homeLayout==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || null" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--int-gap]="cardGapPx" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
           <div class="fs-hero">
             <div class="fs-hero-title">{{ titleText || 'Product Finder' }}</div>
-            <div class="fs-home"><span class="fs-home-ic">&#8962;</span> Home</div>
             <div class="fs-steps">
               <div class="fs-step" *ngFor="let s of homeFinderSteps; let i=index" [class.current]="i===0" [class.todo]="i>0"><span class="fs-step-lbl">{{ s }}</span><span class="fs-step-val">-</span><span class="fs-step-dot" *ngIf="i===0"></span></div>
             </div>
           </div>
           <div class="fs-main">
-            <div class="fs-top fs-back-{{theme?.intermediate?.fsBackPos||'left'}} fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}"><button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">&#8592;</button><div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div></div>
+            <div class="fs-top fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}"><div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div></div>
             <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{theme?.intermediate?.fsTextPos||'center'}} textalign-{{theme?.intermediate?.fsTextAlign||'center'}}">
               <div class="fs-card" *ngFor="let c of homeCells; let i = index">
                 <div class="fs-card-img" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='text-only'" [class.no-img]="!c.image && !finderUsePh" [style.background-image]="c.image ? 'url('+c.image+')' : (finderUsePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null"></div>
