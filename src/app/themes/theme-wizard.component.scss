@@ -909,6 +909,7 @@
 .prev .stage.result.res-product-focus { align-items: center; justify-content: center; }
 .prev .stage.result.res-product-focus .map, .prev .stage.result.res-product-focus .list { display: none; }
 .prev .stage.result.res-product-focus .focus { flex: 0 0 56%; height: 72%; border-radius: 5px; background: var(--prev-card); color: var(--prev-text); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1.5px solid var(--prev-accent); box-shadow: 0 5px 12px rgba(0,0,0,.22); }
+.prev .stage.result.res-product-focus .focus-img { width: 22px; height: 22px; border-radius: 5px; margin-bottom: 4px; opacity: .95; }
 .prev .stage.result.res-product-focus .focus b { font-size: 8px; margin-bottom: 4px; }
 .prev .stage.result.res-product-focus .focus span { border-radius: 999px; background: var(--prev-accent); color: #111; font-size: 6px; font-weight: 900; padding: 2px 12px; text-transform: uppercase; }
 

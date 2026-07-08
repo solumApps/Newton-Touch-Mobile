@@ -38,6 +38,11 @@ export interface CanvasElement {
   radius?: number;
   rotate?: number;
   opacity?: number;
+  /** Optional border around the element (width in px against the 1920x540 stage).
+   *  Drawn in the WebView; for a native video overlay the overlay is inset by this
+   *  width so the border stays visible around it. */
+  borderWidth?: number;
+  borderColor?: string;
 }
 
 export interface CustomCanvasContent {

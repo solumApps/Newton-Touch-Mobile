@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -32,7 +32,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
         <button class="add-main" (click)="showAddPanel=!showAddPanel">{{ showAddPanel ? 'Close' : '+ Add element' }}</button>
       </div>
 
-      <div class="stage" [style.background]="canvas.background" (pointerdown)="selectCanvas()">
+      <div #stageEl class="stage" [style.background]="canvas.background" (pointerdown)="selectCanvas()">
         <div *ngFor="let el of sortedElements; trackBy: trackElement"
              class="el"
              [class.sel]="selected?.id===el.id"
@@ -45,17 +45,18 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
              [style.z-index]="el.z"
              [style.opacity]="opacityValue(el)"
              [style.border-radius.px]="el.radius || 0"
+             [style.border]="previewBorder(el)"
              [style.transform]="'rotate(' + (el.rotate || 0) + 'deg)'"
              (pointerdown)="startDrag($event, el)">
           <ng-container [ngSwitch]="el.kind">
             <div *ngSwitchCase="'text'" class="text-el"
                  [style.color]="el.color || '#ffffff'"
-                 [style.font-size]="previewFontSize(el, 42)"
+                 [style.font-size]="previewFontSize(el.fontSize || 42)"
                  [style.font-family]="el.fontFamily || 'Inter, sans-serif'"
                  [style.font-weight]="el.bold ? 900 : 700"
                  [style.font-style]="el.italic ? 'italic' : 'normal'">{{ el.text || 'Text' }}</div>
             <div *ngSwitchCase="'shape'" class="shape-el" [style.background]="el.fill || '#FFCD00'" [style.clip-path]="el.shape==='custom' ? el.customShape : null">
-              <span [style.color]="el.color || '#12002D'" [style.font-size]="previewFontSize(el, 34)">{{ el.text }}</span>
+              <span [style.color]="el.color || '#12002D'" [style.font-size]="previewFontSize(el.fontSize || 34)">{{ el.text }}</span>
             </div>
             <div *ngSwitchCase="'image'" class="media-el">
               <img *ngIf="el.src" [src]="el.src" [style.object-fit]="objectFit(el)" alt="" />
@@ -154,6 +155,10 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
           </select>
         </label>
 
+        <label>Border color
+          <input type="color" [ngModel]="toColor(el.borderColor || '#000000')" (ngModelChange)="el.borderColor=$event; saveSoon()" />
+        </label>
+
         <div class="upload-box" *ngIf="el.kind==='image'">
           <span>{{ el.src ? 'Image selected' : 'No image selected' }}</span>
           <button class="mini" (click)="replaceImage(el)">{{ el.src ? 'Replace image' : 'Upload image' }}</button>
@@ -183,6 +188,9 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
         </label>
         <label>Corner radius <strong>{{ el.radius || 0 }}</strong>
           <input type="range" min="0" max="80" [value]="el.radius || 0" (input)="el.radius=+$any($event.target).value; saveSoon()" />
+        </label>
+        <label>Border width <strong>{{ el.borderWidth || 0 }}</strong>
+          <input type="range" min="0" max="24" [value]="el.borderWidth || 0" (input)="el.borderWidth=+$any($event.target).value; saveSoon()" />
         </label>
         <label>Rotate <strong>{{ el.rotate || 0 }}°</strong>
           <input type="range" min="-45" max="45" [value]="el.rotate || 0" (input)="el.rotate=+$any($event.target).value; saveSoon()" />
@@ -247,7 +255,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
     .add-main { background:#FFCD00; color:#12002D; border:0; min-width:120px; }
     .stage { position:relative; width:100%; height:0; padding-top:28.125%; overflow:hidden; border-radius:16px; box-shadow:0 16px 34px rgba(15,23,42,.16); touch-action:none; container-type: inline-size; }
     .el { position:absolute; box-sizing:border-box; overflow:hidden; border:1.5px solid transparent; touch-action:none; }
-    .el.sel { border-color:#FFCD00; box-shadow:0 0 0 2px rgba(47,0,109,.72); }
+    .el.sel { outline:2px solid #FFCD00; outline-offset:0; box-shadow:0 0 0 2px rgba(47,0,109,.72); }
     .el.locked:after { content:'Locked'; position:absolute; right:4px; top:4px; background:rgba(0,0,0,.55); color:#fff; font-size:10px; padding:2px 5px; border-radius:999px; }
     .media-el,.el img,.el video { width:100%; height:100%; display:block; }
     .media-el { display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.16); color:#fff; font-weight:900; text-align:center; }
@@ -301,12 +309,18 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
     }
   `],
 })
-export class ContentCanvasComponent implements OnInit {
+export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('stageEl') stageEl?: ElementRef<HTMLElement>;
   draft?: ContentDraft;
   selectedId = '';
   showAddPanel = false;
   dragging?: { id: string; sx: number; sy: number; ox: number; oy: number };
   saveTimer?: ReturnType<typeof setTimeout>;
+  /** Rendered height (px) of the 1920x540 preview stage. Text is sized relative
+   *  to this so the mobile preview matches the LCD, which sizes text in vh of its
+   *  540px-tall viewport (LCD: fontSize/5.4 vh == fontSize/540 * viewportH px). */
+  private stageH = 0;
+  private stageObserver?: ResizeObserver;
   shapes: CanvasShapeKind[] = ['rect', 'pill', 'circle', 'starburst', 'tag', 'badge', 'arrow', 'custom'];
   promoPresets: { id: ProductPromoPreset; label: string }[] = [
     { id: 'product-only', label: 'Only product' },
@@ -315,7 +329,40 @@ export class ContentCanvasComponent implements OnInit {
     { id: 'text-product-text', label: 'Text + product + text' },
   ];
 
-  constructor(private content: ContentService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router) {}
+  constructor(private content: ContentService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private cdr: ChangeDetectorRef) {}
+
+  ngAfterViewInit(): void {
+    const el = this.stageEl?.nativeElement;
+    if (!el) return;
+    const measure = () => { this.stageH = el.clientHeight; this.cdr.detectChanges(); };
+    measure();
+    if (typeof ResizeObserver !== 'undefined') {
+      this.stageObserver = new ResizeObserver(() => measure());
+      this.stageObserver.observe(el);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.stageObserver?.disconnect();
+    clearTimeout(this.saveTimer);
+  }
+
+  /** Preview font-size that matches the LCD renderer's vh sizing: on the LCD a
+   *  text element is `fontSize/5.4` vh of its 540px stage; here we express the
+   *  same physical proportion against the actual preview stage height. */
+  previewFontSize(fontSize: number): string {
+    const h = this.stageH || (this.stageEl?.nativeElement.clientHeight ?? 0);
+    return (fontSize / 540 * h) + 'px';
+  }
+
+  /** Border for the preview, scaled from authored px (1920x540 stage) to the
+   *  rendered stage — same scaling as text so the preview matches the LCD. */
+  previewBorder(el: CanvasElement): string | null {
+    const bw = el.borderWidth || 0;
+    if (bw <= 0) return null;
+    const h = this.stageH || (this.stageEl?.nativeElement.clientHeight ?? 0);
+    return (bw / 540 * h) + 'px solid ' + (el.borderColor || '#000000');
+  }
 
   async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.paramMap.get('id');
@@ -339,11 +386,6 @@ export class ContentCanvasComponent implements OnInit {
   opacityValue(el: CanvasElement): number { return el.opacity === undefined || el.opacity === null ? 1 : el.opacity; }
   opacityPercent(el: CanvasElement): number { return Math.round(this.opacityValue(el) * 100); }
   
-  previewFontSize(el: CanvasElement, defaultSize: number): string {
-    const size = el.fontSize || defaultSize;
-    return (size / 19.2) + 'cqw';
-  }
-
   trackElement = (_: number, el: CanvasElement): string => el.id;
 
   elementName(el: CanvasElement): string {
