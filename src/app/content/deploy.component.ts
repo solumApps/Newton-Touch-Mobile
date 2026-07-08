@@ -183,6 +183,13 @@ export class DeployComponent implements OnInit, OnDestroy {
     if (layout.screensaver?.media) layout.screensaver.media = layout.screensaver.media.map((m) => takeMaybeVideo(m) || m);
     // Externalize the header logo if it's a data URI.
     if (layout.header?.logo) layout.header.logo = take(layout.header.logo);
+    const canvas = (c?: { elements?: { src?: string }[] }) => {
+      c?.elements?.forEach((el) => {
+        el.src = takeMaybeVideo(el.src);
+      });
+    };
+    canvas(layout.customCanvas);
+    canvas(layout.productPromo);
     // Media mode (appMode 'media'): externalize the image/video to a SEPARATE
     // streamed blob (not the images[] array — that one ships each file in a
     // single message, and a multi-MB video as one base64 string OOM-crashes the
@@ -325,12 +332,96 @@ export class DeployComponent implements OnInit, OnDestroy {
     });
   }
 
+  private isBundledAsset(value?: string): value is string {
+    return !!value && !value.startsWith('data:') && !value.startsWith('blob:') && !value.startsWith('http://') && !value.startsWith('https://') && value.indexOf('assets/') === 0;
+  }
+
+  private assetCache = new Map<string, Promise<string | undefined>>();
+
+  private assetToDataUri(path: string): Promise<string | undefined> {
+    const cached = this.assetCache.get(path);
+    if (cached) return cached;
+    const pending = (async () => {
+      try {
+        const res = await fetch(path);
+        if (!res.ok) return undefined;
+        const blob = await res.blob();
+        return await new Promise<string | undefined>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : undefined);
+          reader.onerror = () => resolve(undefined);
+          reader.readAsDataURL(blob);
+        });
+      } catch {
+        return undefined;
+      }
+    })();
+    this.assetCache.set(path, pending);
+    return pending;
+  }
+
+  private async inlineBundledAssets(src: LayoutJson): Promise<LayoutJson> {
+    const layout: LayoutJson = JSON.parse(JSON.stringify(src));
+    const swap = async (value?: string): Promise<string | undefined> => {
+      if (!this.isBundledAsset(value)) return value;
+      return await this.assetToDataUri(value) || value;
+    };
+    const cards = async (arr?: CardItem[]): Promise<void> => {
+      if (!arr?.length) return;
+      for (const c of arr) {
+        c.image = await swap(c.image);
+        if (c.products?.length) {
+          for (const p of c.products) p.image = await swap(p.image);
+        }
+        if (c.children?.length) await cards(c.children);
+      }
+    };
+    await cards(layout.home);
+    await cards(layout.intermediate);
+    layout.theme.backgroundImage = await swap(layout.theme.backgroundImage);
+    layout.theme.intermediate.backgroundImage = await swap(layout.theme.intermediate.backgroundImage);
+    layout.theme.result.backgroundImage = await swap(layout.theme.result.backgroundImage);
+    if (layout.theme.nav) {
+      layout.theme.nav.backIcon = await swap(layout.theme.nav.backIcon);
+      layout.theme.nav.homeIcon = await swap(layout.theme.nav.homeIcon);
+    }
+    layout.result.mapImage = await swap(layout.result.mapImage);
+    layout.result.promoImage = await swap(layout.result.promoImage);
+    if (layout.result.products?.length) {
+      for (const p of layout.result.products) p.image = await swap(p.image);
+    }
+    if (layout.itemResults) {
+      for (const rc of Object.values(layout.itemResults)) {
+        rc.mapImage = await swap(rc.mapImage);
+        rc.promoImage = await swap(rc.promoImage);
+        if (rc.products?.length) {
+          for (const p of rc.products) p.image = await swap(p.image);
+        }
+      }
+    }
+    if (layout.screensaver?.media?.length) {
+      layout.screensaver.media = await Promise.all(layout.screensaver.media.map((m) => swap(m).then((v) => v || m)));
+    }
+    if (layout.header?.logo) layout.header.logo = await swap(layout.header.logo);
+    const canvas = async (c?: { elements?: { src?: string }[] }): Promise<void> => {
+      if (!c?.elements?.length) return;
+      for (const el of c.elements) el.src = await swap(el.src);
+    };
+    await canvas(layout.customCanvas);
+    await canvas(layout.productPromo);
+    if (layout.media?.url) layout.media.url = await swap(layout.media.url) || layout.media.url;
+    return layout;
+  }
+
   async deploy(): Promise<void> {
     if (!this.draft || !this.payload || !this.targetHost) return;
 
     this.sending = true; this.percent = 0; this.doneMsg = ''; this.steps = [];
     try {
-      const needsServerConfig = this.draft.appMode !== 'prototype' && this.draft.appMode !== 'media';
+      const needsServerConfig = this.draft.appMode !== 'prototype'
+        && this.draft.appMode !== 'media'
+        && this.draft.appMode !== 'custom-canvas'
+        && this.draft.appMode !== 'product-promo';
       let serverConfig = '';
       let serverConfigSummary = '';
       if (needsServerConfig) {
@@ -348,13 +439,14 @@ export class DeployComponent implements OnInit, OnDestroy {
       // Built inside the branch, but sent LAST (after serverConfig) so nothing can
       // clobber the layout transfer — see note before the layout send below.
       let layoutJson = '';
+      const payload = await this.inlineBundledAssets(this.payload);
       if (!this.transfer.isNative) {
         // Browser dev (relay): externalize images and send them individually,
         // then send the compact layout — mirrors the native path so the LCD
         // receives every image as a separate message (no multi-MB single frame).
         // Images use fire-and-forget (sendRelayNoAck) because the LCD only
         // sends a deploy_ack after the final layout, not after each image.
-        const { layout, images, videos } = this.externalizeImages(this.payload);
+        const { layout, images, videos } = this.externalizeImages(payload);
         layout.imageManifest = [...images.map((im) => im.id), ...videos.map((vm) => vm.id)];
         layout.imageSizes = Object.fromEntries(
           [...images, ...videos].map((im) => [im.id, this.decodedBytes(im.data)]),
@@ -385,7 +477,7 @@ export class DeployComponent implements OnInit, OnDestroy {
         // Device: send each image as its own file payload first, then the tiny layout.
         // media:true → video/image streamed to disk (keeps layout.json small; the
         // LCD plays video from a file URL, not an in-memory base64 blob).
-        const { layout, images, videos, media } = this.externalizeImages(this.payload, { media: true });
+        const { layout, images, videos, media } = this.externalizeImages(payload, { media: true });
         // Attach a manifest of expected image ids + decoded sizes so the LCD can
         // verify completeness AND integrity (size match) after the deploy.
         layout.imageManifest = [

@@ -1,4 +1,4 @@
-.wrap { padding: 16px 16px 96px; animation: page-in 260ms var(--nt-ease); }
+.wrap { padding: 16px 16px 96px; }
 
 /* Hero */
 .hero { margin-bottom: 16px; }
@@ -6,7 +6,7 @@
 .hero-title {
   margin: 0;
   font-size: 28px;
-  font-weight: 850;
+  font-weight: 800;
   letter-spacing: -.4px;
   color: var(--nt-text);
   line-height: 1.15;
@@ -32,9 +32,9 @@
   font-family: inherit;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 160ms var(--nt-ease), transform 160ms var(--nt-ease), box-shadow 160ms var(--nt-ease);
+  transition: background 150ms ease;
 }
-.scan:hover { background: var(--nt-tint); transform: translateY(-1px); box-shadow: var(--nt-shadow-1); }
+.scan:hover { background: var(--nt-tint); }
 .scan.on { background: var(--nt-purple); color: #fff; }
 .scan ion-spinner { --color: currentColor; width: 16px; height: 16px; }
 .scan ion-icon { font-size: 16px; }
@@ -57,9 +57,9 @@
   outline: none;
   background: var(--nt-card);
   color: var(--nt-text);
-  transition: border-color 160ms var(--nt-ease), box-shadow 160ms var(--nt-ease);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
-.srch input:focus { border-color: var(--nt-brand-ink); box-shadow: var(--nt-shadow-focus); }
+.srch input:focus { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
 
 .note { font-size: 12px; color: var(--nt-muted); line-height: 1.5; margin: 2px 0 10px; }
 .note.info { color: var(--nt-info); }
@@ -77,9 +77,9 @@
   border: 1px solid var(--nt-border);
   border-radius: var(--nt-r);
   box-shadow: var(--nt-shadow-1);
-  transition: box-shadow 160ms var(--nt-ease), border-color 160ms var(--nt-ease), transform 160ms var(--nt-ease);
+  transition: box-shadow 150ms ease, border-color 150ms ease;
 }
-.slides ion-item:hover { box-shadow: var(--nt-shadow-2); border-color: var(--nt-brand-tint-border); transform: translateY(-1px); }
+.slides ion-item:hover { box-shadow: var(--nt-shadow-2); border-color: var(--nt-brand-tint-border); }
 .slides ion-item-option { font-weight: 700; }
 
 .dev { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 0; }
@@ -135,7 +135,6 @@
   transition: background 150ms ease, color 150ms ease;
 }
 .more:hover, .more:active { background: var(--nt-tint); color: var(--nt-brand-ink); }
-.more:focus-visible { outline: 3px solid rgba(255,205,0,.55); outline-offset: 2px; }
 .more ion-icon { font-size: 18px; }
 
 /* Floating action button */
@@ -181,7 +180,7 @@
   box-sizing: border-box;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
-.fld-i:focus { border-color: var(--nt-brand-ink); box-shadow: var(--nt-shadow-focus); }
+.fld-i:focus { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
 /* Live validation field states */
 .fld-i.ok { border-color: var(--nt-success); }
 .fld-i.ok:focus { border-color: var(--nt-success); box-shadow: 0 0 0 3px rgba(22,163,74,0.12); }
@@ -195,11 +194,16 @@
 .skel-card { height: 78px; border-radius: var(--nt-r); margin-bottom: 10px; }
 
 
-@media (min-width: 720px) {
-  .wrap { max-width: 760px; margin: 0 auto; }
+.nt-confirm { background: var(--nt-card); padding: 24px 22px 22px; text-align: center; }
+.nt-confirm-ic {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--nt-danger-tint);
+  color: var(--nt-danger);
+  margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
 }
-
-@keyframes page-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+.nt-confirm-ic ion-icon { font-size: 26px; }
+.nt-confirm h2 { margin: 0 0 6px; font-size: 18px; font-weight: 800; color: var(--nt-text); }
+.nt-confirm p { margin: 0 0 18px; font-size: 13px; line-height: 1.5; color: var(--nt-text-2); }
+.nt-confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

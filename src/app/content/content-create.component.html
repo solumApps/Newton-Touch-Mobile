@@ -24,8 +24,10 @@
     </div>
 
     <p class="hint" *ngIf="isMedia">No app type needed — next you'll upload an image or video and choose how it fills the screen.</p>
+    <p class="hint" *ngIf="isCustomCanvas">No app type needed — next you'll design a freeform LCD canvas.</p>
+    <p class="hint" *ngIf="isProductPromo">No app type needed — next you'll choose a product promo layout and add the media/text.</p>
 
-    <ng-container *ngIf="!isMedia">
+    <ng-container *ngIf="!isSpecialLayout">
       <app-select-field label="Step 2 · App mode" placeholder="Choose a mode"
         [options]="modeOpts" [value]="mode" (valueChange)="mode=$any($event)"></app-select-field>
 
@@ -35,7 +37,7 @@
 </ion-content>
 
 <ion-footer class="foot">
-  <button class="btn-y" [disabled]="!themeId || (!isMedia && !mode)" (click)="next()">
-    Continue to {{ isMedia ? 'Upload Media' : (mode === 'category' ? 'Fetch Products' : 'Builder') }} →
+  <button class="btn-y" [disabled]="!themeId || (!isSpecialLayout && !mode)" (click)="next()">
+    Continue to {{ isMedia ? 'Upload Media' : isCustomCanvas ? 'Canvas Editor' : isProductPromo ? 'Promo Builder' : (mode === 'category' ? 'Fetch Products' : 'Builder') }} →
   </button>
 </ion-footer>

@@ -29,10 +29,10 @@
                 <div
                   class="sw"
                   [style.background]="c.themeTokens.background || '#2F006D'"
-                  [style.background-image]="c.header?.logo ? 'url(' + (c.header?.logo || '') + ')' : null"
-                  [style.background-size]="c.header?.logo ? 'cover' : null"
-                  [style.background-position]="c.header?.logo ? 'center' : null"
-                  [style.background-repeat]="c.header?.logo ? 'no-repeat' : null"></div>
+                  [style.background-image]="previewImage(c) ? 'url(' + (previewImage(c) || '') + ')' : null"
+                  [style.background-size]="previewImage(c) ? 'cover' : null"
+                  [style.background-position]="previewImage(c) ? 'center' : null"
+                  [style.background-repeat]="previewImage(c) ? 'no-repeat' : null"></div>
                 <div class="meta">
                   <div class="top">
                     <div class="nm">{{ c.name }}</div>

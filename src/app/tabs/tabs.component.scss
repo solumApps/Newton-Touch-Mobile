@@ -6,11 +6,10 @@ ion-tab-bar.nt-tabbar {
   --color: var(--nt-muted);
   --color-selected: var(--nt-brand-ink);
   border-top: 1px solid var(--nt-border);
-  height: 58px;
-  padding: 3px 8px calc(3px + env(safe-area-inset-bottom));
-  box-shadow: 0 -10px 28px rgba(15,23,42,0.08);
+  height: 64px;
+  padding: 4px 8px calc(4px + env(safe-area-inset-bottom));
+  box-shadow: 0 -8px 28px rgba(15,23,42,0.08);
   contain: layout paint;
-  backdrop-filter: blur(16px);
 }
 
 /* Make ion-tab-button transparent so our pill is the visible target. */
@@ -22,7 +21,7 @@ ion-tab-bar.nt-tabbar ion-tab-button {
   --padding-bottom: 0;
   --padding-start: 0;
   --padding-end: 0;
-  min-height: 46px;
+  min-height: 50px;
 }
 
 /* The pill is what users actually see. */
@@ -32,30 +31,30 @@ ion-tab-bar.nt-tabbar ion-tab-button {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0;
+  gap: 1px;
   min-width: 64px;
-  min-height: 42px;
-  padding: 7px 12px 3px;
+  min-height: 46px;
+  padding: 8px 12px 4px;
   border-radius: 0;
-  transition: color 180ms var(--nt-ease), transform 180ms var(--nt-ease);
+  transition: background-color 200ms ease, color 200ms ease, transform 200ms ease;
   color: var(--nt-muted);
 }
 .nt-tab-pill::after {
   content: '';
   position: absolute;
-  top: 2px;
+  top: 0;
   width: 18px;
-  height: 2px;
+  height: 3px;
   border-radius: 999px;
   background: transparent;
-  transition: background-color 180ms var(--nt-ease), width 180ms var(--nt-ease), transform 180ms var(--nt-ease);
+  transition: background-color 200ms ease, width 200ms ease;
 }
 .nt-tab-pill ion-icon {
-  font-size: 20px;
-  transition: transform 180ms var(--nt-ease), color 180ms var(--nt-ease);
+  font-size: 21px;
+  transition: transform 200ms ease;
 }
 .nt-tab-pill ion-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: .2px;
   margin: 0;
@@ -68,7 +67,6 @@ ion-tab-bar.nt-tabbar ion-tab-button.tab-selected .nt-tab-pill {
 ion-tab-bar.nt-tabbar ion-tab-button.tab-selected .nt-tab-pill::after {
   width: 24px;
   background: var(--nt-yellow);
-  transform: translateY(-1px);
 }
 ion-tab-bar.nt-tabbar ion-tab-button.tab-selected .nt-tab-pill ion-icon {
   transform: translateY(-1px);
@@ -80,19 +78,9 @@ ion-tab-bar.nt-tabbar ion-tab-button.tab-selected .nt-tab-pill ion-label {
 /* Tap feedback (non-active). */
 ion-tab-bar.nt-tabbar ion-tab-button:not(.tab-selected) .nt-tab-pill:active {
   color: var(--nt-text);
-  transform: scale(.96);
-}
-
-ion-tab-bar.nt-tabbar ion-tab-button:not(.tab-selected):hover .nt-tab-pill {
-  color: var(--nt-text);
 }
 
 ion-tab-bar.nt-tabbar ion-tab-button:focus-visible .nt-tab-pill {
   outline: 3px solid rgba(255,205,0,.55);
   outline-offset: 2px;
-}
-
-@media (max-width: 360px) {
-  .nt-tab-pill { min-width: 56px; padding-left: 8px; padding-right: 8px; }
-  .nt-tab-pill ion-label { font-size: 9px; }
 }

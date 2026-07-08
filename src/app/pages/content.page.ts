@@ -9,6 +9,7 @@ import { WorkspaceService } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
 import { NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderComponent } from '../shared/ui';
 import { Subscription } from 'rxjs';
+import { BAKERY_GLOW_SAMPLE_ID } from '../services/sample-content';
 
 @Component({
   selector: 'app-content',
@@ -87,23 +88,76 @@ export class ContentPage implements OnInit, OnDestroy {
   }
 
   filtered(): ContentDraft[] {
-    const q = this.q.toLowerCase();
-    return q ? this.drafts.filter((d) => d.name.toLowerCase().includes(q)) : this.drafts;
+    const q = this.q.trim().toLowerCase();
+    const list = q ? this.drafts.filter((d) => this.searchText(d).includes(q)) : this.drafts;
+    return this.sortContent(list);
   }
 
-  /** Group filtered drafts by deployment status — Deployed first, then Drafts. */
+  /** Group filtered drafts with the built-in sample pinned first. */
   get groups(): { label: string; drafts: ContentDraft[] }[] {
     const list = this.filtered();
-    const deployed = list.filter(d => !!d.deployedTo);
-    const drafts = list.filter(d => !d.deployedTo);
+    const sample = list.filter(d => this.isSample(d));
+    const rest = list.filter(d => !this.isSample(d));
+    const deployed = rest.filter(d => !!d.deployedTo);
+    const drafts = rest.filter(d => !d.deployedTo);
     const out = [];
+    if (sample.length) out.push({ label: 'Sample', drafts: sample });
     if (deployed.length) out.push({ label: 'Deployed', drafts: deployed });
     if (drafts.length) out.push({ label: 'Drafts', drafts });
     return out;
   }
 
+  private isSample(d: ContentDraft): boolean { return d.id === BAKERY_GLOW_SAMPLE_ID; }
+
+  private sortContent(list: ContentDraft[]): ContentDraft[] {
+    return [...list].sort((a, b) => {
+      if (this.isSample(a) !== this.isSample(b)) return this.isSample(a) ? -1 : 1;
+      return (b.updatedAt || 0) - (a.updatedAt || 0);
+    });
+  }
+
   modeLabel(m: ContentDraft['appMode']): string {
-    return m === 'category' ? 'Category' : m === 'prototype' ? 'Prototype' : m === 'media' ? 'Media' : 'Prototype + ESL';
+    return m === 'category' ? 'Category'
+      : m === 'prototype' ? 'Prototype'
+      : m === 'media' ? 'Media'
+      : m === 'custom-canvas' ? 'Custom Canvas'
+      : m === 'product-promo' ? 'Product Promo'
+      : 'Prototype + ESL';
+  }
+
+  previewImage(c: ContentDraft): string | undefined {
+    return c.home.find((card) => !!card.image)?.image
+      || c.result.promoImage
+      || c.result.products.find((p) => !!p.image)?.image
+      || Object.values(c.itemResults || {}).find((r) => !!r.promoImage)?.promoImage
+      || Object.values(c.itemResults || {}).flatMap((r) => r.products || []).find((p) => !!p.image)?.image
+      || c.screensaver?.media?.[0]
+      || c.header?.logo;
+  }
+
+  private searchText(d: ContentDraft): string {
+    const itemResultProducts = Object.values(d.itemResults || {}).flatMap((r) => r.products || []);
+    const cardParts = (items: ContentDraft['home']): string[] =>
+      items.flatMap((c) => ([
+        c.name,
+        c.price,
+        c.unit,
+        c.articleId,
+        ...(c.products || []).map((p) => [p.name, p.price, p.aisle, p.shelf, p.zone, p.articleId].filter(Boolean).join(' ')),
+        ...cardParts(c.children || []),
+      ].filter((v): v is string => !!v)));
+    const parts = [
+      d.name,
+      d.themeName,
+      this.modeLabel(d.appMode),
+      d.header?.title,
+      d.header?.caption,
+      ...cardParts(d.home),
+      ...cardParts(d.intermediate),
+      ...d.result.products.map((p) => [p.name, p.price, p.aisle, p.shelf, p.zone, p.articleId].filter(Boolean).join(' ')),
+      ...itemResultProducts.map((p) => [p.name, p.price, p.aisle, p.shelf, p.zone, p.articleId].filter(Boolean).join(' ')),
+    ];
+    return parts.filter(Boolean).join(' ').toLowerCase();
   }
 
   /** Human-readable "deployed N ago". */
@@ -133,5 +187,10 @@ export class ContentPage implements OnInit, OnDestroy {
   }
 
   create(): void { this.router.navigateByUrl('/content-create'); }
-  open(c: ContentDraft): void { this.router.navigateByUrl((c.appMode === 'media' ? '/content-media/' : '/content-builder/') + c.id); }
+  open(c: ContentDraft): void {
+    const base = c.appMode === 'media' ? '/content-media/'
+      : c.appMode === 'custom-canvas' || c.appMode === 'product-promo' ? '/content-canvas/'
+      : '/content-builder/';
+    this.router.navigateByUrl(base + c.id);
+  }
 }

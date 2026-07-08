@@ -10,7 +10,6 @@
   letter-spacing: .2px;
   white-space: nowrap;
   border: 1px solid transparent;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
 }
 
 .nt-badge .d {
@@ -34,8 +33,4 @@
 @keyframes nt-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50%      { opacity: .5; transform: scale(1.4); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .nt-badge.v-live .d { animation: none; }
 }
