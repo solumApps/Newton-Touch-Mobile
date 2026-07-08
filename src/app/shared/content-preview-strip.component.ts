@@ -345,7 +345,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <div class="price" *ngIf="found?.price">{{ found?.price }}</div>
               <button type="button">Find Me</button>
             </div>
-            <div class="focus-image" *ngIf="found?.image" [style.background-image]="'url('+found?.image+')'" [style.background-size]="fitSize(found?.imageFit)" [style.background-repeat]="found?.imageFit ? 'no-repeat' : null"></div>
+            <div class="focus-image" *ngIf="resUsePh" [style.background-image]="found?.image ? 'url('+found?.image+')' : phImg(activeResultIndex)" [style.background-size]="fitSize(found?.imageFit)" [style.background-repeat]="found?.imageFit ? 'no-repeat' : null"></div>
             <div class="focus-list">
               <div class="mini" *ngFor="let p of resultCells.slice(0,4); let i = index" [class.found]="isFound(i)" (click)="selectResult(i)">{{ p.name }}</div>
             </div>
@@ -357,7 +357,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <div class="hp-bullet">Fresh, quality &amp; ready to go</div>
             </div>
             <div class="hp-product">
-              <div class="hp-img" [style.background-image]="found?.image ? 'url('+found?.image+')' : null" [style.background-size]="fitSize(found?.imageFit)" [style.background-repeat]="found?.imageFit ? 'no-repeat' : null"></div>
+              <div class="hp-img" *ngIf="resUsePh" [style.background-image]="found?.image ? 'url('+found?.image+')' : phImg(activeResultIndex)" [style.background-size]="fitSize(found?.imageFit)" [style.background-repeat]="found?.imageFit ? 'no-repeat' : null"></div>
               <div class="hp-info">
                 <div class="hp-tag">Popular</div>
                 <div class="hp-name">{{ found?.name || 'Product' }}</div>
