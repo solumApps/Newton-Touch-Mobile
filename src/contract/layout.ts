@@ -4,7 +4,7 @@
  * Single source of truth — import into both apps.
  */
 
-export type AppMode = 'category' | 'prototype' | 'prototype-esl' | 'media';
+export type AppMode = 'category' | 'prototype' | 'prototype-esl' | 'media' | 'custom-canvas' | 'product-promo';
 
 /** Media-only content: a single full-screen image or video. `fit` maps to CSS
  *  object-fit — fill (stretch), fit (contain, letterboxed), cover (crop). */
@@ -12,6 +12,41 @@ export interface MediaContent {
   type: 'image' | 'video';
   url: string;
   fit: 'fill' | 'fit' | 'cover';
+}
+
+export type CanvasElementKind = 'text' | 'image' | 'video' | 'shape';
+export type CanvasShapeKind = 'rect' | 'pill' | 'circle' | 'starburst' | 'tag' | 'badge' | 'arrow' | 'custom';
+export type ProductPromoPreset = 'product-only' | 'text-product' | 'product-text' | 'text-product-text';
+
+export interface CanvasElement {
+  id: string;
+  kind: CanvasElementKind;
+  x: number; y: number; w: number; h: number; // percentages relative to 1920x540 stage
+  z: number;
+  locked?: boolean;
+  text?: string;
+  src?: string;
+  fit?: 'fill' | 'fit' | 'cover';
+  shape?: CanvasShapeKind;
+  customShape?: string;
+  fill?: string;
+  color?: string;
+  fontSize?: number;
+  fontFamily?: string;
+  bold?: boolean;
+  italic?: boolean;
+  radius?: number;
+  rotate?: number;
+  opacity?: number;
+}
+
+export interface CustomCanvasContent {
+  background: string;
+  elements: CanvasElement[];
+}
+
+export interface ProductPromoContent extends CustomCanvasContent {
+  preset: ProductPromoPreset;
 }
 export type LogoPosition = 'left' | 'center' | 'right';
 
@@ -591,4 +626,8 @@ export interface LayoutJson {
   imageFallbacks?: Record<string, string>;
   /** Media mode only (appMode 'media'): the single image/video to play full-screen. */
   media?: MediaContent;
+  /** Custom Canvas mode: freeform 1920x540 composition. */
+  customCanvas?: CustomCanvasContent;
+  /** Product Promo mode: guided retail promo composition, rendered by the same canvas engine. */
+  productPromo?: ProductPromoContent;
 }

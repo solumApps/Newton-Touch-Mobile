@@ -25,18 +25,7 @@
             "assets": [
               "src/assets"
             ],
-            "styles": [
-              "@fontsource/inter/400.css",
-              "@fontsource/inter/700.css",
-              "@fontsource/nunito/400.css",
-              "@fontsource/nunito/700.css",
-              "@fontsource/bebas-neue/400.css",
-              "@fontsource/source-sans-3/400.css",
-              "@fontsource/source-sans-3/700.css",
-              "@fontsource/roboto-slab/400.css",
-              "@fontsource/roboto-slab/700.css",
-              "src/global.scss"
-            ],
+            "styles": [],
             "scripts": []
           },
           "configurations": {

@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Preferences } from '@capacitor/preferences';
-import type { LayoutJson, AppMode, ThemeTokens, CardItem, ResultProduct, EslLink, EslBlinkBy, Screensaver, FieldSource, ResultContent, MediaContent } from '@contract/layout';
+import type { LayoutJson, AppMode, ThemeTokens, CardItem, ResultProduct, EslLink, EslBlinkBy, Screensaver, FieldSource, ResultContent, MediaContent, CustomCanvasContent, ProductPromoContent } from '@contract/layout';
 import { ThemeService } from './theme.service';
 import { ImageStoreService } from './image-store.service';
-import { freshMarketSampleDraft, FRESH_MARKET_SAMPLE_ID } from './sample-content';
+import { bakeryGlowSampleDraft, BAKERY_GLOW_SAMPLE_ID, BEAUTY_GLOW_SAMPLE_ID, FRESH_MARKET_SAMPLE_ID } from './sample-content';
 
 export interface ContentDraft {
   id: string;
@@ -59,6 +59,10 @@ export interface ContentDraft {
   screensaver: Screensaver;
   /** Media mode only (appMode 'media'): the single image/video to play full-screen. */
   media?: MediaContent;
+  /** Custom Canvas mode: freeform 1920x540 composition. */
+  customCanvas?: CustomCanvasContent;
+  /** Product Promo mode: guided retail promo composition. */
+  productPromo?: ProductPromoContent;
   /** Per-deploy header content — fields shown depend on theme.headerStyle. */
   header?: { title?: string; caption?: string; logo?: string };
   status: 'draft' | 'complete';
@@ -71,8 +75,10 @@ export interface ContentDraft {
 }
 
 const KEY = 'nt.content';
-/** Set once after seeding built-in sample drafts — deleting a sample never resurrects it. */
+/** Legacy Fresh Market seed flag. Kept only so older installs can migrate cleanly. */
 const SEED_FLAG = 'nt.content.samplesSeeded';
+/** Versioned so the built-in sample can be refreshed once without touching user drafts. */
+const BAKERY_SEED_FLAG = 'nt.content.bakeryGlowSampleSeeded.v2';
 
 @Injectable({ providedIn: 'root' })
 export class ContentService {
@@ -145,6 +151,16 @@ export class ContentService {
     const itemResults = d.itemResults
       ? Object.fromEntries(await Promise.all(Object.entries(d.itemResults).map(async ([id, r]) => [id, await resultMedia(r)] as const)))
       : d.itemResults;
+    const canvasMedia = async <T extends CustomCanvasContent | ProductPromoContent | undefined>(canvas: T): Promise<T> => {
+      if (!canvas) return canvas;
+      return {
+        ...canvas,
+        elements: await Promise.all((canvas.elements || []).map(async (el) => ({
+          ...el,
+          src: await val(el.src),
+        }))),
+      } as T;
+    };
     const t = d.themeTokens;
     return {
       ...d,
@@ -166,6 +182,8 @@ export class ContentService {
       // (esp. video) — externalize it to IndexedDB so it never bloats the
       // Preferences-backed drafts blob and blows the storage quota.
       media: d.media && d.media.url ? { ...d.media, url: await fn(d.media.url) } : d.media,
+      customCanvas: await canvasMedia(d.customCanvas),
+      productPromo: await canvasMedia(d.productPromo),
     };
   }
 
@@ -188,18 +206,24 @@ export class ContentService {
     await this.images.gc(live, 'c');
   }
 
-  /** Seed the built-in "Fresh Market – Sample" draft exactly once (first run).
-   *  Guarded by SEED_FLAG so a user deleting the sample never sees it return. */
+  /** Replace older samples with the current Bakery Glow sample.
+   *  Guarded so a user deleting the Bakery sample never sees it return. */
   private async seedSamplesOnce(): Promise<void> {
-    const { value: seeded } = await Preferences.get({ key: SEED_FLAG });
-    if (seeded) return;
-    if (!this.cache.some((d) => d.id === FRESH_MARKET_SAMPLE_ID)) {
-      const theme = ThemeService.predefined().find((t) => t.id === 'pre_fresh_market');
-      if (theme) {
-        this.cache = [...this.cache, freshMarketSampleDraft(theme)];
-        await this.persist(this.cache);
-      }
+    const { value: bakerySeeded } = await Preferences.get({ key: BAKERY_SEED_FLAG });
+    if (bakerySeeded) return;
+    const legacyNames = new Set(['Fresh Market – Sample', 'Fresh Market - Sample', 'Fresh Market - sample', 'Beauty Glow - Sample']);
+    const withoutLegacySample = this.cache.filter((d) =>
+      d.id !== FRESH_MARKET_SAMPLE_ID && d.id !== BEAUTY_GLOW_SAMPLE_ID && d.id !== BAKERY_GLOW_SAMPLE_ID && !legacyNames.has(d.name));
+    let next = withoutLegacySample;
+    const theme = ThemeService.predefined().find((t) => t.id === 'pre_fresh_market');
+    if (theme) {
+      next = [bakeryGlowSampleDraft(theme), ...next];
     }
+    if (next !== this.cache) {
+      this.cache = next;
+      await this.persist(this.cache);
+    }
+    await Preferences.set({ key: BAKERY_SEED_FLAG, value: '1' });
     await Preferences.set({ key: SEED_FLAG, value: '1' });
   }
 
@@ -306,6 +330,8 @@ export class ContentService {
       payload.liveApi = { refresh, articleCase: d.articleCase || 'asis' };
     }
     if (d.appMode === 'media' && d.media) payload.media = d.media;
+    if (d.appMode === 'custom-canvas' && d.customCanvas) payload.customCanvas = d.customCanvas;
+    if (d.appMode === 'product-promo' && d.productPromo) payload.productPromo = d.productPromo;
     return payload;
   }
 
@@ -333,6 +359,8 @@ export class ContentService {
           }]))
         : undefined,
       eslLinks: d.eslLinks, eslBlinkBy: d.eslBlinkBy,
+      customCanvas: d.customCanvas ? { ...d.customCanvas, elements: d.customCanvas.elements.map((el) => ({ ...el, src: el.src ? '«ref»' : undefined })) } : undefined,
+      productPromo: d.productPromo ? { ...d.productPromo, elements: d.productPromo.elements.map((el) => ({ ...el, src: el.src ? '«ref»' : undefined })) } : undefined,
       note: 'Media excluded by design — re-attach images/video on import (Category mode re-fetches from API).',
     };
     return JSON.stringify(manifest, null, 2);

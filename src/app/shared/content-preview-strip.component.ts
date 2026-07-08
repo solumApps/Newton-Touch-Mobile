@@ -333,7 +333,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               </div>
             </div>
             <div class="selected-tags">
-              <div class="tag" *ngFor="let p of resultCells.slice(0,4)">#{{ p.aisle || p.name }}</div>
+              <div class="tag" *ngFor="let p of resultCells.slice(0,4)">#{{ resultTag(p) }}</div>
             </div>
           </div>
           <!-- product-focus -->
@@ -1044,6 +1044,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get saverBadge(): string {
     const m = this.screensaver?.mode;
     return m === 'single-image' ? 'Single image' : m === 'video' ? 'Video' : 'Slideshow';
+  }
+  resultTag(p: ResultProduct): string {
+    return p.shelf || p.aisle || p.zone || p.name || 'Product';
   }
 
   // Header style logic — per-page aware

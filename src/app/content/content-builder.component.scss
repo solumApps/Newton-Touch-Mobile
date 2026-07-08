@@ -108,7 +108,21 @@
 .mini.missing-image-seg.sel { background: var(--nt-danger, #C0262C); color: #fff; border-color: var(--nt-danger, #C0262C); }
 @keyframes nt-pulse-error { from { box-shadow: 0 0 0 0 rgba(192, 38, 44, 0.2); } to { box-shadow: 0 0 0 4px rgba(192, 38, 44, 0.4); } }
 /* Wide upload tile (e.g. Result map image) — full-width drop area, generous tap target. */
-.thumb.wide { width: 100%; height: auto; min-height: 130px; border-radius: 10px; border: 2px dashed var(--nt-border); background: var(--nt-tint, #F8F5FF); font-size: 13px; font-weight: 600; color: var(--nt-muted); flex-shrink: 1; }
+.thumb.wide {
+  width: 100%;
+  height: auto;
+  min-height: 130px;
+  border-radius: 10px;
+  border: 2px dashed var(--nt-border);
+  background-color: var(--nt-tint, #F8F5FF);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--nt-muted);
+  flex-shrink: 1;
+}
 .thumb.wide[style*="url("] { background-color: transparent; border-style: solid; border-color: var(--nt-border); color: transparent; }
 .inp {
   flex: 1; min-width: 0;

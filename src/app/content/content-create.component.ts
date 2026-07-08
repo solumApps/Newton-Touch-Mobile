@@ -20,6 +20,8 @@ import type { AppMode } from '@contract/layout';
 export class ContentCreateComponent implements OnInit {
   /** Sentinel theme id for the media-only flow (single image/video, no app type). */
   static readonly MEDIA_THEME_ID = '__media__';
+  static readonly CANVAS_THEME_ID = '__custom_canvas__';
+  static readonly PRODUCT_PROMO_THEME_ID = '__product_promo__';
   name = '';
   nameError = '';
   themeId = '';
@@ -51,12 +53,17 @@ export class ContentCreateComponent implements OnInit {
     this.themes = [...ThemeService.predefined(), ...(await this.themeSvc.list())];
   }
 
-  /** True when the media-only theme is selected — hides the app-type step. */
+  /** True when a special no-theme editor is selected — hides the app-type step. */
   get isMedia(): boolean { return this.themeId === ContentCreateComponent.MEDIA_THEME_ID; }
+  get isCustomCanvas(): boolean { return this.themeId === ContentCreateComponent.CANVAS_THEME_ID; }
+  get isProductPromo(): boolean { return this.themeId === ContentCreateComponent.PRODUCT_PROMO_THEME_ID; }
+  get isSpecialLayout(): boolean { return this.isMedia || this.isCustomCanvas || this.isProductPromo; }
 
   get themeOpts(): SelectOption[] {
     const media: SelectOption = { value: ContentCreateComponent.MEDIA_THEME_ID, label: 'Upload Media (Image/Video)', sub: 'Play a single image or video full-screen — no app type needed' };
-    return [media, ...this.themes.map((t) => {
+    const canvas: SelectOption = { value: ContentCreateComponent.CANVAS_THEME_ID, label: 'Custom Layout Canvas', sub: 'Design a freeform 1920 × 540 LCD screen with images, video, text and shapes' };
+    const promo: SelectOption = { value: ContentCreateComponent.PRODUCT_PROMO_THEME_ID, label: 'Product Promo', sub: 'Guided product hero screen with product media and promotional text' };
+    return [media, canvas, promo, ...this.themes.map((t) => {
       const badge = t.predefined ? '★ Predefined' : '✎ My theme';
       return { value: t.id, label: t.name, sub: `${badge} · ${t.tokens.homeLayout} · ${t.tokens.cardShape} ${t.tokens.cardContent}` };
     })];
@@ -69,22 +76,22 @@ export class ContentCreateComponent implements OnInit {
   get backLabel(): string { return this.themeLockedFromPreview ? 'Back' : 'Cancel'; }
 
   async next(): Promise<void> {
-    // Media-only flow: skip app-type selection, create a minimal draft, go straight
-    // to the media editor (upload + fill/fit/cover + preview + deploy).
-    if (this.isMedia) {
-      const name = this.name.trim() || 'Media content';
+    // Special no-theme flows skip app-type selection and go straight to their editor.
+    if (this.isSpecialLayout) {
+      const name = this.name.trim() || (this.isMedia ? 'Media content' : this.isProductPromo ? 'Product promo' : 'Custom canvas');
       if (await this.content.nameExists(name)) {
         this.nameError = `Content named “${name}” already exists. Please choose a different name.`;
         return;
       }
+      const appMode: AppMode = this.isMedia ? 'media' : this.isProductPromo ? 'product-promo' : 'custom-canvas';
       this.nameError = '';
       const draft: ContentDraft = {
         id: 'cnt_' + Date.now(),
         name,
-        themeId: ContentCreateComponent.MEDIA_THEME_ID,
-        themeName: 'Upload Media',
+        themeId: this.themeId,
+        themeName: this.isMedia ? 'Upload Media' : this.isProductPromo ? 'Product Promo' : 'Custom Layout Canvas',
         themeTokens: ThemeService.defaultTokens(),
-        appMode: 'media',
+        appMode,
         home: [],
         intermediate: [],
         result: { products: [] },
@@ -92,8 +99,10 @@ export class ContentCreateComponent implements OnInit {
         status: 'draft',
         updatedAt: Date.now(),
       };
+      if (appMode === 'custom-canvas') draft.customCanvas = { background: '#0A0A1A', elements: [] };
+      if (appMode === 'product-promo') draft.productPromo = { preset: 'product-only', background: 'linear-gradient(135deg,#2F006D,#001973)', elements: [] };
       await this.content.save(draft);
-      this.router.navigateByUrl('/content-media/' + draft.id);
+      this.router.navigateByUrl(appMode === 'media' ? '/content-media/' + draft.id : '/content-canvas/' + draft.id);
       return;
     }
     const theme = this.selectedTheme;
