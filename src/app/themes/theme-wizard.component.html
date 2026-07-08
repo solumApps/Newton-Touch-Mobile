@@ -145,6 +145,7 @@
           </div>
           <div class="promo" *ngIf="t.resultTemplate==='promo-list'"></div>
           <div class="focus" *ngIf="t.resultTemplate==='product-focus'">
+            <div class="focus-img" *ngIf="(t.result.content||'image-text')!=='text-only'" [style.background]="t.result.accent"></div>
             <b>Best Match</b>
             <span>Find Me</span>
           </div>
@@ -154,7 +155,7 @@
               <span [style.--b]="t.result.accent">Fresh &amp; ready to go</span>
             </div>
             <div class="hp-product">
-              <div class="hp-img" [style.background]="t.result.accent"></div>
+              <div class="hp-img" *ngIf="(t.result.content||'image-text')!=='text-only'" [style.background]="t.result.accent"></div>
               <div class="hp-info"><b>Product Name</b><span class="price">$0.00</span><i class="find" [style.background]="t.result.accent">Find Me</i></div>
             </div>
             <div class="hp-headline">Awesome!<em [style.color]="t.result.accent">Loved your pick!</em></div>

@@ -7978,6 +7978,12 @@
   display: none !important;
 }
 
+.nt-result.res-content-text-only.res-drill-filter .fitem .fimg,
+.nt-result.res-content-text-only.res-filter-list .fitem .fimg,
+.nt-result.res-content-text-only.res-map-filter-list .fitem .fimg {
+  display: none !important;
+}
+
 .nt-result.res-cards-map .prod,
 .nt-result.res-card-grid .prod,
 .nt-result.res-catalog-grid .prod {
