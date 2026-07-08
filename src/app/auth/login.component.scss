@@ -1,10 +1,5 @@
-.login {
-  padding: 10px 22px 32px;
-  max-width: 460px;
-  margin: 0 auto;
-  animation: auth-in 280ms var(--nt-ease);
-}
-.brand-center { display: block; text-align: center; margin: 34px 0 14px; --brand-logo-h: 34px; }
+.login { padding: 8px 22px 32px; max-width: 460px; margin: 0 auto; }
+.brand-center { display: block; text-align: center; margin: 48px 0 16px; --brand-logo-h: 34px; }
 :host ::ng-deep .brand-center .brand { align-items: center; }
 
 .env-pill {
@@ -14,13 +9,13 @@
   row-gap: 2px;
   align-items: center;
   color: var(--nt-text-2);
-  background: linear-gradient(180deg, var(--nt-card), rgba(255,255,255,.84));
+  background: var(--nt-card);
   border: 1px solid var(--nt-border);
-  border-radius: 16px;
-  padding: 9px 10px 9px 12px;
-  margin: 0 auto 20px;
-  width: min(100%, 390px);
-  box-shadow: var(--nt-shadow-2);
+  border-radius: 14px;
+  padding: 10px 12px;
+  margin: 0 auto 24px;
+  width: min(100%, 380px);
+  box-shadow: var(--nt-shadow-1);
 }
 .env-status {
   display: inline-flex;
@@ -53,53 +48,41 @@
   font-size: 12px;
   cursor: pointer;
   padding: 8px 12px;
-  transition: background-color 160ms var(--nt-ease), border-color 160ms var(--nt-ease), transform 120ms var(--nt-ease), box-shadow 160ms var(--nt-ease);
+  transition: background-color 150ms ease, border-color 150ms ease, transform 100ms ease;
 }
 .env-pill .change:hover {
   background: var(--nt-card);
   border-color: var(--nt-brand-ink);
-  box-shadow: var(--nt-shadow-1);
 }
 .env-pill .change:active {
   transform: scale(0.96);
 }
 
-h2 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 850; font-size: 28px; color: var(--nt-text); margin: 0 0 4px; letter-spacing: -.4px; }
+h2 { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 800; font-size: 26px; color: var(--nt-text); margin: 0 0 4px; }
 .lede { font-size: 13px; color: var(--nt-text-2); margin: 0 0 22px; }
 
 .field { margin-bottom: 16px; }
 .field label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--nt-text-2); margin-bottom: 6px; }
 .inp {
-  width: 100%; border: 1.5px solid var(--nt-border); border-radius: 12px;
+  width: 100%; border: 1.5px solid var(--nt-border); border-radius: 10px;
   padding: 13px 14px; font-size: 15px; font-family: inherit; outline: none; background: var(--nt-card);
-  transition: border-color 160ms var(--nt-ease), box-shadow 160ms var(--nt-ease), background-color 160ms var(--nt-ease);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
   color: var(--nt-text);
 }
-.inp:focus { border-color: var(--nt-brand-ink); box-shadow: var(--nt-shadow-focus); }
+.inp:focus { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
 .inp.bad, .inp-wrap.bad { border-color: #DC2626; }
-.inp-wrap { display: flex; align-items: center; border: 1.5px solid var(--nt-border); border-radius: 12px; background: var(--nt-card); transition: border-color 160ms var(--nt-ease), box-shadow 160ms var(--nt-ease); }
-.inp-wrap:focus-within { border-color: var(--nt-brand-ink); box-shadow: var(--nt-shadow-focus); }
+.inp-wrap { display: flex; align-items: center; border: 1.5px solid var(--nt-border); border-radius: 10px; background: var(--nt-card); transition: border-color 150ms ease, box-shadow 150ms ease; }
+.inp-wrap:focus-within { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
 .inp.bare { border: none; flex: 1; }
 .eye {
   display: flex; align-items: center; justify-content: center;
   width: 42px; align-self: stretch;
   border: none; background: none; color: var(--nt-text-2);
   font-size: 20px; cursor: pointer;
-  transition: color 160ms var(--nt-ease), background-color 160ms var(--nt-ease);
 }
-.eye:hover { color: var(--nt-brand-ink); background: var(--nt-tint); }
 .eye:focus-visible { outline: 2px solid var(--nt-purple); outline-offset: -4px; border-radius: 8px; }
 .err { color: #DC2626; font-size: 12px; margin: 6px 0 0; }
 .err.center { text-align: center; }
 .btn-y { margin-top: 8px; }
 .blank-header ion-toolbar { --background: var(--nt-surface); --color: var(--nt-text); padding-left: 6px;}
 ion-header { box-shadow: none; }
-
-@keyframes auth-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@media (min-width: 600px) {
-  .login { padding-top: 28px; }
-}

@@ -1,5 +1,5 @@
 .blank-header ion-toolbar { --background: var(--nt-surface); --color: var(--nt-text); padding-left: 6px;}
-.wrap { padding: 8px 20px 24px; animation: auth-in 260ms var(--nt-ease); }
+.wrap { padding: 8px 20px 24px; }
 .brand-center {
   display: block; text-align: center; margin: 24px 0 8px;
   --brand-logo-h: 30px;
@@ -8,7 +8,7 @@
 .top-section { margin: 18px 0 18px; }
 .top-section h2 {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 800;
-  font-size: 26px; color: var(--nt-text); margin: 0 0 4px; letter-spacing: -.35px;
+  font-size: 24px; color: var(--nt-text); margin: 0 0 4px;
 }
 .top-section p { font-size: 13px; color: var(--nt-text-2); margin: 0; line-height: 1.5; }
 
@@ -18,12 +18,10 @@
 }
 .server-row {
   width: 100%; display: flex; align-items: center; justify-content: space-between;
-  background: var(--nt-card); border: 1.5px solid var(--nt-border); border-radius: 12px;
+  background: var(--nt-card); border: 1.5px solid var(--nt-border); border-radius: 10px;
   padding: 14px; margin-bottom: 10px; font-family: inherit; cursor: pointer; text-align: left;
-  box-shadow: var(--nt-shadow-1);
-  transition: border-color 160ms var(--nt-ease), background-color 160ms var(--nt-ease), transform 120ms var(--nt-ease), box-shadow 160ms var(--nt-ease);
+  transition: border-color 150ms ease, background-color 150ms ease, transform 100ms ease;
 }
-.server-row:hover { border-color: var(--nt-brand-tint-border); box-shadow: var(--nt-shadow-2); transform: translateY(-1px); }
 .server-row:active { transform: scale(0.98); }
 .server-row.selected { border-color: var(--nt-brand-ink); background: var(--nt-tint); }
 .srv-name { font-size: 15px; font-weight: 700; color: var(--nt-text); }
@@ -38,7 +36,7 @@
   background: var(--nt-card); color: var(--nt-text);
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
-.fld:focus { border-color: var(--nt-brand-ink); box-shadow: var(--nt-shadow-focus); }
+.fld:focus { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
 .err { color: #DC2626; font-size: 12px; margin: 6px 0 0; }
 
 .ft ion-toolbar, .ft { --background: var(--nt-card); }
@@ -46,9 +44,4 @@
 ion-header { box-shadow: none; }
 .private-server-btn {
   font-size:10px
-}
-
-@keyframes auth-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
 }

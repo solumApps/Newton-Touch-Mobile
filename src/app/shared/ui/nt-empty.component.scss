@@ -5,7 +5,6 @@
   text-align: center;
   padding: 40px 24px;
   color: var(--nt-text-2);
-  animation: nt-empty-in 260ms var(--nt-ease);
 }
 .nt-empty .ic {
   width: 64px;
@@ -22,7 +21,7 @@
 .nt-empty .t {
   margin: 0 0 6px;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--nt-text);
 }
 .nt-empty .d {
@@ -43,12 +42,6 @@
   font-family: inherit;
   cursor: pointer;
   box-shadow: var(--nt-shadow-1);
-  transition: box-shadow 160ms var(--nt-ease), transform 160ms var(--nt-ease), background-color 160ms var(--nt-ease);
+  transition: box-shadow 150ms ease;
 }
-.nt-empty .cta:hover { box-shadow: var(--nt-shadow-soft); transform: translateY(-1px); }
-.nt-empty .cta:focus-visible { outline: 3px solid rgba(255,205,0,.55); outline-offset: 2px; }
-
-@keyframes nt-empty-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+.nt-empty .cta:hover { box-shadow: var(--nt-shadow-2); }
