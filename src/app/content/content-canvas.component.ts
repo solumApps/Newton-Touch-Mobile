@@ -62,7 +62,12 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
               <span *ngIf="!el.src">Upload image</span>
             </div>
             <div *ngSwitchCase="'video'" class="media-el">
-              <video *ngIf="el.src" [src]="el.src" [style.object-fit]="objectFit(el)" muted loop playsinline autoplay></video>
+              <video *ngIf="el.src"
+                     [src]="el.src"
+                     [style.object-fit]="objectFit(el)"
+                     muted loop playsinline autoplay preload="auto"
+                     (canplay)="kickVideo($event)"
+                     (loadedmetadata)="kickVideo($event)"></video>
               <span *ngIf="!el.src">Upload video</span>
             </div>
           </ng-container>
@@ -365,6 +370,12 @@ export class ContentCanvasComponent implements OnInit {
   }
   async replaceImage(el: CanvasElement): Promise<void> { const src = await this.picker.pick('image/*'); if (src) { el.src = src; this.saveSoon(); } }
   async replaceVideo(el: CanvasElement): Promise<void> { const src = await this.picker.pickRaw('video/*'); if (src) { el.src = src; this.saveSoon(); } }
+  kickVideo(ev: Event): void {
+    const v = ev.target as HTMLVideoElement;
+    v.muted = true;
+    const p = v.play();
+    if (p && typeof p.catch === 'function') p.catch(() => { /* autoplay/decode race */ });
+  }
   select(el: CanvasElement): void { this.selectedId = el.id; }
   selectCanvas(): void { if (!this.selected && this.sortedElements[0]) this.select(this.sortedElements[0]); }
 
