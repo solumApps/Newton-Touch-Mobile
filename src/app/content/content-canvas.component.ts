@@ -75,6 +75,8 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
             <div *ngSwitchCase="'spin'" class="media-el">
               <img *ngIf="el.frames?.length" [src]="spinFrame(el)" [style.object-fit]="objectFit(el)" alt="" />
               <span *ngIf="!el.frames?.length">360° — upload frames</span>
+              <!-- Mirrors the LCD's interactivity badge so the preview matches the kiosk. -->
+              <b class="spin-mini" *ngIf="el.frames?.length">360°</b>
             </div>
           </ng-container>
         </div>
@@ -282,6 +284,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
     .media-el,.el img,.el video { width:100%; height:100%; display:block; }
     .media-el { display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.16); color:#fff; font-weight:900; text-align:center; }
     .media-el span { padding:4px 6px; border-radius:999px; background:rgba(0,0,0,.28); font-size:12px; }
+    .spin-mini { position:absolute; top:3px; right:3px; padding:1px 6px; border-radius:999px; background:rgba(0,0,0,.55); color:#fff; font-size:9px; font-weight:900; letter-spacing:.04em; }
     .text-el { width:100%; height:100%; display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.05; white-space:pre-wrap; padding:4px; text-shadow:0 2px 8px rgba(0,0,0,.28); box-sizing:border-box; }
     .shape-el { width:100%; height:100%; display:flex; align-items:center; justify-content:center; text-align:center; font-weight:900; padding:8px; box-sizing:border-box; line-height:1.05; }
     .shape-pill .shape-el { border-radius:999px; }
@@ -518,7 +521,9 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
       const reader = new FileReader();
       reader.onload = () => (typeof reader.result === 'string' ? resolve(reader.result) : reject(new Error('read failed')));
       reader.onerror = () => reject(new Error('read failed'));
-      reader.readAsDataURL(new Blob([bytes], { type: mime }));
+      // slice() re-backs the view with a plain ArrayBuffer — keeps newer TS libs
+      // (Uint8Array<ArrayBufferLike> vs BlobPart) happy across toolchains.
+      reader.readAsDataURL(new Blob([bytes.slice().buffer], { type: mime }));
     });
   }
   kickVideo(ev: Event): void {
