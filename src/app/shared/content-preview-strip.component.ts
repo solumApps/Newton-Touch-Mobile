@@ -235,8 +235,9 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <!-- PROMO OVERRIDE BLOCK -->
               <div class="inter-promo-override" *ngIf="interPromo && (theme?.intermediateStyle === 'brand-grid' || theme?.intermediateStyle === 'side-rail' || theme?.intermediateStyle === 'brand-rail')" [class.has-custom-img]="!!interPromo.image" [style.background-image]="interPromo.image ? 'url(' + interPromo.image + ')' : null">
                 <ng-container *ngIf="!interPromo.image">
-                  <b>{{ interPromo.title || 'Brands' }}</b>
-                  <span>{{ interPromo.subtitle || 'Shop by brand' }}</span>
+                  <b [ngStyle]="getPromoStyle(interPromo?.titleStyle)">{{ interPromo.title || 'Brands' }}</b>
+                  <span [ngStyle]="getPromoStyle(interPromo?.subtitleStyle)">{{ interPromo.subtitle || 'Shop by brand' }}</span>
+                  <span class="promo-desc" *ngIf="interPromo?.description" [ngStyle]="getPromoStyle(interPromo?.descriptionStyle)">{{ interPromo?.description }}</span>
                 </ng-container>
               </div>
 
@@ -333,8 +334,9 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <div class="body promo-body" *ngIf="resTpl==='promo-list'">
             <div class="promo-panel" [style.background-image]="resultPromo?.image ? 'url('+resultPromo!.image+')' : (result?.promoImage ? 'url('+result?.promoImage+')' : null)" [class.has-custom-img]="!!resultPromo?.image">
               <div class="promo-fallback" *ngIf="!resultPromo?.image">
-                <b>{{ resultPromo?.title || 'Promotion' }}</b>
-                <span *ngIf="resultPromo?.subtitle">{{ resultPromo?.subtitle }}</span>
+                <b [ngStyle]="getPromoStyle(resultPromo?.titleStyle)">{{ resultPromo?.title || 'Promotion' }}</b>
+                <span *ngIf="resultPromo?.subtitle" [ngStyle]="getPromoStyle(resultPromo?.subtitleStyle)">{{ resultPromo?.subtitle }}</span>
+                <span class="promo-desc" *ngIf="resultPromo?.description" [ngStyle]="getPromoStyle(resultPromo?.descriptionStyle)">{{ resultPromo?.description }}</span>
               </div>
             </div>
             <div class="promo-products">
@@ -358,8 +360,9 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <div class="body product-focus-body" *ngIf="resTpl==='product-focus'">
             <div class="focus-copy" [style.background-image]="resultPromo?.image ? 'url('+resultPromo!.image+')' : null" [class.has-custom-img]="!!resultPromo?.image">
               <ng-container *ngIf="!resultPromo?.image">
-                <div class="label">{{ resultPromo?.title || 'Best Match' }}</div>
-                <div class="name">{{ resultPromo?.subtitle || found?.name || 'Product' }}</div>
+                <div class="label" [ngStyle]="getPromoStyle(resultPromo?.titleStyle)">{{ resultPromo?.title || 'Best Match' }}</div>
+                <div class="name" [ngStyle]="getPromoStyle(resultPromo?.subtitleStyle)">{{ resultPromo?.subtitle || found?.name || 'Product' }}</div>
+                <span class="promo-desc" *ngIf="resultPromo?.description" [ngStyle]="getPromoStyle(resultPromo?.descriptionStyle)">{{ resultPromo?.description }}</span>
               </ng-container>
               <ng-container *ngIf="!resultPromo?.image">
                 <div class="meta" *ngIf="found?.aisle">Aisle {{ found?.aisle }}</div>
@@ -389,7 +392,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             </div>
             <div class="hp-headline" [style.background-image]="resultPromo?.image ? 'url('+resultPromo!.image+')' : null" [class.has-custom-img]="!!resultPromo?.image">
               <ng-container *ngIf="!resultPromo?.image">
-                {{ resultPromo?.title || 'Awesome!' }}<span>{{ resultPromo?.subtitle || 'Loved your pick!' }}</span>
+                <span [ngStyle]="getPromoStyle(resultPromo?.titleStyle)">{{ resultPromo?.title || 'Awesome!' }}</span><span [ngStyle]="getPromoStyle(resultPromo?.subtitleStyle)">{{ resultPromo?.subtitle || 'Loved your pick!' }}</span>
+                <span class="promo-desc" *ngIf="resultPromo?.description" [ngStyle]="getPromoStyle(resultPromo?.descriptionStyle)">{{ resultPromo?.description }}</span>
               </ng-container>
             </div>
           </div>
