@@ -17,6 +17,8 @@ import type { CardItem, ImageFit } from '@contract/layout';
   template: `
     <div class="branch" *ngFor="let child of card.children; let i = index">
       <div class="erow">
+        <button class="mini move" [disabled]="i === 0" (click)="moveUp(i)" title="Move up">↑</button>
+        <button class="mini move" [disabled]="i === (card.children?.length || 0) - 1" (click)="moveDown(i)" title="Move down">↓</button>
         <div class="thumb" *ngIf="needsImage" [style.background-image]="child.image ? 'url('+child.image+')' : null" (click)="pickImage(child)">{{ child.image ? '' : '📷' }}</div>
         <input class="inp" [(ngModel)]="child.name" placeholder="Sub-item name" />
         <button class="del" (click)="remove(i)">✕</button>
@@ -54,6 +56,8 @@ import type { CardItem, ImageFit } from '@contract/layout';
     .thumb.wide { width: 100%; height: auto; min-height: 130px; border-radius: 10px; border: 2px dashed var(--nt-border); background: var(--nt-tint, #F8F5FF); font-size: 13px; font-weight: 600; color: var(--nt-muted); flex-shrink: 1; }
     .erow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
     .mini { border: 1.5px solid var(--nt-brand-ink); color: var(--nt-brand-ink); background: var(--nt-card); border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; }
+    .mini.move { padding: 5px 8px; font-size: 14px; flex-shrink: 0; }
+    .mini.move[disabled] { opacity: 0.3; cursor: default; }
     .fit-seg { display: flex; align-items: center; gap: 6px; margin: -2px 0 8px; }
     .fit-seg .fit-lbl { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; color: var(--nt-muted); }
     .fit-seg .mini { padding: 3px 10px; font-size: 11px; border-radius: 999px; }
@@ -83,6 +87,20 @@ export class CardTreeEditorComponent {
     const arr = this.card.children || [];
     arr.splice(i, 1);
     this.card.children = arr;
+  }
+  moveUp(i: number): void {
+    if (i <= 0 || !this.card.children) return;
+    const arr = this.card.children;
+    const temp = arr[i - 1];
+    arr[i - 1] = arr[i];
+    arr[i] = temp;
+  }
+  moveDown(i: number): void {
+    if (!this.card.children || i >= this.card.children.length - 1) return;
+    const arr = this.card.children;
+    const temp = arr[i + 1];
+    arr[i + 1] = arr[i];
+    arr[i] = temp;
   }
   async pickImage(c: CardItem): Promise<void> {
     const d = await this.picker.pick();

@@ -53,7 +53,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
             <div *ngSwitchCase="'text'" class="text-el"
                  [style.color]="el.color || '#ffffff'"
                  [style.font-size]="previewFontSize(el.fontSize || 42)"
-                 [style.font-family]="el.fontFamily || 'Inter, sans-serif'"
+                 [style.font-family]="el.fontFamily || 'Inter, Arial, sans-serif'"
                  [style.font-weight]="el.bold ? 900 : 700"
                  [style.font-style]="el.italic ? 'italic' : 'normal'">{{ el.text || 'Text' }}</div>
             <div *ngSwitchCase="'shape'" class="shape-el" [style.background]="el.fill || '#FFCD00'" [style.clip-path]="el.shape==='custom' ? el.customShape : null">
@@ -282,7 +282,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
     .media-el,.el img,.el video { width:100%; height:100%; display:block; }
     .media-el { display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.16); color:#fff; font-weight:900; text-align:center; }
     .media-el span { padding:4px 6px; border-radius:999px; background:rgba(0,0,0,.28); font-size:12px; }
-    .text-el { width:100%; height:100%; display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.05; white-space:pre-wrap; padding:4px; text-shadow:0 2px 8px rgba(0,0,0,.28); box-sizing:border-box; }
+    .text-el { width:100%; height:100%; display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.05; white-space:pre-wrap; padding:0.17% 0.8%; text-shadow:0 2px 8px rgba(0,0,0,.28); box-sizing:border-box; }
     .shape-el { width:100%; height:100%; display:flex; align-items:center; justify-content:center; text-align:center; font-weight:900; padding:8px; box-sizing:border-box; line-height:1.05; }
     .shape-pill .shape-el { border-radius:999px; }
     .shape-circle .shape-el { border-radius:999px; }
@@ -409,7 +409,7 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
     return (this.isPromo ? this.draft?.productPromo : this.draft?.customCanvas) || { background: '#0A0A1A', elements: [] };
   }
   get sortedElements(): CanvasElement[] { return [...this.canvas.elements].sort((a, b) => a.z - b.z); }
-  get selected(): CanvasElement | undefined { return this.canvas.elements.find((e) => e.id === this.selectedId); }
+  get selected(): CanvasElement | undefined { return this.canvas.elements.find((e: any) => e.id === this.selectedId); }
 
   objectFit(el: CanvasElement): string { return el.fit === 'fit' ? 'contain' : el.fit === 'fill' ? 'fill' : 'cover'; }
   opacityValue(el: CanvasElement): number { return el.opacity === undefined || el.opacity === null ? 1 : el.opacity; }
@@ -431,7 +431,7 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
     return 'Edit the message, size, style, and placement directly from here.';
   }
   toColor(v: string): string { return /^#[0-9a-fA-F]{6}$/.test(v || '') ? v : '#ffffff'; }
-  nextZ(): number { return Math.max(0, ...this.canvas.elements.map((e) => e.z || 0)) + 1; }
+  nextZ(): number { return Math.max(0, ...this.canvas.elements.map((e: any) => e.z || 0)) + 1; }
   makeId(): string { return 'el_' + Date.now() + '_' + Math.floor(Math.random() * 1000); }
   add(el: Partial<CanvasElement>): void {
     const full: CanvasElement = { id: this.makeId(), kind: 'text', x: 35, y: 25, w: 30, h: 24, z: this.nextZ(), opacity: 1, ...el } as CanvasElement;
@@ -550,7 +550,7 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
   }
   drag(ev: PointerEvent): void {
     if (!this.dragging) return;
-    const el = this.canvas.elements.find((e) => e.id === this.dragging!.id);
+    const el = this.canvas.elements.find((e: any) => e.id === this.dragging!.id);
     if (!el) return;
     const stage = document.querySelector('.stage') as HTMLElement | null;
     const rect = stage?.getBoundingClientRect();
@@ -567,12 +567,12 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
   }
   bringFront(el: CanvasElement): void { el.z = this.nextZ(); this.saveSoon(); }
   sendBack(el: CanvasElement): void {
-    const others = this.canvas.elements.filter((e) => e.id !== el.id).map((e) => e.z || 0);
+    const others = this.canvas.elements.filter((e: any) => e.id !== el.id).map((e: any) => e.z || 0);
     el.z = others.length ? Math.max(0, Math.min(...others) - 1) : 0;
     this.saveSoon();
   }
   remove(el: CanvasElement): void {
-    this.canvas.elements = this.canvas.elements.filter((e) => e.id !== el.id);
+    this.canvas.elements = this.canvas.elements.filter((e: any) => e.id !== el.id);
     this.selectedId = this.sortedElements[0]?.id || '';
     this.saveSoon();
   }

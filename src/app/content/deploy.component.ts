@@ -156,7 +156,7 @@ export class DeployComponent implements OnInit, OnDestroy {
     };
     const cards = (arr?: CardItem[]) => arr?.forEach((c) => {
       c.image = take(c.image);
-      c.products?.forEach((p) => (p.image = take(p.image)));
+      c.products?.forEach((p: any) => (p.image = take(p.image)));
       if (c.children) cards(c.children);
     });
     cards(layout.home); cards(layout.intermediate);
@@ -170,14 +170,14 @@ export class DeployComponent implements OnInit, OnDestroy {
     }
     layout.result.mapImage = take(layout.result.mapImage);
     layout.result.promoImage = take(layout.result.promoImage);
-    layout.result.products?.forEach((p) => (p.image = take(p.image)));
+    layout.result.products?.forEach((p: any) => (p.image = take(p.image)));
     // Per-item result pages (resultMode 'per-item') carry the same media fields —
     // walk each card's ResultContent exactly like the common result above.
     if (layout.itemResults) {
       for (const rc of Object.values(layout.itemResults)) {
-        rc.mapImage = take(rc.mapImage);
-        rc.promoImage = take(rc.promoImage);
-        rc.products?.forEach((p) => (p.image = take(p.image)));
+        (rc as any).mapImage = take((rc as any).mapImage);
+        (rc as any).promoImage = take((rc as any).promoImage);
+        (rc as any).products?.forEach((p: any) => (p.image = take(p.image)));
       }
     }
     if (layout.screensaver?.media) layout.screensaver.media = layout.screensaver.media.map((m) => takeMaybeVideo(m) || m);
@@ -394,10 +394,10 @@ export class DeployComponent implements OnInit, OnDestroy {
     }
     if (layout.itemResults) {
       for (const rc of Object.values(layout.itemResults)) {
-        rc.mapImage = await swap(rc.mapImage);
-        rc.promoImage = await swap(rc.promoImage);
-        if (rc.products?.length) {
-          for (const p of rc.products) p.image = await swap(p.image);
+        (rc as any).mapImage = await swap((rc as any).mapImage);
+        (rc as any).promoImage = await swap((rc as any).promoImage);
+        if ((rc as any).products?.length) {
+          for (const p of (rc as any).products) p.image = await swap(p.image);
         }
       }
     }

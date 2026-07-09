@@ -4772,7 +4772,8 @@
 .nt-result.surface-raised .prod,
 .nt-result.surface-raised .fitem {
   border: 0;
-  box-shadow: 0 calc(var(--nt-vh) * 1.4) calc(var(--nt-vh) * 3.6) rgba(0, 0, 0, 0.2), 0 calc(var(--nt-vh) * 0.2) calc(var(--nt-vh) * 1) rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow:0 calc(var(--nt-vh) * 0.4) calc(var(--nt-vh) * 1.6) rgba(0, 0, 0, 0.2), 0 calc(var(--nt-vh) * 0.2) calc(var(--nt-vh) * 1) rgba(0, 0, 0, 0.1);
 }
 
 .nt-result.surface-outlined .prod,
@@ -7984,14 +7985,16 @@
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
 
-/* result: card content + text position (card-style templates) */
-.nt-result.res-content-text-only .prod .img {
-  display: none !important;
-}
-
-.nt-result.res-content-text-only.res-drill-filter .fitem .fimg,
-.nt-result.res-content-text-only.res-filter-list .fitem .fimg,
-.nt-result.res-content-text-only.res-map-filter-list .fitem .fimg {
+/* result: content toggle. Image + text is the default; text-only hides product imagery. */
+.nt-result.res-content-text-only .prod .img,
+.nt-result.res-content-text-only .fimg,
+.nt-result.res-content-text-only .prm-thumb,
+.nt-result.res-content-text-only .fd-thumb,
+.nt-result.res-content-text-only .sprod .s-img,
+.nt-result.res-content-text-only .mini-img,
+.nt-result.res-content-text-only .focus-image,
+.nt-result.res-content-text-only .hp-img,
+.nt-result.res-content-text-only .fd-fit-img {
   display: none !important;
 }
 
@@ -9459,8 +9462,16 @@
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
 
-/* result: card content + text position (card-style templates) */
-.nt-result.res-content-text-only .prod .img {
+/* result: content toggle. Image + text is the default; text-only hides product imagery. */
+.nt-result.res-content-text-only .prod .img,
+.nt-result.res-content-text-only .fimg,
+.nt-result.res-content-text-only .prm-thumb,
+.nt-result.res-content-text-only .fd-thumb,
+.nt-result.res-content-text-only .sprod .s-img,
+.nt-result.res-content-text-only .mini-img,
+.nt-result.res-content-text-only .focus-image,
+.nt-result.res-content-text-only .hp-img,
+.nt-result.res-content-text-only .fd-fit-img {
   display: none !important;
 }
 
@@ -12370,4 +12381,68 @@
 .nt-stage [role="button"]:focus,
 .nt-stage [role="button"]:active {
   outline: 0;
+}
+
+.nt-inter .body.has-promo-override::after,
+.nt-inter .body.has-promo-override::before,
+.nt-result .body.has-promo-override::after,
+.nt-result .body.has-promo-override::before,
+.nt-result.has-promo-override .res-brand-rail::after,
+.nt-result.has-promo-override .res-brand-rail::before {
+  display: none !important;
+}
+
+.inter-promo-override,
+.result-promo-override {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: calc(var(--nt-vw)*35);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 calc(var(--nt-vw)*6) 0 calc(var(--nt-vw)*2.5);
+  color: var(--nt-text, #fff);
+  z-index: 2;
+  text-align: left;
+}
+
+.inter-promo-override.has-custom-img,
+.result-promo-override.has-custom-img,
+.nt-home .layout-promo-categories .promo-copy.has-custom-img {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: left center;
+}
+
+.inter-promo-override b,
+.result-promo-override b {
+  color: var(--nt-int-accent, #FFCD00);
+  font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw) * 2.4);
+  text-transform: uppercase;
+  font-weight: 900;
+  line-height: 1.05;
+  margin-bottom: calc(var(--nt-vh)*1);
+}
+
+.inter-promo-override span,
+.result-promo-override span {
+  font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw) * 2.4);
+  line-height: 1.05;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.nt-inter .body.int-brm-right .inter-promo-override,
+.nt-result .body.res-brm-right .result-promo-override {
+  left: auto;
+  right: 0;
+  text-align: right;
+  padding: 0 calc(var(--nt-vw)*2.5) 0 calc(var(--nt-vw)*6);
+}
+
+.nt-inter .body.int-brm-right .inter-promo-override.has-custom-img,
+.nt-result .body.res-brm-right .result-promo-override.has-custom-img {
+  background-position: right center;
 }
