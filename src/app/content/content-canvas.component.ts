@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter } from '@ionic/angular/standalone';
+import { unzipSync } from 'fflate';
 import { ContentService, ContentDraft } from '../services/content.service';
 import { ImagePickerService } from '../services/image-picker.service';
 import type { CanvasElement, CanvasElementKind, CanvasShapeKind, CustomCanvasContent, ProductPromoContent, ProductPromoPreset } from '@contract/layout';
@@ -71,6 +72,10 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
                      (loadedmetadata)="kickVideo($event)"></video>
               <span *ngIf="!el.src">Upload video</span>
             </div>
+            <div *ngSwitchCase="'spin'" class="media-el">
+              <img *ngIf="el.frames?.length" [src]="spinFrame(el)" [style.object-fit]="objectFit(el)" alt="" />
+              <span *ngIf="!el.frames?.length">360° — upload frames</span>
+            </div>
           </ng-container>
         </div>
       </div>
@@ -107,6 +112,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
         <div class="toolbar promo-toolbar">
           <button (click)="addProductMedia('image')">Product image</button>
           <button (click)="addProductMedia('video')">Product video</button>
+          <button (click)="addProductSpin()">360° Spin</button>
           <button (click)="addPromoText()">Promo text</button>
           <button (click)="addShape('starburst')">Offer badge</button>
         </div>
@@ -147,7 +153,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
           <input [(ngModel)]="el.customShape" (ngModelChange)="saveSoon()" placeholder="polygon(0 0,100% 0,100% 100%,0 100%)" />
         </label>
 
-        <label *ngIf="el.kind==='image' || el.kind==='video'">Media fit
+        <label *ngIf="el.kind==='image' || el.kind==='video' || el.kind==='spin'">Media fit
           <select [(ngModel)]="el.fit" (ngModelChange)="saveSoon()">
             <option value="cover">Cover</option>
             <option value="fit">Fit</option>
@@ -167,6 +173,11 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
         <div class="upload-box" *ngIf="el.kind==='video'">
           <span>{{ el.src ? 'Video selected' : 'No video selected' }}</span>
           <button class="mini" (click)="replaceVideo(el)">{{ el.src ? 'Replace video' : 'Upload video' }}</button>
+        </div>
+
+        <div class="upload-box" *ngIf="el.kind==='spin'">
+          <span>{{ spinImportNote || (el.frames?.length ? el.frames!.length + ' frames loaded' : 'No frames yet — zip of ordered turntable photos') }}</span>
+          <button class="mini" [disabled]="importingSpin" (click)="importSpinFrames(el)">{{ importingSpin ? 'Importing…' : (el.frames?.length ? 'Replace .zip' : 'Upload .zip') }}</button>
         </div>
       </div>
 
@@ -198,11 +209,22 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
         <label>Opacity <strong>{{ opacityPercent(el) }}%</strong>
           <input type="range" min="20" max="100" [value]="opacityPercent(el)" (input)="el.opacity=+$any($event.target).value / 100; saveSoon()" />
         </label>
+        <label *ngIf="el.kind==='spin' && el.frames?.length">Preview angle <strong>{{ spinIdx + 1 }}/{{ el.frames!.length }}</strong>
+          <input type="range" min="0" [max]="el.frames!.length - 1" [value]="spinIdx" (input)="spinIdx=+$any($event.target).value" />
+        </label>
+        <label *ngIf="el.kind==='spin'">Spin speed <strong>{{ spinNum(el, 'autoSpinFps', 15) }} fps</strong>
+          <input type="range" min="4" max="30" [value]="spinNum(el, 'autoSpinFps', 15)" (input)="setSpinNum(el, 'autoSpinFps', +$any($event.target).value)" />
+        </label>
+        <label *ngIf="el.kind==='spin'">Drag sensitivity <strong>{{ spinNum(el, 'sensitivity', 8) }}</strong>
+          <input type="range" min="2" max="30" [value]="spinNum(el, 'sensitivity', 8)" (input)="setSpinNum(el, 'sensitivity', +$any($event.target).value)" />
+        </label>
       </div>
 
       <div class="toggles">
         <button [class.sel]="el.bold" *ngIf="el.kind==='text'" (click)="el.bold=!el.bold; saveSoon()">Bold</button>
         <button [class.sel]="el.italic" *ngIf="el.kind==='text'" (click)="el.italic=!el.italic; saveSoon()">Italic</button>
+        <button [class.sel]="spinOn(el, 'autoSpin')" *ngIf="el.kind==='spin'" (click)="toggleSpin(el, 'autoSpin')">Auto-spin</button>
+        <button [class.sel]="spinOn(el, 'dragToSpin')" *ngIf="el.kind==='spin'" (click)="toggleSpin(el, 'dragToSpin')">Drag to spin</button>
         <button [class.sel]="el.locked" (click)="el.locked=!el.locked; saveSoon()">{{ el.locked ? 'Unlock' : 'Lock' }}</button>
       </div>
 
@@ -314,6 +336,13 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
   draft?: ContentDraft;
   selectedId = '';
   showAddPanel = false;
+  /** 360° spin authoring state: preview frame index + zip import progress. */
+  spinIdx = 0;
+  importingSpin = false;
+  spinImportNote = '';
+  /** Frame-count / resolution caps protect the px30 LCD (decoded frames live in RAM). */
+  private static readonly SPIN_MAX_FRAMES = 36;
+  private static readonly SPIN_MAX_EDGE = 1000;
   dragging?: { id: string; sx: number; sy: number; ox: number; oy: number };
   saveTimer?: ReturnType<typeof setTimeout>;
   /** Rendered height (px) of the 1920x540 preview stage. Text is sized relative
@@ -391,11 +420,13 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
   elementName(el: CanvasElement): string {
     if (el.kind === 'shape') return `${el.shape || 'rect'} shape`;
     if (el.kind === 'text') return (el.text || 'Text').slice(0, 22);
+    if (el.kind === 'spin') return '360° Spin';
     return el.kind === 'image' ? 'Image' : 'Video';
   }
   controlHint(el: CanvasElement): string {
     if (el.kind === 'image') return 'Upload an image, choose fit behavior, then drag or resize it on the canvas.';
     if (el.kind === 'video') return 'Upload a video, choose fit behavior, then drag or resize it on the canvas.';
+    if (el.kind === 'spin') return 'Upload a zip of ordered turntable photos. On the display it auto-spins and shoppers can drag to rotate.';
     if (el.kind === 'shape') return 'Use this for offer badges, tags, arrows, and retail promotion callouts.';
     return 'Edit the message, size, style, and placement directly from here.';
   }
@@ -418,15 +449,88 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
   addProductMedia(kind: Extract<CanvasElementKind, 'image' | 'video'>): void {
     this.add({ kind, text: kind === 'image' ? 'Upload product image' : 'Upload product video', fit: 'cover', x: 38, y: 10, w: 24, h: 80, radius: 22 });
   }
+  addProductSpin(): void {
+    this.add({ kind: 'spin', text: 'Upload 360° frames', fit: 'cover', x: 38, y: 10, w: 24, h: 80, radius: 22, frames: [], spin: { autoSpin: true, autoSpinFps: 15, dragToSpin: true, sensitivity: 8, loop: true } });
+  }
   async replaceImage(el: CanvasElement): Promise<void> { const src = await this.picker.pick('image/*'); if (src) { el.src = src; this.saveSoon(); } }
   async replaceVideo(el: CanvasElement): Promise<void> { const src = await this.picker.pickRaw('video/*'); if (src) { el.src = src; this.saveSoon(); } }
+
+  // ----- 360° Product Spin (Product Promo) -----
+
+  /** Stage preview frame: the scrubbed angle for the selected element, frame 0 otherwise. */
+  spinFrame(el: CanvasElement): string {
+    const f = el.frames || [];
+    if (!f.length) return '';
+    return f[this.selected?.id === el.id ? Math.min(this.spinIdx, f.length - 1) : 0];
+  }
+  spinOn(el: CanvasElement, k: 'autoSpin' | 'dragToSpin'): boolean { return el.spin?.[k] !== false; }
+  toggleSpin(el: CanvasElement, k: 'autoSpin' | 'dragToSpin'): void {
+    const s = el.spin = el.spin || {};
+    s[k] = s[k] === false;   // was off → on; was on/unset → off
+    this.saveSoon();
+  }
+  spinNum(el: CanvasElement, k: 'autoSpinFps' | 'sensitivity', d: number): number {
+    const v = el.spin?.[k];
+    return typeof v === 'number' && v > 0 ? v : d;
+  }
+  setSpinNum(el: CanvasElement, k: 'autoSpinFps' | 'sensitivity', v: number): void {
+    const s = el.spin = el.spin || {};
+    s[k] = v;
+    this.saveSoon();
+  }
+
+  /** Import a .zip of ordered turntable photos: unzip → natural-sort by name →
+   *  sample down to SPIN_MAX_FRAMES (even angular coverage) → downscale each to
+   *  SPIN_MAX_EDGE. Caps keep the decoded set inside the px30's memory budget. */
+  async importSpinFrames(el: CanvasElement): Promise<void> {
+    if (this.importingSpin) return;
+    const bytes = await this.picker.pickBytes('.zip,application/zip');
+    if (!bytes) return;
+    this.importingSpin = true;
+    this.spinImportNote = 'Unpacking…';
+    try {
+      const entries = unzipSync(bytes);
+      const names = Object.keys(entries)
+        .filter((n) => /\.(jpe?g|png|webp)$/i.test(n) && !n.startsWith('__MACOSX') && !/(^|\/)\./.test(n) && entries[n].length > 0)
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+      if (!names.length) { this.spinImportNote = 'No images found in that zip'; return; }
+      const cap = ContentCanvasComponent.SPIN_MAX_FRAMES;
+      const picked = names.length <= cap
+        ? names
+        : Array.from({ length: cap }, (_, i) => names[Math.round((i * (names.length - 1)) / (cap - 1))]);
+      const frames: string[] = [];
+      for (let i = 0; i < picked.length; i++) {
+        this.spinImportNote = 'Processing ' + (i + 1) + '/' + picked.length + '…';
+        const raw = await this.bytesToDataUrl(entries[picked[i]], picked[i]);
+        frames.push(await this.picker.compress(raw, ContentCanvasComponent.SPIN_MAX_EDGE));
+      }
+      el.frames = frames;
+      this.spinIdx = 0;
+      this.spinImportNote = '';
+      this.saveSoon();
+    } catch {
+      this.spinImportNote = 'Could not read that zip';
+    } finally {
+      this.importingSpin = false;
+    }
+  }
+
+  private bytesToDataUrl(bytes: Uint8Array, name: string): Promise<string> {
+    const mime = /\.png$/i.test(name) ? 'image/png' : /\.webp$/i.test(name) ? 'image/webp' : 'image/jpeg';
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => (typeof reader.result === 'string' ? resolve(reader.result) : reject(new Error('read failed')));
+      reader.onerror = () => reject(new Error('read failed'));
+      reader.readAsDataURL(new Blob([bytes], { type: mime }));
+    });
+  }
   kickVideo(ev: Event): void {
     const v = ev.target as HTMLVideoElement;
     v.muted = true;
     const p = v.play();
     if (p && typeof p.catch === 'function') p.catch(() => { /* autoplay/decode race */ });
   }
-  select(el: CanvasElement): void { this.selectedId = el.id; }
+  select(el: CanvasElement): void { this.selectedId = el.id; this.spinIdx = 0; }
   selectCanvas(): void { if (!this.selected && this.sortedElements[0]) this.select(this.sortedElements[0]); }
 
   startDrag(ev: PointerEvent, el: CanvasElement): void {
