@@ -142,15 +142,15 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'" [style.background-image]="homePromo?.image ? 'url(' + homePromo!.image + ')' : null" [class.has-custom-img]="!!homePromo?.image">
             <ng-container *ngIf="!homePromo?.image">
               <span [ngStyle]="getPromoStyle(homePromo?.subtitleStyle)">{{ homePromo?.subtitle || titleText || 'Product Finder' }}</span>
+              <span class="desc" *ngIf="homePromo?.description" [ngStyle]="getPromoStyle(homePromo?.descriptionStyle)">{{ homePromo?.description }}</span>
               <b [ngStyle]="getPromoStyle(homePromo?.titleStyle)">{{ homePromo?.title || 'Start Search' }}</b>
-              <span class="promo-desc" *ngIf="homePromo?.description" [ngStyle]="getPromoStyle(homePromo?.descriptionStyle)">{{ homePromo?.description }}</span>
             </ng-container>
           </div>
           <div class="promo-copy" *ngIf="theme?.homeLayout==='promo-categories'" [style.background-image]="homePromo?.image ? 'url(' + homePromo!.image + ')' : null" [class.has-custom-img]="!!homePromo?.image">
             <ng-container *ngIf="!homePromo?.image">
               <b [ngStyle]="getPromoStyle(homePromo?.titleStyle)">{{ homePromo?.title || 'Featured' }}</b>
               <span [ngStyle]="getPromoStyle(homePromo?.subtitleStyle)">{{ homePromo?.subtitle || titleText || 'Find the right product faster' }}</span>
-              <span class="promo-desc" *ngIf="homePromo?.description" [ngStyle]="getPromoStyle(homePromo?.descriptionStyle)">{{ homePromo?.description }}</span>
+              <span class="desc" *ngIf="homePromo?.description" [ngStyle]="getPromoStyle(homePromo?.descriptionStyle)">{{ homePromo?.description }}</span>
             </ng-container>
           </div>
           <!-- promo-categories: scrollable rail, copy pinned left (mirrors LCD) -->
@@ -888,12 +888,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get backIconHtml(): SafeHtml | undefined {
     const ic = this.theme?.nav?.backIcon;
     if (navIconKind(ic) === 'custom') return undefined;
-    return this.sanitizer.bypassSecurityTrustHtml((NAV_ICONS[navIconKind(ic) === 'builtin' ? (ic || 'arrow') : 'arrow'] || '&#8592;'));
+    return this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[navIconKind(ic) === 'builtin' ? (ic || 'arrow') : 'arrow']);
   }
   get homeIconHtml(): SafeHtml | undefined {
     const ic = this.theme?.nav?.homeIcon;
     if (navIconKind(ic) === 'custom') return undefined;
-    return this.sanitizer.bypassSecurityTrustHtml((NAV_ICONS[navIconKind(ic) === 'builtin' ? (ic || 'home') : 'home'] || '&#8962;'));
+    return this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[navIconKind(ic) === 'builtin' ? (ic || 'home') : 'home']);
   }
   get backIconCustom(): string { const ic = this.theme?.nav?.backIcon; return navIconKind(ic) === 'custom' ? ic! : ''; }
   get homeIconCustom(): string { const ic = this.theme?.nav?.homeIcon; return navIconKind(ic) === 'custom' ? ic! : ''; }
