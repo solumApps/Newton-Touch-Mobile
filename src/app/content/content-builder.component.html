@@ -39,9 +39,6 @@
       [forceSharedIntermediate]="(step.key === 'inter' && showIntermediateEditor) || d.appMode === 'category'"
       [intermediateCreatePreview]="isInterStep"
       [result]="curResult"
-      [homePromo]="d.homePromo"
-      [interPromo]="d.interPromo"
-      [resultPromo]="d.resultPromo"
       [screensaver]="d.screensaver"
       [header]="d.header"
       [draftName]="d.name"
@@ -123,13 +120,6 @@
         </ng-container>
       </ng-container>
 
-      <!-- PROMO OVERRIDES (Home) -->
-      <ng-container *ngIf="d.themeTokens.homeLayout === 'promo-categories' || d.themeTokens.homeLayout === 'hero-start'">
-        <div class="sec"><span>Promo Area Overrides</span></div>
-        <p class="note">Customize the left-side text or replace the entire block with an image.</p>
-        <ng-container *ngTemplateOutlet="promoEditor; context: { draft: d, key: 'homePromo' }"></ng-container>
-      </ng-container>
-
       <!-- Drill-down mode: shared vs per-card. Hidden for Category mode (the
            hierarchy is built automatically from the API levels). -->
       <ng-container *ngIf="d.appMode !== 'category' && d.themeTokens.includeIntermediate !== false">
@@ -151,8 +141,6 @@
       <p class="note" *ngIf="atHomeCap">This featured theme is designed for up to <b>{{ maxHomeItems }}</b> home items — remove one to add another.</p>
       <div class="pcard" *ngFor="let c of d.home.slice().reverse(); let i = index">
         <div class="erow">
-          <button class="mini move" [disabled]="i === d.home.length - 1" (click)="moveHomeCard(d.home.length - 1 - i, -1)" title="Move up">↑</button>
-          <button class="mini move" [disabled]="i === 0" (click)="moveHomeCard(d.home.length - 1 - i, 1)" title="Move down">↓</button>
           <div class="thumb" *ngIf="needsImage" [style.background-image]="c.image ? 'url('+c.image+')' : null" (click)="pickImage(c)">{{ c.image ? '' : '📷' }}</div>
           <input *ngIf="!c.fromApi" class="inp" [(ngModel)]="c.name" placeholder="Card name" />
           <input *ngIf="c.fromApi" class="inp locked" [value]="c.name" readonly title="From API — edit text case below" />
@@ -182,13 +170,6 @@
     <div *ngSwitchCase="'inter'">
       <h2 class="step-title">Intermediate page</h2>
       <p class="note">Style: <b>{{ d.themeTokens.intermediateStyle }}</b><span *ngIf="intermediateNeedsImage"> — this style shows an image per item.</span></p>
-
-      <!-- PROMO OVERRIDES (Intermediate) -->
-      <ng-container *ngIf="d.themeTokens.intermediateStyle === 'brand-grid' || d.themeTokens.intermediateStyle === 'side-rail'">
-        <div class="sec"><span>Brand Rail / Promo Overrides</span></div>
-        <p class="note">Customize the left-side text or replace the entire block with an image.</p>
-        <ng-container *ngTemplateOutlet="promoEditor; context: { draft: d, key: 'interPromo' }"></ng-container>
-      </ng-container>
 
       <!-- CATEGORY: Intermediate L{{interLevel}} — segment selectors + cards -->
       <ng-container *ngIf="d.appMode === 'category'">
@@ -272,8 +253,6 @@
         <div class="sec"><span>Intermediate items ({{ d.intermediate.length }})</span><button class="mini" (click)="addIntermediate()">+ Add</button></div>
         <ng-container *ngFor="let it of d.intermediate.slice().reverse(); let i = index">
           <div class="erow">
-            <button class="mini move" [disabled]="i === d.intermediate.length - 1" (click)="moveIntermediateItem(d.intermediate.length - 1 - i, -1)" title="Move up">↑</button>
-            <button class="mini move" [disabled]="i === 0" (click)="moveIntermediateItem(d.intermediate.length - 1 - i, 1)" title="Move down">↓</button>
             <div class="thumb" *ngIf="intermediateNeedsImage" [style.background-image]="it.image ? 'url('+it.image+')' : null" (click)="pickImage(it)">{{ it.image ? '' : '📷' }}</div>
             <input *ngIf="!it.fromApi" class="inp" [(ngModel)]="it.name" placeholder="Item name" />
             <input *ngIf="it.fromApi" class="inp locked" [value]="it.name" readonly title="From API — edit text case below" />
@@ -303,13 +282,6 @@
     <!-- ============ RESULT ============ -->
     <div *ngSwitchCase="'result'">
       <h2 class="step-title">Result page</h2>
-
-      <!-- PROMO OVERRIDES (Result) -->
-      <ng-container *ngIf="d.themeTokens.resultTemplate === 'product-focus' || d.themeTokens.resultTemplate === 'hero-product' || d.themeTokens.resultTemplate === 'promo-list'">
-        <div class="sec"><span>Hero/Promo Area Overrides</span></div>
-        <p class="note">Customize the left-side text or replace the entire block with an image.</p>
-        <ng-container *ngTemplateOutlet="promoEditor; context: { draft: d, key: 'resultPromo' }"></ng-container>
-      </ng-container>
 
       <!-- CATEGORY: hierarchy + matched products + field-visibility toggles -->
       <ng-container *ngIf="d.appMode === 'category'">
@@ -425,10 +397,13 @@
       </ng-container>
 
       <ng-container *ngIf="resultNeedsPromo">
-        <div class="sec"><span>{{ d.themeTokens.resultTemplate === 'shelf' ? 'Side category image (left panel)' : 'Promo / selection panel override' }}</span></div>
+        <div class="sec"><span>{{ d.themeTokens.resultTemplate === 'shelf' ? 'Side category image (left panel)' : 'Promo / selection panel image' }}</span></div>
+        <div class="erow">
+          <div class="thumb wide" [style.background-image]="curResult.promoImage ? 'url('+curResult.promoImage+')' : null" (click)="pickPromo()">{{ curResult.promoImage ? '' : (d.themeTokens.resultTemplate === 'shelf' ? '📷 Upload side category image' : '📷 Upload promo or QR panel') }}</div>
+          <button class="del" *ngIf="curResult.promoImage" (click)="clearPromo()">✕</button>
+        </div>
         <p class="note" *ngIf="d.themeTokens.resultTemplate === 'shelf'">Shown as the dark side panel on the left of the product shelf.</p>
-        <p class="note" *ngIf="d.themeTokens.resultTemplate !== 'shelf'">Use this for wine/pet promotion panels, QR-code panels, or branded result artwork. You can override the text or replace the entire section with an image.</p>
-        <ng-container *ngTemplateOutlet="promoEditor; context: { draft: d, key: 'resultPromo' }"></ng-container>
+        <p class="note" *ngIf="d.themeTokens.resultTemplate !== 'shelf'">Use this for wine/pet promotion panels, QR-code panels, or branded result artwork.</p>
       </ng-container>
 
       <!-- Individual result pages: per end-item product lists (drill-tree themes;
@@ -681,43 +656,3 @@
     </div>
   </ng-template>
 </ion-modal>
-
-  <ng-template #promoEditor let-draft="draft" let-key="key">
-    <div class="erow">
-      <input class="inp" [ngModel]="draft[key]?.title || ''" (ngModelChange)="draft[key] = draft[key] || {}; draft[key].title = $event" placeholder="Custom Title" />
-      <button type="button" class="mini" (click)="toggleStyle(draft[key], 'titleStyle')" [class.sel]="showStyle(draft[key], 'titleStyle')">Aa</button>
-    </div>
-    <div class="style-box" *ngIf="showStyle(draft[key], 'titleStyle')">
-      <input type="color" [ngModel]="draft[key]?.titleStyle?.color || '#ffffff'" (ngModelChange)="setStyle(draft[key], 'titleStyle', 'color', $event)" />
-      <input class="inp" type="number" placeholder="Size (px)" [ngModel]="draft[key]?.titleStyle?.size" (ngModelChange)="setStyle(draft[key], 'titleStyle', 'size', $event)" />
-      <button type="button" class="mini" [class.sel]="draft[key]?.titleStyle?.bold" (click)="setStyle(draft[key], 'titleStyle', 'bold', !draft[key]?.titleStyle?.bold)"><b>B</b></button>
-      <button type="button" class="mini" [class.sel]="draft[key]?.titleStyle?.italic" (click)="setStyle(draft[key], 'titleStyle', 'italic', !draft[key]?.titleStyle?.italic)"><i>I</i></button>
-    </div>
-
-    <div class="erow">
-      <input class="inp" [ngModel]="draft[key]?.subtitle || ''" (ngModelChange)="draft[key] = draft[key] || {}; draft[key].subtitle = $event" placeholder="Custom Sub-text" />
-      <button type="button" class="mini" (click)="toggleStyle(draft[key], 'subtitleStyle')" [class.sel]="showStyle(draft[key], 'subtitleStyle')">Aa</button>
-    </div>
-    <div class="style-box" *ngIf="showStyle(draft[key], 'subtitleStyle')">
-      <input type="color" [ngModel]="draft[key]?.subtitleStyle?.color || '#ffffff'" (ngModelChange)="setStyle(draft[key], 'subtitleStyle', 'color', $event)" />
-      <input class="inp" type="number" placeholder="Size (px)" [ngModel]="draft[key]?.subtitleStyle?.size" (ngModelChange)="setStyle(draft[key], 'subtitleStyle', 'size', $event)" />
-      <button type="button" class="mini" [class.sel]="draft[key]?.subtitleStyle?.bold" (click)="setStyle(draft[key], 'subtitleStyle', 'bold', !draft[key]?.subtitleStyle?.bold)"><b>B</b></button>
-      <button type="button" class="mini" [class.sel]="draft[key]?.subtitleStyle?.italic" (click)="setStyle(draft[key], 'subtitleStyle', 'italic', !draft[key]?.subtitleStyle?.italic)"><i>I</i></button>
-    </div>
-
-    <div class="erow">
-      <input class="inp" [ngModel]="draft[key]?.description || ''" (ngModelChange)="draft[key] = draft[key] || {}; draft[key].description = $event" placeholder="Custom Description (3rd Level)" />
-      <button type="button" class="mini" (click)="toggleStyle(draft[key], 'descriptionStyle')" [class.sel]="showStyle(draft[key], 'descriptionStyle')">Aa</button>
-    </div>
-    <div class="style-box" *ngIf="showStyle(draft[key], 'descriptionStyle')">
-      <input type="color" [ngModel]="draft[key]?.descriptionStyle?.color || '#ffffff'" (ngModelChange)="setStyle(draft[key], 'descriptionStyle', 'color', $event)" />
-      <input class="inp" type="number" placeholder="Size (px)" [ngModel]="draft[key]?.descriptionStyle?.size" (ngModelChange)="setStyle(draft[key], 'descriptionStyle', 'size', $event)" />
-      <button type="button" class="mini" [class.sel]="draft[key]?.descriptionStyle?.bold" (click)="setStyle(draft[key], 'descriptionStyle', 'bold', !draft[key]?.descriptionStyle?.bold)"><b>B</b></button>
-      <button type="button" class="mini" [class.sel]="draft[key]?.descriptionStyle?.italic" (click)="setStyle(draft[key], 'descriptionStyle', 'italic', !draft[key]?.descriptionStyle?.italic)"><i>I</i></button>
-    </div>
-
-    <div class="erow">
-      <div class="thumb wide" [style.background-image]="draft[key]?.image ? 'url(' + draft[key]!.image + ')' : null" (click)="pickPromoImage(key)">{{ draft[key]?.image ? '' : '📷 Tap to upload full replacement image' }}</div>
-      <button class="del" *ngIf="draft[key]?.image" (click)="clearPromoImage(key)">✕</button>
-    </div>
-  </ng-template>

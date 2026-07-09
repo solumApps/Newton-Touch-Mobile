@@ -590,79 +590,13 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     }
   }
 
-  
-  openStyles = new Set<string>();
-  showStyle(promo: any, key: string): boolean {
-    return promo ? this.openStyles.has(this.draft?.id + key) : false;
-  }
-  toggleStyle(promo: any, key: string) {
-    if (!promo) return;
-    const id = this.draft?.id + key;
-    if (this.openStyles.has(id)) this.openStyles.delete(id);
-    else this.openStyles.add(id);
-  }
-  setStyle(promo: any, styleKey: string, prop: string, value: any) {
-    if (!promo) return;
-    if (!promo[styleKey]) promo[styleKey] = {};
-    promo[styleKey][prop] = value;
-  }
-
-  async pickPromoImage(page: string): Promise<void> {
-    if (!this.draft) return;
-    const dataUrl = await this.picker.pick();
-    if (dataUrl) {
-      if (page === 'home' || page === 'homePromo') {
-        this.draft.homePromo = this.draft.homePromo || {};
-        this.draft.homePromo.image = dataUrl;
-      } else if (page === 'inter' || page === 'interPromo') {
-        this.draft.interPromo = this.draft.interPromo || {};
-        this.draft.interPromo.image = dataUrl;
-      } else if (page === 'result' || page === 'resultPromo') {
-        this.draft.resultPromo = this.draft.resultPromo || {};
-        this.draft.resultPromo.image = dataUrl;
-      }
-    }
-  }
-
-  clearPromoImage(page: 'home' | 'inter' | 'result'): void {
-    if (!this.draft) return;
-    if (page === 'home' && this.draft.homePromo) {
-      this.draft.homePromo.image = undefined;
-    } else if (page === 'inter' && this.draft.interPromo) {
-      this.draft.interPromo.image = undefined;
-    } else if (page === 'result' && this.draft.resultPromo) {
-      this.draft.resultPromo.image = undefined;
-    }
-  }
-
+  /** Remove an uploaded image so the item falls back to its default placeholder. */
   clearImage(item: CardItem | ResultProduct): void {
     item.image = undefined;
     item.imageFit = undefined;
     if (this.draft?.appMode === 'category') {
       this.syncResultProducts();
     }
-  }
-
-  
-  moveIntermediateItem(index: number, direction: -1 | 1): void {
-    if (!this.draft || !this.draft.intermediate) return;
-    const arr = this.draft.intermediate;
-    const newIdx = index + direction;
-    if (newIdx < 0 || newIdx >= arr.length) return;
-    const temp = arr[newIdx];
-    arr[newIdx] = arr[index];
-    arr[index] = temp;
-    
-  }
-
-  moveHomeCard(index: number, direction: -1 | 1): void {
-    if (!this.draft || !this.draft.home) return;
-    const arr = this.draft.home;
-    const newIdx = index + direction;
-    if (newIdx < 0 || newIdx >= arr.length) return;
-    const temp = arr[newIdx];
-    arr[newIdx] = arr[index];
-    arr[index] = temp;
   }
 
   /** Per-image fit segment (shown when an image is set). 'cover' = default → field omitted. */

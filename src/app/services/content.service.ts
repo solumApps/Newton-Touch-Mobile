@@ -6,7 +6,7 @@ import { ThemeService } from './theme.service';
 import { ImageStoreService } from './image-store.service';
 import { bakeryGlowSampleDraft, BAKERY_GLOW_SAMPLE_ID, BEAUTY_GLOW_SAMPLE_ID, FRESH_MARKET_SAMPLE_ID } from './sample-content';
 
-export interface ContentDraft { [key: string]: any;
+export interface ContentDraft {
   id: string;
   name: string;
   themeId: string;
@@ -155,11 +155,11 @@ export class ContentService {
       if (!canvas) return canvas;
       return {
         ...canvas,
-        elements: await Promise.all((canvas.elements || []).map(async (el: any) => ({
+        elements: await Promise.all((canvas.elements || []).map(async (el) => ({
           ...el,
           src: await val(el.src),
           // 360° spin frames: each frame is externalized/resolved like a src.
-          frames: el.frames ? await Promise.all(el.frames.map((f: any) => fn(f))) : el.frames,
+          frames: el.frames ? await Promise.all(el.frames.map((f) => fn(f))) : el.frames,
         }))),
       } as T;
     };
@@ -361,8 +361,8 @@ export class ContentService {
           }]))
         : undefined,
       eslLinks: d.eslLinks, eslBlinkBy: d.eslBlinkBy,
-      customCanvas: d.customCanvas ? { ...d.customCanvas, elements: d.customCanvas.elements.map((el: any) => ({ ...el, src: el.src ? '«ref»' : undefined, frames: el.frames?.length ? el.frames.map(() => '«ref»') : undefined })) } : undefined,
-      productPromo: d.productPromo ? { ...d.productPromo, elements: d.productPromo.elements.map((el: any) => ({ ...el, src: el.src ? '«ref»' : undefined, frames: el.frames?.length ? el.frames.map(() => '«ref»') : undefined })) } : undefined,
+      customCanvas: d.customCanvas ? { ...d.customCanvas, elements: d.customCanvas.elements.map((el) => ({ ...el, src: el.src ? '«ref»' : undefined, frames: el.frames?.length ? el.frames.map(() => '«ref»') : undefined })) } : undefined,
+      productPromo: d.productPromo ? { ...d.productPromo, elements: d.productPromo.elements.map((el) => ({ ...el, src: el.src ? '«ref»' : undefined, frames: el.frames?.length ? el.frames.map(() => '«ref»') : undefined })) } : undefined,
       note: 'Media excluded by design — re-attach images/video on import (Category mode re-fetches from API).',
     };
     return JSON.stringify(manifest, null, 2);

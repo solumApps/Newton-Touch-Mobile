@@ -139,19 +139,13 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
              [style.--nt-overlay-base]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
              [class.has-cols]="cols !== undefined" [style.--cols]="cols" [style.--card-gap]="cardGapPx" [class.cols-1]="cols === 1" [class.cols-2]="cols === 2" [class.cols-3]="cols === 3" [class.cols-4]="cols === 4" [class.cols-5]="cols === 5"
              [class.scroll-vertical]="theme?.scrollMode==='vertical'" [class.scroll-horizontal]="theme?.scrollMode==='horizontal'" [class.no-overlay]="theme?.cardTextOverlay === false">
-          <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'" [style.background-image]="homePromo?.image ? 'url(' + homePromo!.image + ')' : null" [class.has-custom-img]="!!homePromo?.image">
-            <ng-container *ngIf="!homePromo?.image">
-              <span [ngStyle]="getPromoStyle(homePromo?.subtitleStyle)">{{ homePromo?.subtitle || titleText || 'Product Finder' }}</span>
-              <span class="desc" *ngIf="homePromo?.description" [ngStyle]="getPromoStyle(homePromo?.descriptionStyle)">{{ homePromo?.description }}</span>
-              <b [ngStyle]="getPromoStyle(homePromo?.titleStyle)">{{ homePromo?.title || 'Start Search' }}</b>
-            </ng-container>
+          <div class="hero-copy" *ngIf="theme?.homeLayout==='hero-start'">
+            <span>{{ titleText || 'Product Finder' }}</span>
+            <b>Start Search</b>
           </div>
-          <div class="promo-copy" *ngIf="theme?.homeLayout==='promo-categories'" [style.background-image]="homePromo?.image ? 'url(' + homePromo!.image + ')' : null" [class.has-custom-img]="!!homePromo?.image">
-            <ng-container *ngIf="!homePromo?.image">
-              <b [ngStyle]="getPromoStyle(homePromo?.titleStyle)">{{ homePromo?.title || 'Featured' }}</b>
-              <span [ngStyle]="getPromoStyle(homePromo?.subtitleStyle)">{{ homePromo?.subtitle || titleText || 'Find the right product faster' }}</span>
-              <span class="desc" *ngIf="homePromo?.description" [ngStyle]="getPromoStyle(homePromo?.descriptionStyle)">{{ homePromo?.description }}</span>
-            </ng-container>
+          <div class="promo-copy" *ngIf="theme?.homeLayout==='promo-categories'">
+            <b>Featured</b>
+            <span>{{ titleText || 'Find the right product faster' }}</span>
           </div>
           <!-- promo-categories: scrollable rail, copy pinned left (mirrors LCD) -->
           <div class="promo-rail" *ngIf="theme?.homeLayout==='promo-categories'">
@@ -227,19 +221,9 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </ng-container>
           <ng-template #flatInter>
             <div class="body int-{{theme?.intermediateStyle}} int-size-{{theme?.intermediate?.itemSize||'medium'}} int-shape-{{theme?.intermediate?.cardShape||'rect'}} int-align-{{$any(theme?.intermediateStyle)==='side-rail' ? 'left' : (theme?.intermediateStyle==='columns' ? 'center' : (theme?.intermediate?.align||'center'))}} int-textalign-{{theme?.intermediate?.textAlign||'center'}} int-valign-{{theme?.intermediate?.valign||'middle'}} int-gap-{{theme?.intermediate?.gap||'normal'}} int-content-{{theme?.intermediate?.content||'image-text'}} int-textpos-{{theme?.intermediate?.textPos||'overlay-bottom'}} int-brm-{{theme?.intermediate?.brandRailMessagePos||'right'}} int-brmv-{{theme?.intermediate?.brandRailMessageAlign||'center'}} ovl-{{theme?.intermediate?.overlayStyle||'gradient'}} oshape-{{theme?.intermediate?.overlayShape||''}}"
-                 [class.has-promo-override]="!!interPromo"
                  [style.--nt-overlay-base]="theme?.overlayColor || 'rgba(0,0,0,0.6)'"
                  [class.txt-shadow]="theme?.intermediate?.textShadow"
                  [class.scroll-vertical]="interScrollMode==='vertical'" [class.scroll-horizontal]="interScrollMode==='horizontal'" [class.int-single-col]="theme?.intermediateStyle==='columns' && (theme?.intermediate?.columns || 3)===1" [class.int-scroll-peek]="interColumnsScrollPeek" [class.int-strip-few]="theme?.intermediateStyle==='card-strip' && interStripRenderedCount<=3" [class.no-overlay]="theme?.intermediate?.textOverlay === false" [class.cols-2]="interVisibleColumns === 2" [class.cols-3]="interVisibleColumns === 3" [class.cols-4]="interVisibleColumns === 4" [class.cols-5]="interVisibleColumns === 5" [style.--int-cols]="interVisibleColumns" [style.--int-strip-card-width]="interStripCardWidth" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1" [style.--int-brm-bg]="theme?.intermediate?.brandRailMessageBgColor || null" [style.--int-brm-text]="theme?.intermediate?.brandRailMessageTextColor || null" [style.--card-gap]="theme?.intermediate?.gapNum != null ? (theme?.intermediate?.gapNum + 'px') : null">
-              
-              <!-- PROMO OVERRIDE BLOCK -->
-              <div class="inter-promo-override" *ngIf="interPromo && (theme?.intermediateStyle === 'brand-grid' || theme?.intermediateStyle === 'side-rail' || theme?.intermediateStyle === 'brand-rail')" [class.has-custom-img]="!!interPromo.image" [style.background-image]="interPromo.image ? 'url(' + interPromo.image + ')' : null">
-                <ng-container *ngIf="!interPromo.image">
-                  <b>{{ interPromo.title || 'Brands' }}</b>
-                  <span>{{ interPromo.subtitle || 'Shop by brand' }}</span>
-                </ng-container>
-              </div>
-
               <div class="item" *ngFor="let it of interCells; let i = index" [class.open]="i===0" [class.has-img]="!!it.image || interUsePh">
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                 <span class="name">{{ it.name }}</span>
@@ -331,11 +315,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           <!-- promo-list -->
           <div class="body promo-body" *ngIf="resTpl==='promo-list'">
-            <div class="promo-panel" [style.background-image]="resultPromo?.image ? 'url('+resultPromo!.image+')' : (result?.promoImage ? 'url('+result?.promoImage+')' : null)" [class.has-custom-img]="!!resultPromo?.image">
-              <div class="promo-fallback" *ngIf="!resultPromo?.image">
-                <b>{{ resultPromo?.title || 'Promotion' }}</b>
-                <span *ngIf="resultPromo?.subtitle">{{ resultPromo?.subtitle }}</span>
-              </div>
+            <div class="promo-panel" [style.background-image]="result?.promoImage ? 'url('+result?.promoImage+')' : null">
+              <div class="promo-fallback" *ngIf="!result?.promoImage">Promotion</div>
             </div>
             <div class="promo-products">
               <div class="filter-tabs">
@@ -356,16 +337,12 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           <!-- product-focus -->
           <div class="body product-focus-body" *ngIf="resTpl==='product-focus'">
-            <div class="focus-copy" [style.background-image]="resultPromo?.image ? 'url('+resultPromo!.image+')' : null" [class.has-custom-img]="!!resultPromo?.image">
-              <ng-container *ngIf="!resultPromo?.image">
-                <div class="label">{{ resultPromo?.title || 'Best Match' }}</div>
-                <div class="name">{{ resultPromo?.subtitle || found?.name || 'Product' }}</div>
-              </ng-container>
-              <ng-container *ngIf="!resultPromo?.image">
-                <div class="meta" *ngIf="found?.aisle">Aisle {{ found?.aisle }}</div>
-                <div class="price" *ngIf="found?.price">{{ found?.price }}</div>
-                <button type="button">Find Me</button>
-              </ng-container>
+            <div class="focus-copy">
+              <div class="label">Best Match</div>
+              <div class="name">{{ found?.name || 'Product' }}</div>
+              <div class="meta" *ngIf="found?.aisle">Aisle {{ found?.aisle }}</div>
+              <div class="price" *ngIf="found?.price">{{ found?.price }}</div>
+              <button type="button">Find Me</button>
             </div>
             <div class="focus-image" *ngIf="resUsePh" [style.background-image]="found?.image ? 'url('+found?.image+')' : phImg(activeResultIndex)" [style.background-size]="fitSize(found?.imageFit)" [style.background-repeat]="found?.imageFit ? 'no-repeat' : null"></div>
             <div class="focus-list">
@@ -387,11 +364,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 <button type="button">Find Me</button>
               </div>
             </div>
-            <div class="hp-headline" [style.background-image]="resultPromo?.image ? 'url('+resultPromo!.image+')' : null" [class.has-custom-img]="!!resultPromo?.image">
-              <ng-container *ngIf="!resultPromo?.image">
-                {{ resultPromo?.title || 'Awesome!' }}<span>{{ resultPromo?.subtitle || 'Loved your pick!' }}</span>
-              </ng-container>
-            </div>
+            <div class="hp-headline">Awesome!<span>Loved your pick!</span></div>
           </div>
           <!-- shelf: side category panel + product shelf -->
           <div class="body shelf-body" *ngIf="resTpl==='shelf'">
@@ -555,8 +528,6 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
   `,
 })
 export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
-  getPromoStyle(s: any) { if (!s) return null; return { color: s.color || null, 'font-size': s.size ? s.size + 'px' : null, 'font-weight': s.bold ? 'bold' : null, 'font-style': s.italic ? 'italic' : null }; }
-
   /** Per-item image fit → CSS background-size (null = preview default) — matches the LCD. */
   fitSize = imageFitSize;
   constructor(private sanitizer: DomSanitizer) {}
@@ -567,9 +538,6 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   @Input() forceSharedIntermediate = false;
   @Input() intermediateCreatePreview = false;
   @Input() result?: { mapImage?: string; promoImage?: string; products: ResultProduct[]; route?: { kind?: 'line' | 'dot' | 'none'; x?: number; y?: number; w?: number; color?: string } };
-  @Input() homePromo?: any;
-  @Input() interPromo?: any;
-  @Input() resultPromo?: any;
   @Input() screensaver?: Screensaver;
   @Input() header?: { title?: string; caption?: string; logo?: string };
   /** Optional caption override under the strip. */
@@ -703,7 +671,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get breadcrumbPreview(): { label: string; value: string }[] {
     const labels = this.theme?.result?.breadcrumbLabels?.length ? this.theme.result.breadcrumbLabels : ['Manufacturer', 'Model', 'Year'];
     const vals = ['Mercedes-Benz', 'S Class', '2021'];
-    return labels.slice(0, 3).map((label: any, i: any) => ({ label, value: vals[i] || '—' }));
+    return labels.slice(0, 3).map((label, i) => ({ label, value: vals[i] || '—' }));
   }
   /** drill-filter result preview: one breadcrumb column per real hierarchy level. */
   get drillFilterColumns(): { label: string; items: CardItem[]; pickedIndex: number }[] {
@@ -888,12 +856,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get backIconHtml(): SafeHtml | undefined {
     const ic = this.theme?.nav?.backIcon;
     if (navIconKind(ic) === 'custom') return undefined;
-    return this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[navIconKind(ic) === 'builtin' ? (ic || 'arrow') : 'arrow']);
+    return this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[navIconKind(ic) === 'builtin' ? ic! : 'arrow']);
   }
   get homeIconHtml(): SafeHtml | undefined {
     const ic = this.theme?.nav?.homeIcon;
     if (navIconKind(ic) === 'custom') return undefined;
-    return this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[navIconKind(ic) === 'builtin' ? (ic || 'home') : 'home']);
+    return this.sanitizer.bypassSecurityTrustHtml(NAV_ICONS[navIconKind(ic) === 'builtin' ? ic! : 'home']);
   }
   get backIconCustom(): string { const ic = this.theme?.nav?.backIcon; return navIconKind(ic) === 'custom' ? ic! : ''; }
   get homeIconCustom(): string { const ic = this.theme?.nav?.homeIcon; return navIconKind(ic) === 'custom' ? ic! : ''; }
@@ -995,7 +963,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       : ['Category 1', 'Category 2', 'Category 3', 'Category 4'];
     const cells = this.interCells;
     const sample = ['Bosch', 'X5 Series', '2021', 'Premium'];
-    return labels.map((label: any, i: any) => ({
+    return labels.map((label, i) => ({
       label,
       value: cells[i]?.name || sample[i] || '—',
       state: i < labels.length - 1 ? 'done' : 'current',

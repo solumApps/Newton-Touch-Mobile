@@ -303,9 +303,3 @@ table.sum td:first-child {
 
 /* Category mode: API-sourced names are read-only (case transform only). */
 .inp.locked { background: var(--nt-surface-2, #f3f3ef); color: var(--nt-text-2, #6b6b66); cursor: not-allowed; }
-
-.style-box { display: flex; gap: 8px; align-items: center; background: #f3f4f6; padding: 8px; border-radius: 8px; margin-bottom: 8px; }
-.style-box input[type="color"] { width: 32px; height: 32px; border: none; border-radius: 4px; cursor: pointer; padding: 0; }
-.style-box .inp { flex: 1; min-width: 60px; padding: 4px 8px; }
-.style-box .mini { padding: 4px 8px; background: #fff; border: 1px solid #d0d5dd; }
-.style-box .mini.sel { background: #2f006d; color: #fff; border-color: #2f006d; }
