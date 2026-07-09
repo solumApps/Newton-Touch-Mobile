@@ -29,6 +29,33 @@ export class ImagePickerService {
     return this.readFile(accept);
   }
 
+  /** Pick a file and return its raw bytes — used for archives (e.g. the 360° spin
+   *  frames ZIP) that must be parsed rather than displayed. */
+  pickBytes(accept: string): Promise<Uint8Array | null> {
+    return new Promise((resolve) => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = accept;
+      input.onchange = () => {
+        const file = input.files && input.files[0];
+        if (!file) { resolve(null); return; }
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result instanceof ArrayBuffer ? new Uint8Array(reader.result) : null);
+        reader.onerror = () => resolve(null);
+        reader.readAsArrayBuffer(file);
+      };
+      input.click();
+    });
+  }
+
+  /** Downscale + JPEG-re-encode an arbitrary data URL (same pipeline as pick()) —
+   *  used per-frame when importing a 360° spin ZIP so a heavy sequence can't
+   *  exhaust the LCD's memory. */
+  async compress(dataUrl: string, maxEdge = ImagePickerService.MAX_EDGE): Promise<string> {
+    try { return await this.downscale(dataUrl, maxEdge); }
+    catch { return dataUrl; }
+  }
+
   private readFile(accept: string): Promise<string | null> {
     return new Promise((resolve) => {
       const input = document.createElement('input');
@@ -47,11 +74,11 @@ export class ImagePickerService {
   }
 
   /** Draw to a canvas at a capped size and re-encode as JPEG → small data URL. */
-  private downscale(dataUrl: string): Promise<string> {
+  private downscale(dataUrl: string, maxEdge = ImagePickerService.MAX_EDGE): Promise<string> {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
-        const max = ImagePickerService.MAX_EDGE;
+        const max = maxEdge;
         let { width, height } = img;
         if (width > max || height > max) {
           if (width >= height) { height = Math.round((height * max) / width); width = max; }

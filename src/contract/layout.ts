@@ -14,9 +14,26 @@ export interface MediaContent {
   fit: 'fill' | 'fit' | 'cover';
 }
 
-export type CanvasElementKind = 'text' | 'image' | 'video' | 'shape';
+export type CanvasElementKind = 'text' | 'image' | 'video' | 'shape' | 'spin';
 export type CanvasShapeKind = 'rect' | 'pill' | 'circle' | 'starburst' | 'tag' | 'badge' | 'arrow' | 'custom';
 export type ProductPromoPreset = 'product-only' | 'text-product' | 'product-text' | 'text-product-text';
+
+/** 360° Product Spin behaviour (kind 'spin' — Product Promo only). The element
+ *  cycles/scrubs through `frames` (an ordered turntable image sequence). */
+export interface SpinOptions {
+  /** Rotate on a timer while untouched (default true). */
+  autoSpin?: boolean;
+  /** Auto-spin speed in frames/second (default 15). */
+  autoSpinFps?: number;
+  /** Touch-drag horizontally to scrub the rotation (default true). */
+  dragToSpin?: boolean;
+  /** Drag pixels per frame step — smaller spins faster (default 8). */
+  sensitivity?: number;
+  /** Wrap from the last frame back to the first (default true). */
+  loop?: boolean;
+  /** Reverse the rotation direction. */
+  reverse?: boolean;
+}
 
 export interface CanvasElement {
   id: string;
@@ -43,6 +60,11 @@ export interface CanvasElement {
    *  width so the border stays visible around it. */
   borderWidth?: number;
   borderColor?: string;
+  /** kind 'spin' only: ordered 360° turntable frames (ntimg: refs on device,
+   *  data: URIs while drafting). */
+  frames?: string[];
+  /** kind 'spin' only: spin behaviour; defaults applied when absent. */
+  spin?: SpinOptions;
 }
 
 export interface CustomCanvasContent {
