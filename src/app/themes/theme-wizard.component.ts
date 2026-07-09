@@ -334,6 +334,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   /** Layouts whose column count can be freely overridden. */
   private readonly columnLayouts: HomeLayout[] = ['grid-2x3', 'grid-2x2', 'col-2', 'col-3', 'col-4'];
   get columnsMatter(): boolean { return this.columnLayouts.includes(this.t.homeLayout) || this.itemCountMatters; }
+  get homeColumnsMin(): number { return this.itemCountMatters ? this.minColumns : 2; }
   /** The single 'Columns' tile is selected for every legacy grid/col id. */
   get isGridLike(): boolean { return this.columnLayouts.includes(this.t.homeLayout); }
   get isHeroStart(): boolean { return this.t.homeLayout === 'hero-start'; }
@@ -441,7 +442,8 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     return c;
   }
   stepColumns(delta: number): void {
-    const next = Math.min(this.maxColumns, Math.max(this.minColumns, this.effectiveColumns + delta));
+    const min = this.homeColumnsMin;
+    const next = Math.min(this.maxColumns, Math.max(min, this.effectiveColumns + delta));
     this.t.columns = next;
     // Clamp card size if new column count reduces headroom.
     if (typeof this.t.cardSizeScale === 'number' && this.t.cardSizeScale > this.cardSizeMax) {
@@ -452,7 +454,8 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   }
   setColumns(v: string): void {
     const next = coerceColumns(v);
-    this.t.columns = next == null ? next : Math.min(this.maxColumns, Math.max(this.minColumns, next));
+    const min = this.homeColumnsMin;
+    this.t.columns = next == null ? next : Math.min(this.maxColumns, Math.max(min, next));
     this.checkDefaultCardGap();
     this.clampCardGap();
   }
@@ -702,7 +705,10 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   set intStepsCsv(v: string) { this.t.intermediate.stepLabels = v.split(',').map((s) => s.trim()).filter(Boolean); }
   /** Column / item count input — for 'columns' (grid) AND 'card-strip' (visible count). */
   get intColumnsMatters(): boolean { return this.t.intermediateStyle === 'columns' || this.t.intermediateStyle === 'card-strip'; }
-  get intColumnsValue(): number { return Math.min(this.maxVisibleCards, this.t.intermediate.columns || 3); }
+  get intColumnsMin(): number { return this.t.intermediateStyle === 'columns' ? 2 : 1; }
+  get intColumnsValue(): number {
+    return Math.max(this.intColumnsMin, Math.min(this.maxVisibleCards, this.t.intermediate.columns || 3));
+  }
   /** #6 Dynamic max "visible cards": intermediate columns cap at 5 for every shape. */
   get maxVisibleCards(): number {
     const sh = this.t.intermediate.cardShape;
@@ -711,9 +717,10 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   }
   /** Stepper used like Home: +/- buttons. */
   stepIntColumns(delta: number): void { this.setIntColumns(this.intColumnsValue + delta); }
-  setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(1, Math.min(this.maxVisibleCards, Math.round(n))); }
+  setIntColumns(n: number): void { this.t.intermediate.columns = Math.max(this.intColumnsMin, Math.min(this.maxVisibleCards, Math.round(n))); }
   private clampIntColumns(): void {
-    if ((this.t.intermediate.columns || 3) > this.maxVisibleCards) this.setIntColumns(this.maxVisibleCards);
+    const current = this.t.intermediate.columns || 3;
+    if (current > this.maxVisibleCards || current < this.intColumnsMin) this.setIntColumns(current);
   }
   /** Cap visible cards if a shape change lowered the dynamic max. */
   setInterShape(s: CardShape): void {

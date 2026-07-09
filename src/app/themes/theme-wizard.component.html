@@ -68,13 +68,12 @@
           <div class="body fs-body" *ngIf="t.homeLayout==='finder-select'" [style.--prm-panel]="t.intermediate.heroColor || null" [style.--prm-accent]="t.intermediate.accent || null" [style.--nt-int-scale]="t.intermediate.itemSizeScale || 1">
             <div class="fs-hero">
               <div class="fs-hero-title">Newton Touch</div>
-              <div class="fs-home"><span class="fs-home-ic">&#8962;</span> Home</div>
               <div class="fs-steps">
                 <div class="fs-step" *ngFor="let s of homeFinderSteps; let i=index" [class.current]="i===0" [class.todo]="i>0"><span class="fs-step-lbl">{{ s }}</span><span class="fs-step-val">-</span><span class="fs-step-dot" *ngIf="i===0"></span></div>
               </div>
             </div>
             <div class="fs-main">
-              <div class="fs-top fs-back-{{t.intermediate.fsBackPos||'left'}} fs-prompt-{{t.intermediate.fsPromptPos||'center'}}"><button type="button" class="fs-back" *ngIf="t.intermediate.fsShowBack!==false">&#8592;</button><div class="fs-prompt" *ngIf="t.intermediate.fsShowPrompt!==false">{{ (t.intermediate.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div></div>
+                <div class="fs-top fs-prompt-{{t.intermediate.fsPromptPos||'center'}}"><div class="fs-prompt" *ngIf="t.intermediate.fsShowPrompt!==false">{{ (t.intermediate.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div></div>
               <div class="fs-cards content-{{t.intermediate.fsCardContent||'text-only'}} shape-{{t.intermediate.fsCardShape||'rect'}} textpos-{{t.intermediate.fsTextPos||'center'}} textalign-{{t.intermediate.fsTextAlign||'center'}}">
                 <div class="fs-card" *ngFor="let n of slots; let i = index">
                   <div class="fs-card-img" *ngIf="(t.intermediate.fsCardContent||'text-only')!=='text-only'" [style.background-image]="phImg(i)"></div>
@@ -145,6 +144,7 @@
           </div>
           <div class="promo" *ngIf="t.resultTemplate==='promo-list'"></div>
           <div class="focus" *ngIf="t.resultTemplate==='product-focus'">
+            <div class="focus-img" *ngIf="(t.result.content||'image-text')!=='text-only'" [style.background]="t.result.accent"></div>
             <b>Best Match</b>
             <span>Find Me</span>
           </div>
@@ -154,7 +154,7 @@
               <span [style.--b]="t.result.accent">Fresh &amp; ready to go</span>
             </div>
             <div class="hp-product">
-              <div class="hp-img" [style.background]="t.result.accent"></div>
+              <div class="hp-img" *ngIf="(t.result.content||'image-text')!=='text-only'" [style.background]="t.result.accent"></div>
               <div class="hp-info"><b>Product Name</b><span class="price">$0.00</span><i class="find" [style.background]="t.result.accent">Find Me</i></div>
             </div>
             <div class="hp-headline">Awesome!<em [style.color]="t.result.accent">Loved your pick!</em></div>
@@ -302,10 +302,10 @@
 
         <ng-container *ngIf="columnsMatter">
           <div class="step-title sm">{{ itemCountMatters ? 'Items' : 'Columns' }}</div>
-          <p class="hint">{{ itemCountMatters ? 'How many items to show — the layout fills the screen and extra items scroll.' : 'Free column count (' + minColumns + '–' + maxColumns + '). Extra rows scroll vertically.' }}</p>
+          <p class="hint">{{ itemCountMatters ? 'How many items to show — the layout fills the screen and extra items scroll.' : 'Free column count (' + homeColumnsMin + '–' + maxColumns + '). Extra rows scroll vertically.' }}</p>
           <div class="seg cols-stepper">
-            <button class="tile" (click)="stepColumns(-1)" [disabled]="effectiveColumns <= minColumns" aria-label="Fewer columns">−</button>
-            <input class="inp cols-inp" type="number" [min]="minColumns" [max]="maxColumns"
+            <button class="tile" (click)="stepColumns(-1)" [disabled]="effectiveColumns <= homeColumnsMin" aria-label="Fewer columns">−</button>
+            <input class="inp cols-inp" type="number" [min]="homeColumnsMin" [max]="maxColumns"
                    [value]="effectiveColumns" (change)="setColumns($any($event.target).value)" aria-label="Column count" />
             <button class="tile" (click)="stepColumns(1)" [disabled]="effectiveColumns >= maxColumns" aria-label="More columns">+</button>
             <!-- Auto reset removed per requirement -->
@@ -321,8 +321,6 @@
           </div>
           <div class="step-title sm" *ngIf="t.intermediate.fsShowPrompt!==false">Title alignment</div>
           <div class="seg" *ngIf="t.intermediate.fsShowPrompt!==false"><button class="tile" *ngFor="let p of fsPositions" [class.sel]="(t.intermediate.fsPromptPos||'center')===p" (click)="t.intermediate.fsPromptPos=p">{{ p }}</button></div>
-          <div class="step-title sm">Back visibility</div>
-          <div class="seg"><button class="tile" [class.sel]="t.intermediate.fsShowBack!==false" (click)="t.intermediate.fsShowBack=true">Show back</button><button class="tile" [class.sel]="t.intermediate.fsShowBack===false" (click)="t.intermediate.fsShowBack=false">Hide back</button></div>
           <div class="step-title sm">Card content</div>
           <div class="seg"><button class="tile" *ngFor="let c of fsCardContents" [class.sel]="(t.intermediate.fsCardContent||'text-only')===c.id" (click)="pickFsContent(c.id)">{{ c.label }}</button></div>
           <ng-container *ngIf="(t.intermediate.fsCardContent||'text-only')!=='text-only' && (t.intermediate.fsCardContent||'text-only')!=='image-only'">
@@ -584,8 +582,8 @@
           <div class="step-title sm">{{ t.intermediateStyle==='card-strip' ? 'Visible cards' : 'Columns' }}</div>
           <p class="hint">{{ t.intermediateStyle==='card-strip' ? 'How many cards are visible at once in the strip.' : 'How many sub-category cards per row.' }}</p>
           <div class="seg cols-stepper">
-            <button class="tile" (click)="stepIntColumns(-1)" [disabled]="intColumnsValue<=1" aria-label="Fewer">−</button>
-            <input class="inp cols-inp" type="number" min="1" [max]="maxVisibleCards" [value]="intColumnsValue" (input)="setIntColumns(+$any($event.target).value)" aria-label="Columns" />
+            <button class="tile" (click)="stepIntColumns(-1)" [disabled]="intColumnsValue<=intColumnsMin" aria-label="Fewer">−</button>
+            <input class="inp cols-inp" type="number" [min]="intColumnsMin" [max]="maxVisibleCards" [value]="intColumnsValue" (input)="setIntColumns(+$any($event.target).value)" aria-label="Columns" />
             <button class="tile" (click)="stepIntColumns(1)" [disabled]="intColumnsValue>=maxVisibleCards" aria-label="More">+</button>
           </div>
         </ng-container>

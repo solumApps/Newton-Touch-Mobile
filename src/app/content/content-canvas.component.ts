@@ -34,7 +34,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
       </div>
 
       <div #stageEl class="stage" [style.background]="canvas.background" (pointerdown)="selectCanvas()">
-        <div *ngFor="let el of sortedElements"
+        <div *ngFor="let el of sortedElements; trackBy: trackElement"
              class="el"
              [class.sel]="selected?.id===el.id"
              [class.locked]="el.locked"
@@ -277,7 +277,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
       font-weight:900;
     }
     .add-main { background:#FFCD00; color:#12002D; border:0; min-width:120px; }
-    .stage { position:relative; width:100%; height:0; padding-top:28.125%; overflow:hidden; border-radius:16px; box-shadow:0 16px 34px rgba(15,23,42,.16); touch-action:none; }
+    .stage { position:relative; width:100%; height:0; padding-top:28.125%; overflow:hidden; border-radius:16px; box-shadow:0 16px 34px rgba(15,23,42,.16); touch-action:none; container-type: inline-size; }
     .el { position:absolute; box-sizing:border-box; overflow:hidden; border:1.5px solid transparent; touch-action:none; }
     .el.sel { outline:2px solid #FFCD00; outline-offset:0; box-shadow:0 0 0 2px rgba(47,0,109,.72); }
     .el.locked:after { content:'Locked'; position:absolute; right:4px; top:4px; background:rgba(0,0,0,.55); color:#fff; font-size:10px; padding:2px 5px; border-radius:999px; }
@@ -417,6 +417,9 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
   objectFit(el: CanvasElement): string { return el.fit === 'fit' ? 'contain' : el.fit === 'fill' ? 'fill' : 'cover'; }
   opacityValue(el: CanvasElement): number { return el.opacity === undefined || el.opacity === null ? 1 : el.opacity; }
   opacityPercent(el: CanvasElement): number { return Math.round(this.opacityValue(el) * 100); }
+  
+  trackElement = (_: number, el: CanvasElement): string => el.id;
+
   elementName(el: CanvasElement): string {
     if (el.kind === 'shape') return `${el.shape || 'rect'} shape`;
     if (el.kind === 'text') return (el.text || 'Text').slice(0, 22);

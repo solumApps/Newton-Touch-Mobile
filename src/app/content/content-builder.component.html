@@ -144,6 +144,8 @@
           <div class="thumb" *ngIf="needsImage" [style.background-image]="c.image ? 'url('+c.image+')' : null" (click)="pickImage(c)">{{ c.image ? '' : '📷' }}</div>
           <input *ngIf="!c.fromApi" class="inp" [(ngModel)]="c.name" placeholder="Card name" />
           <input *ngIf="c.fromApi" class="inp locked" [value]="c.name" readonly title="From API — edit text case below" />
+          <button class="del" (click)="moveHomeCard(d.home.length - 1 - i, 1)" [disabled]="i === 0" title="Move up">↑</button>
+          <button class="del" (click)="moveHomeCard(d.home.length - 1 - i, -1)" [disabled]="i === d.home.length - 1" title="Move down">↓</button>
           <button class="del" (click)="removeCard(d.home.length - 1 - i)">✕</button>
         </div>
         <div class="seg fit-seg" *ngIf="needsImage && c.image">
@@ -256,7 +258,9 @@
             <div class="thumb" *ngIf="intermediateNeedsImage" [style.background-image]="it.image ? 'url('+it.image+')' : null" (click)="pickImage(it)">{{ it.image ? '' : '📷' }}</div>
             <input *ngIf="!it.fromApi" class="inp" [(ngModel)]="it.name" placeholder="Item name" />
             <input *ngIf="it.fromApi" class="inp locked" [value]="it.name" readonly title="From API — edit text case below" />
-            <button class="del" (click)="removeIntermediate(d.intermediate.length - 1 - i)">✕</button>
+            <button class="del" (click)="moveIntermediate(d.intermediate.length - 1 - i, 1)" [disabled]="i === 0" title="Move up">↑</button>
+                <button class="del" (click)="moveIntermediate(d.intermediate.length - 1 - i, -1)" [disabled]="i === d.intermediate.length - 1" title="Move down">↓</button>
+                <button class="del" (click)="removeIntermediate(d.intermediate.length - 1 - i)">✕</button>
           </div>
           <div class="seg fit-seg" *ngIf="intermediateNeedsImage && it.image">
             <span class="fit-lbl">Fit</span>
@@ -306,10 +310,10 @@
           <div class="sec"><span>{{ leaf.label }} ({{ (leaf.node.products || []).length }})</span></div>
           <div class="pcard sub" *ngFor="let p of leaf.node.products || []">
             <div class="erow">
-              <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
+              <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
               <input class="inp locked" [value]="p.name" readonly title="Article name (from API — locked)" />
             </div>
-            <div class="seg fit-seg" *ngIf="p.image">
+            <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
               <span class="fit-lbl">Fit</span>
               <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf($any(p))===f" (click)="setFit($any(p), f)">{{ f | titlecase }}</button>
               <button class="mini danger" (click)="clearImage($any(p))" title="Remove image">✕ Image</button>
@@ -415,10 +419,15 @@
           <div class="sec"><span>{{ leaf.label }}</span><button class="mini" (click)="addLeafProduct(leaf.node)">+ Add</button></div>
           <ng-container *ngFor="let p of (leaf.node.products || []).slice().reverse(); let pi = index">
             <div class="erow">
-              <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
+              <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
               <input *ngIf="!p.fromApi" class="inp" [(ngModel)]="p.name" placeholder="Product name" />
           <input *ngIf="p.fromApi" class="inp locked" [value]="p.name" readonly title="From API — edit text case below" />
               <button class="del" (click)="removeLeafProduct(leaf.node, (leaf.node.products || []).length - 1 - pi)">✕</button>
+            </div>
+            <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
+              <span class="fit-lbl">Fit</span>
+              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf($any(p))===f" (click)="setFit($any(p), f)">{{ f | titlecase }}</button>
+              <button class="mini danger" (click)="clearImage($any(p))" title="Remove image">✕ Image</button>
             </div>
             <div class="prow">
               <input class="inp" [(ngModel)]="p.price" placeholder="Price" />
@@ -461,12 +470,14 @@
       <div class="sec"><span>{{ perItemActive ? ('Products — ' + activeCardLabel) : (resultMode==='individual' && !skipsIntermediate) ? 'Shared / fallback products' : 'Result products' }} ({{ curResult.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>
       <div class="pcard" *ngFor="let p of curResult.products.slice().reverse(); let i = index">
         <div class="erow">
-          <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>
+          <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>
           <input *ngIf="!p.fromApi" class="inp" [(ngModel)]="p.name" placeholder="Product name" />
           <input *ngIf="p.fromApi" class="inp locked" [value]="p.name" readonly title="From API — edit text case below" />
-          <button class="del" (click)="removeProduct(curResult.products.length - 1 - i)">✕</button>
+          <button class="del" (click)="moveProduct(curResult.products.length - 1 - i, 1)" [disabled]="i === 0" title="Move up">↑</button>
+              <button class="del" (click)="moveProduct(curResult.products.length - 1 - i, -1)" [disabled]="i === curResult.products.length - 1" title="Move down">↓</button>
+              <button class="del" (click)="removeProduct(curResult.products.length - 1 - i)">✕</button>
         </div>
-        <div class="seg fit-seg" *ngIf="p.image">
+        <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
           <span class="fit-lbl">Fit</span>
           <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(p)===f" (click)="setFit(p, f)">{{ f | titlecase }}</button>
           <button class="mini danger" (click)="clearImage(p)" title="Remove image">✕ Image</button>

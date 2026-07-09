@@ -3,6 +3,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { IonApp, IonIcon, IonModal, IonRouterOutlet, AlertController } from '@ionic/angular/standalone';
 import { App as CapacitorApp, BackButtonListenerEvent } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
+import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { addIcons } from 'ionicons';
 import { warningOutline } from 'ionicons/icons';
@@ -69,6 +70,9 @@ export class AppComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.applyStatusBarColor();
+    if (Capacitor.isNativePlatform()) {
+      void SplashScreen.hide();
+    }
   }
 
   async applyStatusBarColor(): Promise<void> {
