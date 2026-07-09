@@ -100,7 +100,7 @@ export class ContentCreateComponent implements OnInit {
         updatedAt: Date.now(),
       };
       if (appMode === 'custom-canvas') draft.customCanvas = { background: '#0A0A1A', elements: [] };
-      if (appMode === 'product-promo') draft.productPromo = { preset: 'product-only', background: 'linear-gradient(135deg,#2F006D,#001973)', elements: [] };
+      if (appMode === 'product-promo') draft.productPromo = { preset: 'product-only', background: '#FFFFFF', elements: [] };
       await this.content.save(draft);
       this.router.navigateByUrl(appMode === 'media' ? '/content-media/' + draft.id : '/content-canvas/' + draft.id);
       return;

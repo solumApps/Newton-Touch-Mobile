@@ -120,7 +120,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
         </div>
       </ng-template>
 
-      <label class="bg-field">Canvas background<input type="color" [ngModel]="toColor(canvas.background || '#0A0A1A')" (ngModelChange)="canvas.background=$event; saveSoon()" /></label>
+      <label class="bg-field">Canvas background<input type="color" [ngModel]="toColor(canvas.background || (isPromo ? '#FFFFFF' : '#0A0A1A'))" (ngModelChange)="canvas.background=$event; saveSoon()" /></label>
     </div>
 
     <div class="panel" *ngIf="selected as el; else noSelection">
@@ -400,7 +400,7 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
     const id = this.route.snapshot.paramMap.get('id');
     this.draft = (await this.content.list()).find((d) => d.id === id);
     if (!this.draft) { this.router.navigateByUrl('/tabs/content'); return; }
-    if (this.isPromo && !this.draft.productPromo) this.draft.productPromo = { preset: 'product-only', background: 'linear-gradient(135deg,#2F006D,#001973)', elements: [] };
+    if (this.isPromo && !this.draft.productPromo) this.draft.productPromo = { preset: 'product-only', background: '#FFFFFF', elements: [] };
     if (!this.isPromo && !this.draft.customCanvas) this.draft.customCanvas = { background: '#0A0A1A', elements: [] };
     if (this.isPromo && !this.canvas.elements.length) this.applyPromoPreset('product-only');
     if (!this.selected && this.sortedElements[0]) this.select(this.sortedElements[0]);
@@ -409,7 +409,7 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
   get isPromo(): boolean { return this.draft?.appMode === 'product-promo'; }
   get promo(): ProductPromoContent | undefined { return this.draft?.productPromo; }
   get canvas(): CanvasLike {
-    return (this.isPromo ? this.draft?.productPromo : this.draft?.customCanvas) || { background: '#0A0A1A', elements: [] };
+    return (this.isPromo ? this.draft?.productPromo : this.draft?.customCanvas) || { background: this.isPromo ? '#FFFFFF' : '#0A0A1A', elements: [] };
   }
   get sortedElements(): CanvasElement[] { return [...this.canvas.elements].sort((a, b) => a.z - b.z); }
   get selected(): CanvasElement | undefined { return this.canvas.elements.find((e) => e.id === this.selectedId); }
@@ -444,7 +444,7 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
     this.saveSoon();
   }
   addText(): void { this.add({ kind: 'text', text: 'Big retail message', color: '#ffffff', fontSize: 30, bold: true, x: 6, y: 24, w: 44, h: 18 }); }
-  addPromoText(): void { this.add({ kind: 'text', text: 'LIMITED OFFER', color: '#FFCD00', fontSize: 28, bold: true, x: 60, y: 24, w: 34, h: 18 }); }
+  addPromoText(): void { this.add({ kind: 'text', text: 'LIMITED OFFER', color: '#12002D', fontSize: 28, bold: true, x: 60, y: 24, w: 34, h: 18 }); }
   addShape(shape: CanvasShapeKind): void { this.add({ kind: 'shape', shape, text: shape === 'starburst' ? 'SALE' : '', fill: '#FFCD00', color: '#12002D', x: 62, y: 16, w: 18, h: 30, fontSize: 34, radius: shape === 'rect' ? 12 : 0 }); }
   addMedia(kind: Extract<CanvasElementKind, 'image' | 'video'>): void {
     this.add({ kind, text: kind === 'image' ? 'Upload image' : 'Upload video', fit: 'cover', x: 44, y: 12, w: 30, h: 70, radius: 18 });
@@ -584,10 +584,11 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
 
   applyPromoPreset(preset: ProductPromoPreset): void {
     if (!this.draft) return;
-    const base = { background: 'linear-gradient(135deg,#2F006D,#001973)' };
+    // White canvas by default; preset text colors are dark so they stay readable on it.
+    const base = { background: '#FFFFFF' };
     const product: CanvasElement = { id: this.makeId(), kind: 'image', text: 'Upload product', fit: 'cover', x: 39, y: 10, w: 22, h: 80, z: 2, radius: 24 };
-    const left: CanvasElement = { id: this.makeId(), kind: 'text', text: 'NEW ARRIVAL', x: 6, y: 22, w: 30, h: 18, z: 3, color: '#FFCD00', fontSize: 30, bold: true };
-    const right: CanvasElement = { id: this.makeId(), kind: 'text', text: 'LIMITED OFFER', x: 64, y: 24, w: 30, h: 18, z: 3, color: '#ffffff', fontSize: 28, bold: true };
+    const left: CanvasElement = { id: this.makeId(), kind: 'text', text: 'NEW ARRIVAL', x: 6, y: 22, w: 30, h: 18, z: 3, color: '#2F006D', fontSize: 30, bold: true };
+    const right: CanvasElement = { id: this.makeId(), kind: 'text', text: 'LIMITED OFFER', x: 64, y: 24, w: 30, h: 18, z: 3, color: '#12002D', fontSize: 28, bold: true };
     const elements = preset === 'product-only' ? [product]
       : preset === 'text-product' ? [left, product]
       : preset === 'product-text' ? [product, right]
