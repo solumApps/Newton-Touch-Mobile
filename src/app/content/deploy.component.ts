@@ -183,9 +183,11 @@ export class DeployComponent implements OnInit, OnDestroy {
     if (layout.screensaver?.media) layout.screensaver.media = layout.screensaver.media.map((m) => takeMaybeVideo(m) || m);
     // Externalize the header logo if it's a data URI.
     if (layout.header?.logo) layout.header.logo = take(layout.header.logo);
-    const canvas = (c?: { elements?: { src?: string }[] }) => {
+    const canvas = (c?: { elements?: { src?: string; frames?: string[] }[] }) => {
       c?.elements?.forEach((el) => {
         el.src = takeMaybeVideo(el.src);
+        // 360° spin frames: each frame ships as a separate ntimg file.
+        if (el.frames?.length) el.frames = el.frames.map((f) => take(f) || f);
       });
     };
     canvas(layout.customCanvas);
@@ -403,9 +405,14 @@ export class DeployComponent implements OnInit, OnDestroy {
       layout.screensaver.media = await Promise.all(layout.screensaver.media.map((m) => swap(m).then((v) => v || m)));
     }
     if (layout.header?.logo) layout.header.logo = await swap(layout.header.logo);
-    const canvas = async (c?: { elements?: { src?: string }[] }): Promise<void> => {
+    const canvas = async (c?: { elements?: { src?: string; frames?: string[] }[] }): Promise<void> => {
       if (!c?.elements?.length) return;
-      for (const el of c.elements) el.src = await swap(el.src);
+      for (const el of c.elements) {
+        el.src = await swap(el.src);
+        if (el.frames?.length) {
+          el.frames = await Promise.all(el.frames.map((f) => swap(f).then((v) => v || f)));
+        }
+      }
     };
     await canvas(layout.customCanvas);
     await canvas(layout.productPromo);

@@ -158,6 +158,8 @@ export class ContentService {
         elements: await Promise.all((canvas.elements || []).map(async (el) => ({
           ...el,
           src: await val(el.src),
+          // 360° spin frames: each frame is externalized/resolved like a src.
+          frames: el.frames ? await Promise.all(el.frames.map((f) => fn(f))) : el.frames,
         }))),
       } as T;
     };
@@ -359,8 +361,8 @@ export class ContentService {
           }]))
         : undefined,
       eslLinks: d.eslLinks, eslBlinkBy: d.eslBlinkBy,
-      customCanvas: d.customCanvas ? { ...d.customCanvas, elements: d.customCanvas.elements.map((el) => ({ ...el, src: el.src ? '«ref»' : undefined })) } : undefined,
-      productPromo: d.productPromo ? { ...d.productPromo, elements: d.productPromo.elements.map((el) => ({ ...el, src: el.src ? '«ref»' : undefined })) } : undefined,
+      customCanvas: d.customCanvas ? { ...d.customCanvas, elements: d.customCanvas.elements.map((el) => ({ ...el, src: el.src ? '«ref»' : undefined, frames: el.frames?.length ? el.frames.map(() => '«ref»') : undefined })) } : undefined,
+      productPromo: d.productPromo ? { ...d.productPromo, elements: d.productPromo.elements.map((el) => ({ ...el, src: el.src ? '«ref»' : undefined, frames: el.frames?.length ? el.frames.map(() => '«ref»') : undefined })) } : undefined,
       note: 'Media excluded by design — re-attach images/video on import (Category mode re-fetches from API).',
     };
     return JSON.stringify(manifest, null, 2);
