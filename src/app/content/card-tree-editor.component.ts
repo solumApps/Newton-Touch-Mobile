@@ -19,6 +19,8 @@ import type { CardItem, ImageFit } from '@contract/layout';
       <div class="erow">
         <div class="thumb" *ngIf="needsImage" [style.background-image]="child.image ? 'url('+child.image+')' : null" (click)="pickImage(child)">{{ child.image ? '' : '📷' }}</div>
         <input class="inp" [(ngModel)]="child.name" placeholder="Sub-item name" />
+        <button class="del" (click)="moveNode(i, -1)" [disabled]="i === 0" title="Move up">↑</button>
+        <button class="del" (click)="moveNode(i, 1)" [disabled]="i === (card.children?.length || 1) - 1" title="Move down">↓</button>
         <button class="del" (click)="remove(i)">✕</button>
       </div>
       <div class="fit-seg" *ngIf="needsImage && child.image">
@@ -32,6 +34,8 @@ import type { CardItem, ImageFit } from '@contract/layout';
           <input class="inp" [(ngModel)]="p.name" placeholder="Product name" />
           <input class="inp psm" [(ngModel)]="p.price" placeholder="Price" />
           <input class="inp psm" [(ngModel)]="p.aisle" placeholder="Aisle" />
+          <button class="del" (click)="moveProduct(child, pi, -1)" [disabled]="pi === 0" title="Move up">↑</button>
+          <button class="del" (click)="moveProduct(child, pi, 1)" [disabled]="pi === (child.products?.length || 1) - 1" title="Move down">↓</button>
           <button class="del" (click)="removeProduct(child, pi)">✕</button>
         </div>
         <button class="mini prod-add" (click)="addProduct(child)">+ Result product (this item's own result page)</button>
@@ -78,6 +82,25 @@ export class CardTreeEditorComponent {
   add(): void {
     if (this.atMax) return;
     this.card.children = [...(this.card.children || []), { id: 's' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), name: '' }];
+  }
+  
+  moveNode(i: number, dir: number): void {
+    const arr = this.card.children;
+    if (!arr) return;
+    const target = i + dir;
+    if (target < 0 || target >= arr.length) return;
+    const item = arr.splice(i, 1)[0];
+    arr.splice(target, 0, item);
+    this.card.children = [...arr];
+  }
+  moveProduct(c: CardItem, i: number, dir: number): void {
+    const arr = c.products;
+    if (!arr) return;
+    const target = i + dir;
+    if (target < 0 || target >= arr.length) return;
+    const item = arr.splice(i, 1)[0];
+    arr.splice(target, 0, item);
+    c.products = [...arr];
   }
   remove(i: number): void {
     const arr = this.card.children || [];

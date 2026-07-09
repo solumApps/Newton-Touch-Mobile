@@ -1190,6 +1190,35 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     this.setCurResult({ ...r, products: r.products.filter((_, idx) => idx !== i) });
   }
   removeIntermediate(i: number): void { this.draft!.intermediate = this.draft!.intermediate.filter((_, idx) => idx !== i); }
+  moveHomeCard(i: number, dir: number): void {
+    const target = i + dir;
+    if (target < 0 || target >= this.draft!.home.length) return;
+    const item = this.draft!.home.splice(i, 1)[0];
+    this.draft!.home.splice(target, 0, item);
+  }
+  moveIntermediate(i: number, dir: number): void {
+    const target = i + dir;
+    if (target < 0 || target >= this.draft!.intermediate.length) return;
+    const item = this.draft!.intermediate.splice(i, 1)[0];
+    this.draft!.intermediate.splice(target, 0, item);
+  }
+  moveProduct(i: number, dir: number): void {
+    const r = this.curResult;
+    const arr = [...r.products];
+    const target = i + dir;
+    if (target < 0 || target >= arr.length) return;
+    const item = arr.splice(i, 1)[0];
+    arr.splice(target, 0, item);
+    this.setCurResult({ ...r, products: arr });
+  }
+  moveMedia(i: number, dir: number): void {
+    const arr = this.draft!.screensaver.media;
+    const target = i + dir;
+    if (target < 0 || target >= arr.length) return;
+    const item = arr.splice(i, 1)[0];
+    arr.splice(target, 0, item);
+  }
+
 
   /** Tap-to-place map marker: which product the next map tap positions. */
   markerIdx = 0;
