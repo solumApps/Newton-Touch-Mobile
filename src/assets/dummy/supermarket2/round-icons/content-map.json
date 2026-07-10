@@ -38,28 +38,6 @@
             "cta": "Find Me",
             "image": "assets/dummy/supermarket2/round-icons/result/bakery/cakes-result.png"
           }
-        },
-        {
-          "id": "cookies",
-          "label": "Cookies",
-          "image": "assets/dummy/supermarket2/round-icons/intermediate/bakery/cookies.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Cookies",
-            "cta": "Find Me",
-            "image": "assets/dummy/supermarket2/round-icons/result/bakery/cookies-result.png"
-          }
-        },
-        {
-          "id": "pastries",
-          "label": "Pastries",
-          "image": "assets/dummy/supermarket2/round-icons/intermediate/bakery/pastries.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Pastries",
-            "cta": "Find Me",
-            "image": "assets/dummy/supermarket2/round-icons/result/bakery/pastries-result.png"
-          }
         }
       ]
     },
@@ -99,28 +77,6 @@
             "label": "Yogurt",
             "cta": "Find Me",
             "image": "assets/dummy/supermarket2/round-icons/result/dairy/yogurt-result.png"
-          }
-        },
-        {
-          "id": "butter",
-          "label": "Butter",
-          "image": "assets/dummy/supermarket2/round-icons/intermediate/dairy/butter.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Butter",
-            "cta": "Find Me",
-            "image": "assets/dummy/supermarket2/round-icons/result/dairy/butter-result.png"
-          }
-        },
-        {
-          "id": "cream",
-          "label": "Cream",
-          "image": "assets/dummy/supermarket2/round-icons/intermediate/dairy/cream.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Cream",
-            "cta": "Find Me",
-            "image": "assets/dummy/supermarket2/round-icons/result/dairy/cream-result.png"
           }
         }
       ]
@@ -162,28 +118,6 @@
             "cta": "Find Me",
             "image": "assets/dummy/supermarket2/round-icons/result/produce/herbs-result.png"
           }
-        },
-        {
-          "id": "salads",
-          "label": "Salads",
-          "image": "assets/dummy/supermarket2/round-icons/intermediate/produce/salads.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Salads",
-            "cta": "Find Me",
-            "image": "assets/dummy/supermarket2/round-icons/result/produce/salads-result.png"
-          }
-        },
-        {
-          "id": "organic",
-          "label": "Organic",
-          "image": "assets/dummy/supermarket2/round-icons/intermediate/produce/organic.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Organic",
-            "cta": "Find Me",
-            "image": "assets/dummy/supermarket2/round-icons/result/produce/organic-result.png"
-          }
         }
       ]
     },
@@ -224,28 +158,6 @@
             "cta": "Find Me",
             "image": "assets/dummy/supermarket2/round-icons/result/meat/lamb-result.png"
           }
-        },
-        {
-          "id": "sausage",
-          "label": "Sausage",
-          "image": "assets/dummy/supermarket2/round-icons/intermediate/meat/sausage.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Sausage",
-            "cta": "Find Me",
-            "image": "assets/dummy/supermarket2/round-icons/result/meat/sausage-result.png"
-          }
-        },
-        {
-          "id": "marinated",
-          "label": "Marinated",
-          "image": "assets/dummy/supermarket2/round-icons/intermediate/meat/marinated.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Marinated",
-            "cta": "Find Me",
-            "image": "assets/dummy/supermarket2/round-icons/result/meat/marinated-result.png"
-          }
         }
       ]
     },
@@ -285,28 +197,6 @@
             "label": "Nuggets",
             "cta": "Find Me",
             "image": "assets/dummy/supermarket2/round-icons/result/frozen/nuggets-result.png"
-          }
-        },
-        {
-          "id": "fries",
-          "label": "Fries",
-          "image": "assets/dummy/supermarket2/round-icons/intermediate/frozen/fries.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Fries",
-            "cta": "Find Me",
-            "image": "assets/dummy/supermarket2/round-icons/result/frozen/fries-result.png"
-          }
-        },
-        {
-          "id": "popsicles",
-          "label": "Popsicles",
-          "image": "assets/dummy/supermarket2/round-icons/intermediate/frozen/popsicles.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Popsicles",
-            "cta": "Find Me",
-            "image": "assets/dummy/supermarket2/round-icons/result/frozen/popsicles-result.png"
           }
         }
       ]
