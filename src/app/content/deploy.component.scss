@@ -59,6 +59,7 @@
 .nt-receive-fillbg {
   position: absolute; left: 0; right: 0; bottom: 0;
   transition: height .5s ease;
+  filter: drop-shadow(0 -8px 24px rgba(0,0,0,0.5));
 }
 .nt-fluid-wave {
   position: absolute;
@@ -71,8 +72,19 @@
   -webkit-mask-repeat: repeat-x;
   animation: waveFlow 5s linear infinite;
 }
+.nt-fluid-wave::after, .nt-fluid-body::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+}
+.nt-fluid-wave::after {
+  background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%);
+}
 .nt-fluid-body {
   position: absolute; left: 0; right: 0; bottom: 0; top: 0;
+}
+.nt-fluid-body::after {
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 100%);
 }
 @keyframes waveFlow {
   0% { transform: translateX(0); }
