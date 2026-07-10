@@ -78,7 +78,7 @@ const KEY = 'nt.content';
 /** Legacy Fresh Market seed flag. Kept only so older installs can migrate cleanly. */
 const SEED_FLAG = 'nt.content.samplesSeeded';
 /** Versioned so the built-in samples can be refreshed once without touching user drafts. */
-const BAKERY_SEED_FLAG = 'nt.content.bundledSamplesSeeded.v3';
+const BAKERY_SEED_FLAG = 'nt.content.bundledSamplesSeeded.v4';
 
 @Injectable({ providedIn: 'root' })
 export class ContentService {

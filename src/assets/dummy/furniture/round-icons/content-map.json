@@ -38,28 +38,6 @@
             "cta": "Find Me",
             "image": "assets/dummy/furniture/round-icons/result/living/coffee-tables-result.png"
           }
-        },
-        {
-          "id": "tv-units",
-          "label": "TV Units",
-          "image": "assets/dummy/furniture/round-icons/intermediate/living/tv-units.png",
-          "result": {
-            "title": "Best Match",
-            "label": "TV Units",
-            "cta": "Find Me",
-            "image": "assets/dummy/furniture/round-icons/result/living/tv-units-result.png"
-          }
-        },
-        {
-          "id": "accent-chairs",
-          "label": "Accent Chairs",
-          "image": "assets/dummy/furniture/round-icons/intermediate/living/accent-chairs.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Accent Chairs",
-            "cta": "Find Me",
-            "image": "assets/dummy/furniture/round-icons/result/living/accent-chairs-result.png"
-          }
         }
       ]
     },
@@ -99,28 +77,6 @@
             "label": "Mattresses",
             "cta": "Find Me",
             "image": "assets/dummy/furniture/round-icons/result/bedroom/mattresses-result.png"
-          }
-        },
-        {
-          "id": "dressers",
-          "label": "Dressers",
-          "image": "assets/dummy/furniture/round-icons/intermediate/bedroom/dressers.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Dressers",
-            "cta": "Find Me",
-            "image": "assets/dummy/furniture/round-icons/result/bedroom/dressers-result.png"
-          }
-        },
-        {
-          "id": "nightstands",
-          "label": "Nightstands",
-          "image": "assets/dummy/furniture/round-icons/intermediate/bedroom/nightstands.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Nightstands",
-            "cta": "Find Me",
-            "image": "assets/dummy/furniture/round-icons/result/bedroom/nightstands-result.png"
           }
         }
       ]
@@ -162,28 +118,6 @@
             "cta": "Find Me",
             "image": "assets/dummy/furniture/round-icons/result/dining/bar-stools-result.png"
           }
-        },
-        {
-          "id": "sideboards",
-          "label": "Sideboards",
-          "image": "assets/dummy/furniture/round-icons/intermediate/dining/sideboards.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Sideboards",
-            "cta": "Find Me",
-            "image": "assets/dummy/furniture/round-icons/result/dining/sideboards-result.png"
-          }
-        },
-        {
-          "id": "benches",
-          "label": "Benches",
-          "image": "assets/dummy/furniture/round-icons/intermediate/dining/benches.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Benches",
-            "cta": "Find Me",
-            "image": "assets/dummy/furniture/round-icons/result/dining/benches-result.png"
-          }
         }
       ]
     },
@@ -224,28 +158,6 @@
             "cta": "Find Me",
             "image": "assets/dummy/furniture/round-icons/result/office/bookcases-result.png"
           }
-        },
-        {
-          "id": "cabinets",
-          "label": "Cabinets",
-          "image": "assets/dummy/furniture/round-icons/intermediate/office/cabinets.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Cabinets",
-            "cta": "Find Me",
-            "image": "assets/dummy/furniture/round-icons/result/office/cabinets-result.png"
-          }
-        },
-        {
-          "id": "lamps",
-          "label": "Lamps",
-          "image": "assets/dummy/furniture/round-icons/intermediate/office/lamps.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Lamps",
-            "cta": "Find Me",
-            "image": "assets/dummy/furniture/round-icons/result/office/lamps-result.png"
-          }
         }
       ]
     },
@@ -285,28 +197,6 @@
             "label": "Wall Art",
             "cta": "Find Me",
             "image": "assets/dummy/furniture/round-icons/result/decor/wall-art-result.png"
-          }
-        },
-        {
-          "id": "plants",
-          "label": "Plants",
-          "image": "assets/dummy/furniture/round-icons/intermediate/decor/plants.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Plants",
-            "cta": "Find Me",
-            "image": "assets/dummy/furniture/round-icons/result/decor/plants-result.png"
-          }
-        },
-        {
-          "id": "cushions",
-          "label": "Cushions",
-          "image": "assets/dummy/furniture/round-icons/intermediate/decor/cushions.png",
-          "result": {
-            "title": "Best Match",
-            "label": "Cushions",
-            "cta": "Find Me",
-            "image": "assets/dummy/furniture/round-icons/result/decor/cushions-result.png"
           }
         }
       ]
