@@ -54,6 +54,17 @@ export class DeployComponent implements OnInit, OnDestroy {
 
   get native(): boolean { return this.transfer.isNative; }
 
+  /** Display-only label derived from existing sending/percent/step state — no
+   *  protocol change. Mirrors the real stages of the send sequence. */
+  get stageLabel(): string {
+    if (!this.sending) return '';
+    if (this.percent === 0) return 'Preparing deployment';
+    if (this.percent < 8) return 'Connecting to display';
+    if (this.percent < 90) return 'Sending content';
+    if (this.percent < 100) return 'Almost done';
+    return 'Finalizing';
+  }
+
   async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.paramMap.get('id');
     this.draft = (await this.content.list()).find((d) => d.id === id);
@@ -421,7 +432,10 @@ export class DeployComponent implements OnInit, OnDestroy {
   }
 
   async deploy(): Promise<void> {
-    if (!this.draft || !this.payload || !this.targetHost) return;
+    // Guard re-entry: a second tap/trigger while a deploy is already in flight
+    // would run two overlapping send() sequences against the same transport
+    // state (e.g. the relay ack queue), corrupting both.
+    if (this.sending || !this.draft || !this.payload || !this.targetHost) return;
 
     this.sending = true; this.percent = 0; this.doneMsg = ''; this.steps = [];
     try {

@@ -29,6 +29,19 @@
 .prog { margin: 12px 0; }
 .prog .pct { text-align: center; font-size: 12px; color: var(--nt-text-2); margin-top: 4px; }
 
+/* Deploy-in-progress panel: dark/blurred backdrop with a gradient area that
+   SHRINKS from full width to 0 as percent rises — representing content
+   leaving the phone (mirrors the LCD's bottom-up "arriving" fill). */
+.deploy-panel { position: relative; margin: 14px 0; border-radius: 12px; overflow: hidden; padding: 16px 14px; background: rgba(15, 23, 42, .55); }
+.dp-blur { position: absolute; inset: 0; backdrop-filter: none; }
+@supports (backdrop-filter: blur(1px)) { .dp-blur { backdrop-filter: blur(6px); } }
+.dp-fill { position: absolute; top: 0; bottom: 0; right: 0; background: linear-gradient(90deg, rgba(124,58,237,.05), var(--nt-purple, #7C3AED) 140%); opacity: .28; transition: width .5s ease; }
+.dp-body { position: relative; text-align: center; }
+.dp-icon { width: 40px; height: 40px; line-height: 40px; margin: 0 auto 8px; border-radius: 50%; background: var(--nt-brand-ink); color: #fff; font-size: 18px; animation: nt-dp-bob 1.4s ease-in-out infinite; }
+@keyframes nt-dp-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.dp-stage { font-size: 12px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+.dp-body .pct { color: #fff; }
+
 .via { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 6px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; background: var(--nt-tint); color: var(--nt-brand-ink); vertical-align: middle; }
 .steps { background: #0F172A; border-radius: 10px; padding: 10px 12px; margin: 10px 0; max-height: 160px; overflow-y: auto; }
 .steps .step { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; line-height: 1.6; color: #94A3B8; white-space: pre-wrap; word-break: break-word; }
