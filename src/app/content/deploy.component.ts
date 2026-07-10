@@ -30,7 +30,7 @@ export class DeployComponent implements OnInit, OnDestroy {
 
   targetName = ''; targetHost = ''; targetPort = 8082;
   manualName = ''; manualIp = '';
-  sending = false; percent = 0;
+  sending = false; percent = 0; filesCompleted = 0; filesTotal = 0;
   doneMsg = ''; doneOk = false;
   showToast = false;
   toastMsg = '';
@@ -437,7 +437,7 @@ export class DeployComponent implements OnInit, OnDestroy {
     // state (e.g. the relay ack queue), corrupting both.
     if (this.sending || !this.draft || !this.payload || !this.targetHost) return;
 
-    this.sending = true; this.percent = 0; this.doneMsg = ''; this.steps = [];
+    this.sending = true; this.percent = 0; this.doneMsg = ''; this.steps = []; this.filesCompleted = 0; this.filesTotal = 0;
     try {
       const needsServerConfig = this.draft.appMode !== 'prototype'
         && this.draft.appMode !== 'media'
@@ -483,14 +483,14 @@ export class DeployComponent implements OnInit, OnDestroy {
           await this.transfer.sendRelayNoAck(this.targetHost,
             JSON.stringify({ kind: 'image', id: img.id, ext: img.ext, bytes: this.decodedBytes(img.data), data: img.data }));
           this.pushStep(`  ✓ ${img.id} sent`);
-          this.percent = Math.round(((i + 1) / total) * 90);
+          this.percent = Math.round(((i + 1) / total) * 90); this.filesCompleted = i + 1; this.filesCompleted = i + 1;
           await this.sleep(this.delayFor(img.data.length));
         }
         // Screensaver videos: chunked over the relay so neither the WebSocket frame
         // nor the LCD V8 heap ever holds the whole multi-MB blob at once.
         for (let i = 0; i < videos.length; i++) {
           await this.sendMediaChunksRelay(videos[i]);
-          this.percent = Math.round(((images.length + i + 1) / total) * 90);
+          this.percent = Math.round(((images.length + i + 1) / total) * 90); this.filesCompleted = images.length + i + 1;
           await this.sleep(this.SEND_DELAY_MS);
         }
         layoutJson = JSON.stringify(layout);
@@ -545,7 +545,7 @@ export class DeployComponent implements OnInit, OnDestroy {
           await this.sleep(this.SEND_DELAY_MS);
           await this.transfer.sendBinary(this.targetHost, this.targetPort, b64, (p) => (this.percent = Math.min(89, p)));
           this.pushStep(`  ✓ ${v.id} sent`);
-          this.percent = Math.min(89, Math.round(((images.length + i + 1) / total) * 90));
+          this.percent = Math.min(89, Math.round(((images.length + i + 1) / total) * 90)); this.filesCompleted = images.length + i + 1;
           await this.sleep(1500);
         }
         // Media (image/video) is sent as RAW BINARY: a small JSON 'mediaMeta'
