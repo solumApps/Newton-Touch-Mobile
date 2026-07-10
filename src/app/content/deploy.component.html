@@ -56,7 +56,10 @@
     <div class="nt-receive" *ngIf="sending">
       <div class="nt-receive-blur"></div>
       <div class="nt-receive-fillwrap">
-        <div class="nt-receive-fillbg" [style.height.%]="100 - percent" [style.background]="themeBg"></div>
+        <div class="nt-receive-fillbg" [style.height.%]="100 - percent">
+          <div class="nt-fluid-wave" [style.background]="themeBg"></div>
+          <div class="nt-fluid-body" [style.background]="themeBg"></div>
+        </div>
       </div>
 
       <div class="nt-receive-content">
