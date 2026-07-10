@@ -53,6 +53,7 @@ export class DeployComponent implements OnInit, OnDestroy {
   ) {}
 
   get native(): boolean { return this.transfer.isNative; }
+  get themeBg(): string { return this.draft?.themeTokens?.background || '#4338ca'; }
 
   /** Display-only label derived from existing sending/percent/step state — no
    *  protocol change. Mirrors the real stages of the send sequence. */
