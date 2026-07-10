@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { BehaviorSubject } from 'rxjs';
 
@@ -31,6 +31,8 @@ export class TransferService {
    *  a previous send's ackResolve being overwritten was leaving it hung until
    *  its own timeout, which surfaced as a stuck deploy on the next attempt. */
   private pendingAcks: Array<() => void> = [];
+
+  constructor(private zone: NgZone) { }
 
   get isNative(): boolean { return Capacitor.isNativePlatform(); }
 
@@ -72,13 +74,20 @@ export class TransferService {
     this.found$.next([]);
     const { LanTransfer } = await import('capacitor-lan-transfer');
     this.listeners.push(await (LanTransfer as any).addListener('deviceFound', (e: any) => {
-      const dev: FoundDevice = { name: e.name, host: e.host, port: e.port, deviceName: e.deviceName, storeId: e.storeId, via: e.via };
-      const list = this.found$.value.filter((d) => d.name !== dev.name);
-      list.push(dev);
-      this.found$.next(list);
+      // Capacitor plugin callbacks fire outside Angular's NgZone on Android.
+      // Without zone.run(), BehaviorSubject.next() changes state but Angular
+      // never schedules a re-render, so the device list stays blank on-screen.
+      this.zone.run(() => {
+        const dev: FoundDevice = { name: e.name, host: e.host, port: e.port, deviceName: e.deviceName, storeId: e.storeId, via: e.via };
+        const list = this.found$.value.filter((d) => d.name !== dev.name);
+        list.push(dev);
+        this.found$.next(list);
+      });
     }));
     this.listeners.push(await (LanTransfer as any).addListener('deviceLost', (e: any) => {
-      this.found$.next(this.found$.value.filter((d) => d.name !== e.name));
+      this.zone.run(() => {
+        this.found$.next(this.found$.value.filter((d) => d.name !== e.name));
+      });
     }));
     await (LanTransfer as any).startDiscovery();
   }

@@ -51,7 +51,7 @@ export class DeployComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef,
-  ) {}
+  ) { }
 
   get native(): boolean { return this.transfer.isNative; }
   get themeBg(): string { return this.draft?.themeTokens?.background || '#4338ca'; }
@@ -74,6 +74,7 @@ export class DeployComponent implements OnInit, OnDestroy {
     let creds: any; try { creds = await this.workspace.creds(); } catch { creds = undefined; }
     this.payload = this.content.build(this.draft, creds);
     this.sizeKb = Math.max(1, Math.round(JSON.stringify(this.payload).length / 1024));
+    this.transfer.found$.next([]); // always start with a clean list
     this.sub = this.transfer.found$.subscribe((list) => {
       this.found = list;
       this.cdr.detectChanges();
@@ -84,7 +85,12 @@ export class DeployComponent implements OnInit, OnDestroy {
   private static readonly SCAN_WINDOW_MS = 10000;
   private scanTimer?: ReturnType<typeof setTimeout>;
 
-  ngOnDestroy(): void { this.sub?.unsubscribe(); this.clearScanTimer(); this.transfer.stopScan(); }
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+    this.clearScanTimer();
+    this.transfer.stopScan();
+    this.transfer.found$.next([]); // clean up so other pages don't inherit stale data
+  }
 
   private clearScanTimer(): void {
     if (this.scanTimer) { clearTimeout(this.scanTimer); this.scanTimer = undefined; }
@@ -118,6 +124,12 @@ export class DeployComponent implements OnInit, OnDestroy {
   select(name: string, host: string, port: number): void {
     if (!host) return;
     this.targetName = name; this.targetHost = host; this.targetPort = port;
+    // Scanning intentionally keeps running so the user can still see newly
+    // discovered devices and switch their selection before deploying.
+  }
+
+  trackByDevice(_index: number, dev: FoundDevice): string {
+    return `${dev.host}:${dev.port}`;
   }
 
   /** Pull every data-URI image out of the layout into a separate list, replacing it
@@ -242,7 +254,7 @@ export class DeployComponent implements OnInit, OnDestroy {
       contentName: this.draft?.name || 'Receiving content',
     });
     try {
-      if (this.transfer.isNative) await this.transfer.send(this.targetHost, this.targetPort, msg, () => {});
+      if (this.transfer.isNative) await this.transfer.send(this.targetHost, this.targetPort, msg, () => { });
       else await this.transfer.sendRelayNoAck(this.targetHost, msg);
       await this.sleep(this.SEND_DELAY_MS);
     } catch {
@@ -257,7 +269,7 @@ export class DeployComponent implements OnInit, OnDestroy {
    *  inline → Blob URL). */
   private async sendMediaChunks(media: { id: string; data: string; ext: string }): Promise<void> {
     return this.sendMediaChunked(media, (json) =>
-      this.transfer.send(this.targetHost, this.targetPort, json, () => {}));
+      this.transfer.send(this.targetHost, this.targetPort, json, () => { }));
   }
 
   /** Browser/relay sibling of sendMediaChunks — same `kind:'imageChunk'` envelope
@@ -442,6 +454,10 @@ export class DeployComponent implements OnInit, OnDestroy {
     // state (e.g. the relay ack queue), corrupting both.
     if (this.sending || !this.draft || !this.payload || !this.targetHost) return;
 
+    // Stop any in-progress scan before transmitting — avoids network / port
+    // conflicts between the discovery socket and the transfer socket.
+    if (this.scanning) { void this.stopScanning(); }
+
     this.sending = true; this.percent = 0; this.doneMsg = ''; this.steps = []; this.filesCompleted = 0; this.filesTotal = 0;
     try {
       const needsServerConfig = this.draft.appMode !== 'prototype'
@@ -528,7 +544,7 @@ export class DeployComponent implements OnInit, OnDestroy {
           const sizeKb = Math.round(img.data.length / 1024);
           this.pushStep(`▸ ${img.id}.${img.ext}  (${sizeKb} KB)…`);
           await this.transfer.send(this.targetHost, this.targetPort,
-            JSON.stringify({ kind: 'image', id: img.id, ext: img.ext, bytes: this.decodedBytes(img.data), data: img.data }), () => {});
+            JSON.stringify({ kind: 'image', id: img.id, ext: img.ext, bytes: this.decodedBytes(img.data), data: img.data }), () => { });
           this.pushStep(`  ✓ ${img.id} sent`);
           this.percent = Math.round(((i + 1) / total) * 90);
           // CRITICAL: throttle (scaled by size) so the receiver finishes flushing
@@ -546,7 +562,7 @@ export class DeployComponent implements OnInit, OnDestroy {
           const b64 = comma >= 0 ? v.data.slice(comma + 1) : v.data;
           this.pushStep(`▸ video ${v.id}.${v.ext} (${Math.round((b64.length * 0.75) / 1024)} KB)…`);
           await this.transfer.send(this.targetHost, this.targetPort,
-            JSON.stringify({ kind: 'mediaMeta', id: v.id, ext: v.ext, bytes: this.decodedBytes(v.data) }), () => {});
+            JSON.stringify({ kind: 'mediaMeta', id: v.id, ext: v.ext, bytes: this.decodedBytes(v.data) }), () => { });
           await this.sleep(this.SEND_DELAY_MS);
           await this.transfer.sendBinary(this.targetHost, this.targetPort, b64, (p) => (this.percent = Math.min(89, p)));
           this.pushStep(`  ✓ ${v.id} sent`);
@@ -563,7 +579,7 @@ export class DeployComponent implements OnInit, OnDestroy {
           const b64 = comma >= 0 ? media.data.slice(comma + 1) : media.data;
           this.pushStep(`▸ media ${media.id}.${media.ext} (${Math.round((b64.length * 0.75) / 1024)} KB)…`);
           await this.transfer.send(this.targetHost, this.targetPort,
-            JSON.stringify({ kind: 'mediaMeta', id: media.id, ext: media.ext, bytes: this.decodedBytes(media.data) }), () => {});
+            JSON.stringify({ kind: 'mediaMeta', id: media.id, ext: media.ext, bytes: this.decodedBytes(media.data) }), () => { });
           await this.sleep(this.SEND_DELAY_MS);
           await this.transfer.sendBinary(this.targetHost, this.targetPort, b64, (p) => (this.percent = Math.min(89, p)));
           this.pushStep('  ✓ media sent');
@@ -581,7 +597,7 @@ export class DeployComponent implements OnInit, OnDestroy {
         if (serverConfig) {
           this.pushStep(`▸ serverConfig … (encrypted creds, NO token · ${serverConfigSummary})`);
           if (this.draft.appMode === 'category') this.pushStep(`  • category: LED ${this.draft.ledColour || 'Red'}/${this.draft.ledDuration || '10s'} · LCD will self-login + fetch category API on load`);
-          try { await this.transfer.send(this.targetHost, this.targetPort, serverConfig, () => {}); await this.sleep(this.SEND_DELAY_MS); this.pushStep('  ✓ serverConfig sent'); }
+          try { await this.transfer.send(this.targetHost, this.targetPort, serverConfig, () => { }); await this.sleep(this.SEND_DELAY_MS); this.pushStep('  ✓ serverConfig sent'); }
           catch { this.pushStep('  ⚠ serverConfig send failed (non-fatal)'); }
         } else {
           this.pushStep('⚠ No server credentials — sign in so the LCD can fetch live data');
