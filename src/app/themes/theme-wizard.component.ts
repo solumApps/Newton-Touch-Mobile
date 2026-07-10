@@ -2,7 +2,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter, AlertController } from '@ionic/angular/standalone';
 import { ColorPickerComponent } from '../shared/color-picker.component';
 import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
 import { ThemeService, SavedTheme } from '../services/theme.service';
@@ -1105,7 +1105,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     return `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'%3E%3Crect width='160' height='100' fill='${fill}'/%3E%3Cpolygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/%3E%3C/svg%3E")`;
   }
 
-  constructor(private themes: ThemeService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private sanitizer: DomSanitizer, private customColors: ThemeCustomColorService) {}
+  constructor(private themes: ThemeService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private sanitizer: DomSanitizer, private customColors: ThemeCustomColorService, private alertController: AlertController) {}
 
   async ngOnInit(): Promise<void> { await this.init(); }
   ngOnDestroy(): void {
@@ -1146,6 +1146,14 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
       }
     }
     this.bindCustomColors();
+    // Baseline for the unsaved-changes guard: anything the user edits after this
+    // point makes the wizard "dirty" and cancelling asks for confirmation.
+    this.baseline = this.snapshot();
+  }
+
+  /** Serialized wizard state — compared against the baseline to detect edits. */
+  private snapshot(): string {
+    return JSON.stringify({ name: this.name, tokens: this.t, saver: this.saverMode });
   }
 
   private bindCustomColors(): void {
@@ -1468,7 +1476,27 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   /** Clear the duplicate-name warning as soon as the user edits the name. */
   onNameInput(): void { if (this.nameError) this.nameError = ''; }
 
-  cancel(): void {
+  /** Set after init(); non-empty means the guard is armed. */
+  private baseline = '';
+
+  async cancel(): Promise<void> {
+    // Unsaved edits → confirm before throwing them away.
+    if (this.baseline && this.snapshot() !== this.baseline) {
+      const alert = await this.alertController.create({
+        header: 'Discard changes?',
+        message: 'You have unsaved changes. If you leave now, your work on this theme will be lost.',
+        buttons: [
+          { text: 'Keep editing', role: 'cancel' },
+          { text: 'Discard', role: 'destructive', handler: () => this.leave() },
+        ],
+      });
+      await alert.present();
+      return;
+    }
+    this.leave();
+  }
+
+  private leave(): void {
     if (this.openedFromPreview && this.id) {
       this.router.navigateByUrl('/theme-preview/' + (this.previewReturnId || this.id));
       return;

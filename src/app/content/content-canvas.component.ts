@@ -75,6 +75,8 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
             <div *ngSwitchCase="'spin'" class="media-el">
               <img *ngIf="el.frames?.length" [src]="spinFrame(el)" [style.object-fit]="objectFit(el)" alt="" />
               <span *ngIf="!el.frames?.length">360° — upload frames</span>
+              <!-- Mirrors the LCD's interactivity badge so the preview matches the kiosk. -->
+              <b class="spin-mini" *ngIf="el.frames?.length">360°</b>
             </div>
           </ng-container>
         </div>
@@ -118,7 +120,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
         </div>
       </ng-template>
 
-      <label class="bg-field">Canvas background<input type="color" [ngModel]="toColor(canvas.background || '#0A0A1A')" (ngModelChange)="canvas.background=$event; saveSoon()" /></label>
+      <label class="bg-field">Canvas background<input type="color" [ngModel]="toColor(canvas.background || (isPromo ? '#FFFFFF' : '#0A0A1A'))" (ngModelChange)="canvas.background=$event; saveSoon()" /></label>
     </div>
 
     <div class="panel" *ngIf="selected as el; else noSelection">
@@ -282,6 +284,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
     .media-el,.el img,.el video { width:100%; height:100%; display:block; }
     .media-el { display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.16); color:#fff; font-weight:900; text-align:center; }
     .media-el span { padding:4px 6px; border-radius:999px; background:rgba(0,0,0,.28); font-size:12px; }
+    .spin-mini { position:absolute; top:3px; right:3px; padding:1px 6px; border-radius:999px; background:rgba(0,0,0,.55); color:#fff; font-size:9px; font-weight:900; letter-spacing:.04em; }
     .text-el { width:100%; height:100%; display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.05; white-space:pre-wrap; padding:4px; text-shadow:0 2px 8px rgba(0,0,0,.28); box-sizing:border-box; }
     .shape-el { width:100%; height:100%; display:flex; align-items:center; justify-content:center; text-align:center; font-weight:900; padding:8px; box-sizing:border-box; line-height:1.05; }
     .shape-pill .shape-el { border-radius:999px; }
@@ -397,7 +400,7 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
     const id = this.route.snapshot.paramMap.get('id');
     this.draft = (await this.content.list()).find((d) => d.id === id);
     if (!this.draft) { this.router.navigateByUrl('/tabs/content'); return; }
-    if (this.isPromo && !this.draft.productPromo) this.draft.productPromo = { preset: 'product-only', background: 'linear-gradient(135deg,#2F006D,#001973)', elements: [] };
+    if (this.isPromo && !this.draft.productPromo) this.draft.productPromo = { preset: 'product-only', background: '#FFFFFF', elements: [] };
     if (!this.isPromo && !this.draft.customCanvas) this.draft.customCanvas = { background: '#0A0A1A', elements: [] };
     if (this.isPromo && !this.canvas.elements.length) this.applyPromoPreset('product-only');
     if (!this.selected && this.sortedElements[0]) this.select(this.sortedElements[0]);
@@ -406,7 +409,7 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
   get isPromo(): boolean { return this.draft?.appMode === 'product-promo'; }
   get promo(): ProductPromoContent | undefined { return this.draft?.productPromo; }
   get canvas(): CanvasLike {
-    return (this.isPromo ? this.draft?.productPromo : this.draft?.customCanvas) || { background: '#0A0A1A', elements: [] };
+    return (this.isPromo ? this.draft?.productPromo : this.draft?.customCanvas) || { background: this.isPromo ? '#FFFFFF' : '#0A0A1A', elements: [] };
   }
   get sortedElements(): CanvasElement[] { return [...this.canvas.elements].sort((a, b) => a.z - b.z); }
   get selected(): CanvasElement | undefined { return this.canvas.elements.find((e) => e.id === this.selectedId); }
@@ -441,7 +444,7 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
     this.saveSoon();
   }
   addText(): void { this.add({ kind: 'text', text: 'Big retail message', color: '#ffffff', fontSize: 30, bold: true, x: 6, y: 24, w: 44, h: 18 }); }
-  addPromoText(): void { this.add({ kind: 'text', text: 'LIMITED OFFER', color: '#FFCD00', fontSize: 28, bold: true, x: 60, y: 24, w: 34, h: 18 }); }
+  addPromoText(): void { this.add({ kind: 'text', text: 'LIMITED OFFER', color: '#12002D', fontSize: 28, bold: true, x: 60, y: 24, w: 34, h: 18 }); }
   addShape(shape: CanvasShapeKind): void { this.add({ kind: 'shape', shape, text: shape === 'starburst' ? 'SALE' : '', fill: '#FFCD00', color: '#12002D', x: 62, y: 16, w: 18, h: 30, fontSize: 34, radius: shape === 'rect' ? 12 : 0 }); }
   addMedia(kind: Extract<CanvasElementKind, 'image' | 'video'>): void {
     this.add({ kind, text: kind === 'image' ? 'Upload image' : 'Upload video', fit: 'cover', x: 44, y: 12, w: 30, h: 70, radius: 18 });
@@ -521,7 +524,9 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
       const reader = new FileReader();
       reader.onload = () => (typeof reader.result === 'string' ? resolve(reader.result) : reject(new Error('read failed')));
       reader.onerror = () => reject(new Error('read failed'));
-      reader.readAsDataURL(new Blob([bytes], { type: mime }));
+      // slice() re-backs the view with a plain ArrayBuffer — keeps newer TS libs
+      // (Uint8Array<ArrayBufferLike> vs BlobPart) happy across toolchains.
+      reader.readAsDataURL(new Blob([bytes.slice().buffer], { type: mime }));
     });
   }
   kickVideo(ev: Event): void {
@@ -579,10 +584,11 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
 
   applyPromoPreset(preset: ProductPromoPreset): void {
     if (!this.draft) return;
-    const base = { background: 'linear-gradient(135deg,#2F006D,#001973)' };
+    // White canvas by default; preset text colors are dark so they stay readable on it.
+    const base = { background: '#FFFFFF' };
     const product: CanvasElement = { id: this.makeId(), kind: 'image', text: 'Upload product', fit: 'cover', x: 39, y: 10, w: 22, h: 80, z: 2, radius: 24 };
-    const left: CanvasElement = { id: this.makeId(), kind: 'text', text: 'NEW ARRIVAL', x: 6, y: 22, w: 30, h: 18, z: 3, color: '#FFCD00', fontSize: 30, bold: true };
-    const right: CanvasElement = { id: this.makeId(), kind: 'text', text: 'LIMITED OFFER', x: 64, y: 24, w: 30, h: 18, z: 3, color: '#ffffff', fontSize: 28, bold: true };
+    const left: CanvasElement = { id: this.makeId(), kind: 'text', text: 'NEW ARRIVAL', x: 6, y: 22, w: 30, h: 18, z: 3, color: '#2F006D', fontSize: 30, bold: true };
+    const right: CanvasElement = { id: this.makeId(), kind: 'text', text: 'LIMITED OFFER', x: 64, y: 24, w: 30, h: 18, z: 3, color: '#12002D', fontSize: 28, bold: true };
     const elements = preset === 'product-only' ? [product]
       : preset === 'text-product' ? [left, product]
       : preset === 'product-text' ? [product, right]
