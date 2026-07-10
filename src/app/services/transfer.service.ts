@@ -26,7 +26,11 @@ export class TransferService {
   readonly found$ = new BehaviorSubject<FoundDevice[]>([]);
   private listeners: Array<{ remove: () => Promise<void> }> = [];
   private ws?: WebSocket;
-  private ackResolve?: () => void;
+  /** FIFO of pending relay deploy_acks. A queue (not a single field) so that
+   *  rapid/overlapping send() calls can't clobber each other's ack resolver —
+   *  a previous send's ackResolve being overwritten was leaving it hung until
+   *  its own timeout, which surfaced as a stuck deploy on the next attempt. */
+  private pendingAcks: Array<() => void> = [];
 
   get isNative(): boolean { return Capacitor.isNativePlatform(); }
 
@@ -39,7 +43,7 @@ export class TransferService {
       const to = setTimeout(() => { try { ws.close(); } catch { /* */ } reject(new Error('Dev relay not running on ws://localhost:8090')); }, 2500);
       ws.onopen = () => { clearTimeout(to); this.ws = ws; ws.send(JSON.stringify({ type: 'hello', role: 'sender' })); resolve(ws); };
       ws.onerror = () => { clearTimeout(to); reject(new Error('Cannot reach dev relay on ws://localhost:8090')); };
-      ws.onclose = () => { if (this.ws === ws) this.ws = undefined; };
+      ws.onclose = () => { if (this.ws === ws) { this.ws = undefined; this.pendingAcks = []; } };
       ws.onmessage = (m) => {
         let msg: any; try { msg = JSON.parse(m.data); } catch { return; }
         if (msg.type === 'devices') {
@@ -52,7 +56,7 @@ export class TransferService {
             .map((d: any) => ({ name: d.id, host: d.id, port: 8090, deviceName: d.deviceName, storeId: d.code }));
           this.found$.next(devices);
         } else if (msg.type === 'deploy_ack') {
-          this.ackResolve?.(); this.ackResolve = undefined;
+          this.pendingAcks.shift()?.();
         }
       };
     });
@@ -98,10 +102,20 @@ export class TransferService {
       return new Promise<void>((resolve, reject) => {
         // Scale timeout with payload size: 8 s base + 2 s per 100 KB.
         const timeoutMs = 8000 + Math.ceil(text.length / 102400) * 2000;
-        const timer = setTimeout(() => { this.ackResolve = undefined; reject(new Error('No ack from display — is the LCD tab open & connected to the relay?')); }, timeoutMs);
-        this.ackResolve = () => { clearTimeout(timer); onPercent(100); resolve(); };
+        const resolveAck = () => { clearTimeout(timer); onPercent(100); resolve(); };
+        const timer = setTimeout(() => {
+          const idx = this.pendingAcks.indexOf(resolveAck);
+          if (idx >= 0) this.pendingAcks.splice(idx, 1);
+          reject(new Error('No ack from display — is the LCD tab open & connected to the relay?'));
+        }, timeoutMs);
+        this.pendingAcks.push(resolveAck);
         try { ws.send(JSON.stringify({ type: 'deploy', to: host, payload: text })); onPercent(60); }
-        catch (e) { clearTimeout(timer); reject(e as Error); }
+        catch (e) {
+          clearTimeout(timer);
+          const idx = this.pendingAcks.indexOf(resolveAck);
+          if (idx >= 0) this.pendingAcks.splice(idx, 1);
+          reject(e as Error);
+        }
       });
     }
     const MAX_ATTEMPTS = 3;

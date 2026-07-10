@@ -53,9 +53,15 @@
     <div class="target" *ngIf="targetHost">
       <span class="dot on"></span>Target: <b>&nbsp;{{ targetName }}</b>&nbsp;({{ targetHost }}:{{ targetPort }})
     </div>
-    <div class="prog" *ngIf="sending">
-      <ion-progress-bar [value]="percent/100"></ion-progress-bar>
-      <div class="pct">{{ percent }}%</div>
+    <div class="deploy-panel" *ngIf="sending">
+      <div class="dp-blur"></div>
+      <div class="dp-fill" [style.width.%]="100 - percent"></div>
+      <div class="dp-body">
+        <div class="dp-icon">⬆</div>
+        <div class="dp-stage">{{ stageLabel }}</div>
+        <ion-progress-bar [value]="percent/100"></ion-progress-bar>
+        <div class="pct">{{ percent }}%</div>
+      </div>
     </div>
     <div class="steps" *ngIf="steps.length">
       <div class="step" *ngFor="let s of steps">{{ s }}</div>
