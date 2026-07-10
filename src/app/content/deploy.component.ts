@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -50,6 +50,7 @@ export class DeployComponent implements OnInit, OnDestroy {
     private session: SessionService,
     private route: ActivatedRoute,
     private router: Router,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   get native(): boolean { return this.transfer.isNative; }
@@ -73,7 +74,10 @@ export class DeployComponent implements OnInit, OnDestroy {
     let creds: any; try { creds = await this.workspace.creds(); } catch { creds = undefined; }
     this.payload = this.content.build(this.draft, creds);
     this.sizeKb = Math.max(1, Math.round(JSON.stringify(this.payload).length / 1024));
-    this.sub = this.transfer.found$.subscribe((list) => (this.found = list));
+    this.sub = this.transfer.found$.subscribe((list) => {
+      this.found = list;
+      this.cdr.detectChanges();
+    });
   }
 
   /** Auto-stop discovery after this window — user can tap Scan again if not found. */

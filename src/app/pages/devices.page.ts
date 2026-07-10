@@ -135,6 +135,7 @@ export class DevicesPage implements OnInit, OnDestroy {
     const sub = this.transfer.found$.subscribe(async (list) => {
       for (const f of list) await this.deviceSvc.upsertReturning(f.deviceName || f.name, f.host, f.port);
       this.devices = await this.deviceSvc.list();
+      this.cdr.detectChanges();
     });
     try {
       await this.transfer.startScan();
