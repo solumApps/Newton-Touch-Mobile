@@ -53,7 +53,7 @@
   position: absolute; inset: 0; backdrop-filter: none; z-index: 1;
 }
 @supports (backdrop-filter: blur(1px)) {
-  .nt-receive-blur { backdrop-filter: blur(4px); }
+  .nt-receive-blur { backdrop-filter: blur(8px); }
 }
 .nt-receive-fillwrap { position: absolute; inset: 0; z-index: 2; }
 .nt-receive-fillbg {
@@ -63,7 +63,7 @@
 .nt-fluid-wave {
   position: absolute;
   left: 0;
-  bottom: 100%;
+  bottom: calc(100% - 1px);
   width: 200%;
   height: 15vh;
   -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1440 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M 0,100 C 150,-40 250,220 480,140 C 710,60 800,10 960,80 C 1120,150 1290,240 1440,100 L 1440,200 L 0,200 Z" /></svg>');
@@ -134,20 +134,6 @@
   font-weight: 400;
   color: rgba(255, 255, 255, 0.7);
   margin-bottom: 35px;
-}
-.nt-receive-track-wrap {
-  width: 70vw;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 2px;
-  margin-bottom: 20px;
-  overflow: hidden;
-}
-.nt-receive-track-fill {
-  height: 100%;
-  background: #fff;
-  border-radius: 2px;
-  transition: width 0.3s ease;
 }
 .nt-receive-stats-row {
   display: flex;
