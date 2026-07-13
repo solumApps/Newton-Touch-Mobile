@@ -60,27 +60,30 @@
           <div class="nt-fluid-wave base"></div>
           <div class="nt-fluid-body base"></div>
           <div class="nt-fluid-wave" [style.background]="themeBg"></div>
+          <div class="nt-fluid-wave w2" [style.background]="themeBg"></div>
           <div class="nt-fluid-body" [style.background]="themeBg"></div>
+          <div class="nt-bubbles"><i></i><i></i><i></i><i></i><i></i><i></i></div>
         </div>
       </div>
 
       <div class="nt-receive-content">
         <div class="nt-receive-icon-wrap" [class.done]="percent >= 100">
-          <svg *ngIf="percent < 100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          <span class="nt-receive-halo"></span>
+          <svg *ngIf="percent < 100" class="nt-icon-float" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="17 8 12 3 7 8"></polyline>
             <line x1="12" y1="3" x2="12" y2="15"></line>
           </svg>
-          <svg *ngIf="percent >= 100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+          <svg *ngIf="percent >= 100" class="nt-icon-pop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
             stroke-linecap="round" stroke-linejoin="round">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
         </div>
 
-        <div class="nt-receive-title">Deploying Content</div>
+        <div class="nt-receive-title">{{ percent >= 100 ? 'Deployment Complete' : 'Deploying Content' }}</div>
         <div class="nt-receive-pct-big">{{ percent }}<span>%</span></div>
-        <div class="nt-receive-stage">{{ stageLabel }}</div>
+        <div class="nt-receive-stage">{{ stageLabel }}<span class="nt-dots" *ngIf="percent < 100"><i>.</i><i>.</i><i>.</i></span></div>
 
         <div class="nt-receive-stats-row">
           <div class="nt-receive-stat" *ngIf="filesTotal">
@@ -97,7 +100,7 @@
       </div>
 
       <div class="nt-receive-footer">
-        Please don't close the app
+        {{ percent >= 100 ? 'Content delivered to the display' : "Please don't close the app" }}
       </div>
     </div>
     <div class="steps" *ngIf="steps.length">
