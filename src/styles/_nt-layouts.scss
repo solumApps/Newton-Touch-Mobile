@@ -4839,9 +4839,9 @@
 }
 
 .nt-result .hero-product-body .hp-img {
-  flex: 0 0 calc(var(--nt-vw)*14);
-  width: calc(var(--nt-vw)*14);
-  height: calc(var(--nt-vh)*32);
+  flex: 0 0 calc(var(--nt-vw) * 30);
+  width: calc(var(--nt-vw) * 30);
+  height: calc(var(--nt-vh) * 67);
   min-width: 0;
   background-size: contain;
   background-repeat: no-repeat;
@@ -4891,7 +4891,7 @@
   margin-top: calc(var(--nt-vh)*1.6);
   border: 0;
   border-radius: 999px;
-  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*2.6);
+  padding: calc(var(--nt-vh) * 1) calc(var(--nt-vw) * 1.5);
   background: var(--nt-accent, #FFCD00);
   color: #111;
   font-weight: 900;
