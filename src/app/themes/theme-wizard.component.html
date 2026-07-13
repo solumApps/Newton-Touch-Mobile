@@ -404,7 +404,7 @@
           <ng-container *ngIf="overlayRelevant">
             <div class="step-title sm">Text Overlay</div>
             <div class="seg">
-              <button class="tile" *ngFor="let s of overlayStyles" [class.sel]="cardOverlayEff===s.id" (click)="setCardOverlay(s.id)">{{ s.label }}</button>
+              <button class="tile" *ngFor="let s of homeOverlayStyles" [class.sel]="cardOverlayEff===s.id" (click)="setCardOverlay(s.id)">{{ s.label }}</button>
             </div>
             <div class="step-title sm" *ngIf="cardOverlayEff !== 'none' && (t.cardTextPos||'overlay-bottom')==='overlay-bottom'">Overlay shape</div>
             <div class="seg" *ngIf="cardOverlayEff !== 'none' && (t.cardTextPos||'overlay-bottom')==='overlay-bottom'">
@@ -694,7 +694,7 @@
         <ng-container *ngIf="interOverlayRelevant">
           <div class="step-title sm">Text Overlay</div>
           <div class="seg">
-            <button class="tile" *ngFor="let s of overlayStyles" [class.sel]="interOverlayEff===s.id" (click)="setInterOverlay(s.id)">{{ s.label }}</button>
+            <button class="tile" *ngFor="let s of interOverlayStyles" [class.sel]="interOverlayEff===s.id" (click)="setInterOverlay(s.id)">{{ s.label }}</button>
           </div>
           <div class="step-title sm" *ngIf="interOverlayEff !== 'none' && (t.intermediate.textPos||'overlay-bottom')==='overlay-bottom'">Overlay shape</div>
           <div class="seg" *ngIf="interOverlayEff !== 'none' && (t.intermediate.textPos||'overlay-bottom')==='overlay-bottom'">
