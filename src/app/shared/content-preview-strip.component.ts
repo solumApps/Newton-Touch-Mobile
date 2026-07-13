@@ -1165,7 +1165,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     const f = this.found; return (f && f.mapX != null ? f.mapX : 25) + '%';
   }
   get markerVisible(): boolean { return this.result?.route?.kind !== 'none'; }
-  get markerColor(): string | undefined { return this.result?.route?.color || this.theme?.result?.pathColor || this.theme?.result?.accent; }
+  get markerColor(): string | undefined { return this.found?.markerColor || this.result?.route?.color || this.theme?.result?.pathColor || this.theme?.result?.accent; }
   /* Route annotation (ResultContent.route) — mirrors LCD ResultComponent. */
   get routeColor(): string | undefined { return this.result?.route?.color || this.theme?.result?.pathColor; }
   get routeX(): string | null { const v = this.result?.route?.x; return v != null ? v + '%' : null; }
