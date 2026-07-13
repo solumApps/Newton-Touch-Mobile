@@ -116,14 +116,14 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
         <!-- HOME (LCD markup: .cards.layout-*) -->
         <ng-container *ngSwitchCase="'home'">
-        <div class="body fs-body" *ngIf="theme?.homeLayout==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || null" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--int-gap]="cardGapPx" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
-          <div class="fs-hero">
+        <div class="body fs-body" *ngIf="theme?.homeLayout==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || null" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--nt-int-bg]="theme?.background || null" [style.--int-gap]="cardGapPx" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
+          <div class="fs-hero" [style.background]="theme?.intermediate?.heroColor || null">
             <div class="fs-hero-title">{{ titleText || 'Product Finder' }}</div>
             <div class="fs-steps">
               <div class="fs-step" *ngFor="let s of homeFinderSteps; let i=index" [class.current]="i===0" [class.todo]="i>0"><span class="fs-step-lbl">{{ s }}</span><span class="fs-step-val">-</span><span class="fs-step-dot" *ngIf="i===0"></span></div>
             </div>
           </div>
-          <div class="fs-main">
+          <div class="fs-main" [style.background]="theme?.background || null">
             <div class="fs-top fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}"><div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div></div>
           <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{theme?.intermediate?.fsTextPos||'center'}} textalign-{{theme?.intermediate?.fsTextAlign||'center'}}">
               <div class="fs-card" *ngFor="let c of homeCells; let i = index" (click)="selectIntermediateBranch(i)" [class.cps-selected]="i===activeIntermediateHomeIndex">
@@ -177,8 +177,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         <!-- INTERMEDIATE (LCD markup: .body.int-*) -->
         <ng-container *ngSwitchCase="'inter'">
           <!-- finder-select: hero progress rail + selection cards + index strip -->
-          <div class="body fs-body" *ngIf="theme?.intermediateStyle==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || null" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--int-gap]="theme?.intermediate?.gapNum != null ? theme?.intermediate?.gapNum + 'px' : null" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
-            <div class="fs-hero">
+          <div class="body fs-body" *ngIf="theme?.intermediateStyle==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || null" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--nt-int-bg]="theme?.intermediate?.background || null" [style.--int-gap]="theme?.intermediate?.gapNum != null ? theme?.intermediate?.gapNum + 'px' : null" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
+            <div class="fs-hero" [style.background]="theme?.intermediate?.heroColor || null">
               <div class="fs-hero-title">{{ titleText || 'Product Finder' }}</div>
               <div class="fs-home"><span class="fs-home-ic">&#8962;</span> Home</div>
               <div class="fs-steps">
@@ -190,7 +190,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 </div>
               </div>
             </div>
-            <div class="fs-main">
+            <div class="fs-main" [style.background]="theme?.intermediate?.background || null">
               <div class="fs-top fs-back-{{theme?.intermediate?.fsBackPos||'left'}} fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}"><button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">&#8592;</button><div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div></div>
               <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{theme?.intermediate?.fsTextPos||'center'}} textalign-{{theme?.intermediate?.fsTextAlign||'center'}}">
                 <div class="fs-card" *ngFor="let it of interCells.slice(0,5); let i = index">
