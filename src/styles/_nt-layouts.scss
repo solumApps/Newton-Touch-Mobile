@@ -1233,6 +1233,40 @@
   max-width: 100%;
 }
 
+/* Text vertical position 'center': lift the circle/hexagon promo pill from its
+   default bottom anchor to the middle of the shape (cards carry pos-*). */
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle.pos-center .meta,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon.pos-center .meta {
+  top: 50% !important;
+  bottom: auto !important;
+  transform: translateY(-50%) !important;
+}
+
+/* The promo circle/hexagon .meta IS the pill — the generic pos-center rule also
+   pills the .name inside it, stacking a second scrim on the same card. Keep the
+   inner name bare; the meta provides the one and only overlay. */
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle .name,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon .name {
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Text Overlay 'none': the pill above forces a scrim with !important, so it needs
+   an explicit .no-overlay escape (the generic no-overlay rules only cover
+   pos-overlay-top/bottom). Name keeps a soft shadow for readability, mirroring
+   the generic .no-overlay treatment. */
+.nt-home .cards.no-overlay.layout-promo-categories .promo-rail .card.shape-circle .meta,
+.nt-home .cards.no-overlay.layout-promo-categories .promo-rail .card.shape-hexagon .meta {
+  background: transparent !important;
+}
+
+.nt-home .cards.no-overlay.layout-promo-categories .promo-rail .card.shape-circle .name,
+.nt-home .cards.no-overlay.layout-promo-categories .promo-rail .card.shape-hexagon .name {
+  color: var(--nt-text, #fff);
+  text-shadow: 0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0, 0, 0, .6);
+}
+
 .nt-home.surface-glass .layout-promo-categories .promo-rail .card,
 .nt-home.surface-raised .layout-promo-categories .promo-rail .card,
 .nt-home.surface-outlined .layout-promo-categories .promo-rail .card,
@@ -12396,4 +12430,86 @@
 .nt-stage [role="button"]:focus,
 .nt-stage [role="button"]:active {
   outline: 0;
+}
+
+/* ============================ TEXT OVERLAY STYLES ============================
+   The wizard's Text Overlay tiles (Gradient / Solid / Tint / None) map to
+   container classes emitted identically by the mobile preview strip and the
+   LCD pages:  .cards.ovl-<style> (home)  ·  .body.ovl-<style> (intermediate).
+   - gradient (default): the per-position looks authored above stay as-is
+   - solid: text bands/pills use the FULL overlay color (no gradient fade)
+   - tint:  translucent wash across the card image; bands/pills go transparent
+            and the name keeps a soft shadow for readability
+   - none:  handled by .no-overlay (emitters treat style 'none' as no-overlay)
+   Placed last so equal-specificity overrides also win on source order.
+   Chromium-66-safe: classes, [class*=], ::after, opacity — no modern syntax. */
+
+/* ---- HOME · solid ---- */
+.nt-home .cards.ovl-solid .card.content-image-text.pos-overlay-bottom .meta,
+.nt-home .cards.ovl-solid .card.content-image-text.pos-overlay-top .meta {
+  background: var(--nt-overlay, rgba(0, 0, 0, .6)) !important;
+}
+
+/* ---- HOME · tint ---- */
+.nt-home .cards.ovl-tint .card .img {
+  position: relative;
+}
+
+.nt-home .cards.ovl-tint .card .img::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--nt-overlay, rgba(0, 0, 0, .6));
+  opacity: .45;
+  pointer-events: none;
+}
+
+.nt-home .cards.ovl-tint .card.content-image-text.pos-overlay-bottom .meta,
+.nt-home .cards.ovl-tint .card.content-image-text.pos-overlay-top .meta,
+.nt-home .cards.ovl-tint .card.content-image-text.pos-center .name,
+.nt-home .cards.ovl-tint.layout-promo-categories .promo-rail .card.shape-circle .meta,
+.nt-home .cards.ovl-tint.layout-promo-categories .promo-rail .card.shape-hexagon .meta {
+  background: transparent !important;
+}
+
+.nt-home .cards.ovl-tint .card .name {
+  text-shadow: 0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0, 0, 0, .6);
+}
+
+/* ---- INTERMEDIATE · solid ----
+   Overlay text renders as .name pills / .meta bands depending on the style —
+   cover both under any int-textpos-overlay-* variant. */
+.nt-inter .body.ovl-solid[class*="int-textpos-overlay"] .item .name,
+.nt-inter .body.ovl-solid[class*="int-textpos-overlay"] .item .meta {
+  background: var(--nt-overlay, rgba(0, 0, 0, .6)) !important;
+}
+
+/* ---- INTERMEDIATE · tint ---- */
+.nt-inter .body.ovl-tint .item .img {
+  position: relative;
+}
+
+.nt-inter .body.ovl-tint .item .img::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--nt-overlay, rgba(0, 0, 0, .6));
+  opacity: .45;
+  pointer-events: none;
+}
+
+.nt-inter .body.ovl-tint[class*="int-textpos-overlay"] .item .name,
+.nt-inter .body.ovl-tint[class*="int-textpos-overlay"] .item .meta,
+.nt-inter .body.ovl-tint.int-textpos-center .item .name {
+  background: transparent !important;
+}
+
+.nt-inter .body.ovl-tint .item .name {
+  text-shadow: 0 calc(var(--nt-vh)*0.2) calc(var(--nt-vh)*0.4) rgba(0, 0, 0, .6);
 }

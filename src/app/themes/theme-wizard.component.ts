@@ -1045,10 +1045,42 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     { id: 'gradient', label: 'Gradient' }, { id: 'solid', label: 'Solid' }, { id: 'tint', label: 'Tint' }, { id: 'none', label: 'None' },
   ];
 
+  /** True when the current Home combo actually renders a GRADIENT band (verified
+   *  against the LCD renderer): image-text overlay-top/bottom on a RECT card with
+   *  the footer-bar overlay geometry, in any arrangement except promo-categories.
+   *  Everywhere else the scrim is flat — indistinguishable from Solid — so the
+   *  Gradient tile is hidden and a saved 'gradient' highlights as Solid. */
+  get homeGradientApplies(): boolean {
+    return this.t.cardContent === 'image-text'
+      && (this.t.cardTextPos === 'overlay-bottom' || this.t.cardTextPos === 'overlay-top')
+      && this.t.homeLayout !== 'promo-categories'
+      && this.t.cardShape === 'rect'
+      && this.cardOverlayShapeEff === 'bar';
+  }
+  get homeOverlayStyles(): { id: CardOverlayStyle; label: string }[] {
+    return this.homeGradientApplies ? this.overlayStyles : this.overlayStyles.filter((s) => s.id !== 'gradient');
+  }
+
+  /** Intermediate gradient band exists only in Columns · rect · overlay-top/bottom
+   *  with the default bar geometry (verified on the LCD renderer). */
+  get interGradientApplies(): boolean {
+    const pos = this.t.intermediate.textPos || 'overlay-bottom';
+    return this.t.intermediateStyle === 'columns'
+      && (this.t.intermediate.cardShape || 'rect') === 'rect'
+      && (pos === 'overlay-bottom' || pos === 'overlay-top')
+      && this.interOverlayShapeEff !== 'pill';
+  }
+  get interOverlayStyles(): { id: CardOverlayStyle; label: string }[] {
+    return this.interGradientApplies ? this.overlayStyles : this.overlayStyles.filter((s) => s.id !== 'gradient');
+  }
+
   /** Effective Home overlay style: 'none' when the overlay is off, else the
-   *  chosen scrim style (default 'gradient'). */
+   *  chosen scrim style (default 'gradient'; a gradient that cannot render in
+   *  the current combo highlights as Solid — that IS what renders). */
   get cardOverlayEff(): CardOverlayStyle {
-    return this.t.cardTextOverlay === false ? 'none' : (this.t.cardOverlayStyle || 'gradient');
+    if (this.t.cardTextOverlay === false) return 'none';
+    const s = this.t.cardOverlayStyle || 'gradient';
+    return s === 'gradient' && !this.homeGradientApplies ? 'solid' : s;
   }
   /** Pick a Home overlay style; 'none' turns the overlay off. Keeps
    *  cardTextOverlay + cardOverlayStyle in sync so both the .no-overlay and
@@ -1059,7 +1091,9 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   }
   /** Effective Intermediate overlay style (mirrors cardOverlayEff). */
   get interOverlayEff(): CardOverlayStyle {
-    return this.t.intermediate.textOverlay === false ? 'none' : (this.t.intermediate.overlayStyle || 'gradient');
+    if (this.t.intermediate.textOverlay === false) return 'none';
+    const s = this.t.intermediate.overlayStyle || 'gradient';
+    return s === 'gradient' && !this.interGradientApplies ? 'solid' : s;
   }
   setInterOverlay(id: CardOverlayStyle): void {
     this.t.intermediate.overlayStyle = id;
