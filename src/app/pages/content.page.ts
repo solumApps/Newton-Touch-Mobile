@@ -9,7 +9,7 @@ import { WorkspaceService } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
 import { NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderComponent } from '../shared/ui';
 import { Subscription } from 'rxjs';
-import { BAKERY_GLOW_SAMPLE_ID } from '../services/sample-content';
+import { BAKERY_GLOW_SAMPLE_ID, FURNITURE_SAMPLE_ID, SUPERMARKET2_SAMPLE_ID } from '../services/sample-content';
 
 @Component({
   selector: 'app-content',
@@ -107,7 +107,9 @@ export class ContentPage implements OnInit, OnDestroy {
     return out;
   }
 
-  private isSample(d: ContentDraft): boolean { return d.id === BAKERY_GLOW_SAMPLE_ID; }
+  private isSample(d: ContentDraft): boolean {
+    return d.id === BAKERY_GLOW_SAMPLE_ID || d.id === SUPERMARKET2_SAMPLE_ID || d.id === FURNITURE_SAMPLE_ID;
+  }
 
   private sortContent(list: ContentDraft[]): ContentDraft[] {
     return [...list].sort((a, b) => {
@@ -126,6 +128,8 @@ export class ContentPage implements OnInit, OnDestroy {
   }
 
   previewImage(c: ContentDraft): string | undefined {
+    const sampleCover = this.sampleCover(c.id);
+    if (sampleCover) return sampleCover;
     return c.home.find((card) => !!card.image)?.image
       || c.result.promoImage
       || c.result.products.find((p) => !!p.image)?.image
@@ -133,6 +137,13 @@ export class ContentPage implements OnInit, OnDestroy {
       || Object.values(c.itemResults || {}).flatMap((r) => r.products || []).find((p) => !!p.image)?.image
       || c.screensaver?.media?.[0]
       || c.header?.logo;
+  }
+
+  private sampleCover(id: string): string | undefined {
+    if (id === BAKERY_GLOW_SAMPLE_ID) return 'assets/sample/covers/bakery-glow-cover.svg';
+    if (id === SUPERMARKET2_SAMPLE_ID) return 'assets/sample/covers/supermarket2-cover.svg';
+    if (id === FURNITURE_SAMPLE_ID) return 'assets/sample/covers/furniture-cover.svg';
+    return undefined;
   }
 
   private searchText(d: ContentDraft): string {

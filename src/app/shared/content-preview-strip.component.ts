@@ -125,8 +125,8 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
           <div class="fs-main">
             <div class="fs-top fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}"><div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div></div>
-            <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{theme?.intermediate?.fsTextPos||'center'}} textalign-{{theme?.intermediate?.fsTextAlign||'center'}}">
-              <div class="fs-card" *ngFor="let c of homeCells; let i = index">
+          <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{theme?.intermediate?.fsTextPos||'center'}} textalign-{{theme?.intermediate?.fsTextAlign||'center'}}">
+              <div class="fs-card" *ngFor="let c of homeCells; let i = index" (click)="selectIntermediateBranch(i)" [class.cps-selected]="i===activeIntermediateHomeIndex">
                 <div class="fs-card-img" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='text-only'" [class.no-img]="!c.image && !finderUsePh" [style.background-image]="c.image ? 'url('+c.image+')' : (finderUsePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null"></div>
                 <span class="fs-card-nm" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='image-only'">{{ c.name }}</span>
               </div>
@@ -150,7 +150,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- promo-categories: scrollable rail, copy pinned left (mirrors LCD) -->
           <div class="promo-rail" *ngIf="theme?.homeLayout==='promo-categories'">
             <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                 [class.has-img]="!!c.image || (usePh && theme?.cardContent !== 'icon-text')" *ngFor="let c of homeCells; let i = index">
+                 [class.has-img]="!!c.image || (usePh && theme?.cardContent !== 'icon-text')" [class.cps-selected]="i===activeIntermediateHomeIndex" *ngFor="let c of homeCells; let i = index" (click)="selectIntermediateBranch(i)">
               <div class="img" *ngIf="theme?.cardContent !== 'text-only'" [class.placeholder]="!c.image && !usePh" [style.background-image]="c.image ? 'url('+c.image+')' : (usePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="(!c.image && !usePh) ? theme?.accent : null"></div>
               <div class="meta" *ngIf="theme?.cardContent !== 'image-only'"><span class="name">{{ c.name }}</span><span class="price" *ngIf="c.price">{{ c.price }}<span class="unit" *ngIf="c.unit"> / {{ c.unit }}</span></span></div>
             </div>
@@ -158,7 +158,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- h-scroll: single horizontally-scrolling rail -->
           <div class="h-scroll-rail" *ngIf="theme?.homeLayout==='h-scroll'">
             <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                 [class.has-img]="!!c.image || (usePh && theme?.cardContent !== 'icon-text')" *ngFor="let c of homeCells; let i = index">
+                 [class.has-img]="!!c.image || (usePh && theme?.cardContent !== 'icon-text')" [class.cps-selected]="i===activeIntermediateHomeIndex" *ngFor="let c of homeCells; let i = index" (click)="selectIntermediateBranch(i)">
               <div class="img" [class.placeholder]="!c.image && !usePh" [style.background-image]="c.image ? 'url('+c.image+')' : (usePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="(!c.image && !usePh) ? theme?.accent : null"></div>
               <div class="meta"><span class="name">{{ c.name }}</span><span class="price" *ngIf="c.price">{{ c.price }}<span class="unit" *ngIf="c.unit"> / {{ c.unit }}</span></span></div>
             </div>
@@ -166,7 +166,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- all other layouts -->
           <ng-container *ngIf="theme?.homeLayout!=='h-scroll' && theme?.homeLayout!=='promo-categories'">
             <div class="card shape-{{theme?.cardShape}} content-{{theme?.cardContent}} pos-{{theme?.cardTextPos}}"
-                 [class.featured]="i===0" [class.has-img]="!!c.image || (usePh && theme?.cardContent !== 'icon-text')" *ngFor="let c of homeCells; let i = index">
+                 [class.featured]="i===0" [class.has-img]="!!c.image || (usePh && theme?.cardContent !== 'icon-text')" [class.cps-selected]="i===activeIntermediateHomeIndex" *ngFor="let c of homeCells; let i = index" (click)="selectIntermediateBranch(i)">
               <div class="img" [class.placeholder]="!c.image && !usePh" [style.background-image]="c.image ? 'url('+c.image+')' : (usePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null" [style.background-color]="(!c.image && !usePh) ? theme?.accent : null"></div>
               <div class="meta"><span class="name">{{ c.name }}</span><span class="price" *ngIf="c.price">{{ c.price }}<span class="unit" *ngIf="c.unit"> / {{ c.unit }}</span></span></div>
             </div>
@@ -523,6 +523,13 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
         </div>
       </div>
+      <div class="cps-branch-nav" *ngIf="branchNavVisible">
+        <button type="button" class="cps-branch-step" (click)="selectIntermediateBranch(activeIntermediateHomeIndex - 1)" aria-label="Previous category">&#8249;</button>
+        <button type="button" class="cps-branch-chip" *ngFor="let c of branchNavItems; let i = index" [class.active]="i===activeIntermediateHomeIndex" (click)="selectIntermediateBranch(i)">
+          {{ c.name }}
+        </button>
+        <button type="button" class="cps-branch-step" (click)="selectIntermediateBranch(activeIntermediateHomeIndex + 1)" aria-label="Next category">&#8250;</button>
+      </div>
       <div class="cps-cap" *ngIf="showStripCaption">{{ caption || pageCaption }} preview</div>
     </div>
   `,
@@ -742,6 +749,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     } as ResultProduct));
   }
   private localResultIndex = 0;
+  private localIntermediateHomeIndex = 0;
   get activeResultIndex(): number {
     const n = this.resultCells.length;
     const raw = this.selectedResultIndex ?? this.localResultIndex;
@@ -753,6 +761,24 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   selectResult(i: number): void {
     this.localResultIndex = i;
     this.selectedResultIndexChange.emit(i);
+  }
+  get branchNavItems(): CardItem[] {
+    return (this.home || []).filter((c) => (c.children?.length || c.products?.length));
+  }
+  get branchNavVisible(): boolean {
+    return (this.page === 'inter' || this.page === 'result') && this.branchNavItems.length > 1;
+  }
+  get activeIntermediateHomeIndex(): number {
+    const n = this.branchNavItems.length;
+    if (!n) return 0;
+    return Math.max(0, Math.min(n - 1, Math.trunc(this.localIntermediateHomeIndex || 0)));
+  }
+  selectIntermediateBranch(i: number): void {
+    const n = this.branchNavItems.length;
+    if (!n) return;
+    this.localIntermediateHomeIndex = (Math.trunc(i) + n) % n;
+    this.localResultIndex = 0;
+    this.selectedResultIndexChange.emit(0);
   }
 
   get scaleNum(): number {
@@ -951,7 +977,8 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     // Mirror the LCD runtime (IntermediateComponent.load): the intermediate page
     // shows the *opened* node's OWN children first, and only falls back to the
     // SHARED default intermediate list when that node has no custom subtree.
-    const ownChildren = this.home?.[0]?.children || [];
+    const selectedBranch = this.branchNavItems[this.activeIntermediateHomeIndex] || this.home?.[0];
+    const ownChildren = selectedBranch?.children || [];
     if (ownChildren.length) return ownChildren;
     return this.intermediate || [];
   }
@@ -1028,14 +1055,16 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: labels[i % labels.length] } as CardItem));
   }
   get resultCells(): ResultProduct[] {
-    const real = (this.result?.products || []).slice(0, 6);
+    const branchProducts = this.intermediateSource.flatMap((c) => c.products || []);
+    const real = (branchProducts.length ? branchProducts : (this.result?.products || [])).slice(0, 6);
     if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
     const labels = this.previewLabels('result');
     const count = this.resTpl === 'catalog-grid' ? 6 : 3;
     return Array.from({ length: count }, (_, i) => ({ id: 'ph' + i, name: labels[i % labels.length] } as ResultProduct));
   }
   get promoResultCells(): ResultProduct[] {
-    const real = this.result?.products || [];
+    const branchProducts = this.intermediateSource.flatMap((c) => c.products || []);
+    const real = branchProducts.length ? branchProducts : (this.result?.products || []);
     if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
     const labels = this.previewLabels('result');
     return Array.from({ length: 8 }, (_, i) => ({ id: 'promo-ph' + i, name: labels[i % labels.length] } as ResultProduct));
