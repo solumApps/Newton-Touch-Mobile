@@ -8811,6 +8811,13 @@
 /* ============================================================================
    finder-select — intermediate (progress rail + selection cards + index strip)
    ========================================================================== */
+.nt-inter {
+  --fs-accent: var(--nt-int-accent, var(--prm-accent, #4ea1ff));
+}
+.nt-home.nt-inter {
+  --fs-accent: var(--nt-accent, var(--prm-accent, #4ea1ff));
+}
+
 .nt-inter .body.fs-body {
   display: flex;
   padding: 0;
@@ -8844,7 +8851,7 @@
   background: rgba(255, 255, 255, .1);
   border-radius: 999px;
   font-weight: 700;
-  color: var(--prm-accent, #4ea1ff);
+  color: var(--fs-accent, #4ea1ff);
   cursor: pointer;
   font-size: calc(var(--nt-vw)*1.15);
 }
@@ -8885,7 +8892,7 @@
 }
 
 .nt-inter .fs-step-ic {
-  color: var(--prm-accent, #4ea1ff);
+  color: var(--fs-accent, #4ea1ff);
   font-weight: 900;
   font-size: calc(var(--nt-vw)*0.95);
 }
@@ -8894,7 +8901,7 @@
   width: calc(var(--nt-vw)*0.7);
   height: calc(var(--nt-vw)*0.7);
   border-radius: 50%;
-  background: var(--prm-accent, #4ea1ff);
+  background: var(--fs-accent, #4ea1ff);
 }
 
 .nt-inter .fs-main {
@@ -9024,7 +9031,7 @@
 
 .nt-inter .fs-letter.active,
 .nt-inter .fs-val.active {
-  color: var(--prm-accent, #185fa5);
+  color: var(--fs-accent, #185fa5);
   font-weight: 900;
 }
 
@@ -10313,7 +10320,7 @@
   background: rgba(255, 255, 255, .1);
   border-radius: 999px;
   font-weight: 700;
-  color: var(--prm-accent, #4ea1ff);
+  color: var(--fs-accent, #4ea1ff);
   cursor: pointer;
   font-size: calc(var(--nt-vw)*1.15);
 }
@@ -10354,7 +10361,7 @@
 }
 
 .nt-inter .fs-step-ic {
-  color: var(--prm-accent, #4ea1ff);
+  color: var(--fs-accent, #4ea1ff);
   font-weight: 900;
   font-size: calc(var(--nt-vw)*0.95);
 }
@@ -10363,7 +10370,7 @@
   width: calc(var(--nt-vw)*0.7);
   height: calc(var(--nt-vw)*0.7);
   border-radius: 50%;
-  background: var(--prm-accent, #4ea1ff);
+  background: var(--fs-accent, #4ea1ff);
 }
 
 .nt-inter .fs-main {
@@ -10493,7 +10500,7 @@
 
 .nt-inter .fs-letter.active,
 .nt-inter .fs-val.active {
-  color: var(--prm-accent, #185fa5);
+  color: var(--fs-accent, #185fa5);
   font-weight: 900;
 }
 
@@ -11562,7 +11569,7 @@
 
 .nt-inter .fs-step.current {
   background: rgba(255, 255, 255, .16);
-  border-color: var(--prm-accent, #4ea1ff);
+  border-color: var(--fs-accent, #4ea1ff);
   box-shadow: 0 0 calc(var(--nt-vw)*1.1) rgba(78, 161, 255, .22);
 }
 
@@ -11640,6 +11647,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   box-sizing: border-box;
+  color: var(--nt-int-text, #111827);
 }
 
 .nt-inter .fs-cards.content-image-only .fs-card-nm {
@@ -11796,8 +11804,25 @@
 }
 
 .nt-inter .fs-cards.content-text-only .fs-card,
-.nt-inter .fs-cards.content-icon-text .fs-card {
-  background: #eef3f8;
+.nt-inter .fs-cards.content-icon-text .fs-card,
+.nt-inter .fs-cards.content-image-text .fs-card {
+  background: var(--nt-int-card, #eef3f8);
+}
+
+.nt-home.nt-inter .fs-cards.content-text-only .fs-card,
+.nt-home.nt-inter .fs-cards.content-icon-text .fs-card,
+.nt-home.nt-inter .fs-cards.content-image-text .fs-card {
+  background: var(--nt-card, #eef3f8);
+}
+
+.nt-home.nt-inter .fs-card-nm {
+  color: var(--nt-text, #2c2c2a);
+}
+
+.nt-home.nt-inter .fs-cards.content-text-only .fs-card-nm,
+.nt-home.nt-inter .fs-cards.content-icon-text .fs-card-nm,
+.nt-home.nt-inter .fs-cards.content-image-text .fs-card-nm {
+  color: var(--nt-text, #111827);
 }
 
 .nt-inter .fs-cards.content-text-only .fs-card {
@@ -11843,12 +11868,13 @@
   top: 50%;
   transform: translateY(-50%);
   text-align: center;
-  color: var(--prm-accent, #185fa5);
+  color: var(--fs-accent, #185fa5);
   font-size: calc(var(--nt-vw)*2.6);
   line-height: 1;
 }
 
-.nt-inter .fs-cards.content-icon-text .fs-card-nm {
+.nt-inter .fs-cards.content-icon-text .fs-card-nm,
+.nt-inter .fs-cards.content-image-text .fs-card-nm {
   width: 100%;
   padding: 0;
   line-height: 1.12;
@@ -12011,7 +12037,7 @@
 }
 
 .nt-inter .fs-step.done .fs-step-val {
-  color: var(--prm-accent, #4ea1ff);
+  color: var(--fs-accent, #4ea1ff);
 }
 
 .nt-inter .fs-step.todo .fs-step-val {
