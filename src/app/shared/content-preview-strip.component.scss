@@ -51,10 +51,10 @@ app-content-preview-strip {
   background: var(--nt-accent, #ffcd00);
   color: #111827;
 }
-.prev .cps-selected {
-  outline: calc(var(--nt-vh, 1px) * .8) solid var(--nt-accent, #ffcd00);
-  outline-offset: calc(var(--nt-vh, 1px) * .7);
-}
+// .prev .cps-selected {
+//   outline: calc(var(--nt-vh, 1px) * .8) solid var(--nt-accent, #ffcd00);
+//   outline-offset: calc(var(--nt-vh, 1px) * .7);
+// }
 
 /* ===== Live preview frame (locks the LCD 1920:540 aspect; mobile-only CSS,
    so aspect-ratio is fine here — the LCD device never loads this file) ===== */
