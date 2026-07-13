@@ -11979,7 +11979,7 @@
   padding: calc(var(--nt-vh)*0.55) calc(var(--nt-vw)*0.7);
   background: var(--nt-overlay, rgba(0, 0, 0, .5));
   border-radius: 999px;
-  color: #fff;
+  // color: #fff;
 }
 
 .nt-inter .fs-cards[class*="textpos-overlay"]:not(.content-text-only) .fs-card-nm,
