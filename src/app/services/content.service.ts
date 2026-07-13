@@ -4,7 +4,7 @@ import { Preferences } from '@capacitor/preferences';
 import type { LayoutJson, AppMode, ThemeTokens, CardItem, ResultProduct, EslLink, EslBlinkBy, Screensaver, FieldSource, ResultContent, MediaContent, CustomCanvasContent, ProductPromoContent } from '@contract/layout';
 import { ThemeService } from './theme.service';
 import { ImageStoreService } from './image-store.service';
-import { bakeryGlowSampleDraft, BAKERY_GLOW_SAMPLE_ID, BEAUTY_GLOW_SAMPLE_ID, FRESH_MARKET_SAMPLE_ID } from './sample-content';
+import { bakeryGlowSampleDraft, supermarket2SampleDraft, furnitureSampleDraft, BAKERY_GLOW_SAMPLE_ID, BEAUTY_GLOW_SAMPLE_ID, FRESH_MARKET_SAMPLE_ID, SUPERMARKET2_SAMPLE_ID, FURNITURE_SAMPLE_ID } from './sample-content';
 
 export interface ContentDraft {
   id: string;
@@ -77,8 +77,8 @@ export interface ContentDraft {
 const KEY = 'nt.content';
 /** Legacy Fresh Market seed flag. Kept only so older installs can migrate cleanly. */
 const SEED_FLAG = 'nt.content.samplesSeeded';
-/** Versioned so the built-in sample can be refreshed once without touching user drafts. */
-const BAKERY_SEED_FLAG = 'nt.content.bakeryGlowSampleSeeded.v2';
+/** Versioned so the built-in samples can be refreshed once without touching user drafts. */
+const BAKERY_SEED_FLAG = 'nt.content.bundledSamplesSeeded.v4';
 
 @Injectable({ providedIn: 'root' })
 export class ContentService {
@@ -213,14 +213,20 @@ export class ContentService {
   private async seedSamplesOnce(): Promise<void> {
     const { value: bakerySeeded } = await Preferences.get({ key: BAKERY_SEED_FLAG });
     if (bakerySeeded) return;
-    const legacyNames = new Set(['Fresh Market – Sample', 'Fresh Market - Sample', 'Fresh Market - sample', 'Beauty Glow - Sample']);
+    const legacyNames = new Set(['Fresh Market – Sample', 'Fresh Market - Sample', 'Fresh Market - sample', 'Beauty Glow - Sample', 'Supermarket2 - Sample', 'Furniture - Sample']);
     const withoutLegacySample = this.cache.filter((d) =>
-      d.id !== FRESH_MARKET_SAMPLE_ID && d.id !== BEAUTY_GLOW_SAMPLE_ID && d.id !== BAKERY_GLOW_SAMPLE_ID && !legacyNames.has(d.name));
+      d.id !== FRESH_MARKET_SAMPLE_ID && d.id !== BEAUTY_GLOW_SAMPLE_ID && d.id !== BAKERY_GLOW_SAMPLE_ID && d.id !== SUPERMARKET2_SAMPLE_ID && d.id !== FURNITURE_SAMPLE_ID && !legacyNames.has(d.name));
     let next = withoutLegacySample;
-    const theme = ThemeService.predefined().find((t) => t.id === 'pre_fresh_market');
-    if (theme) {
-      next = [bakeryGlowSampleDraft(theme), ...next];
-    }
+    const themes = ThemeService.predefined();
+    const bakery = themes.find((t) => t.id === 'pre_fresh_market');
+    const supermarket2 = themes.find((t) => t.id === 'pre_supermarket2');
+    const furniture = themes.find((t) => t.id === 'pre_furniture');
+    next = [
+      ...(supermarket2 ? [supermarket2SampleDraft(supermarket2)] : []),
+      ...(furniture ? [furnitureSampleDraft(furniture)] : []),
+      ...(bakery ? [bakeryGlowSampleDraft(bakery)] : []),
+      ...next,
+    ];
     if (next !== this.cache) {
       this.cache = next;
       await this.persist(this.cache);

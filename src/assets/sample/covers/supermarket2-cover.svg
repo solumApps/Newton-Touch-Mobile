@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#003f2b"/>
+      <stop offset=".56" stop-color="#006b4e"/>
+      <stop offset="1" stop-color="#ffcd00"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" rx="36" fill="url(#bg)"/>
+  <circle cx="536" cy="72" r="142" fill="#ffcd00" opacity=".22"/>
+  <circle cx="112" cy="306" r="116" fill="#001f18" opacity=".28"/>
+  <text x="44" y="78" fill="#ffffff" font-family="Arial, sans-serif" font-size="38" font-weight="800">Supermarket2</text>
+  <text x="46" y="112" fill="#ffef8a" font-family="Arial, sans-serif" font-size="18" font-weight="700">Fresh grocery sample</text>
+  <g transform="translate(74 166)">
+    <circle cx="54" cy="62" r="46" fill="#86efac"/>
+    <path d="M32 54c16-18 33-25 51-20M28 76c22 9 44 9 66-2" fill="none" stroke="#064e3b" stroke-width="10" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(224 154)">
+    <circle cx="68" cy="74" r="58" fill="#fde68a"/>
+    <path d="M42 86c28-16 55-17 82-1" fill="none" stroke="#92400e" stroke-width="12" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(410 164)">
+    <circle cx="68" cy="62" r="50" fill="#fca5a5"/>
+    <path d="M46 42l44 44M90 42L46 86" stroke="#7f1d1d" stroke-width="11" stroke-linecap="round"/>
+  </g>
+  <path d="M0 250L640 128v232H0z" fill="url(#shine)"/>
+</svg>
