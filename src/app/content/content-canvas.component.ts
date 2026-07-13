@@ -455,7 +455,19 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
   addProductSpin(): void {
     this.add({ kind: 'spin', text: 'Upload 360° frames', fit: 'cover', x: 38, y: 10, w: 24, h: 80, radius: 22, frames: [], spin: { autoSpin: true, autoSpinFps: 15, dragToSpin: true, sensitivity: 8, loop: true } });
   }
-  async replaceImage(el: CanvasElement): Promise<void> { const src = await this.picker.pick('image/*'); if (src) { el.src = src; this.saveSoon(); } }
+  /** Canvas elements can span the full 1920px LCD width — pick at full LCD
+   *  resolution so a large product/hero image is never upscaled on the kiosk
+   *  (the default 1080px pick cap is tuned for small card tiles). */
+  private static readonly CANVAS_IMG_MAX_EDGE = 1920;
+
+  async replaceImage(el: CanvasElement): Promise<void> {
+    // Product Promo: highest fidelity — original bytes untouched when they fit,
+    // PNG preserved, no forced JPEG re-encode (product shots are the hero here).
+    const src = this.isPromo
+      ? await this.picker.pickHiFi('image/*', ContentCanvasComponent.CANVAS_IMG_MAX_EDGE)
+      : await this.picker.pick('image/*', ContentCanvasComponent.CANVAS_IMG_MAX_EDGE);
+    if (src) { el.src = src; this.saveSoon(); }
+  }
   async replaceVideo(el: CanvasElement): Promise<void> { const src = await this.picker.pickRaw('video/*'); if (src) { el.src = src; this.saveSoon(); } }
 
   // ----- 360° Product Spin (Product Promo) -----
