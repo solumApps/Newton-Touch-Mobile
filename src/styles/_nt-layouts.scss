@@ -1242,6 +1242,16 @@
   transform: translateY(-50%) !important;
 }
 
+/* The promo circle/hexagon .meta IS the pill — the generic pos-center rule also
+   pills the .name inside it, stacking a second scrim on the same card. Keep the
+   inner name bare; the meta provides the one and only overlay. */
+.nt-home .layout-promo-categories .promo-rail .card.shape-circle .name,
+.nt-home .layout-promo-categories .promo-rail .card.shape-hexagon .name {
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
 /* Text Overlay 'none': the pill above forces a scrim with !important, so it needs
    an explicit .no-overlay escape (the generic no-overlay rules only cover
    pos-overlay-top/bottom). Name keeps a soft shadow for readability, mirroring
