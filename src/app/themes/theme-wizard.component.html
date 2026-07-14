@@ -134,7 +134,6 @@
         <div *ngSwitchCase="'result'" class="stage result res-{{t.resultTemplate}}"
              [class.scroll-vertical]="resOverflowMatters && effectiveResultScrollMode==='vertical'" [class.scroll-horizontal]="resOverflowMatters && effectiveResultScrollMode==='horizontal'">
           <div class="result-tools" *ngIf="t.resultTemplate==='map-list'">
-            <span class="res-search">Search products...</span>
             <span class="res-sort"><span class="active">Popular</span><span>A-Z</span><span>Z-A</span></span>
           </div>
           <div class="map"></div>
