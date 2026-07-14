@@ -195,13 +195,37 @@ app-content-preview-strip {
 
 /* ===== Screensaver mock (no LCD layout equivalent) ===== */
 .prev .stage { flex: 1; padding: 5px; overflow: hidden; box-sizing: border-box; }
-.prev .stage.saver { position: relative; padding: 0; }
-.saver .ss-media { position: absolute; inset: 0; display: flex; }
-.saver .ss-media .ss-slide { flex: 1; background-size: cover; background-position: center; }
-.saver .ss-play { position: absolute; top: 8px; left: 8px; color: #fff; font-size: 12px; }
-.saver .ss-badge { position: absolute; top: 6px; right: 8px; color: #fff; background: rgba(0,0,0,.5); padding: 2px 6px; border-radius: 6px; font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
-.saver .ss-overlay { position: absolute; inset: 0; background: linear-gradient(rgba(0,0,0,.1), rgba(0,0,0,.55)); }
-.saver .ss-c { position: absolute; left: 0; right: 0; text-align: center; padding: 4px 8px; border-radius: 4px; color: #fff; }
+.prev .stage.saver { position: relative; padding: 0; overflow: hidden; }
+.saver .ss-media { position: absolute; inset: 0; }
+.saver .ss-media .ss-slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; }
+.saver .ss-ph { position: absolute; inset: 0; background-size: cover; background-position: center; }
+
+/* Single image: show only the first slide */
+.saver-single-image .ss-media .ss-slide { opacity: 1; }
+.saver-single-image .ss-media .ss-slide:not(:first-child) { display: none; }
+
+/* Slideshow: crossfade up to 3 slides (~2s each, 6s loop) */
+.saver-slideshow .ss-media .ss-slide { animation: ss-fade 6s linear infinite; }
+.saver-slideshow .ss-media .ss-slide:nth-child(1) { animation-delay: 0s; }
+.saver-slideshow .ss-media .ss-slide:nth-child(2) { animation-delay: 2s; }
+.saver-slideshow .ss-media .ss-slide:nth-child(3) { animation-delay: 4s; }
+@keyframes ss-fade {
+  0%   { opacity: 0; }
+  5%   { opacity: 1; }
+  28%  { opacity: 1; }
+  33%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Video: play the clip full-bleed with a centered play glyph */
+.saver .ss-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #000; }
+.saver .ss-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 26px; z-index: 3; pointer-events: none; text-shadow: 0 1px 5px rgba(0,0,0,.7); }
+.saver .ss-dots { position: absolute; left: 0; right: 0; bottom: 6px; display: flex; gap: 4px; justify-content: center; z-index: 3; }
+.saver .ss-dots i { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,.5); }
+.saver .ss-dots i.on { background: #fff; width: 8px; border-radius: 3px; }
+.saver .ss-badge { position: absolute; top: 6px; right: 8px; color: #fff; background: rgba(0,0,0,.5); padding: 2px 6px; border-radius: 6px; font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; z-index: 3; }
+.saver .ss-overlay { position: absolute; inset: 0; background: linear-gradient(rgba(0,0,0,.1), rgba(0,0,0,.55)); z-index: 1; }
+.saver .ss-c { position: absolute; left: 0; right: 0; text-align: center; padding: 4px 8px; border-radius: 4px; color: #fff; z-index: 2; }
 .saver .ss-c.ss-pos-center       { top: 50%; transform: translateY(-50%); }
 .saver .ss-c.ss-pos-top          { top: 10%; transform: none; }
 .saver .ss-c.ss-pos-bottom       { bottom: 10%; top: auto; transform: none; }

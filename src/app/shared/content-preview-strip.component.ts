@@ -518,16 +518,27 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         <!-- SCREENSAVER (studio mock — no LCD equivalent layout) -->
         <div *ngSwitchCase="'saver'" class="stage saver saver-{{screensaver?.mode || 'slideshow'}}">
           <div class="ss-media">
-            <ng-container *ngIf="(screensaver?.media?.length||0) > 0; else saverPlaceholders">
-              <span class="ss-slide" *ngFor="let m of (screensaver?.media || []).slice(0,3)" [style.background-image]="'url('+m+')'"></span>
+            <!-- VIDEO: play the clip full-bleed, fall back to a colored plate -->
+            <ng-container *ngIf="screensaver?.mode === 'video'">
+              <video class="ss-video" *ngIf="saverFirstMedia" [src]="saverFirstMedia" muted autoplay loop playsinline></video>
+              <div class="ss-ph" *ngIf="!saverFirstMedia" [style.background]="theme?.headerColor || '#2F006D'"></div>
             </ng-container>
-            <ng-template #saverPlaceholders>
-              <span class="ss-slide" [style.background]="theme?.headerColor"></span>
-              <span class="ss-slide" [style.background]="theme?.accent"></span>
-              <span class="ss-slide" [style.background]="theme?.background"></span>
-            </ng-template>
+            <!-- IMAGE (single-image + slideshow) -->
+            <ng-container *ngIf="screensaver?.mode !== 'video'">
+              <ng-container *ngIf="saverImages.length > 0; else saverPlaceholders">
+                <span class="ss-slide" *ngFor="let m of saverImages" [style.background-image]="'url('+m+')'"></span>
+              </ng-container>
+              <ng-template #saverPlaceholders>
+                <span class="ss-slide" [style.background]="theme?.headerColor || '#2F006D'"></span>
+                <span class="ss-slide" [style.background]="theme?.accent || '#FFCD00'"></span>
+                <span class="ss-slide" [style.background]="theme?.background || '#0F172A'"></span>
+              </ng-template>
+            </ng-container>
           </div>
           <span class="ss-play" *ngIf="screensaver?.mode === 'video'">&#9654;</span>
+          <div class="ss-dots" *ngIf="screensaver?.mode === 'slideshow' && saverRaw.length > 1">
+            <i *ngFor="let m of saverRaw; let i = index" [class.on]="i === 0"></i>
+          </div>
           <span class="ss-badge">{{ saverBadge }}</span>
           <div class="ss-overlay"></div>
           <div class="ss-c"
@@ -1140,6 +1151,17 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     const labels = this.previewLabels('result');
     return Array.from({ length: 8 }, (_, i) => ({ id: 'promo-ph' + i, name: labels[i % labels.length] } as ResultProduct));
   }
+  /** Raw uploaded screensaver media (first 3), regardless of mode. */
+  get saverRaw(): string[] { return (this.screensaver?.media || []).slice(0, 3); }
+  /** Slides to render: single-image → first only; slideshow → up to 3 (padded so the
+   *  crossfade never shows a blank slot); video handled separately by the template. */
+  get saverImages(): string[] {
+    const raw = this.saverRaw;
+    if (this.screensaver?.mode === 'single-image') return raw.slice(0, 1);
+    if (raw.length === 2) return [raw[0], raw[1], raw[1]];
+    return raw;
+  }
+  get saverFirstMedia(): string { return (this.screensaver?.media || [])[0] || ''; }
   get saverBadge(): string {
     const m = this.screensaver?.mode;
     return m === 'single-image' ? 'Single image' : m === 'video' ? 'Video' : 'Slideshow';
