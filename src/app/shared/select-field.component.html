@@ -1,17 +1,49 @@
 <div class="sf">
   <div class="sf-label" *ngIf="label">{{ label }}</div>
-  <button type="button" class="sf-trigger" [class.open]="open" [disabled]="disabled" (click)="toggle()">
-    <span class="sf-val" [class.ph]="!selectedLabel">{{ selectedLabel || placeholder }}</span>
+  <div
+    class="sf-trigger"
+    [class.open]="open"
+    [class.disabled]="disabled"
+    role="button"
+    [attr.tabindex]="disabled ? null : 0"
+    (click)="toggle()"
+    (keydown.enter)="toggle()"
+    (keydown.space)="$event.preventDefault(); toggle()"
+  >
+    <ng-container *ngIf="!open">
+      <span class="sf-val" [class.ph]="!selectedLabel">{{ selectedLabel || placeholder }}</span>
+    </ng-container>
+    <div class="sf-input-wrap" *ngIf="open" (pointerdown)="$event.stopPropagation()" (click)="$event.stopPropagation()">
+      <span class="sf-search-icon">🔍</span>
+      <input
+        #filterInput
+        type="text"
+        [(ngModel)]="filterText"
+        placeholder="Search..."
+        autocomplete="off"
+        spellcheck="false"
+        (pointerdown)="$event.stopPropagation()"
+        (mousedown)="$event.stopPropagation()"
+      />
+    </div>
     <span class="sf-caret">{{ open ? '▴' : '▾' }}</span>
-  </button>
-  <div class="sf-list" *ngIf="open">
-    <div class="sf-opt" *ngFor="let o of options" [class.sel]="o.value===value" (click)="pick(o.value)">
+  </div>
+  <div class="sf-list" *ngIf="open" role="listbox">
+    <button
+      class="sf-opt"
+      type="button"
+      *ngFor="let o of filteredOptions"
+      [class.sel]="o.value===value"
+      [attr.aria-selected]="o.value===value"
+      (pointerdown)="pick(o.value, $event)"
+      (click)="pick(o.value, $event)"
+    >
       <div>
         <div class="sf-opt-label">{{ o.label }}</div>
         <div class="sf-opt-sub" *ngIf="o.sub">{{ o.sub }}</div>
       </div>
       <span class="sf-tick" *ngIf="o.value===value">✓</span>
-    </div>
-    <div class="sf-empty" *ngIf="!options.length">{{ emptyText }}</div>
+    </button>
+    <div class="sf-empty" *ngIf="!filteredOptions.length">{{ emptyText }}</div>
   </div>
 </div>

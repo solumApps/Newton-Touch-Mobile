@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 export interface SelectOption { value: string; label: string; sub?: string; }
 
@@ -8,11 +9,11 @@ export interface SelectOption { value: string; label: string; sub?: string; }
 @Component({
   selector: 'app-select-field',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './select-field.component.html',
   styleUrls: ['./select-field.component.scss'],
 })
-export class SelectFieldComponent {
+export class SelectFieldComponent implements AfterViewChecked {
   @Input() label = '';
   @Input() placeholder = 'Select…';
   @Input() emptyText = 'No options available';
@@ -21,22 +22,79 @@ export class SelectFieldComponent {
   @Input() disabled = false;
   @Output() valueChange = new EventEmitter<string>();
 
-  @Input() open = false;
+  private _open = false;
+  @Input() set open(value: boolean) {
+    this._open = value;
+    if (!value) {
+      this.filterText = '';
+    }
+  }
+  get open(): boolean {
+    return this._open;
+  }
   @Output() openChange = new EventEmitter<boolean>();
+
+  @ViewChild('filterInput') filterInput?: ElementRef<HTMLInputElement>;
+  filterText = '';
 
   get selectedLabel(): string {
     return this.options.find((o) => o.value === this.value)?.label ?? '';
   }
+
+  get filteredOptions(): SelectOption[] {
+    const query = this.filterText.trim().toLowerCase();
+    if (!query) {
+      return this.options;
+    }
+
+    return this.options.filter((o) => {
+      const haystack = `${o.label} ${o.sub ?? ''}`.toLowerCase();
+      return haystack.includes(query);
+    });
+  }
+
   toggle(): void {
     if (!this.disabled) {
-      this.open = !this.open;
-      this.openChange.emit(this.open);
+      this.setOpen(!this.open);
     }
   }
-  pick(v: string): void {
+
+  close(): void {
+    this.setOpen(false);
+  }
+
+  private setOpen(open: boolean): void {
+    this.open = open;
+    this.openChange.emit(open);
+  }
+
+  /** Close when the user taps anywhere outside this field. */
+  @HostListener('document:pointerdown', ['$event'])
+  onDocumentPointerDown(event: PointerEvent): void {
+    if (this.open && !this.elementRef.nativeElement.contains(event.target as Node | null)) {
+      this.close();
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.open) {
+      this.close();
+    }
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.open && this.filterInput) {
+      this.filterInput.nativeElement.focus();
+    }
+  }
+
+  pick(v: string, event?: Event): void {
+    event?.stopPropagation();
     this.value = v;
     this.valueChange.emit(v);
-    this.open = false;
-    this.openChange.emit(false);
+    this.close();
   }
+
+  constructor(private elementRef: ElementRef<HTMLElement>) {}
 }
