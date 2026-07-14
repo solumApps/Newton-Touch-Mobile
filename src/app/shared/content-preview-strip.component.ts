@@ -523,13 +523,6 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           </div>
         </div>
       </div>
-      <div class="cps-branch-nav" *ngIf="branchNavVisible">
-        <button type="button" class="cps-branch-step" (click)="selectIntermediateBranch(activeIntermediateHomeIndex - 1)" aria-label="Previous category">&#8249;</button>
-        <button type="button" class="cps-branch-chip" *ngFor="let c of branchNavItems; let i = index" [class.active]="i===activeIntermediateHomeIndex" (click)="selectIntermediateBranch(i)">
-          {{ c.name }}
-        </button>
-        <button type="button" class="cps-branch-step" (click)="selectIntermediateBranch(activeIntermediateHomeIndex + 1)" aria-label="Next category">&#8250;</button>
-      </div>
       <div class="cps-cap" *ngIf="showStripCaption">{{ caption || pageCaption }} preview</div>
     </div>
   `,
@@ -765,9 +758,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get branchNavItems(): CardItem[] {
     return (this.home || []).filter((c) => (c.children?.length || c.products?.length));
   }
-  get branchNavVisible(): boolean {
-    return (this.page === 'inter' || this.page === 'result') && this.branchNavItems.length > 1;
-  }
+
   get activeIntermediateHomeIndex(): number {
     const n = this.branchNavItems.length;
     if (!n) return 0;
