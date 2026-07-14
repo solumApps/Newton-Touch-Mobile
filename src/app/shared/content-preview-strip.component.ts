@@ -433,9 +433,11 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             </div>
             <div class="fd-list">
               <div class="fd-sorts"><div class="fd-sort active">Recommend</div><div class="fd-sort">A&ndash;Z</div></div>
-              <div class="fd-prod" [class.found]="i===0" *ngFor="let p of finderCells; let i=index">
-                <div class="fd-prod-top"><div class="fd-prod-nm">{{ p.name }}</div><div class="fd-price"><span class="fd-sale-badge" *ngIf="theme?.result?.showSaleBadge!==false && p.onSale">SALE</span><span class="fd-orig" *ngIf="p.onSale && p.salePrice">{{ p.price }}</span><span class="fd-now" [class.sale]="p.onSale && p.salePrice">{{ (p.onSale && p.salePrice) ? p.salePrice : (p.price || '$58.88') }}</span></div></div>
-                <div class="fd-specs" *ngIf="p.specs?.length"><span class="fd-spec" *ngFor="let s of p.specs">{{ s.label }} &middot; {{ s.value }}</span></div>
+              <div class="fd-products">
+                <div class="fd-prod" [class.found]="i===0" *ngFor="let p of finderCells; let i=index">
+                  <div class="fd-prod-top"><div class="fd-prod-nm">{{ p.name }}</div><div class="fd-price"><span class="fd-sale-badge" *ngIf="theme?.result?.showSaleBadge!==false && p.onSale">SALE</span><span class="fd-orig" *ngIf="p.onSale && p.salePrice">{{ p.price }}</span><span class="fd-now" [class.sale]="p.onSale && p.salePrice">{{ (p.onSale && p.salePrice) ? p.salePrice : (p.price || '$58.88') }}</span></div></div>
+                  <div class="fd-specs" *ngIf="p.specs?.length"><span class="fd-spec" *ngFor="let s of p.specs">{{ s.label }} &middot; {{ s.value }}</span></div>
+                </div>
               </div>
             </div>
             <div class="fd-detail" *ngIf="finderFound as r">
@@ -1123,7 +1125,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   get resultCells(): ResultProduct[] {
     const branchProducts = this.intermediateSource.flatMap((c) => c.products || []);
-    const real = (branchProducts.length ? branchProducts : (this.result?.products || [])).slice(0, 6);
+    const real = this.resTpl === 'finder-detail'
+      ? (this.result?.products || [])
+      : (branchProducts.length ? branchProducts : (this.result?.products || [])).slice(0, 6);
     if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
     const labels = this.previewLabels('result');
     const count = this.resTpl === 'catalog-grid' ? 6 : 3;

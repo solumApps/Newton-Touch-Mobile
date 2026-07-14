@@ -203,6 +203,35 @@ describe('ContentPreviewStripComponent', () => {
     expect(fixture.nativeElement.querySelectorAll('.fs-card').length).toBe(7);
   });
 
+  it('renders all shared result products for finder-detail', () => {
+    fixture.componentInstance.page = 'result';
+    fixture.componentInstance.theme = {
+      resultTemplate: 'finder-detail',
+      result: {},
+    } as any;
+    fixture.componentInstance.intermediate = [
+      { id: 'branch', name: 'Branch', products: [{ id: 'branch-product', name: 'Branch Product' }] },
+    ] as any;
+    fixture.componentInstance.forceSharedIntermediate = true;
+    fixture.componentInstance.result = {
+      products: Array.from({ length: 8 }, (_, i) => ({ id: `p${i}`, name: `Result Product ${i + 1}` })),
+    } as any;
+
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('.fd-prod').length).toBe(8);
+    expect(fixture.componentInstance.finderCells.map((p) => p.name)).toEqual([
+      'Result Product 1',
+      'Result Product 2',
+      'Result Product 3',
+      'Result Product 4',
+      'Result Product 5',
+      'Result Product 6',
+      'Result Product 7',
+      'Result Product 8',
+    ]);
+  });
+
   it('forces finder-select circle and hexagon text alignment to center', () => {
     fixture.componentInstance.theme = {
       intermediate: { fsCardShape: 'circle', fsTextAlign: 'left' },
