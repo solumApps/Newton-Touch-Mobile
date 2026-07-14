@@ -476,6 +476,7 @@
         <div class="step-title">Colors &amp; branding</div>
         <app-color-picker *ngIf="t.showHeader" label="Header" hint="top bar" [value]="t.headerColor" (valueChange)="t.headerColor=$event"></app-color-picker>
         <app-color-picker *ngIf="t.showHeader" label="Header text" hint="title and caption" [value]="t.headerTextColor || '#FFFFFF'" (valueChange)="t.headerTextColor=$event"></app-color-picker>
+        <app-color-picker *ngIf="t.homeLayout === 'finder-select' || t.intermediateStyle === 'finder-select'" label="Prompt text" hint="finder prompt" [value]="t.intermediate?.promptTextColor || t.intermediate?.headerTextColor || t.headerTextColor || '#FFFFFF'" (valueChange)="t.intermediate.promptTextColor=$event"></app-color-picker>
         <app-color-picker *ngIf="!t.backgroundImage" label="Card area background" [allowGradient]="true" [value]="t.background" (valueChange)="t.background=$event" [presets]="bgPresets"></app-color-picker>
         <div class="media-row">
           <button class="btn-o media-btn" (click)="pickBackground('home')">{{ t.backgroundImage ? 'Replace home background image' : 'Upload home background image' }}</button>

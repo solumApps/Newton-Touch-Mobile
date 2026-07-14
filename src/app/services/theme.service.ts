@@ -137,6 +137,7 @@ export class ThemeService {
     out.intermediate = {
       ...d.intermediate,
       ...(t?.intermediate || {}),
+      promptTextColor: t?.intermediate?.promptTextColor ?? (t?.intermediate?.headerTextColor ?? d.intermediate.headerTextColor),
       showHeader: t?.intermediate?.showHeader ?? true,
       showTracklist: t?.intermediate?.showTracklist ?? true,
       navPosition: t?.intermediate?.navPosition ?? (t?.nav?.position ?? d.intermediate.navPosition),
