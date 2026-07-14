@@ -334,6 +334,24 @@
             <div class="step-title sm">Text horizontal alignment</div>
             <div class="seg"><button class="tile" *ngFor="let a of cardAligns" [class.sel]="(t.intermediate.fsTextAlign||'center')===a.id" (click)="t.intermediate.fsTextAlign=a.id">{{ a.label }}</button></div>
           </ng-container>
+
+          <!-- finder-select cards sizing — drives --nt-int-scale (item size) and --int-gap (card gap),
+               the same variables the LCD home finder-select renders from intermediate.itemSizeScale + cardGapNum. -->
+          <div class="step-title sm">Item size</div>
+          <p class="hint">Drag to set the physical size of each finder-select card.</p>
+          <div class="slider-row">
+            <input type="range" class="nt-slider" min="0.7" [max]="intItemSizeMax" step="0.05" [value]="intItemSizeValue"
+                   (input)="setIntItemSize($any($event.target).value)" aria-label="Item size" />
+            <span class="slider-val">{{ (intItemSizeValue * 100) | number:'1.0-0' }}%</span>
+          </div>
+
+          <div class="step-title sm">Card gap</div>
+          <p class="hint">Spacing between finder-select cards. Drag to fine-tune.</p>
+          <div class="slider-row">
+            <input type="range" class="nt-slider" min="0" [max]="cardGapMax" step="1" [value]="cardGapValue"
+                   (input)="setCardGap($any($event.target).value)" aria-label="Card gap" />
+            <span class="slider-val">{{ cardGapValue }}px</span>
+          </div>
         </ng-container>
 
         <ng-container *ngIf="!isHeroStart && t.homeLayout!=='finder-select'">
