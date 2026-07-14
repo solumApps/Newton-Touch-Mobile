@@ -387,7 +387,7 @@ export interface ThemeTokens {
     indexNumberMin?: number;
     indexNumberMax?: number;
     indexNumberInterval?: number;
-    fsSortOrder?: 'az' | 'za';
+    fsSortOrder?: 'none' | 'az' | 'za';
     /** finder-select fs-card appearance (independent of the brand-rail/columns card controls). */
     fsCardContent?: CardContent;
     fsCardShape?: CardShape;

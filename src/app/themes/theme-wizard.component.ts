@@ -1261,6 +1261,9 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
       : this.t.backgroundImage;
     return image ? `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.28)), url("${image}") center/cover no-repeat, ${bg}` : bg;
   }
+  get homeCardAreaBackground(): string {
+    return this.t.backgroundImage ? 'transparent' : this.t.background;
+  }
   pageCaption(page: PreviewPage): string {
     return page === 'inter' ? 'Intermediate' : page === 'result' ? 'Result' : page === 'saver' ? 'Screensaver' : 'Home';
   }

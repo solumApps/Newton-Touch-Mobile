@@ -145,7 +145,7 @@ export class ThemeService {
       navBackPosition: t?.intermediate?.navBackPosition ?? (t?.nav?.backPosition ?? d.intermediate.navBackPosition),
       navHomePosition: t?.intermediate?.navHomePosition ?? (t?.nav?.homePosition ?? d.intermediate.navHomePosition),
     };
-    out.intermediate.fsSortOrder = out.intermediate.fsSortOrder === 'za' ? 'za' : 'az';
+    out.intermediate.fsSortOrder = out.intermediate.fsSortOrder === 'za' || out.intermediate.fsSortOrder === 'none' ? out.intermediate.fsSortOrder : 'az';
     out.result = {
       ...d.result,
       ...(t?.result || {}),

@@ -65,14 +65,14 @@
              [class.has-cols]="t.columns !== undefined" [style.--cols]="t.columns" [class.cols-1]="effectiveColumns === 1"
              [class.scroll-vertical]="t.scrollMode==='vertical'" [class.scroll-horizontal]="t.scrollMode==='horizontal'"
              [class.txt-shadow]="t.cardTextShadow">
-          <div class="body fs-body" *ngIf="t.homeLayout==='finder-select'" [style.--prm-panel]="t.intermediate.heroColor || '#172033'" [style.--prm-accent]="t.intermediate.accent || null" [style.--nt-int-bg]="t.background || null" [style.--nt-int-scale]="t.intermediate.itemSizeScale || 1">
+          <div class="body fs-body" *ngIf="t.homeLayout==='finder-select'" [style.--prm-panel]="t.intermediate.heroColor || '#172033'" [style.--prm-accent]="t.intermediate.accent || null" [style.--nt-int-bg]="homeCardAreaBackground" [style.--nt-int-scale]="t.intermediate.itemSizeScale || 1">
             <div class="fs-hero" [style.background]="t.intermediate.heroColor || null">
               <div class="fs-hero-title">Newton Touch</div>
               <div class="fs-steps">
                 <div class="fs-step" *ngFor="let s of homeFinderSteps; let i=index" [class.current]="i===0" [class.todo]="i>0"><span class="fs-step-lbl">{{ s }}</span><span class="fs-step-val">-</span><span class="fs-step-dot" *ngIf="i===0"></span></div>
               </div>
             </div>
-            <div class="fs-main" [style.background]="t.background || null">
+            <div class="fs-main" [style.background]="homeCardAreaBackground">
                 <div class="fs-top fs-prompt-{{t.intermediate.fsPromptPos||'center'}}"><div class="fs-prompt" *ngIf="t.intermediate.fsShowPrompt!==false">{{ (t.intermediate.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div></div>
               <div class="fs-cards content-{{t.intermediate.fsCardContent||'text-only'}} shape-{{t.intermediate.fsCardShape||'rect'}} textpos-{{fsTextPosClass}} textalign-{{t.intermediate.fsTextAlign||'center'}}">
                 <div class="fs-card" *ngFor="let n of slots; let i = index">

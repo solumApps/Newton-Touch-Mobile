@@ -73,7 +73,7 @@ app-content-preview-strip {
   display: inline-flex;
   align-items: center;
   gap: calc(var(--nt-vw, 1vw) * 0.18);
-  padding: calc(var(--nt-vh, 1vh) * 0.25);
+  padding: calc(var(--nt-vh, 1vh) * 0.75);
   border: 1px solid color-mix(in srgb, var(--fs-accent, #4ea1ff) 55%, transparent);
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.22);

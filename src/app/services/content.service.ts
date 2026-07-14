@@ -55,7 +55,7 @@ export interface ContentDraft {
     /** finder-select fast-lookup index (moved out of the theme — depends on the
      *  drill levels / content). 'alpha' = A–Z; 'number' = min/max/interval. */
     indexMode?: 'alpha' | 'number'; indexNumberMin?: number; indexNumberMax?: number; indexNumberInterval?: number;
-    fsSortOrder?: 'az' | 'za';
+    fsSortOrder?: 'none' | 'az' | 'za';
   };
   screensaver: Screensaver;
   /** Media mode only (appMode 'media'): the single image/video to play full-screen. */

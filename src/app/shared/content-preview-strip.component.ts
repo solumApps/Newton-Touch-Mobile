@@ -117,14 +117,14 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
         <!-- HOME (LCD markup: .cards.layout-*) -->
         <ng-container *ngSwitchCase="'home'">
-        <div class="body fs-body" *ngIf="theme?.homeLayout==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || '#172033'" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--nt-int-bg]="theme?.background || null" [style.--int-gap]="cardGapPx" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
+        <div class="body fs-body" *ngIf="theme?.homeLayout==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || '#172033'" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--nt-int-bg]="homeCardAreaBackground" [style.--int-gap]="cardGapPx" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
           <div class="fs-hero" [style.background]="theme?.intermediate?.heroColor || null">
             <div class="fs-hero-title">{{ titleText || 'Product Finder' }}</div>
             <div class="fs-steps">
               <div class="fs-step" *ngFor="let s of homeFinderSteps; let i=index" [class.current]="i===0" [class.todo]="i>0"><span class="fs-step-lbl">{{ s }}</span><span class="fs-step-val">-</span><span class="fs-step-dot" *ngIf="i===0"></span></div>
             </div>
           </div>
-          <div class="fs-main" [style.background]="theme?.background || null">
+          <div class="fs-main" [style.background]="homeCardAreaBackground">
             <div class="fs-top fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}">
               <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div>
             </div>
@@ -136,6 +136,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             </div>
             <div class="fs-index-row">
               <div class="fs-sort" role="group" aria-label="Finder card sort order">
+                <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='none'" (click)="setFinderSortOrder('none')">None</button>
                 <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='az'" (click)="setFinderSortOrder('az')">A-Z</button>
                 <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='za'" (click)="setFinderSortOrder('za')">Z-A</button>
               </div>
@@ -212,6 +213,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               </div>
               <div class="fs-index-row">
                 <div class="fs-sort" role="group" aria-label="Finder card sort order">
+                  <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='none'" (click)="setFinderSortOrder('none')">None</button>
                   <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='az'" (click)="setFinderSortOrder('az')">A-Z</button>
                   <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='za'" (click)="setFinderSortOrder('za')">Z-A</button>
                 </div>
@@ -566,7 +568,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   /** Product index highlighted on map/result previews. If absent, preview clicks own it. */
   @Input() selectedResultIndex?: number;
   @Output() selectedResultIndexChange = new EventEmitter<number>();
-  @Output() finderSortOrderChange = new EventEmitter<'az' | 'za'>();
+  @Output() finderSortOrderChange = new EventEmitter<'none' | 'az' | 'za'>();
 
   @ViewChild('ntStage') ntStage?: ElementRef<HTMLElement>;
   private resizeObserver?: { disconnect(): void };
@@ -971,6 +973,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     }
     return `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.28)), url("${image}") ${pos}/${size} no-repeat, ${bg || '#000'}`;
   }
+  get homeCardAreaBackground(): string | null {
+    return this.theme?.backgroundImage ? 'transparent' : (this.theme?.background || null);
+  }
   get pageCaption(): string {
     return this.page === 'inter' ? 'Intermediate'
       : this.page === 'result' ? 'Result'
@@ -995,14 +1000,16 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     const labels = this.previewLabels('home');
     return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: labels[i % labels.length] } as CardItem));
   }
-  get finderSortOrder(): 'az' | 'za' {
-    return this.theme?.intermediate?.fsSortOrder === 'za' ? 'za' : 'az';
+  get finderSortOrder(): 'none' | 'az' | 'za' {
+    const order = this.theme?.intermediate?.fsSortOrder;
+    return order === 'none' || order === 'za' ? order : 'az';
   }
-  setFinderSortOrder(order: 'az' | 'za'): void {
+  setFinderSortOrder(order: 'none' | 'az' | 'za'): void {
     if (this.theme?.intermediate) this.theme.intermediate.fsSortOrder = order;
     this.finderSortOrderChange.emit(order);
   }
   private finderSort<T extends { name?: string }>(items: T[]): T[] {
+    if (this.finderSortOrder === 'none') return items;
     const dir = this.finderSortOrder === 'za' ? -1 : 1;
     return [...items].sort((a, b) => dir * (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base', numeric: true }));
   }
