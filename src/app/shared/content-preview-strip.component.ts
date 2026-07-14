@@ -135,12 +135,10 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               </div>
             </div>
             <div class="fs-index-row">
-              <div class="fs-sort" role="group" aria-label="Finder card sort order">
-                <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='none'" (click)="setFinderSortOrder('none')">None</button>
-                <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='az'" (click)="setFinderSortOrder('az')">A-Z</button>
-                <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='za'" (click)="setFinderSortOrder('za')">Z-A</button>
+              <div class="fs-index fs-alpha-index" aria-label="Finder A to Z filter">
+                <button type="button" class="fs-letter fs-all available" [class.active]="!activeFinderHomeLetter" (click)="selectFinderHomeLetter('')">All</button>
+                <button type="button" class="fs-letter" *ngFor="let letter of finderAlphabet" [class.available]="finderHomeLetters.has(letter)" [class.active]="letter===activeFinderHomeLetter" [disabled]="!finderHomeLetters.has(letter)" (click)="selectFinderHomeLetter(letter)">{{ letter }}</button>
               </div>
-              <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let c of finderHomeCells; let i=index" [class.active]="i===0">{{ c.name }}</span></div>
             </div>
           </div>
         </div>
@@ -187,7 +185,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         <!-- INTERMEDIATE (LCD markup: .body.int-*) -->
         <ng-container *ngSwitchCase="'inter'">
           <!-- finder-select: hero progress rail + selection cards + index strip -->
-          <div class="body fs-body" *ngIf="theme?.intermediateStyle==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || '#172033'" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--nt-int-bg]="theme?.intermediate?.background || null" [style.--int-gap]="theme?.intermediate?.gapNum != null ? theme?.intermediate?.gapNum + 'px' : null" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
+          <div class="body fs-body" *ngIf="theme?.intermediateStyle==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || '#172033'" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--nt-int-bg]="intermediateCardAreaBackground" [style.--int-gap]="theme?.intermediate?.gapNum != null ? theme?.intermediate?.gapNum + 'px' : null" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
             <div class="fs-hero" [style.background]="theme?.intermediate?.heroColor || null">
               <div class="fs-hero-title">{{ titleText || 'Product Finder' }}</div>
               <div class="fs-home"><span class="fs-home-ic">&#8962;</span> Home</div>
@@ -200,24 +198,22 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 </div>
               </div>
             </div>
-            <div class="fs-main" [style.background]="theme?.intermediate?.background || null">
+            <div class="fs-main" [style.background]="intermediateCardAreaBackground">
               <div class="fs-top fs-back-{{theme?.intermediate?.fsBackPos||'left'}} fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}">
                 <button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">&#8592;</button>
                 <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div>
               </div>
               <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{finderTextAlignClass}}">
-                <div class="fs-card" *ngFor="let it of finderInterCells.slice(0,5); let i = index">
+                <div class="fs-card" *ngFor="let it of finderInterCells; let i = index">
                   <div class="fs-card-img" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='text-only'" [class.no-img]="!it.image && !finderUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (finderUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                   <span class="fs-card-nm" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='image-only'">{{ it.name }}</span>
                 </div>
               </div>
               <div class="fs-index-row">
-                <div class="fs-sort" role="group" aria-label="Finder card sort order">
-                  <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='none'" (click)="setFinderSortOrder('none')">None</button>
-                  <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='az'" (click)="setFinderSortOrder('az')">A-Z</button>
-                  <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='za'" (click)="setFinderSortOrder('za')">Z-A</button>
+                <div class="fs-index fs-alpha-index" aria-label="Finder A to Z filter">
+                  <button type="button" class="fs-letter fs-all available" [class.active]="!activeFinderInterLetter" (click)="selectFinderInterLetter('')">All</button>
+                  <button type="button" class="fs-letter" *ngFor="let letter of finderAlphabet" [class.available]="finderInterLetters.has(letter)" [class.active]="letter===activeFinderInterLetter" [disabled]="!finderInterLetters.has(letter)" (click)="selectFinderInterLetter(letter)">{{ letter }}</button>
                 </div>
-                <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let v of fsIndexValues; let i=index" [class.active]="i===0">{{ v }}</span></div>
               </div>
             </div>
           </div>
@@ -568,7 +564,6 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   /** Product index highlighted on map/result previews. If absent, preview clicks own it. */
   @Input() selectedResultIndex?: number;
   @Output() selectedResultIndexChange = new EventEmitter<number>();
-  @Output() finderSortOrderChange = new EventEmitter<'none' | 'az' | 'za'>();
 
   @ViewChild('ntStage') ntStage?: ElementRef<HTMLElement>;
   private resizeObserver?: { disconnect(): void };
@@ -982,6 +977,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get homeCardAreaBackground(): string | null {
     return this.theme?.backgroundImage ? 'transparent' : (this.theme?.background || null);
   }
+  get intermediateCardAreaBackground(): string | null {
+    return this.theme?.intermediate?.backgroundImage ? 'transparent' : (this.theme?.intermediate?.background || null);
+  }
   get pageCaption(): string {
     return this.page === 'inter' ? 'Intermediate'
       : this.page === 'result' ? 'Result'
@@ -1006,21 +1004,42 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     const labels = this.previewLabels('home');
     return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: labels[i % labels.length] } as CardItem));
   }
-  get finderSortOrder(): 'none' | 'az' | 'za' {
-    const order = this.theme?.intermediate?.fsSortOrder;
-    return order === 'none' || order === 'za' ? order : 'az';
-  }
-  setFinderSortOrder(order: 'none' | 'az' | 'za'): void {
-    if (this.theme?.intermediate) this.theme.intermediate.fsSortOrder = order;
-    this.finderSortOrderChange.emit(order);
-  }
+  readonly finderAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  private selectedFinderHomeLetter = '';
+  private selectedFinderInterLetter = '';
   private finderSort<T extends { name?: string }>(items: T[]): T[] {
-    if (this.finderSortOrder === 'none') return items;
-    const dir = this.finderSortOrder === 'za' ? -1 : 1;
-    return [...items].sort((a, b) => dir * (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base', numeric: true }));
+    return [...items].sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base', numeric: true }));
+  }
+  private filterFinderByLetter(items: CardItem[], letter: string): CardItem[] {
+    if (!letter) return items;
+    return items.filter((item) => (item.name || '').trim().charAt(0).toUpperCase() === letter);
+  }
+  get finderHomeAllCells(): CardItem[] {
+    return this.finderSort(this.homeCells);
   }
   get finderHomeCells(): CardItem[] {
-    return this.finderSort(this.homeCells);
+    return this.filterFinderByLetter(this.finderHomeAllCells, this.activeFinderHomeLetter);
+  }
+  private finderLettersFor(items: CardItem[]): Set<string> {
+    return new Set(items.map((item) => (item.name || '').trim().charAt(0).toUpperCase()).filter((letter) => /^[A-Z]$/.test(letter)));
+  }
+  get finderHomeLetters(): Set<string> {
+    return this.finderLettersFor(this.finderHomeAllCells);
+  }
+  get finderInterLetters(): Set<string> {
+    return this.finderLettersFor(this.finderInterAllCells);
+  }
+  get activeFinderHomeLetter(): string {
+    return this.finderHomeLetters.has(this.selectedFinderHomeLetter) ? this.selectedFinderHomeLetter : '';
+  }
+  get activeFinderInterLetter(): string {
+    return this.finderInterLetters.has(this.selectedFinderInterLetter) ? this.selectedFinderInterLetter : '';
+  }
+  selectFinderHomeLetter(letter: string): void {
+    if (!letter || this.finderHomeLetters.has(letter)) this.selectedFinderHomeLetter = letter;
+  }
+  selectFinderInterLetter(letter: string): void {
+    if (!letter || this.finderInterLetters.has(letter)) this.selectedFinderInterLetter = letter;
   }
   get intermediateSource(): CardItem[] {
     if (this.forceSharedIntermediate) return this.intermediate || [];
@@ -1046,21 +1065,16 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       state: i < labels.length - 1 ? 'done' : 'current',
     }));
   }
-  /** finder-select fast-lookup values: numeric (min/max/interval) when the
-   *  content/theme sets indexMode='number', else item names (#4). */
+  /** finder-select fast-lookup values retained for older callers; the preview
+   *  now renders an A-Z letter strip for both Home and Intermediate. */
   get fsIndexValues(): string[] {
-    const im = this.theme?.intermediate;
-    if (im?.indexMode === 'number') {
-      const min = Number(im.indexNumberMin ?? 0), max = Number(im.indexNumberMax ?? 100);
-      const step = Math.max(1, Number(im.indexNumberInterval ?? 10));
-      const out: string[] = [];
-      if (max >= min) for (let v = min; v <= max && out.length < 12; v += step) out.push(String(v));
-      return out;
-    }
-    return this.finderInterCells.slice(0, 6).map((it) => it.name);
+    return ['All', ...this.finderAlphabet];
+  }
+  get finderInterAllCells(): CardItem[] {
+    return this.finderSort(this.interCells);
   }
   get finderInterCells(): CardItem[] {
-    return this.finderSort(this.interCells);
+    return this.filterFinderByLetter(this.finderInterAllCells, this.activeFinderInterLetter);
   }
   get interCells(): CardItem[] {
     // Builder shared-intermediate previews render every item, with a 3-card

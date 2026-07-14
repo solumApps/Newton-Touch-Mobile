@@ -25,7 +25,7 @@
     <!-- Unified preview: the shared ContentPreviewStripComponent renders the
          LCD markup + shared _nt-layouts.scss styles (placeholder data). -->
     <ng-template #pageView let-page="page">
-      <app-content-preview-strip [theme]="t" [page]="page" [screensaver]="$any({ mode: saverMode })" [showStripCaption]="false" (finderSortOrderChange)="t.intermediate.fsSortOrder=$event"></app-content-preview-strip>
+      <app-content-preview-strip [theme]="t" [page]="page" [screensaver]="$any({ mode: saverMode })" [showStripCaption]="false"></app-content-preview-strip>
     </ng-template>
     <ng-template #pageViewLegacy let-page="page">
       <div class="prev" [ngClass]="['fit-'+t.typography.textFit, 'surface-'+(t.cardSurface || 'flat'), 'nav-'+(t.navStyle || 'floating')]"
@@ -479,12 +479,12 @@
         <app-color-picker *ngIf="t.showHeader" label="Header" hint="top bar" [value]="t.headerColor" (valueChange)="t.headerColor=$event"></app-color-picker>
         <app-color-picker *ngIf="t.showHeader" label="Header text" hint="title and caption" [value]="t.headerTextColor || '#FFFFFF'" (valueChange)="t.headerTextColor=$event"></app-color-picker>
         <app-color-picker *ngIf="t.homeLayout === 'finder-select' || t.intermediateStyle === 'finder-select'" label="Prompt text" hint="finder prompt" [value]="t.intermediate?.promptTextColor || t.intermediate?.headerTextColor || t.headerTextColor || '#FFFFFF'" (valueChange)="t.intermediate.promptTextColor=$event"></app-color-picker>
-        <app-color-picker *ngIf="!t.backgroundImage" label="Card area background" [allowGradient]="true" [value]="t.background" (valueChange)="t.background=$event" [presets]="bgPresets"></app-color-picker>
+        <app-color-picker *ngIf="!t.backgroundImage || t.homeLayout === 'finder-select'" label="Page background" [allowGradient]="true" [value]="t.backgroundImage && t.homeLayout === 'finder-select' ? 'transparent' : t.background" (valueChange)="t.background=$event" [presets]="bgPresets"></app-color-picker>
         <div class="media-row">
           <button class="btn-o media-btn" (click)="pickBackground('home')">{{ t.backgroundImage ? 'Replace home background image' : 'Upload home background image' }}</button>
           <button class="btn-o media-clear" *ngIf="t.backgroundImage" (click)="clearBackground('home')">Clear</button>
         </div>
-        <p class="hint" *ngIf="t.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
+        <p class="hint" *ngIf="t.backgroundImage && t.homeLayout !== 'finder-select'">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
         <ng-container *ngIf="t.backgroundImage">
           <div class="step-title sm">Background framing</div>
           <p class="hint">Pan and zoom to choose which part of the image shows.</p>
@@ -785,7 +785,7 @@
         </div>
         <app-color-picker *ngIf="t.intermediate.showHeader" label="Header background" [value]="t.intermediate.headerColor" (valueChange)="t.intermediate.headerColor=$event"></app-color-picker>
         <app-color-picker *ngIf="t.intermediate.showHeader" label="Header text color" [value]="t.intermediate.headerTextColor || '#FFFFFF'" (valueChange)="t.intermediate.headerTextColor=$event"></app-color-picker>
-        <app-color-picker label="Page background" [value]="t.intermediate.background" (valueChange)="t.intermediate.background=$event" [presets]="bgPresets"></app-color-picker>
+        <app-color-picker label="Page background" [value]="t.intermediate.backgroundImage && t.intermediateStyle === 'finder-select' ? 'transparent' : t.intermediate.background" (valueChange)="t.intermediate.background=$event" [presets]="bgPresets"></app-color-picker>
         <p class="hint">Header colors start from Home values, then you can customize them for Intermediate.</p>
         <p class="hint">Page background starts from Home, then you can customize it for Intermediate.</p>
         <app-color-picker *ngIf="showInterCardBackgroundColor" label="Row / card background" [value]="t.intermediate.cardBackground" (valueChange)="t.intermediate.cardBackground=$event" [presets]="intCardPresets"></app-color-picker>
