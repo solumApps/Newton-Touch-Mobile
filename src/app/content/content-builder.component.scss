@@ -134,7 +134,20 @@
 .del { border: none; background: none; color: var(--nt-muted); font-size: 15px; cursor: pointer; padding: 6px; }
 
 /* Per-image fit segment (Cover / Contain / Fill) — shown only when an image is set. */
-.fit-seg { display: flex; align-items: center; gap: 6px; margin: -2px 0 10px; }
+.fit-seg {
+  display: flex; align-items: center; gap: 6px;
+  margin: -2px 0 8px; padding: 0 2px 6px;
+  overflow-x: scroll; overflow-y: hidden;
+  overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin; scrollbar-color: var(--nt-brand-ink, #2f006d) transparent;
+}
+.fit-seg > * { flex: 0 0 auto; }
+.fit-seg::-webkit-scrollbar { height: 7px; }
+.fit-seg::-webkit-scrollbar-track { background: transparent; }
+.fit-seg::-webkit-scrollbar-thumb {
+  background: var(--nt-brand-ink, #2f006d); border: 2px solid transparent;
+  border-radius: 999px; background-clip: padding-box;
+}
 .fit-seg .fit-lbl { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; color: var(--nt-muted); }
 .fit-seg .mini { padding: 4px 11px; font-size: 11px; box-shadow: none; }
 .fit-seg .mini.sel { background: var(--nt-brand-ink); color: #fff; }
