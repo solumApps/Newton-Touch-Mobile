@@ -683,6 +683,15 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   fsTextVPositions: { id: CardTextPos; label: string }[] = [
     { id: 'overlay-top', label: 'Top' }, { id: 'center', label: 'Center' }, { id: 'overlay-bottom', label: 'Bottom' },
   ];
+  get finderTextPositionMatters(): boolean {
+    const shape = this.t.intermediate.fsCardShape || 'rect';
+    return shape !== 'circle' && shape !== 'hexagon';
+  }
+  get fsTextPosClass(): CardTextPos {
+    return this.finderTextPositionMatters
+      ? (this.t.intermediate.fsTextPos || 'center')
+      : 'below';
+  }
   /** finder-select fs-card content options (#5). */
   fsCardContents: { id: CardContent; label: string }[] = [
     { id: 'image-text', label: 'Image + text' }, { id: 'image-only', label: 'Image only' },

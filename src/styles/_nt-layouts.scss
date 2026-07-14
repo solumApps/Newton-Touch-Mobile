@@ -11759,7 +11759,7 @@
 .nt-inter .fs-cards.textpos-center .fs-card-nm {
   position: relative;
   z-index: 1;
-  margin: 0 8%;
+  // margin: 0 8%;
   background: var(--nt-overlay, rgba(0, 0, 0, .5));
   border-radius: 999px;
   color: #fff;
@@ -11815,10 +11815,11 @@
 .nt-inter .fs-cards.shape-circle .fs-card-nm,
 .nt-inter .fs-cards.shape-hexagon .fs-card-nm {
   position: absolute;
-  left: 8%;
-  right: 8%;
+  // left: 8%;
+  // right: 8%;
   bottom: 12%;
   z-index: 1;
+  background: var(--nt-overlay, rgba(0, 0, 0, 0.5));
   color: #fff;
   text-align: center;
   text-shadow: 0 1px 3px rgba(0, 0, 0, .8);

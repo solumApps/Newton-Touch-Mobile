@@ -74,7 +74,7 @@
             </div>
             <div class="fs-main" [style.background]="t.background || null">
                 <div class="fs-top fs-prompt-{{t.intermediate.fsPromptPos||'center'}}"><div class="fs-prompt" *ngIf="t.intermediate.fsShowPrompt!==false">{{ (t.intermediate.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div></div>
-              <div class="fs-cards content-{{t.intermediate.fsCardContent||'text-only'}} shape-{{t.intermediate.fsCardShape||'rect'}} textpos-{{t.intermediate.fsTextPos||'center'}} textalign-{{t.intermediate.fsTextAlign||'center'}}">
+              <div class="fs-cards content-{{t.intermediate.fsCardContent||'text-only'}} shape-{{t.intermediate.fsCardShape||'rect'}} textpos-{{fsTextPosClass}} textalign-{{t.intermediate.fsTextAlign||'center'}}">
                 <div class="fs-card" *ngFor="let n of slots; let i = index">
                   <div class="fs-card-img" *ngIf="(t.intermediate.fsCardContent||'text-only')!=='text-only'" [style.background-image]="phImg(i)"></div>
                   <span class="fs-card-nm" *ngIf="(t.intermediate.fsCardContent||'text-only')!=='image-only'">{{ labels[i] }}</span>
@@ -327,8 +327,10 @@
             <div class="step-title sm">Card shape</div>
             <div class="tiles"><button class="tile" *ngFor="let s of cardShapes" [class.sel]="(t.intermediate.fsCardShape||'rect')===s.id" (click)="t.intermediate.fsCardShape=s.id">{{ s.label }}</button></div>
           </ng-container>
-          <div class="step-title sm">Text vertical position</div>
-          <div class="seg"><button class="tile" *ngFor="let p of fsTextVPositions" [class.sel]="(t.intermediate.fsTextPos||'center')===p.id" (click)="t.intermediate.fsTextPos=p.id">{{ p.label }}</button></div>
+          <ng-container *ngIf="finderTextPositionMatters">
+            <div class="step-title sm">Text vertical position</div>
+            <div class="seg"><button class="tile" *ngFor="let p of fsTextVPositions" [class.sel]="(t.intermediate.fsTextPos||'center')===p.id" (click)="t.intermediate.fsTextPos=p.id">{{ p.label }}</button></div>
+          </ng-container>
           <ng-container *ngIf="(t.intermediate.fsCardContent||'text-only')!=='image-only'">
             <div class="step-title sm">Text horizontal alignment</div>
             <div class="seg"><button class="tile" *ngFor="let a of cardAligns" [class.sel]="(t.intermediate.fsTextAlign||'center')===a.id" (click)="t.intermediate.fsTextAlign=a.id">{{ a.label }}</button></div>
@@ -642,8 +644,10 @@
             <div class="tiles"><button class="tile" *ngFor="let s of cardShapes" [class.sel]="(t.intermediate.fsCardShape||'rect')===s.id" (click)="t.intermediate.fsCardShape=s.id">{{ s.label }}</button></div>
           </ng-container>
 
-          <div class="step-title sm">Text vertical position</div>
-          <div class="seg"><button class="tile" *ngFor="let p of fsTextVPositions" [class.sel]="(t.intermediate.fsTextPos||'center')===p.id" (click)="t.intermediate.fsTextPos=p.id">{{ p.label }}</button></div>
+          <ng-container *ngIf="finderTextPositionMatters">
+            <div class="step-title sm">Text vertical position</div>
+            <div class="seg"><button class="tile" *ngFor="let p of fsTextVPositions" [class.sel]="(t.intermediate.fsTextPos||'center')===p.id" (click)="t.intermediate.fsTextPos=p.id">{{ p.label }}</button></div>
+          </ng-container>
 
           <ng-container *ngIf="(t.intermediate.fsCardContent||'text-only')!=='image-only'">
             <div class="step-title sm">Text horizontal alignment</div>
