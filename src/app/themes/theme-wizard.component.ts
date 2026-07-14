@@ -1280,6 +1280,9 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   get homeCardAreaBackground(): string {
     return this.t.backgroundImage ? 'transparent' : this.t.background;
   }
+  get intermediateCardAreaBackground(): string {
+    return this.t.intermediate.backgroundImage ? 'transparent' : this.t.intermediate.background;
+  }
   pageCaption(page: PreviewPage): string {
     return page === 'inter' ? 'Intermediate' : page === 'result' ? 'Result' : page === 'saver' ? 'Screensaver' : 'Home';
   }
@@ -1356,9 +1359,23 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   async pickBackground(page: PreviewPage): Promise<void> {
     const dataUrl = await this.picker.pick();
     if (!dataUrl) return;
-    if (page === 'inter') this.t.intermediate.backgroundImage = dataUrl;
-    else if (page === 'result') this.t.result.backgroundImage = dataUrl;
-    else this.t.backgroundImage = dataUrl;
+    if (page === 'inter') {
+      this.t.intermediate.backgroundImage = dataUrl;
+    } else if (page === 'result') {
+      this.t.result.backgroundImage = dataUrl;
+    } else {
+      this.t.backgroundImage = dataUrl;
+    }
+    this.applyFinderTransparentPageBackground(page);
+  }
+
+  private applyFinderTransparentPageBackground(page: PreviewPage): void {
+    if (page === 'home' && this.t.homeLayout === 'finder-select' && this.t.backgroundImage) {
+      this.t.background = 'transparent';
+    }
+    if (page === 'inter' && this.t.intermediateStyle === 'finder-select' && this.t.intermediate.backgroundImage) {
+      this.t.intermediate.background = 'transparent';
+    }
   }
 
   /** Reset a nav-button colour to its built-in default (undefined = default). */
@@ -1410,6 +1427,8 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     this.t.intermediate.bgImageX = this.t.bgImageX;
     this.t.intermediate.bgImageY = this.t.bgImageY;
     this.t.intermediate.bgImageZoom = this.t.bgImageZoom;
+    this.applyFinderTransparentPageBackground('home');
+    this.applyFinderTransparentPageBackground('inter');
   }
 
   /**

@@ -71,50 +71,83 @@ describe('ContentPreviewStripComponent', () => {
     expect(fsBody.style.getPropertyValue('--prm-panel')).toBe('#667788');
   });
 
-  it('renders the finder sort filter inside the home preview and defaults to A-Z', () => {
-    fixture.componentInstance.page = 'home';
-    fixture.componentInstance.theme = {
-      homeLayout: 'finder-select',
-      intermediate: { heroColor: '#445566', fsSortOrder: 'az' },
-    } as any;
-    fixture.componentInstance.home = [
-      { id: 'c', name: 'Produce' },
-      { id: 'a', name: 'Bakery' },
-      { id: 'b', name: 'Dairy' },
-    ] as any;
-
-    fixture.detectChanges();
-
-    const buttons = Array.from(fixture.nativeElement.querySelectorAll('.fs-sort-btn')) as HTMLButtonElement[];
-    expect(buttons.map((b) => b.textContent?.trim())).toEqual(['None', 'A-Z', 'Z-A']);
-    expect(buttons[1].classList.contains('active')).toBeTrue();
-    expect(fixture.componentInstance.finderHomeCells.map((c) => c.name)).toEqual(['Bakery', 'Dairy', 'Produce']);
-  });
-
-  it('keeps the original finder card order when the preview filter is None', () => {
-    fixture.componentInstance.page = 'home';
-    fixture.componentInstance.theme = {
-      homeLayout: 'finder-select',
-      intermediate: { fsSortOrder: 'none' },
-    } as any;
-    fixture.componentInstance.home = [
-      { id: 'c', name: 'Produce' },
-      { id: 'a', name: 'Bakery' },
-      { id: 'b', name: 'Dairy' },
-    ] as any;
-
-    fixture.detectChanges();
-
-    const buttons = Array.from(fixture.nativeElement.querySelectorAll('.fs-sort-btn')) as HTMLButtonElement[];
-    expect(buttons[0].classList.contains('active')).toBeTrue();
-    expect(fixture.componentInstance.finderHomeCells.map((c) => c.name)).toEqual(['Produce', 'Bakery', 'Dairy']);
-  });
-
-  it('emits finder sort changes from the preview filter', () => {
+  it('makes the finder-select intermediate page background transparent when an intermediate background image is set', () => {
     fixture.componentInstance.page = 'inter';
     fixture.componentInstance.theme = {
       intermediateStyle: 'finder-select',
-      intermediate: { background: '#223344', fsSortOrder: 'az' },
+      intermediate: { background: '#223344', backgroundImage: 'assets/inter-bg.jpg', heroColor: '#667788' },
+    } as any;
+
+    fixture.detectChanges();
+
+    const fsBody = fixture.nativeElement.querySelector('.body.fs-body') as HTMLElement;
+    const fsMain = fixture.nativeElement.querySelector('.fs-main') as HTMLElement;
+
+    expect(fsBody.style.getPropertyValue('--nt-int-bg')).toBe('transparent');
+    expect(fsMain.style.background).toBe('transparent');
+  });
+
+  it('renders the finder A-Z letter filter inside the home preview and defaults cards to A-Z', () => {
+    fixture.componentInstance.page = 'home';
+    fixture.componentInstance.theme = {
+      homeLayout: 'finder-select',
+      intermediate: { heroColor: '#445566' },
+    } as any;
+    fixture.componentInstance.home = [
+      { id: 'c', name: 'Produce' },
+      { id: 'a', name: 'Bakery' },
+      { id: 'b', name: 'Dairy' },
+    ] as any;
+
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('.fs-sort-btn').length).toBe(0);
+    const letters = Array.from(fixture.nativeElement.querySelectorAll('.fs-alpha-index .fs-letter')) as HTMLButtonElement[];
+    expect(letters.map((b) => b.textContent?.trim()).slice(0, 5)).toEqual(['All', 'A', 'B', 'C', 'D']);
+    expect(letters.length).toBe(27);
+    expect(letters[0].classList.contains('active')).toBeTrue();
+    expect(letters[1].disabled).toBeTrue();
+    expect(letters[2].classList.contains('available')).toBeTrue();
+    expect(letters[4].classList.contains('available')).toBeTrue();
+    expect(letters[16].classList.contains('available')).toBeTrue();
+    expect(fixture.componentInstance.finderHomeCells.map((c) => c.name)).toEqual(['Bakery', 'Dairy', 'Produce']);
+
+    letters[16].click();
+    fixture.detectChanges();
+
+    expect(letters[16].classList.contains('active')).toBeTrue();
+    expect(fixture.componentInstance.finderHomeCells.map((c) => c.name)).toEqual(['Produce']);
+
+    letters[0].click();
+    fixture.detectChanges();
+
+    expect(letters[0].classList.contains('active')).toBeTrue();
+    expect(fixture.componentInstance.finderHomeCells.map((c) => c.name)).toEqual(['Bakery', 'Dairy', 'Produce']);
+  });
+
+  it('ignores old finder sort-order tokens and keeps the finder preview A-Z', () => {
+    fixture.componentInstance.page = 'home';
+    fixture.componentInstance.theme = {
+      homeLayout: 'finder-select',
+      intermediate: { fsSortOrder: 'za' },
+    } as any;
+    fixture.componentInstance.home = [
+      { id: 'c', name: 'Produce' },
+      { id: 'a', name: 'Bakery' },
+      { id: 'b', name: 'Dairy' },
+    ] as any;
+
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('.fs-sort-btn').length).toBe(0);
+    expect(fixture.componentInstance.finderHomeCells.map((c) => c.name)).toEqual(['Bakery', 'Dairy', 'Produce']);
+  });
+
+  it('renders the finder A-Z letter filter inside the intermediate preview', () => {
+    fixture.componentInstance.page = 'inter';
+    fixture.componentInstance.theme = {
+      intermediateStyle: 'finder-select',
+      intermediate: { background: '#223344' },
     } as any;
     fixture.componentInstance.intermediate = [
       { id: 'a', name: 'Bakery' },
@@ -122,17 +155,81 @@ describe('ContentPreviewStripComponent', () => {
       { id: 'c', name: 'Produce' },
     ] as any;
     fixture.componentInstance.forceSharedIntermediate = true;
-    const emitted: string[] = [];
-    fixture.componentInstance.finderSortOrderChange.subscribe((order) => emitted.push(order));
 
     fixture.detectChanges();
-    (fixture.nativeElement.querySelectorAll('.fs-sort-btn')[2] as HTMLButtonElement).click();
+
+    const letters = Array.from(fixture.nativeElement.querySelectorAll('.fs-alpha-index .fs-letter')) as HTMLButtonElement[];
+    expect(letters.length).toBe(27);
+    expect(letters[0].textContent?.trim()).toBe('All');
+    expect(letters[0].classList.contains('active')).toBeTrue();
+    expect(letters[2].classList.contains('available')).toBeTrue();
+    expect(letters[4].classList.contains('available')).toBeTrue();
+    expect(letters[16].classList.contains('available')).toBeTrue();
+    expect(fixture.componentInstance.finderInterCells.map((c) => c.name)).toEqual(['Bakery', 'Dairy', 'Produce']);
+    expect(fixture.componentInstance.fsIndexValues).toEqual(['All', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')]);
+
+    letters[4].click();
     fixture.detectChanges();
 
-    expect(emitted).toEqual(['za']);
-    expect(fixture.componentInstance.theme.intermediate.fsSortOrder).toBe('za');
-    expect(fixture.componentInstance.finderInterCells.map((c) => c.name)).toEqual(['Produce', 'Dairy', 'Bakery']);
-    expect(fixture.componentInstance.fsIndexValues).toEqual(['Produce', 'Dairy', 'Bakery']);
+    expect(letters[4].classList.contains('active')).toBeTrue();
+    expect(fixture.componentInstance.finderInterCells.map((c) => c.name)).toEqual(['Dairy']);
+
+    letters[0].click();
+    fixture.detectChanges();
+
+    expect(letters[0].classList.contains('active')).toBeTrue();
+    expect(fixture.componentInstance.finderInterCells.map((c) => c.name)).toEqual(['Bakery', 'Dairy', 'Produce']);
+  });
+
+  it('renders all intermediate finder cards so the strip can scroll', () => {
+    fixture.componentInstance.page = 'inter';
+    fixture.componentInstance.theme = {
+      intermediateStyle: 'finder-select',
+      intermediate: { background: '#223344' },
+    } as any;
+    fixture.componentInstance.intermediate = [
+      { id: 'a', name: 'Bakery' },
+      { id: 'b', name: 'Dairy' },
+      { id: 'c', name: 'Frozen' },
+      { id: 'd', name: 'Meat' },
+      { id: 'e', name: 'Produce' },
+      { id: 'f', name: 'Snacks' },
+      { id: 'g', name: 'Wine' },
+    ] as any;
+    fixture.componentInstance.forceSharedIntermediate = true;
+
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('.fs-card').length).toBe(7);
+  });
+
+  it('renders all shared result products for finder-detail', () => {
+    fixture.componentInstance.page = 'result';
+    fixture.componentInstance.theme = {
+      resultTemplate: 'finder-detail',
+      result: {},
+    } as any;
+    fixture.componentInstance.intermediate = [
+      { id: 'branch', name: 'Branch', products: [{ id: 'branch-product', name: 'Branch Product' }] },
+    ] as any;
+    fixture.componentInstance.forceSharedIntermediate = true;
+    fixture.componentInstance.result = {
+      products: Array.from({ length: 8 }, (_, i) => ({ id: `p${i}`, name: `Result Product ${i + 1}` })),
+    } as any;
+
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('.fd-prod').length).toBe(8);
+    expect(fixture.componentInstance.finderCells.map((p) => p.name)).toEqual([
+      'Result Product 1',
+      'Result Product 2',
+      'Result Product 3',
+      'Result Product 4',
+      'Result Product 5',
+      'Result Product 6',
+      'Result Product 7',
+      'Result Product 8',
+    ]);
   });
 
   it('forces finder-select circle and hexagon text alignment to center', () => {
