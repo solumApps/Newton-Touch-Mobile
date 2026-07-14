@@ -128,7 +128,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="fs-top fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}">
               <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div>
             </div>
-          <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{theme?.intermediate?.fsTextAlign||'center'}}">
+          <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{finderTextAlignClass}}">
               <div class="fs-card" *ngFor="let c of finderHomeCells; let i = index" (click)="selectIntermediateBranchById(c.id)" [class.cps-selected]="c.id===activeIntermediateHomeItem?.id || (!activeIntermediateHomeItem && i===0)">
                 <div class="fs-card-img" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='text-only'" [class.no-img]="!c.image && !finderUsePh" [style.background-image]="c.image ? 'url('+c.image+')' : (finderUsePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null"></div>
                 <span class="fs-card-nm" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='image-only'">{{ c.name }}</span>
@@ -205,7 +205,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 <button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">&#8592;</button>
                 <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div>
               </div>
-              <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{theme?.intermediate?.fsTextAlign||'center'}}">
+              <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{finderTextAlignClass}}">
                 <div class="fs-card" *ngFor="let it of finderInterCells.slice(0,5); let i = index">
                   <div class="fs-card-img" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='text-only'" [class.no-img]="!it.image && !finderUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (finderUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                   <span class="fs-card-nm" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='image-only'">{{ it.name }}</span>
@@ -607,6 +607,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return shape === 'circle' || shape === 'hexagon'
       ? 'below'
       : (this.theme?.intermediate?.fsTextPos || 'center');
+  }
+  get finderTextAlignClass(): 'left' | 'center' | 'right' {
+    const shape = this.theme?.intermediate?.fsCardShape || 'rect';
+    return shape === 'circle' || shape === 'hexagon'
+      ? 'center'
+      : (this.theme?.intermediate?.fsTextAlign || 'center');
   }
   homeFinderSteps = ['Category 1', 'Category 2', 'Category 3', 'Category 4'];
   /** Result: dummy product images (unless content is text-only). */

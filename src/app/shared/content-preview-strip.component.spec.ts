@@ -134,4 +134,16 @@ describe('ContentPreviewStripComponent', () => {
     expect(fixture.componentInstance.finderInterCells.map((c) => c.name)).toEqual(['Produce', 'Dairy', 'Bakery']);
     expect(fixture.componentInstance.fsIndexValues).toEqual(['Produce', 'Dairy', 'Bakery']);
   });
+
+  it('forces finder-select circle and hexagon text alignment to center', () => {
+    fixture.componentInstance.theme = {
+      intermediate: { fsCardShape: 'circle', fsTextAlign: 'left' },
+    } as any;
+    expect(fixture.componentInstance.finderTextAlignClass).toBe('center');
+
+    fixture.componentInstance.theme = {
+      intermediate: { fsCardShape: 'hexagon', fsTextAlign: 'right' },
+    } as any;
+    expect(fixture.componentInstance.finderTextAlignClass).toBe('center');
+  });
 });
