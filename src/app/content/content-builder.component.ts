@@ -10,7 +10,6 @@ import { WorkspaceService } from '../services/workspace.service';
 import { ImagePickerService } from '../services/image-picker.service';
 import { SelectFieldComponent, SelectOption } from '../shared/select-field.component';
 import { ColorPickerComponent } from '../shared/color-picker.component';
-import { CardTreeEditorComponent } from './card-tree-editor.component';
 import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
 import type { ResultProduct, CardItem, ImageFit, ResultContent, ThemeTokens, FieldSource } from '@contract/layout';
 
@@ -24,7 +23,7 @@ interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' 
 @Component({
   selector: 'app-content-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonModal, SelectFieldComponent, ColorPickerComponent, CardTreeEditorComponent, ContentPreviewStripComponent],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonModal, SelectFieldComponent, ColorPickerComponent, ContentPreviewStripComponent],
   templateUrl: './content-builder.component.html',
   styleUrls: ['./content-builder.component.scss'],
 })
@@ -67,7 +66,30 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
       }
       return this.allSteps.flatMap(s => (s.key === 'inter' ? interSteps : [s]));
     }
+    // Prototype / Prototype+ESL in Individual mode: same leveled approach as
+    // Category — one step per drill level. Empty levels are NOT skipped (the
+    // user needs the step to add cards there).
+    if (this.protoLeveled) {
+      const interSteps: Step[] = [];
+      for (let i = 1; i <= this.protoLevelCount; i++) {
+        interSteps.push({ key: ('inter' + i) as StepKey, label: 'Intermediate L' + i, page: 'inter' });
+      }
+      return this.allSteps.flatMap(s => (s.key === 'inter' ? interSteps : [s]));
+    }
     return this.allSteps.filter(s => s.key !== 'inter' || this.draft?.themeTokens.includeIntermediate !== false);
+  }
+  /** Prototype / Prototype+ESL with per-card drill pages → Category-style leveled
+   *  authoring (depth selector + one Intermediate step per level). */
+  get protoLeveled(): boolean {
+    const m = this.draft?.appMode;
+    return (m === 'prototype' || m === 'prototype-esl')
+      && this.draft?.themeTokens.includeIntermediate !== false
+      && this.drillMode === 'individual';
+  }
+  /** Intermediate drill levels for prototype leveled mode (1–3). Reuses the same
+   *  draft field as Category mode so the pruning/persistence path is shared. */
+  get protoLevelCount(): number {
+    return Math.min(3, Math.max(1, this.draft?.categoryLevelCount ?? 1));
   }
   /** Does a category level have ANY non-empty values (so its step is worth
    *  showing)? Uses the fetched products when available, else the built tree
@@ -105,7 +127,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     }
     if (key === 'inter' || /^inter[123]$/.test(key)) {
       if (!this.intermediateNeedsImage) return false;
-      if (d.appMode === 'category') {
+      if (d.appMode === 'category' || this.protoLeveled) {
         return this.nodesAtDepth(this.interLevel).some((n) => !n.node.image);
       } else if (this.showIntermediateEditor) {
         return d.intermediate.some((it) => !it.image);
@@ -201,6 +223,23 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
         if (this.intermediateNeedsImage) {
           const n = this.nodesAtDepth(this.interLevel).filter((it) => !it.node.image).length;
           if (n) e.push(`${n} intermediate card(s) at L${this.interLevel} have no image — this theme requires images/thumbnails.`);
+        }
+      } else if (this.protoLeveled) {
+        const nodes = this.nodesAtDepth(this.interLevel);
+        const parents = this.nodesAtDepth(this.interLevel - 1);
+        // EVERY field must have at least one card at this level — an empty
+        // branch would dead-end on the LCD (a drill page with no options).
+        const empty = parents.filter((p) => !(p.node.children && p.node.children.length));
+        if (empty.length) {
+          const names = empty.slice(0, 6).map((p) => p.path.map((v) => v?.trim() || 'Unnamed').join(' › ')).join(', ');
+          e.push(`Add at least one L${this.interLevel} card under: ${names}${empty.length > 6 ? ` and ${empty.length - 6} more` : ''}.`);
+        }
+        let unnamed = 0;
+        nodes.forEach((n) => { if (!n.node.name?.trim()) unnamed++; });
+        if (unnamed) e.push(`${unnamed} L${this.interLevel} card(s) need a name.`);
+        if (this.intermediateNeedsImage) {
+          const miss = nodes.filter((it) => !it.node.image).length;
+          if (miss) e.push(`${miss} intermediate card(s) at L${this.interLevel} have no image — this theme requires images/thumbnails.`);
         }
       } else if (this.showIntermediateEditor) {
         if (!d.intermediate.length) e.push('Add at least one intermediate item.');
@@ -300,6 +339,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
       if (this.interLevel > 0) this.refreshInter();
       if (this.step?.key === 'result') this.syncResultProducts();
     }
+    if (this.protoLeveled && this.interLevel > 0) this.refreshProto();
     setTimeout(() => {
       void this.contentViewport?.scrollToTop(0);
       const host = this.builderSteps?.nativeElement;
@@ -472,9 +512,165 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     n.products = [...arr];
   }
 
-  /** Max drill-down depth: Category mode is API-bound (4 levels: category1–4 or etc0–3);
-   *  Prototype / Prototype-ESL are free-form, no cap. */
-  get maxDepth(): number { return this.draft?.appMode === 'category' ? 4 : Infinity; }
+  // ── Prototype / Prototype+ESL leveled drill (Category-style authoring) ──────
+  /** Depth change: confirm before pruning user-entered cards below the new depth. */
+  async setProtoLevelCount(n: number): Promise<void> {
+    if (!this.draft) return;
+    const v = Math.min(3, Math.max(1, Math.round(Number(n)) || 1));
+    if (v === this.protoLevelCount) return;
+    if (v < this.protoLevelCount) {
+      let count = 0;
+      const walk = (c: CardItem, d: number): void => { if (d > v) count++; (c.children || []).forEach((ch) => walk(ch, d + 1)); };
+      (this.draft.home || []).forEach((c) => (c.children || []).forEach((ch) => walk(ch, 1)));
+      if (count) {
+        const alert = await this.alertController.create({
+          header: 'Reduce drill depth?',
+          message: `${count} card(s) below L${v} will be removed.`,
+          buttons: [
+            { text: 'Keep depth', role: 'cancel' },
+            { text: 'Remove', role: 'destructive', handler: () => this.applyProtoLevelCount(v) },
+          ],
+        });
+        await alert.present();
+        return;
+      }
+    }
+    this.applyProtoLevelCount(v);
+  }
+  private applyProtoLevelCount(v: number): void {
+    if (!this.draft) return;
+    this.draft.categoryLevelCount = v;
+    // Prune nodes deeper than the new depth (depth 0 = home/L0 cards).
+    const prune = (node: CardItem, depth: number): void => {
+      if (depth >= v) { delete node.children; }
+      else (node.children || []).forEach((c) => prune(c, depth + 1));
+    };
+    (this.draft.home || []).forEach((c) => prune(c, 0));
+    this.leafCache = null;
+    if (this.stepIndex >= this.visibleSteps.length) this.stepIndex = this.visibleSteps.length - 1;
+    this.refreshProto();
+  }
+
+  /** Active segment selections, tracked by node ID (names are editable here, so
+   *  string paths — as Category mode uses — would go stale on rename). */
+  protoL0Id = ''; protoL1Id = 'all'; protoL2Id = 'all';
+  /** Cached view-state (same pattern as Category's refreshInter — recomputed on
+   *  real events only, never per change-detection pass). */
+  protoL0Segs: { id: string; label: string }[] = [];
+  protoL1Segs: { id: string; label: string }[] = [];
+  protoL2Segs: { id: string; label: string }[] = [];
+  protoCards: { node: CardItem; parent: CardItem; ctx: string }[] = [];
+  private protoName(c: CardItem): string { return c.name?.trim() || 'Unnamed'; }
+  refreshProto(): void {
+    if (!this.protoLeveled || this.interLevel < 1) {
+      this.protoL0Segs = []; this.protoL1Segs = []; this.protoL2Segs = []; this.protoCards = [];
+      return;
+    }
+    const home = this.draft?.home || [];
+    this.protoL0Segs = home.map((c) => ({ id: c.id, label: this.protoName(c) }));
+    if (!home.some((c) => c.id === this.protoL0Id)) { this.protoL0Id = home[0]?.id || ''; this.protoL1Id = ''; this.protoL2Id = ''; }
+    const l0 = home.find((c) => c.id === this.protoL0Id);
+    const lvl = this.interLevel;
+    if (lvl >= 2) {
+      this.protoL1Segs = (l0?.children || []).map((c) => ({ id: c.id, label: this.protoName(c) }));
+      if (this.protoL1Id && !this.protoL1Segs.some((c) => c.id === this.protoL1Id)) this.protoL1Id = '';
+      if (!this.protoL1Id && this.protoL1Segs.length > 0) this.protoL1Id = this.protoL1Segs[0].id;
+    } else { this.protoL1Segs = []; this.protoL1Id = ''; }
+    const l1Pool = (l0?.children || []).filter((c) => c.id === this.protoL1Id);
+    if (lvl >= 3) {
+      const opts: { id: string; label: string }[] = [];
+      l1Pool.forEach((c) => (c.children || []).forEach((g) => opts.push({ id: g.id, label: this.protoName(g) })));
+      this.protoL2Segs = opts;
+      if (this.protoL2Id && !opts.some((o) => o.id === this.protoL2Id)) this.protoL2Id = '';
+      if (!this.protoL2Id && opts.length > 0) this.protoL2Id = opts[0].id;
+    } else { this.protoL2Segs = []; this.protoL2Id = ''; }
+    this.protoCards = this.buildProtoCards(lvl);
+  }
+  /** ALL cards at the current level under the active segment filters, each with
+   *  its parent (for add/move/remove) and a context hint when 'all' widens the list. */
+  private buildProtoCards(level: number): { node: CardItem; parent: CardItem; ctx: string }[] {
+    const home = this.draft?.home || [];
+    const l0 = home.find((c) => c.id === this.protoL0Id);
+    if (!l0) return [];
+    const out: { node: CardItem; parent: CardItem; ctx: string }[] = [];
+    if (level === 1) {
+      (l0.children || []).forEach((c) => out.push({ node: c, parent: l0, ctx: '' }));
+    } else if (level === 2) {
+      const l1s = (l0.children || []).filter((c) => c.id === this.protoL1Id);
+      l1s.forEach((l1) => (l1.children || []).forEach((c) => out.push({ node: c, parent: l1, ctx: '' })));
+    } else if (level === 3) {
+      const l1s = (l0.children || []).filter((c) => c.id === this.protoL1Id);
+      l1s.forEach((l1) => {
+        const l2s = (l1.children || []).filter((c) => c.id === this.protoL2Id);
+        l2s.forEach((l2) => (l2.children || []).forEach((c) => out.push({ node: c, parent: l2, ctx: '' })));
+      });
+    }
+    return out;
+  }
+  setProtoL0(id: string): void { this.protoL0Id = id; this.protoL1Id = ''; this.protoL2Id = ''; this.refreshProto(); }
+  setProtoL1(id: string): void { this.protoL1Id = id; this.protoL2Id = ''; this.refreshProto(); }
+  setProtoL2(id: string): void { this.protoL2Id = id; this.refreshProto(); }
+  /** The node new cards go under — null while an ancestor segment is on 'all'
+   *  (ambiguous parent) so the + Add button disables with a hint. */
+  get protoAddParent(): CardItem | null {
+    const home = this.draft?.home || [];
+    const l0 = home.find((c) => c.id === this.protoL0Id);
+    if (!l0) return null;
+    if (this.interLevel === 1) return l0;
+    const l1 = (l0.children || []).find((c) => c.id === this.protoL1Id);
+    if (!l1) return null;
+    if (this.interLevel === 2) return l1;
+    return (l1.children || []).find((c) => c.id === this.protoL2Id) || null;
+  }
+  addProtoCard(): void {
+    const parent = this.protoAddParent;
+    if (!parent) return;
+    parent.children = [...(parent.children || []), { id: 's' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), name: '' }];
+    this.refreshProto();
+  }
+  removeProtoCard(entry: { node: CardItem; parent: CardItem }): void {
+    const arr = entry.parent.children || [];
+    const i = arr.indexOf(entry.node);
+    if (i < 0) return;
+    arr.splice(i, 1);
+    entry.parent.children = [...arr];
+    this.refreshProto();
+  }
+  moveProtoCard(entry: { node: CardItem; parent: CardItem }, dir: number): void {
+    const arr = entry.parent.children || [];
+    const i = arr.indexOf(entry.node);
+    const t = i + dir;
+    if (i < 0 || t < 0 || t >= arr.length) return;
+    arr.splice(t, 0, arr.splice(i, 1)[0]);
+    entry.parent.children = [...arr];
+    this.refreshProto();
+  }
+  trackProtoCard = (_: number, it: { node: CardItem }): string => it.node.id;
+  /** Missing-image highlight for a segment option (parity with Category's
+   *  isSegOptionMissingImages, but resolved by node id). */
+  protoSegMissingImages(seg: 'L0' | 'L1' | 'L2', id: string): boolean {
+    if (!this.intermediateNeedsImage || id === 'all' || !this.draft) return false;
+    const missingAtLevel = (root: CardItem, rootDepth: number): boolean => {
+      let missing = false;
+      const walk = (n: CardItem, d: number): void => {
+        if (d === this.interLevel) { if (!n.image) missing = true; return; }
+        (n.children || []).forEach((c) => walk(c, d + 1));
+      };
+      walk(root, rootDepth);
+      return missing;
+    };
+    const home = this.draft.home || [];
+    if (seg === 'L0') { const c = home.find((x) => x.id === id); return c ? missingAtLevel(c, 0) : false; }
+    const l0 = home.find((x) => x.id === this.protoL0Id);
+    if (!l0) return false;
+    if (seg === 'L1') { const c = (l0.children || []).find((x) => x.id === id); return c ? missingAtLevel(c, 1) : false; }
+    const l1Pool = this.protoL1Id === 'all' ? (l0.children || []) : (l0.children || []).filter((x) => x.id === this.protoL1Id);
+    for (const l1 of l1Pool) {
+      const c = (l1.children || []).find((x) => x.id === id);
+      if (c && missingAtLevel(c, 2)) return true;
+    }
+    return false;
+  }
 
   /** True when a home card carries its own drill-down subtree (vs. falling back
    *  to the shared default intermediate list). Drives the "Custom subtree" badge. */
@@ -1136,6 +1332,9 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (this.draft?.appMode === 'category') {
       return (this.interCardsList || []).map((it) => it.node);
     }
+    if (this.protoLeveled && this.interLevel > 0) {
+      return this.protoCards.map((it) => it.node);
+    }
     return this.draft?.intermediate || [];
   }
 
@@ -1144,6 +1343,14 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     this.draft = (await this.content.list()).find((d) => d.id === id);
     if (!this.draft) { this.router.navigateByUrl('/tabs/content'); return; }
     if (this.draft.appMode === 'prototype-esl' && !this.draft.eslBlinkBy) this.draft.eslBlinkBy = 'article';
+    // Prototype leveled drill: infer the depth from the deepest existing children
+    // so drafts built before the depth control keep their whole tree editable.
+    if ((this.draft.appMode === 'prototype' || this.draft.appMode === 'prototype-esl') && this.draft.categoryLevelCount == null) {
+      let depth = 1;
+      const walk = (c: CardItem, d: number): void => { depth = Math.max(depth, d); (c.children || []).forEach((ch) => walk(ch, d + 1)); };
+      (this.draft.home || []).forEach((c) => (c.children || []).forEach((ch) => walk(ch, 1)));
+      this.draft.categoryLevelCount = Math.min(3, depth);
+    }
     // Re-sync the draft's theme snapshot with the saved theme: theme edits made
     // AFTER the draft was created (e.g. switching the result template to 'shelf')
     // must reflect here, otherwise template-driven sections (map/promo uploads,
