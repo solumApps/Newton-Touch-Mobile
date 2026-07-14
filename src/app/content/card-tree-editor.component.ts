@@ -123,5 +123,5 @@ export class CardTreeEditorComponent {
   /** Per-image fit segment (shown when an image is set). 'cover' = default → field omitted. */
   readonly fitOpts: ImageFit[] = ['cover', 'contain', 'fill'];
   fitOf(c: CardItem): ImageFit { return c.imageFit || 'cover'; }
-  setFit(c: CardItem, fit: ImageFit): void { c.imageFit = fit === 'cover' ? undefined : fit; }
+  setFit(c: CardItem, fit: ImageFit): void { c.imageFit = fit; }
 }

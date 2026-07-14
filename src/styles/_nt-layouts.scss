@@ -1810,7 +1810,8 @@
   width: 46%;
   height: 46%;
   margin: 0 auto calc(var(--nt-vh)*0.6);
-  background-size: contain;
+  /* icon glyphs stay contained even under the cover-by-default fit */
+  background-size: contain !important;
   background-repeat: no-repeat;
   background-position: center;
 }
@@ -2349,7 +2350,8 @@
   display: block;
   width: 34%;
   height: 34%;
-  background-size: contain;
+  /* icon glyphs stay contained even under the cover-by-default fit */
+  background-size: contain !important;
   background-repeat: no-repeat;
   background-position: center;
 }
@@ -6833,7 +6835,8 @@
   height: calc(var(--nt-vh)*48) !important;
   border-radius: 50%;
   background-color: var(--nt-int-card, rgba(255, 255, 255, .08));
-  background-size: cover !important;
+  /* no !important on background-size: the per-item Fit choice is an inline style */
+  background-size: cover;
   background-position: center !important;
   background-repeat: no-repeat !important;
 }
@@ -7387,7 +7390,8 @@
   margin: 0 !important;
   border-radius: 0 !important;
   clip-path: none !important;
-  background-size: cover !important;
+  /* no !important on background-size: the per-item Fit choice is an inline style */
+  background-size: cover;
   background-repeat: no-repeat;
 }
 
@@ -11041,6 +11045,7 @@
   width: 34% !important;
   height: 34% !important;
   transform: translate(-50%, -50%);
+  /* icon glyphs stay contained even under the cover-by-default fit */
   background-size: contain !important;
   background-repeat: no-repeat !important;
   background-position: center !important;
@@ -11537,6 +11542,7 @@
 
 /* ---- brand-rail icon+text: smaller contained icon, not a full image (#8) ---- */
 .nt-inter .int-brand-rail.int-content-icon-text .item .img {
+  /* icon glyphs stay contained even under the cover-by-default fit */
   background-size: contain !important;
   width: 44% !important;
   height: 42% !important;
@@ -11723,7 +11729,8 @@
   width: 42%;
   height: 38%;
   margin: auto auto 0;
-  background-size: contain;
+  /* icon glyphs stay contained even under the cover-by-default fit */
+  background-size: contain !important;
   background-color: transparent;
   border-radius: 0;
 }
@@ -11897,7 +11904,8 @@
   width: calc(var(--nt-vh)*14);
   height: calc(var(--nt-vh)*14);
   margin: 0 auto calc(var(--nt-vh)*0.8);
-  background-size: contain;
+  /* icon glyphs stay contained even under the cover-by-default fit */
+  background-size: contain !important;
   background-repeat: no-repeat;
   background-position: center;
   background-color: transparent;

@@ -552,14 +552,15 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   }
 
   /** Active segment selections, tracked by node ID (names are editable here, so
-   *  string paths — as Category mode uses — would go stale on rename). */
-  protoL0Id = ''; protoL1Id = 'all'; protoL2Id = 'all';
+   *  string paths — as Category mode uses — would go stale on rename). Always a
+   *  SPECIFIC node (auto-defaults to the first option) — there is no 'all'. */
+  protoL0Id = ''; protoL1Id = ''; protoL2Id = '';
   /** Cached view-state (same pattern as Category's refreshInter — recomputed on
    *  real events only, never per change-detection pass). */
   protoL0Segs: { id: string; label: string }[] = [];
   protoL1Segs: { id: string; label: string }[] = [];
   protoL2Segs: { id: string; label: string }[] = [];
-  protoCards: { node: CardItem; parent: CardItem; ctx: string }[] = [];
+  protoCards: { node: CardItem; parent: CardItem }[] = [];
   private protoName(c: CardItem): string { return c.name?.trim() || 'Unnamed'; }
   refreshProto(): void {
     if (!this.protoLeveled || this.interLevel < 1) {
@@ -586,32 +587,18 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     } else { this.protoL2Segs = []; this.protoL2Id = ''; }
     this.protoCards = this.buildProtoCards(lvl);
   }
-  /** ALL cards at the current level under the active segment filters, each with
-   *  its parent (for add/move/remove) and a context hint when 'all' widens the list. */
-  private buildProtoCards(level: number): { node: CardItem; parent: CardItem; ctx: string }[] {
-    const home = this.draft?.home || [];
-    const l0 = home.find((c) => c.id === this.protoL0Id);
-    if (!l0) return [];
-    const out: { node: CardItem; parent: CardItem; ctx: string }[] = [];
-    if (level === 1) {
-      (l0.children || []).forEach((c) => out.push({ node: c, parent: l0, ctx: '' }));
-    } else if (level === 2) {
-      const l1s = (l0.children || []).filter((c) => c.id === this.protoL1Id);
-      l1s.forEach((l1) => (l1.children || []).forEach((c) => out.push({ node: c, parent: l1, ctx: '' })));
-    } else if (level === 3) {
-      const l1s = (l0.children || []).filter((c) => c.id === this.protoL1Id);
-      l1s.forEach((l1) => {
-        const l2s = (l1.children || []).filter((c) => c.id === this.protoL2Id);
-        l2s.forEach((l2) => (l2.children || []).forEach((c) => out.push({ node: c, parent: l2, ctx: '' })));
-      });
-    }
-    return out;
+  /** The cards at the current level under the selected parent, with the parent
+   *  node attached (for add/move/remove). */
+  private buildProtoCards(level: number): { node: CardItem; parent: CardItem }[] {
+    const parent = this.protoAddParent;
+    if (!parent || level < 1) return [];
+    return (parent.children || []).map((c) => ({ node: c, parent }));
   }
   setProtoL0(id: string): void { this.protoL0Id = id; this.protoL1Id = ''; this.protoL2Id = ''; this.refreshProto(); }
   setProtoL1(id: string): void { this.protoL1Id = id; this.protoL2Id = ''; this.refreshProto(); }
   setProtoL2(id: string): void { this.protoL2Id = id; this.refreshProto(); }
-  /** The node new cards go under — null while an ancestor segment is on 'all'
-   *  (ambiguous parent) so the + Add button disables with a hint. */
+  /** The node whose children this level shows (and new cards go under) — null
+   *  when an ancestor level is still empty, so + Add disables with a hint. */
   get protoAddParent(): CardItem | null {
     const home = this.draft?.home || [];
     const l0 = home.find((c) => c.id === this.protoL0Id);
@@ -805,11 +792,14 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Per-image fit segment (shown when an image is set). 'cover' = default → field omitted. */
+  /** Per-image fit segment (shown when an image is set). The choice is stored
+   *  EXPLICITLY — including 'cover' — because some templates default to contain
+   *  (brand-rail logos, product-focus disc): omitting 'cover' made that option
+   *  a no-op there. */
   readonly fitOpts: ImageFit[] = ['cover', 'contain', 'fill'];
   fitOf(item: CardItem | ResultProduct): ImageFit { return item.imageFit || 'cover'; }
   setFit(item: CardItem | ResultProduct, fit: ImageFit): void {
-    item.imageFit = fit === 'cover' ? undefined : fit;
+    item.imageFit = fit;
     if (this.draft?.appMode === 'category') {
       this.syncResultProducts();
     }
