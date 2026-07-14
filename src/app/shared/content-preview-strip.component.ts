@@ -47,6 +47,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-base-text]="theme?.typography?.baseTextColor"
            [style.--nt-header-text]="headerTextColor"
            [style.--nt-int-header-text]="theme?.intermediate?.headerTextColor || '#FFFFFF'"
+           [style.--nt-fs-prompt-text]="theme?.intermediate?.promptTextColor || theme?.intermediate?.headerTextColor || theme?.headerTextColor || '#FFFFFF'"
            [style.--nt-res-header-text]="'#FFFFFF'"
            [style.--nt-accent]="theme?.accent"
            [style.--nt-card]="theme?.cardBackground"

@@ -113,17 +113,23 @@
   margin-top: calc(var(--nt-vh)*0.2);
 }
 
-.nt-home .hdr .title,
+.nt-home .hdr .title {
+  color: var(--nt-header-text, #fff);
+}
 .nt-home .hdr .caption {
   color: var(--nt-header-text, #fff);
 }
 
-.nt-inter .hdr .title,
+.nt-inter .hdr .title {
+  color: var(--nt-int-header-text, #fff);
+}
 .nt-inter .hdr .caption {
   color: var(--nt-int-header-text, #fff);
 }
 
-.nt-result .hdr .title,
+.nt-result .hdr .title {
+  color: var(--nt-res-header-text, #fff);
+}
 .nt-result .hdr .caption {
   color: var(--nt-res-header-text, #fff);
 }
@@ -8968,7 +8974,7 @@
 .nt-inter .fs-prompt {
   font-size: calc(var(--nt-vw)*1);
   font-weight: 800;
-  color: #1d2530;
+  color: var(--nt-fs-prompt-text, #1d2530);
   text-transform: uppercase;
   letter-spacing: .04em;
 }
@@ -10437,7 +10443,7 @@
 .nt-inter .fs-prompt {
   font-size: calc(var(--nt-vw)*1);
   font-weight: 800;
-  color: #1d2530;
+  color: var(--nt-fs-prompt-text, #1d2530);
   text-transform: uppercase;
   letter-spacing: .04em;
 }

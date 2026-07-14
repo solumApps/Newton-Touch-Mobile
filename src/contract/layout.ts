@@ -322,44 +322,138 @@ export interface ThemeTokens {
   includeIntermediate: boolean;
   intermediateStyle: IntermediateStyle;
   resultTemplate: ResultTemplate;
-  intermediate: { headerColor: string; headerTextColor?: string; headerStyle?: HeaderStyle; headerLayout?: HeaderLayoutMode; logoPos?: HeaderItemPos; titlePos?: HeaderItemPos; captionPos?: HeaderItemPos; background: string; backgroundImage?: string; bgImageX?: number; bgImageY?: number; bgImageZoom?: number; cardBackground: string; cardText: string; accent: string; itemSize: 'small' | 'medium' | 'large'; itemSizeScale?: number; showHeader: boolean; showTracklist?: boolean; transparentHeader?: boolean; cardShape?: CardShape; align?: 'left' | 'center' | 'right'; textAlign?: 'left' | 'center' | 'right'; scrollMode?: ScrollMode; valign?: 'top' | 'middle' | 'bottom'; gap?: 'tight' | 'normal' | 'loose'; gapNum?: number; content?: CardContent; textPos?: CardTextPos; textOverlay?: boolean; overlayStyle?: CardOverlayStyle; overlayShape?: OverlayShape; textShadow?: boolean; brandRailMessagePos?: 'left' | 'right'; brandRailMessageAlign?: 'top' | 'center' | 'bottom';
+  intermediate: {
+    headerColor: string;
+    headerTextColor?: string;
+    headerStyle?: HeaderStyle;
+    headerLayout?: HeaderLayoutMode;
+    logoPos?: HeaderItemPos;
+    titlePos?: HeaderItemPos;
+    captionPos?: HeaderItemPos;
+    background: string;
+    backgroundImage?: string;
+    bgImageX?: number;
+    bgImageY?: number;
+    bgImageZoom?: number;
+    cardBackground: string;
+    cardText: string;
+    accent: string;
+    itemSize: 'small' | 'medium' | 'large';
+    itemSizeScale?: number;
+    showHeader: boolean;
+    showTracklist?: boolean;
+    transparentHeader?: boolean;
+    cardShape?: CardShape;
+    align?: 'left' | 'center' | 'right';
+    textAlign?: 'left' | 'center' | 'right';
+    scrollMode?: ScrollMode;
+    valign?: 'top' | 'middle' | 'bottom';
+    gap?: 'tight' | 'normal' | 'loose';
+    gapNum?: number;
+    content?: CardContent;
+    textPos?: CardTextPos;
+    textOverlay?: boolean;
+    overlayStyle?: CardOverlayStyle;
+    overlayShape?: OverlayShape;
+    textShadow?: boolean;
+    brandRailMessagePos?: 'left' | 'right';
+    brandRailMessageAlign?: 'top' | 'center' | 'bottom';
     /** Optional nav-position override for the Intermediate page only. */
-    navPosition?: NavButtonPosition; navSplit?: boolean; navBackPosition?: NavButtonPosition; navHomePosition?: NavButtonPosition;
+    navPosition?: NavButtonPosition;
+    navSplit?: boolean;
+    navBackPosition?: NavButtonPosition;
+    navHomePosition?: NavButtonPosition;
     /** brand-rail: blur message container background + text colour. */
-    brandRailMessageBgColor?: string; brandRailMessageTextColor?: string;
+    brandRailMessageBgColor?: string;
+    brandRailMessageTextColor?: string;
     /** finder-select template: dark hero rail + selection cards + index strip. */
-    heroColor?: string; heroImage?: string; promptPrefix?: string; showPrompt?: boolean;
-    showBack?: boolean; indexStrip?: 'auto' | 'alpha' | 'values' | 'off'; stepLabels?: string[]; columns?: number;
+    heroColor?: string;
+    heroImage?: string;
+    promptPrefix?: string;
+    /** Optional colour for the Finder Select prompt text (e.g. "TOUCH YOUR"). */
+    promptTextColor?: string;
+    showPrompt?: boolean;
+    showBack?: boolean;
+    indexStrip?: 'auto' | 'alpha' | 'values' | 'off';
+    stepLabels?: string[];
+    columns?: number;
     /** finder-select top bar: back button + prompt toggles and positions. */
-    fsShowBack?: boolean; fsBackPos?: 'left' | 'right' | 'center'; fsShowPrompt?: boolean; fsPromptPos?: 'left' | 'right' | 'center';
+    fsShowBack?: boolean;
+    fsBackPos?: 'left' | 'right' | 'center';
+    fsShowPrompt?: boolean;
+    fsPromptPos?: 'left' | 'right' | 'center';
     /** finder-select fast-lookup index: alphabetic A–Z or numeric ranges. */
-    indexMode?: 'alpha' | 'number'; indexNumberMin?: number; indexNumberMax?: number; indexNumberInterval?: number;
+    indexMode?: 'alpha' | 'number';
+    indexNumberMin?: number;
+    indexNumberMax?: number;
+    indexNumberInterval?: number;
     /** finder-select fs-card appearance (independent of the brand-rail/columns card controls). */
-    fsCardContent?: CardContent; fsCardShape?: CardShape; fsTextPos?: CardTextPos; fsTextAlign?: 'left' | 'center' | 'right'; };
-  result: { headerColor: string; background: string; backgroundImage?: string; cardBackground: string; cardText: string; accent: string; pathColor: string; pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated'; showHeader: boolean; showTracklist?: boolean; transparentHeader?: boolean; content?: 'image-text' | 'text-only'; textPos?: CardTextPos; cardShape?: CardShape; popularText?: string;
+    fsCardContent?: CardContent;
+    fsCardShape?: CardShape;
+    fsTextPos?: CardTextPos;
+    fsTextAlign?: 'left' | 'center' | 'right';
+  };
+  result: {
+    headerColor: string;
+    headerTextColor?: string;
+    background: string;
+    backgroundImage?: string;
+    cardBackground: string;
+    cardText: string;
+    accent: string;
+    pathColor: string;
+    pathStyle: 'dashed' | 'solid' | 'dotted' | 'animated';
+    showHeader: boolean;
+    showTracklist?: boolean;
+    transparentHeader?: boolean;
+    content?: 'image-text' | 'text-only';
+    textPos?: CardTextPos;
+    cardShape?: CardShape;
+    popularText?: string;
     /** Optional nav-position override for the Result page only. */
-    navPosition?: NavButtonPosition; navSplit?: boolean; navBackPosition?: NavButtonPosition; navHomePosition?: NavButtonPosition;
+    navPosition?: NavButtonPosition;
+    navSplit?: boolean;
+    navBackPosition?: NavButtonPosition;
+    navHomePosition?: NavButtonPosition;
     /** Position of the filter section in Map-Filter-List (G-2). Default 'center'. */
     filterPos?: 'center' | 'top' | 'bottom' | 'left' | 'right';
     /** promo-map-rank: header countdown timer (mm:ss start) + alert bell. */
-    showTimer?: boolean; timerSeconds?: number; showBell?: boolean;
+    showTimer?: boolean;
+    timerSeconds?: number;
+    showBell?: boolean;
     /** promo-map-rank: floor selector labels (top→bottom), e.g. ['3F','2F','1F']. */
-    floors?: string[]; activeFloor?: string;
+    floors?: string[];
+    activeFloor?: string;
     /** promo-map-rank: ranked numbers on/off, sort tabs on/off, show zone. */
-    showRanks?: boolean; showSortTabs?: boolean; showZone?: boolean;
+    showRanks?: boolean;
+    showSortTabs?: boolean;
+    showZone?: boolean;
     /** promo-map-rank: "you are here" pin label + colour, map dot colour. */
-    youAreHereLabel?: string; pinColor?: string; dotColor?: string;
+    youAreHereLabel?: string;
+    pinColor?: string;
+    dotColor?: string;
     /** promo-map-rank/finder: dark panel + secondary panel colours. */
-    panelColor?: string; subPanelColor?: string; secondaryTextColor?: string;
+    panelColor?: string;
+    subPanelColor?: string;
+    secondaryTextColor?: string;
     /** finder-detail: which sort tabs to show. */
     sortTabs?: ('recommend' | 'alpha' | 'low-price' | 'on-sale')[];
     /** finder-detail: SALE badge on/off; Find It / Find All button colour + labels. */
-    showSaleBadge?: boolean; findColor?: string; findItLabel?: string; findAllLabel?: string;
+    showSaleBadge?: boolean;
+    findColor?: string;
+    findItLabel?: string;
+    findAllLabel?: string;
     /** finder-detail: left hero background image + breadcrumb chip labels. */
-    heroImage?: string; breadcrumbLabels?: string[];
+    heroImage?: string;
+    breadcrumbLabels?: string[];
     /** Neutral-surface overrides (default to light). promo-map-rank: map area +
      *  category rail; finder-detail: middle list bg + product/detail card bg/text. */
-    mapBg?: string; railBg?: string; listBg?: string; cardBg?: string; cardTextColor?: string; };
+    mapBg?: string;
+    railBg?: string;
+    listBg?: string;
+    cardBg?: string;
+    cardTextColor?: string;
+  };
   animation: { transition: TransitionType; speed: AnimSpeed; applyToAll: boolean; };
   loader: { style: LoaderStyle; color: string; };
   /** Shared typography/appearance — applied consistently across ALL rendered pages.
