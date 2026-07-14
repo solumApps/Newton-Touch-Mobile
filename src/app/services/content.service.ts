@@ -55,6 +55,7 @@ export interface ContentDraft {
     /** finder-select fast-lookup index (moved out of the theme — depends on the
      *  drill levels / content). 'alpha' = A–Z; 'number' = min/max/interval. */
     indexMode?: 'alpha' | 'number'; indexNumberMin?: number; indexNumberMax?: number; indexNumberInterval?: number;
+    fsSortOrder?: 'none' | 'az' | 'za';
   };
   screensaver: Screensaver;
   /** Media mode only (appMode 'media'): the single image/video to play full-screen. */
@@ -300,6 +301,7 @@ export class ContentService {
       if (td.indexNumberMin != null) im.indexNumberMin = td.indexNumberMin;
       if (td.indexNumberMax != null) im.indexNumberMax = td.indexNumberMax;
       if (td.indexNumberInterval != null) im.indexNumberInterval = td.indexNumberInterval;
+      if (td.fsSortOrder != null) im.fsSortOrder = td.fsSortOrder;
     }
     const payload: LayoutJson = {
       schemaVersion: 1,

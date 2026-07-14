@@ -58,6 +58,53 @@ app-content-preview-strip {
   box-sizing: border-box;
 }
 
+.prev.nt-stage.nt-inter .fs-index-row {
+  display: flex;
+  align-items: center;
+  // justify-content: center;
+  gap: calc(var(--nt-vw, 1vw) * 0.8);
+  margin-top: calc(var(--nt-vh, 1vh) * 1.4);
+  min-height: calc(var(--nt-vh, 1vh) * 3.8);
+  min-width: 0;
+}
+
+.prev.nt-stage.nt-inter .fs-index-row .fs-sort {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--nt-vw, 1vw) * 0.18);
+  padding: calc(var(--nt-vh, 1vh) * 0.75);
+  border: 1px solid color-mix(in srgb, var(--fs-accent, #4ea1ff) 55%, transparent);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow: 0 calc(var(--nt-vh, 1vh) * 0.25) calc(var(--nt-vh, 1vh) * 0.8) rgba(0, 0, 0, 0.16);
+}
+
+.prev.nt-stage.nt-inter .fs-index-row .fs-index {
+  margin-top: 0;
+  min-width: 0;
+}
+
+.prev.nt-stage.nt-inter .fs-sort-btn {
+  min-width: calc(var(--nt-vw, 1vw) * 3.2);
+  height: calc(var(--nt-vh, 1vh) * 3.1);
+  padding: 0 calc(var(--nt-vw, 1vw) * 0.65);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--nt-fs-prompt-text, #1d2530);
+  font-size: calc(var(--nt-vw, 1vw) * 0.72);
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.prev.nt-stage.nt-inter .fs-sort-btn.active {
+  background: var(--fs-accent, #4ea1ff);
+  color: #10131a;
+}
+
 /* Create Content > Intermediate horizontal columns: size visible cards from the
    selected column count, mirroring Home column layouts. */
 .prev.nt-stage.nt-inter.force-shared-intermediate .body.int-columns.scroll-horizontal {

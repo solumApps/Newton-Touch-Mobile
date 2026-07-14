@@ -12036,32 +12036,33 @@
   flex: 1 1 auto;
 }
 
-.nt-inter .fs-index {
+.nt-inter .body.fs-body .fs-index {
   padding: calc(var(--nt-vh)*0.7) calc(var(--nt-vw)*0.8);
-  background: transparent;
+  background: #000;
   border-radius: 999px;
+  opacity: 0.7;
 }
 
-.nt-inter .fs-index-values {
+.nt-inter .body.fs-body .fs-index-values {
 }
 
-.nt-inter .fs-letter,
-.nt-inter .fs-val {
+.nt-inter .body.fs-body .fs-letter,
+.nt-inter .body.fs-body .fs-val {
   min-width: calc(var(--nt-vw)*2.1);
   text-align: center;
   padding: calc(var(--nt-vh)*0.45) calc(var(--nt-vw)*0.65);
   border-radius: 999px;
   font-size: calc(var(--nt-vw)*0.78);
   font-weight: 700;
-  color: #6b7280;
+  color: #fff;
   background: transparent;
   border: 0;
   box-sizing: border-box;
 }
 
-.nt-inter .fs-letter.active,
-.nt-inter .fs-val.active {
-  color: var(--fs-accent, #185fa5);
+.nt-inter .body.fs-body .fs-letter.active,
+.nt-inter .body.fs-body .fs-val.active {
+  color: #fff;
   background: transparent;
   border: 0;
   font-weight: 900;

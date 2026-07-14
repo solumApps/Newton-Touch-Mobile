@@ -43,6 +43,7 @@
       [header]="d.header"
       [draftName]="d.name"
       [(selectedResultIndex)]="markerIdx"
+      (finderSortOrderChange)="td.fsSortOrder=$event"
       [caption]="step.label"></app-content-preview-strip>
   </div>
 
@@ -673,6 +674,7 @@
             [screensaver]="d.screensaver"
             [header]="d.header"
             [draftName]="d.name"
+            (finderSortOrderChange)="td.fsSortOrder=$event"
             [showStripCaption]="false"></app-content-preview-strip>
           <div class="review-slide-cap">{{ pg.label }}</div>
         </div>

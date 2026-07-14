@@ -117,22 +117,31 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
         <!-- HOME (LCD markup: .cards.layout-*) -->
         <ng-container *ngSwitchCase="'home'">
-        <div class="body fs-body" *ngIf="theme?.homeLayout==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || '#172033'" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--nt-int-bg]="theme?.background || null" [style.--int-gap]="cardGapPx" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
+        <div class="body fs-body" *ngIf="theme?.homeLayout==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || '#172033'" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--nt-int-bg]="homeCardAreaBackground" [style.--int-gap]="cardGapPx" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
           <div class="fs-hero" [style.background]="theme?.intermediate?.heroColor || null">
             <div class="fs-hero-title">{{ titleText || 'Product Finder' }}</div>
             <div class="fs-steps">
               <div class="fs-step" *ngFor="let s of homeFinderSteps; let i=index" [class.current]="i===0" [class.todo]="i>0"><span class="fs-step-lbl">{{ s }}</span><span class="fs-step-val">-</span><span class="fs-step-dot" *ngIf="i===0"></span></div>
             </div>
           </div>
-          <div class="fs-main" [style.background]="theme?.background || null">
-            <div class="fs-top fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}"><div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div></div>
-          <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{theme?.intermediate?.fsTextAlign||'center'}}">
-              <div class="fs-card" *ngFor="let c of homeCells; let i = index" (click)="selectIntermediateBranch(i)" [class.cps-selected]="i===activeIntermediateHomeIndex">
+          <div class="fs-main" [style.background]="homeCardAreaBackground">
+            <div class="fs-top fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}">
+              <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div>
+            </div>
+          <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{finderTextAlignClass}}">
+              <div class="fs-card" *ngFor="let c of finderHomeCells; let i = index" (click)="selectIntermediateBranchById(c.id)" [class.cps-selected]="c.id===activeIntermediateHomeItem?.id || (!activeIntermediateHomeItem && i===0)">
                 <div class="fs-card-img" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='text-only'" [class.no-img]="!c.image && !finderUsePh" [style.background-image]="c.image ? 'url('+c.image+')' : (finderUsePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null"></div>
                 <span class="fs-card-nm" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='image-only'">{{ c.name }}</span>
               </div>
             </div>
-            <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let c of homeCells; let i=index" [class.active]="i===0">{{ c.name }}</span></div>
+            <div class="fs-index-row">
+              <div class="fs-sort" role="group" aria-label="Finder card sort order">
+                <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='none'" (click)="setFinderSortOrder('none')">None</button>
+                <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='az'" (click)="setFinderSortOrder('az')">A-Z</button>
+                <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='za'" (click)="setFinderSortOrder('za')">Z-A</button>
+              </div>
+              <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let c of finderHomeCells; let i=index" [class.active]="i===0">{{ c.name }}</span></div>
+            </div>
           </div>
         </div>
         <div *ngIf="theme?.homeLayout!=='finder-select'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} valign-{{theme?.cardVAlign||'middle'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}} ovl-{{theme?.cardOverlayStyle||'gradient'}} oshape-{{theme?.cardOverlayShape||''}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
@@ -192,14 +201,24 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               </div>
             </div>
             <div class="fs-main" [style.background]="theme?.intermediate?.background || null">
-              <div class="fs-top fs-back-{{theme?.intermediate?.fsBackPos||'left'}} fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}"><button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">&#8592;</button><div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div></div>
-              <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{theme?.intermediate?.fsTextAlign||'center'}}">
-                <div class="fs-card" *ngFor="let it of interCells.slice(0,5); let i = index">
+              <div class="fs-top fs-back-{{theme?.intermediate?.fsBackPos||'left'}} fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}">
+                <button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">&#8592;</button>
+                <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div>
+              </div>
+              <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{finderTextAlignClass}}">
+                <div class="fs-card" *ngFor="let it of finderInterCells.slice(0,5); let i = index">
                   <div class="fs-card-img" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='text-only'" [class.no-img]="!it.image && !finderUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (finderUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                   <span class="fs-card-nm" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='image-only'">{{ it.name }}</span>
                 </div>
               </div>
-              <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let v of fsIndexValues; let i=index" [class.active]="i===0">{{ v }}</span></div>
+              <div class="fs-index-row">
+                <div class="fs-sort" role="group" aria-label="Finder card sort order">
+                  <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='none'" (click)="setFinderSortOrder('none')">None</button>
+                  <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='az'" (click)="setFinderSortOrder('az')">A-Z</button>
+                  <button type="button" class="fs-sort-btn" [class.active]="finderSortOrder==='za'" (click)="setFinderSortOrder('za')">Z-A</button>
+                </div>
+                <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let v of fsIndexValues; let i=index" [class.active]="i===0">{{ v }}</span></div>
+              </div>
             </div>
           </div>
           <ng-container *ngIf="theme?.intermediateStyle!=='finder-select'">
@@ -548,6 +567,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   /** Product index highlighted on map/result previews. If absent, preview clicks own it. */
   @Input() selectedResultIndex?: number;
   @Output() selectedResultIndexChange = new EventEmitter<number>();
+  @Output() finderSortOrderChange = new EventEmitter<'none' | 'az' | 'za'>();
 
   @ViewChild('ntStage') ntStage?: ElementRef<HTMLElement>;
   private resizeObserver?: { disconnect(): void };
@@ -586,6 +606,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return shape === 'circle' || shape === 'hexagon'
       ? 'below'
       : (this.theme?.intermediate?.fsTextPos || 'center');
+  }
+  get finderTextAlignClass(): 'left' | 'center' | 'right' {
+    const shape = this.theme?.intermediate?.fsCardShape || 'rect';
+    return shape === 'circle' || shape === 'hexagon'
+      ? 'center'
+      : (this.theme?.intermediate?.fsTextAlign || 'center');
   }
   homeFinderSteps = ['Category 1', 'Category 2', 'Category 3', 'Category 4'];
   /** Result: dummy product images (unless content is text-only). */
@@ -777,6 +803,13 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     this.localResultIndex = 0;
     this.selectedResultIndexChange.emit(0);
   }
+  get activeIntermediateHomeItem(): CardItem | undefined {
+    return this.branchNavItems[this.activeIntermediateHomeIndex];
+  }
+  selectIntermediateBranchById(id?: string): void {
+    const idx = this.branchNavItems.findIndex((c) => c.id === id);
+    if (idx >= 0) this.selectIntermediateBranch(idx);
+  }
 
   get scaleNum(): number {
     // Fine-grained slider value overrides the textScale bucket when present.
@@ -945,6 +978,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     }
     return `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.28)), url("${image}") ${pos}/${size} no-repeat, ${bg || '#000'}`;
   }
+  get homeCardAreaBackground(): string | null {
+    return this.theme?.backgroundImage ? 'transparent' : (this.theme?.background || null);
+  }
   get pageCaption(): string {
     return this.page === 'inter' ? 'Intermediate'
       : this.page === 'result' ? 'Result'
@@ -968,6 +1004,22 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     if (real.length) return real.map(c => ({ ...c, name: c.name || 'Item' }));
     const labels = this.previewLabels('home');
     return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: labels[i % labels.length] } as CardItem));
+  }
+  get finderSortOrder(): 'none' | 'az' | 'za' {
+    const order = this.theme?.intermediate?.fsSortOrder;
+    return order === 'none' || order === 'za' ? order : 'az';
+  }
+  setFinderSortOrder(order: 'none' | 'az' | 'za'): void {
+    if (this.theme?.intermediate) this.theme.intermediate.fsSortOrder = order;
+    this.finderSortOrderChange.emit(order);
+  }
+  private finderSort<T extends { name?: string }>(items: T[]): T[] {
+    if (this.finderSortOrder === 'none') return items;
+    const dir = this.finderSortOrder === 'za' ? -1 : 1;
+    return [...items].sort((a, b) => dir * (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base', numeric: true }));
+  }
+  get finderHomeCells(): CardItem[] {
+    return this.finderSort(this.homeCells);
   }
   get intermediateSource(): CardItem[] {
     if (this.forceSharedIntermediate) return this.intermediate || [];
@@ -1004,7 +1056,10 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       if (max >= min) for (let v = min; v <= max && out.length < 12; v += step) out.push(String(v));
       return out;
     }
-    return this.interCells.slice(0, 6).map((it) => it.name);
+    return this.finderInterCells.slice(0, 6).map((it) => it.name);
+  }
+  get finderInterCells(): CardItem[] {
+    return this.finderSort(this.interCells);
   }
   get interCells(): CardItem[] {
     // Builder shared-intermediate previews render every item, with a 3-card

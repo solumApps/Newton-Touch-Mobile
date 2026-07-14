@@ -687,10 +687,17 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     const shape = this.t.intermediate.fsCardShape || 'rect';
     return shape !== 'circle' && shape !== 'hexagon';
   }
+  get finderTextAlignMatters(): boolean {
+    const shape = this.t.intermediate.fsCardShape || 'rect';
+    return shape !== 'circle' && shape !== 'hexagon';
+  }
   get fsTextPosClass(): CardTextPos {
     return this.finderTextPositionMatters
       ? (this.t.intermediate.fsTextPos || 'center')
       : 'below';
+  }
+  get fsTextAlignClass(): 'left' | 'center' | 'right' {
+    return this.finderTextAlignMatters ? (this.t.intermediate.fsTextAlign || 'center') : 'center';
   }
   /** finder-select fs-card content options (#5). */
   fsCardContents: { id: CardContent; label: string }[] = [
@@ -702,6 +709,15 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     this.t.intermediate.fsCardContent = c;
     if (c === 'image-only') this.t.intermediate.fsCardShape = 'none';
     else if (this.t.intermediate.fsCardShape === 'none') this.t.intermediate.fsCardShape = 'rect';
+    this.coerceFsTextAlign();
+  }
+  setFsCardShape(s: CardShape): void {
+    this.t.intermediate.fsCardShape = s;
+    this.coerceFsTextAlign();
+  }
+  private coerceFsTextAlign(): void {
+    const shape = this.t.intermediate.fsCardShape || 'rect';
+    if (shape === 'circle' || shape === 'hexagon') this.t.intermediate.fsTextAlign = 'center';
   }
   /** Card shape only affects intermediate styles that show a per-item image. */
   get intShapeMatters(): boolean {
@@ -1260,6 +1276,9 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
       : page === 'result' ? this.t.result.backgroundImage
       : this.t.backgroundImage;
     return image ? `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.28)), url("${image}") center/cover no-repeat, ${bg}` : bg;
+  }
+  get homeCardAreaBackground(): string {
+    return this.t.backgroundImage ? 'transparent' : this.t.background;
   }
   pageCaption(page: PreviewPage): string {
     return page === 'inter' ? 'Intermediate' : page === 'result' ? 'Result' : page === 'saver' ? 'Screensaver' : 'Home';

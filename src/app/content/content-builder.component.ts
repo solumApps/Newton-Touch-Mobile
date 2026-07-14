@@ -741,6 +741,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (td.indexNumberMin != null) im.indexNumberMin = td.indexNumberMin;
     if (td.indexNumberMax != null) im.indexNumberMax = td.indexNumberMax;
     if (td.indexNumberInterval != null) im.indexNumberInterval = td.indexNumberInterval;
+    if (td.fsSortOrder != null) im.fsSortOrder = td.fsSortOrder;
     return { ...t, result: r, intermediate: im };
   }
 

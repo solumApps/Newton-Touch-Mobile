@@ -64,7 +64,7 @@ export class ThemeService {
       includeIntermediate: true,
       intermediateStyle: 'columns',
       resultTemplate: 'map-list',
-    intermediate: { headerColor: 'rgba(0,0,0,0.45)', headerTextColor: '#FFFFFF', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, showTracklist: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'top', gap: 'normal', textPos: 'overlay-bottom', navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right' },
+    intermediate: { headerColor: 'rgba(0,0,0,0.45)', headerTextColor: '#FFFFFF', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, showTracklist: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'top', gap: 'normal', textPos: 'overlay-bottom', navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right', fsSortOrder: 'az' },
       result: { headerColor: 'transparent', background: '#1a0036', cardBackground: '#0f172a', cardText: '#FFFFFF', accent: '#ffcd00', popularText: '#FFFFFF', pathColor: '#ffcd00', pathStyle: 'dashed', showHeader: true, showTracklist: true, navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right', filterPos: 'center' },
       // Default to fade-slide transition (original default).
       // The transition options remain available in the
@@ -145,6 +145,7 @@ export class ThemeService {
       navBackPosition: t?.intermediate?.navBackPosition ?? (t?.nav?.backPosition ?? d.intermediate.navBackPosition),
       navHomePosition: t?.intermediate?.navHomePosition ?? (t?.nav?.homePosition ?? d.intermediate.navHomePosition),
     };
+    out.intermediate.fsSortOrder = out.intermediate.fsSortOrder === 'za' || out.intermediate.fsSortOrder === 'none' ? out.intermediate.fsSortOrder : 'az';
     out.result = {
       ...d.result,
       ...(t?.result || {}),
