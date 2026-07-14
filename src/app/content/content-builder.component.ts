@@ -761,6 +761,13 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (!this.draft) return;
     this.draft.header = { ...(this.draft.header || {}), [field]: value };
   }
+  /** Header logo size as a percentage (100 = default). */
+  get headerLogoScalePct(): number { return Math.round((this.draft?.header?.logoScale ?? 1) * 100); }
+  setHeaderLogoScale(pct: unknown): void {
+    if (!this.draft) return;
+    const v = Math.max(0.5, Math.min(2.5, (Number(pct) || 100) / 100));
+    this.draft.header = { ...(this.draft.header || {}), logoScale: v };
+  }
   async pickLogo(): Promise<void> {
     const dataUrl = await this.picker.pick();
     if (dataUrl) this.setHeader('logo', dataUrl);

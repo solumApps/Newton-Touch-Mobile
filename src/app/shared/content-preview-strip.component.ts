@@ -84,6 +84,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
              [class.right]="logoRight && !isCustomHeader" [class.center]="logoCenter && !isCustomHeader"
              [class.hdr-transparent]="isTransparentHeader" [class.hdr-custom]="isCustomHeader"
              [ngClass]="isCustomHeader ? '' : ('hdr-style-' + headerStyle)"
+             [style.--nt-logo-scale]="header?.logoScale || null"
              [style.background]="isTransparentHeader ? 'transparent' : headerColor">
           <ng-container *ngIf="!isCustomHeader">
             <img *ngIf="showLogo" [src]="header?.logo || 'assets/solum-logo-white.svg'" alt="Logo" class="brand-logo" />
@@ -558,7 +559,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   @Input() intermediateCreatePreview = false;
   @Input() result?: { mapImage?: string; promoImage?: string; products: ResultProduct[]; route?: { kind?: 'line' | 'dot' | 'none'; x?: number; y?: number; w?: number; color?: string } };
   @Input() screensaver?: Screensaver;
-  @Input() header?: { title?: string; caption?: string; logo?: string };
+  @Input() header?: { title?: string; caption?: string; logo?: string; logoScale?: number };
   /** Optional caption override under the strip. */
   @Input() caption?: string;
   /** Set false to hide the caption text under the preview. */

@@ -74,7 +74,8 @@
 }
 
 .nt-stage .hdr .brand-logo {
-  height: calc(var(--nt-vw)*2.4);
+  /* --nt-logo-scale (default 1) is the per-content header logo size multiplier. */
+  height: calc(var(--nt-vw)*2.4 * var(--nt-logo-scale, 1));
   flex: 0 0 auto;
 }
 
@@ -199,8 +200,9 @@
 .nt-stage .hdr.hdr-custom .brand-logo {
   height: auto;
   width: auto;
-  max-height: calc(var(--nt-vh)*8);
-  max-width: calc(var(--nt-vw)*16);
+  /* --nt-logo-scale (default 1) scales the size ceiling for the custom header. */
+  max-height: calc(var(--nt-vh)*8 * var(--nt-logo-scale, 1));
+  max-width: calc(var(--nt-vw)*16 * var(--nt-logo-scale, 1));
   object-fit: contain;
 }
 

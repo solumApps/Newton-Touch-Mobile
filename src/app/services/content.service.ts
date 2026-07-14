@@ -64,8 +64,9 @@ export interface ContentDraft {
   customCanvas?: CustomCanvasContent;
   /** Product Promo mode: guided retail promo composition. */
   productPromo?: ProductPromoContent;
-  /** Per-deploy header content — fields shown depend on theme.headerStyle. */
-  header?: { title?: string; caption?: string; logo?: string };
+  /** Per-deploy header content — fields shown depend on theme.headerStyle.
+   *  logoScale is a size multiplier for the header logo (1 = default). */
+  header?: { title?: string; caption?: string; logo?: string; logoScale?: number };
   status: 'draft' | 'complete';
   /** Last builder step the user was on — restored when the draft is reopened
    *  so editing resumes where it stopped. Optional (older drafts start at 0). */
@@ -326,7 +327,7 @@ export class ContentService {
     }
     // Include the header whenever ANY field is set — a logo-only header was
     // previously dropped here, so the deployed LCD never showed the custom logo.
-    if (d.header && (d.header.title || d.header.caption || d.header.logo)) payload.header = { ...d.header };
+    if (d.header && (d.header.title || d.header.caption || d.header.logo || (d.header.logoScale != null && d.header.logoScale !== 1))) payload.header = { ...d.header };
     if (d.appMode === 'prototype-esl') {
       payload.eslLinks = d.eslLinks ?? [];
       payload.eslBlinkBy = d.eslBlinkBy ?? 'article';

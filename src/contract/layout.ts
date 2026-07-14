@@ -724,7 +724,7 @@ export interface LayoutJson {
   /** Per-deploy header content — fields shown depend on theme.headerStyle.
    *  Title defaults to contentName if empty; caption defaults to 'Welcome';
    *  logo defaults to the SOLUM logo if no custom image is uploaded. */
-  header?: { title?: string; caption?: string; logo?: string; };
+  header?: { title?: string; caption?: string; logo?: string; logoScale?: number; };
   home: CardItem[];
   intermediate: CardItem[];
   result: ResultContent;

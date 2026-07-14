@@ -65,6 +65,11 @@
             <span class="inp" style="opacity:.6;pointer-events:none">Logo image (optional — defaults to SOLUM)</span>
             <button class="del" *ngIf="d.header?.logo" (click)="clearLogo()">✕</button>
           </div>
+          <div class="logo-size-row">
+            <span class="ls-lbl">Logo size</span>
+            <input type="range" min="50" max="250" step="5" [value]="headerLogoScalePct" (input)="setHeaderLogoScale($any($event.target).value)" />
+            <span class="ls-val">{{ headerLogoScalePct }}%</span>
+          </div>
         </ng-container>
         <!-- Title (shown for title-only, title+caption, logo+title+caption) -->
         <div class="erow" *ngIf="needsHeaderTitle">
