@@ -65,7 +65,7 @@
              [class.has-cols]="t.columns !== undefined" [style.--cols]="t.columns" [class.cols-1]="effectiveColumns === 1"
              [class.scroll-vertical]="t.scrollMode==='vertical'" [class.scroll-horizontal]="t.scrollMode==='horizontal'"
              [class.txt-shadow]="t.cardTextShadow">
-          <div class="body fs-body" *ngIf="t.homeLayout==='finder-select'" [style.--prm-panel]="t.intermediate.heroColor || null" [style.--prm-accent]="t.intermediate.accent || null" [style.--nt-int-bg]="t.background || null" [style.--nt-int-scale]="t.intermediate.itemSizeScale || 1">
+          <div class="body fs-body" *ngIf="t.homeLayout==='finder-select'" [style.--prm-panel]="t.intermediate.heroColor || '#172033'" [style.--prm-accent]="t.intermediate.accent || null" [style.--nt-int-bg]="t.background || null" [style.--nt-int-scale]="t.intermediate.itemSizeScale || 1">
             <div class="fs-hero" [style.background]="t.intermediate.heroColor || null">
               <div class="fs-hero-title">Newton Touch</div>
               <div class="fs-steps">
