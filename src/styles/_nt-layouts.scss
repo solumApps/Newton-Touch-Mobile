@@ -5715,7 +5715,7 @@
 
 .nt-result.res-promo-list .promo-fallback {
   position: absolute;
-  left: calc(var(--nt-vw)*3);
+  right: calc(var(--nt-vw)*3);
   bottom: calc(var(--nt-vh)*5);
   font-size: calc(var(--nt-vw)*1.4);
   font-weight: 900;
@@ -7782,6 +7782,8 @@
   text-shadow: 0 calc(var(--nt-vh)*0.3) calc(var(--nt-vh)*0.8) rgba(0, 0, 0, .6);
   overflow-wrap: break-word;
   min-width: 0;
+  width: 100%;
+  text-align: end;
 }
 
 .nt-result.res-shelf .shelf-main {
