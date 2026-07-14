@@ -669,7 +669,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   // choosing a base style (e.g. Image grid) and selecting the Circle/Hexagon
   // Card shape, instead of being separate layout styles. Enums + CSS retained so
   // existing themes that use them still render.
-  intStyles: IntermediateStyle[] = ['columns', 'card-strip', 'fullscreen', 'brand-rail', 'drill-stair', 'finder-select'];
+  intStyles: IntermediateStyle[] = ['columns', 'card-strip', 'fullscreen', 'brand-rail', 'finder-select'];
   intStyleLabels: Partial<Record<IntermediateStyle, string>> = {
     'columns': 'Columns', 'hex-grid': 'Hex grid', 'circular': 'Circular',
     'card-strip': 'Card strip',
