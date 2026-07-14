@@ -126,14 +126,20 @@
 
 /* ===== Transition + loader DEMO (anim step) ===== */
 .prev-wrap { position: relative; }
-.prev-wrap.demo.playing.anim-fade-slide .prev { animation: tw-fade-slide var(--demo-ms, 320ms) ease-out; }
-.prev-wrap.demo.playing.anim-scale-up .prev { animation: tw-scale-up var(--demo-ms, 320ms) ease-out; }
-.prev-wrap.demo.playing.anim-slide-left .prev { animation: tw-slide-left var(--demo-ms, 320ms) ease-out; }
-.prev-wrap.demo.playing.anim-shimmer .prev { animation: tw-shimmer var(--demo-ms, 320ms) ease-out; }
-@keyframes tw-fade-slide { from { opacity: 0; transform: translateX(8%); } to { opacity: 1; transform: none; } }
-@keyframes tw-scale-up { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
-@keyframes tw-slide-left { from { transform: translateX(100%); } to { transform: none; } }
-@keyframes tw-shimmer { 0% { opacity: .3; filter: brightness(1.5); } 100% { opacity: 1; filter: none; } }
+/* Animate the preview HOST (app-content-preview-strip), not .prev: .prev lives inside the
+   child component (ViewEncapsulation.None), so this component's scoped attribute can never
+   match it and the old `.prev-wrap ... .prev` rule silently did nothing. The host element is
+   declared in THIS template, so scoped CSS reaches it. overflow:hidden keeps slide-left
+   inside the preview frame. Keyframe values mirror the LCD's nt-page-* (global.scss). */
+.prev-wrap.demo { overflow: hidden; }
+.prev-wrap.demo.playing.anim-fade-slide app-content-preview-strip { animation: tw-fade-slide var(--demo-ms, 320ms) ease-out; }
+.prev-wrap.demo.playing.anim-scale-up app-content-preview-strip { animation: tw-scale-up var(--demo-ms, 320ms) ease-out; }
+.prev-wrap.demo.playing.anim-slide-left app-content-preview-strip { animation: tw-slide-left var(--demo-ms, 320ms) ease-out; }
+.prev-wrap.demo.playing.anim-shimmer app-content-preview-strip { animation: tw-shimmer var(--demo-ms, 320ms) ease-out; }
+@keyframes tw-fade-slide { from { opacity: 0; transform: translate3d(4%, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+@keyframes tw-scale-up { from { opacity: 0; transform: scale3d(.94, .94, 1); } to { opacity: 1; transform: scale3d(1, 1, 1); } }
+@keyframes tw-slide-left { from { transform: translate3d(100%, 0, 0); } to { transform: translate3d(0, 0, 0); } }
+@keyframes tw-shimmer { 0% { opacity: .25; filter: brightness(1.6); } 100% { opacity: 1; filter: none; } }
 .demo-loader { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.28); border-radius: 10px; }
 .demo-loader .ldr { transform: scale(1.8); }
 
