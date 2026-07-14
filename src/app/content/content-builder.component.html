@@ -434,12 +434,12 @@
               <input class="inp" [(ngModel)]="p.aisle" placeholder="Aisle / Zone" />
               <input class="inp" [(ngModel)]="p.shelf" placeholder="Shelf" />
             </div>
-            <div class="prow" *ngIf="isPromoRank">
+            <div class="prow" *ngIf="resultNeedsMap">
               <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapX" placeholder="Map X % (0–100)" />
               <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapY" placeholder="Map Y % (0–100)" />
             </div>
           </ng-container>
-          <ng-container *ngIf="isPromoRank && d.result.mapImage && (leaf.node.products?.length || 0)">
+          <ng-container *ngIf="resultNeedsMap && d.result.mapImage && (leaf.node.products?.length || 0)">
             <div class="sec sub"><span>Map locator</span></div>
             <p class="note">Select a product, then tap the shared map to place its marker.</p>
             <div class="seg fit-seg marker-seg">

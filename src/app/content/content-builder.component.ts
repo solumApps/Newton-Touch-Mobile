@@ -319,11 +319,20 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
 
   /** Card content that renders an image/icon → per-item upload is required. */
   get needsImage(): boolean {
-    const c = this.draft?.themeTokens.cardContent;
+    const d = this.draft;
+    if (!d) return false;
+    if (this.isFinderSelect) {
+      const c = d.themeTokens.intermediate?.fsCardContent || 'text-only';
+      return c === 'image-text' || c === 'image-only' || c === 'icon-text';
+    }
+    const c = d.themeTokens.cardContent;
     return c === 'image-text' || c === 'image-only' || c === 'icon-text';
   }
   /** True when the per-item upload is an ICON (icon+text) rather than a full image. */
   get uploadIsIcon(): boolean {
+    if (this.isFinderSelect) {
+      return (this.draft?.themeTokens.intermediate?.fsCardContent || 'text-only') === 'icon-text';
+    }
     return this.draft?.themeTokens.cardContent === 'icon-text';
   }
 
