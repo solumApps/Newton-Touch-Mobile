@@ -676,10 +676,13 @@ export function navBtnSizeNum(s?: NavButtonSize | string): number {
  *  never tiles inside a card. */
 export function imageFitSize(fit?: ImageFit | string): string | null {
   switch (fit) {
-    case 'cover': return 'cover';
     case 'contain': return 'contain';
     case 'fill': return '100% 100%';
-    default: return null;
+    // 'cover' and any unset/unknown value resolve to cover: an explicit inline
+    // background-size so cover is ALWAYS applied, never silently left to a
+    // template's CSS default (brand-rail and product-focus default to contain).
+    case 'cover':
+    default: return 'cover';
   }
 }
 

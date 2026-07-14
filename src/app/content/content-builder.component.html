@@ -286,6 +286,7 @@
             <button class="mini" (click)="addProtoCard()" [disabled]="!protoAddParent">+ Add</button>
           </div>
           <p class="note" *ngIf="!protoCards.length && protoAddParent">No L{{ interLevel }} cards yet — tap + Add.</p>
+          <p class="note err" *ngIf="!protoAddParent">No L{{ interLevel - 1 }} cards under this selection yet — add them on the previous step first.</p>
           <div class="pcard" *ngFor="let it of protoCards; trackBy: trackProtoCard">
             <div class="erow">
               <div class="thumb" *ngIf="intermediateNeedsImage" [style.background-image]="it.node.image ? 'url('+it.node.image+')' : null" (click)="pickImage(it.node)">{{ it.node.image ? '' : '📷' }}</div>
@@ -294,7 +295,6 @@
               <button class="del" (click)="moveProtoCard(it, 1)" title="Move down">↓</button>
               <button class="del" (click)="removeProtoCard(it)">✕</button>
             </div>
-            <p class="note" *ngIf="it.ctx">{{ it.ctx }}</p>
             <div class="seg fit-seg" *ngIf="intermediateNeedsImage && it.node.image">
               <span class="fit-lbl">Fit</span>
               <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(it.node)===f" (click)="setFit(it.node, f)">{{ f | titlecase }}</button>
