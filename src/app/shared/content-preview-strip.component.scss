@@ -18,39 +18,7 @@ app-content-preview-strip {
   overflow: hidden;
 }
 .cps-cap { text-align: center; font-size: 10px; font-weight: 700; color: var(--nt-text-2); margin: 6px 0 10px; text-transform: uppercase; letter-spacing: .5px; }
-.cps-branch-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin: 6px 0 2px;
-  overflow-x: auto;
-  padding: 0 4px;
-}
-.cps-branch-nav::-webkit-scrollbar { display: none; }
-.cps-branch-chip,
-.cps-branch-step {
-  border: 1px solid var(--nt-border);
-  background: var(--nt-surface);
-  color: var(--nt-text);
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-  padding: 7px 10px;
-}
-.cps-branch-step {
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  font-size: 18px;
-}
-.cps-branch-chip.active {
-  border-color: var(--nt-accent, #ffcd00);
-  background: var(--nt-accent, #ffcd00);
-  color: #111827;
-}
+
 // .prev .cps-selected {
 //   outline: calc(var(--nt-vh, 1px) * .8) solid var(--nt-accent, #ffcd00);
 //   outline-offset: calc(var(--nt-vh, 1px) * .7);

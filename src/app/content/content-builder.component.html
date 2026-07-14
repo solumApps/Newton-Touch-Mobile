@@ -36,7 +36,7 @@
       [page]="step.page"
       [home]="d.home"
       [intermediate]="previewIntermediateItems"
-      [forceSharedIntermediate]="(step.key === 'inter' && showIntermediateEditor) || d.appMode === 'category'"
+      [forceSharedIntermediate]="(step.key === 'inter' && showIntermediateEditor) || d.appMode === 'category' || (protoLeveled && isInterStep)"
       [intermediateCreatePreview]="isInterStep"
       [result]="curResult"
       [screensaver]="d.screensaver"
@@ -130,7 +130,18 @@
         </div>
         <p class="note">{{ drillMode==='common'
           ? 'Every home card opens the SAME intermediate page — fill it once on the Intermediate step.'
-          : 'Each home card opens its OWN intermediate page — fill each one on the Intermediate step.' }}</p>
+          : 'Each home card opens its OWN intermediate page — build each level on the Intermediate steps.' }}</p>
+        <!-- Drill-down depth: mirrors Category mode's "Category depth" — one
+             Intermediate step per level (home cards are L0). -->
+        <ng-container *ngIf="drillMode==='individual'">
+          <div class="sec"><span>Category depth</span></div>
+          <div class="seg fit-seg">
+            <button class="mini" [class.sel]="protoLevelCount===1" (click)="setProtoLevelCount(1)">L0+L1</button>
+            <button class="mini" [class.sel]="protoLevelCount===2" (click)="setProtoLevelCount(2)">+L2</button>
+            <button class="mini" [class.sel]="protoLevelCount===3" (click)="setProtoLevelCount(3)">+L3</button>
+          </div>
+          <p class="note">Home cards are <b>L0</b>. Each extra level adds its own Intermediate step (L1–L{{ protoLevelCount }}).</p>
+        </ng-container>
       </ng-container>
 
       <!-- HOME CARDS -->
@@ -164,7 +175,9 @@
       <p class="note" *ngIf="needsImage && !uploadIsIcon">This theme's cards show an image — tap 📷 to upload one per card.</p>
       <p class="note" *ngIf="uploadIsIcon">This theme's cards show an icon + text — tap 📷 to upload an icon per card.</p>
       <p class="note" *ngIf="d.themeTokens.includeIntermediate !== false">
-        Drill-down: add sub-items per card for a custom tree<span *ngIf="d.appMode==='category'"> (max 4 levels — matches API <b>category1–4</b> / <b>etc0–3</b>)</span>.
+        <ng-container *ngIf="d.appMode==='category'">Drill-down: sub-levels are built automatically from the API (max 4 levels — matches API <b>category1–4</b> / <b>etc0–3</b>).</ng-container>
+        <ng-container *ngIf="d.appMode!=='category' && drillMode==='individual'">Drill-down: add each level's cards on the Intermediate L1–L{{ protoLevelCount }} steps.</ng-container>
+        <ng-container *ngIf="d.appMode!=='category' && drillMode!=='individual'">Fill the shared page on the Intermediate step.</ng-container>
       </p>
     </div>
 
@@ -240,14 +253,68 @@
         </div>
         <p class="note">The selection cards for each level are the sub-items you add per card below (each card → its children → … → products).</p>
       </ng-container>
-      <!-- Individual drill mode: fill each home card's OWN intermediate page here -->
-      <ng-container *ngIf="d.appMode !== 'category' && !showIntermediateEditor && d.themeTokens.includeIntermediate !== false">
-        <p class="note"><b>Individual mode</b> — each home card opens its own intermediate page. Fill each one below.</p>
-        <div class="pcard" *ngFor="let c of d.home">
-          <div class="sec"><span>{{ c.name || 'Home card' }} — sub-items</span></div>
-          <app-card-tree-editor [card]="c" [depth]="1" [maxDepth]="maxDepth"
-            [needsImage]="intermediateNeedsImage" [allowProducts]="interAllowProducts"></app-card-tree-editor>
-        </div>
+      <!-- PROTOTYPE / +ESL Individual mode: Category-style leveled editor —
+           Home Fields + option segments + a flat, editable card list per level -->
+      <ng-container *ngIf="protoLeveled && interLevel > 0">
+        <p class="note err" *ngIf="!protoL0Segs.length">Add home cards on the Home step first.</p>
+
+        <ng-container *ngIf="protoL0Segs.length">
+          <!-- L0 selector (Home Fields) -->
+          <div class="sec"><span>Home Fields</span></div>
+          <div class="seg fit-seg">
+            <button class="mini" *ngFor="let s of protoL0Segs" [class.sel]="protoL0Id===s.id" [class.missing-image-seg]="protoSegMissingImages('L0', s.id)" (click)="setProtoL0(s.id)">{{ s.label }}</button>
+          </div>
+
+          <!-- L1 options selector (inter2 / inter3) -->
+          <ng-container *ngIf="interLevel >= 2">
+            <div class="sec"><span>L1 options</span></div>
+            <div class="seg fit-seg">
+              <button class="mini" *ngFor="let s of protoL1Segs" [class.sel]="protoL1Id===s.id" [class.missing-image-seg]="protoSegMissingImages('L1', s.id)" (click)="setProtoL1(s.id)">{{ s.label }}</button>
+            </div>
+          </ng-container>
+
+          <!-- L2 options selector (inter3) -->
+          <ng-container *ngIf="interLevel >= 3">
+            <div class="sec"><span>L2 options</span></div>
+            <div class="seg fit-seg">
+              <button class="mini" *ngFor="let s of protoL2Segs" [class.sel]="protoL2Id===s.id" [class.missing-image-seg]="protoSegMissingImages('L2', s.id)" (click)="setProtoL2(s.id)">{{ s.label }}</button>
+            </div>
+          </ng-container>
+
+          <div class="sec">
+            <span>Intermediate L{{ interLevel }} cards ({{ protoCards.length }})</span>
+            <button class="mini" (click)="addProtoCard()" [disabled]="!protoAddParent">+ Add</button>
+          </div>
+          <p class="note" *ngIf="!protoCards.length && protoAddParent">No L{{ interLevel }} cards yet — tap + Add.</p>
+          <div class="pcard" *ngFor="let it of protoCards; trackBy: trackProtoCard">
+            <div class="erow">
+              <div class="thumb" *ngIf="intermediateNeedsImage" [style.background-image]="it.node.image ? 'url('+it.node.image+')' : null" (click)="pickImage(it.node)">{{ it.node.image ? '' : '📷' }}</div>
+              <input class="inp" [(ngModel)]="it.node.name" placeholder="Card name" />
+              <button class="del" (click)="moveProtoCard(it, -1)" title="Move up">↑</button>
+              <button class="del" (click)="moveProtoCard(it, 1)" title="Move down">↓</button>
+              <button class="del" (click)="removeProtoCard(it)">✕</button>
+            </div>
+            <p class="note" *ngIf="it.ctx">{{ it.ctx }}</p>
+            <div class="seg fit-seg" *ngIf="intermediateNeedsImage && it.node.image">
+              <span class="fit-lbl">Fit</span>
+              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(it.node)===f" (click)="setFit(it.node, f)">{{ f | titlecase }}</button>
+              <button class="mini danger" (click)="clearImage(it.node)" title="Remove image">✕ Image</button>
+            </div>
+            <div class="prow">
+              <input class="inp" [(ngModel)]="it.node.price" placeholder="Price (optional)" />
+              <input class="inp" [(ngModel)]="it.node.unit" placeholder="Unit (optional)" />
+            </div>
+            <!-- promo-map-rank: leaf nodes carry their own result products -->
+            <ng-container *ngIf="interAllowProducts && !(it.node.children && it.node.children.length)">
+              <div class="sec sub"><span>Own result products ({{ (it.node.products || []).length }})</span><button class="mini" (click)="addLeafProduct(it.node)">+ Add</button></div>
+              <div class="erow" *ngFor="let p of it.node.products || []; let pi = index">
+                <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
+                <input class="inp" [(ngModel)]="p.name" placeholder="Product name" />
+                <button class="del" (click)="removeLeafProduct(it.node, pi)">✕</button>
+              </div>
+            </ng-container>
+          </div>
+        </ng-container>
       </ng-container>
 
       <ng-container *ngIf="d.appMode !== 'category' && showIntermediateEditor">

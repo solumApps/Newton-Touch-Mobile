@@ -669,7 +669,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   // choosing a base style (e.g. Image grid) and selecting the Circle/Hexagon
   // Card shape, instead of being separate layout styles. Enums + CSS retained so
   // existing themes that use them still render.
-  intStyles: IntermediateStyle[] = ['columns', 'card-strip', 'fullscreen', 'brand-rail', 'drill-stair', 'finder-select'];
+  intStyles: IntermediateStyle[] = ['columns', 'card-strip', 'fullscreen', 'brand-rail', 'finder-select'];
   intStyleLabels: Partial<Record<IntermediateStyle, string>> = {
     'columns': 'Columns', 'hex-grid': 'Hex grid', 'circular': 'Circular',
     'card-strip': 'Card strip',
@@ -683,6 +683,15 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   fsTextVPositions: { id: CardTextPos; label: string }[] = [
     { id: 'overlay-top', label: 'Top' }, { id: 'center', label: 'Center' }, { id: 'overlay-bottom', label: 'Bottom' },
   ];
+  get finderTextPositionMatters(): boolean {
+    const shape = this.t.intermediate.fsCardShape || 'rect';
+    return shape !== 'circle' && shape !== 'hexagon';
+  }
+  get fsTextPosClass(): CardTextPos {
+    return this.finderTextPositionMatters
+      ? (this.t.intermediate.fsTextPos || 'center')
+      : 'below';
+  }
   /** finder-select fs-card content options (#5). */
   fsCardContents: { id: CardContent; label: string }[] = [
     { id: 'image-text', label: 'Image + text' }, { id: 'image-only', label: 'Image only' },
@@ -818,7 +827,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   // 'cards-map' dropped from the picker (near-duplicate of Map-List); enum + CSS
   // kept so existing themes using it still render. Lower-priority layouts remain
   // available rather than deleted — removal of specific ones is a product call.
-  resultTemplates: ResultTemplate[] = ['map-list', 'drill-filter','map-filter-list', 'filter-list','card-grid', 'promo-list', 'product-focus', 'hero-product', 'shelf', 'promo-map-rank', 'finder-detail'];
+  resultTemplates: ResultTemplate[] = ['map-list', 'filter-list', 'promo-list', 'product-focus', 'shelf', 'promo-map-rank', 'finder-detail'];
   /** Friendly labels for the result-template tiles. */
   private tplLabels: Record<string, string> = {
     'map-list': 'Map List', 'drill-filter': 'Drill Filter', 'map-filter-list': 'Map + Filter',
