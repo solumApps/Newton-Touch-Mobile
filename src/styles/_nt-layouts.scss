@@ -11533,8 +11533,16 @@
   align-items: flex-end;
 }
 
+/* pos=right: pack the cards toward the (right) message with an auto margin on
+   the first card — NOT justify-content:flex-end, which pushes overflowing cards
+   off the LEFT edge where horizontal scroll can't reach them. The auto margin
+   collapses to 0 once the cards overflow, so scrolling starts cleanly at card 1. */
 .nt-inter .int-brand-rail.int-brm-right {
-  justify-content: flex-end !important;
+  justify-content: flex-start !important;
+}
+
+.nt-inter .int-brand-rail.int-brm-right .item:first-child {
+  margin-left: auto !important;
 }
 
 .nt-inter .int-brand-rail.int-brm-right .brm-msg {
