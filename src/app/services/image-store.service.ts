@@ -16,24 +16,46 @@ const STORE = 'blobs';
 @Injectable({ providedIn: 'root' })
 export class ImageStoreService {
   private dbPromise?: Promise<IDBDatabase>;
+  /** data URI → content hash. Avoids re-running SHA-1 over multi-MB media every
+   *  time an unchanged draft/theme is re-persisted (the delete/save jank). Keyed
+   *  by the exact string instance already held in the cached records, so it costs
+   *  a pointer, not a second copy of the media. Namespace-independent (the hash is
+   *  the same for `c_`/`t_`; only the prefix differs). */
+  private hashByData = new Map<string, string>();
+  /** ids known to currently exist in IndexedDB — lets `put` skip the write for a
+   *  blob that is already stored (kept in sync by get/delete/gc). */
+  private stored = new Set<string>();
 
-  /** Store a data URI; returns its id (hash-based → automatic dedupe). */
+  /** Store a data URI; returns its id (hash-based → automatic dedupe). Re-hashing
+   *  and the IndexedDB write are both skipped when the value was seen before. */
   async put(dataUri: string, ns: string = 'c'): Promise<string> {
-    const id = `${ns}_${await this.hash(dataUri)}`;
-    const db = await this.open();
-    await this.req(db.transaction(STORE, 'readwrite').objectStore(STORE).put(dataUri, id));
+    let h = this.hashByData.get(dataUri);
+    if (h === undefined) { h = await this.hash(dataUri); this.hashByData.set(dataUri, h); }
+    const id = `${ns}_${h}`;
+    if (!this.stored.has(id)) {
+      const db = await this.open();
+      await this.req(db.transaction(STORE, 'readwrite').objectStore(STORE).put(dataUri, id));
+      this.stored.add(id);
+    }
     return id;
   }
 
   async get(id: string): Promise<string | undefined> {
     const db = await this.open();
     const v = await this.req<string | undefined>(db.transaction(STORE, 'readonly').objectStore(STORE).get(id));
+    if (v !== undefined && typeof v === 'string') {
+      // Seed the caches so the next persist of this data URI neither re-hashes nor
+      // re-writes it. id is `${ns}_${hash}`; ns is a single token (no underscore).
+      this.stored.add(id);
+      this.hashByData.set(v, id.slice(id.indexOf('_') + 1));
+    }
     return v ?? undefined;
   }
 
   async delete(id: string): Promise<void> {
     const db = await this.open();
     await this.req(db.transaction(STORE, 'readwrite').objectStore(STORE).delete(id));
+    this.stored.delete(id);
   }
 
   /** Delete every blob in namespace `ns` whose id is not in `liveIds`. */
@@ -42,7 +64,9 @@ export class ImageStoreService {
     const store = db.transaction(STORE, 'readwrite').objectStore(STORE);
     const keys = await this.req<IDBValidKey[]>(store.getAllKeys());
     for (const k of keys) {
-      if (typeof k === 'string' && k.startsWith(`${ns}_`) && !liveIds.has(k)) store.delete(k);
+      if (typeof k !== 'string' || !k.startsWith(`${ns}_`)) continue;
+      if (liveIds.has(k)) { this.stored.add(k); }
+      else { store.delete(k); this.stored.delete(k); }
     }
   }
 

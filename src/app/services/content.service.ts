@@ -91,8 +91,20 @@ export class ContentService {
   /** Emits when the draft list changes (save / remove) so list views refresh
    *  immediately regardless of Ionic view-lifecycle timing. */
   readonly changed = new Subject<void>();
+  /** Serializes background persists so rapid saves/deletes can't interleave their
+   *  Preferences writes or race `gc`. Each task snapshots the array it was given. */
+  private persistChain: Promise<void> = Promise.resolve();
 
   constructor(private images: ImageStoreService) {}
+
+  /** Queue a persist behind any in-flight one. Returns the promise for callers that
+   *  want durability (save awaits it); delete fires it and lets it run in the
+   *  background so the UI updates immediately. */
+  private schedulePersist(snapshot: ContentDraft[]): Promise<void> {
+    const run = this.persistChain.catch(() => {}).then(() => this.persist(snapshot));
+    this.persistChain = run.catch(() => {}); // keep the chain alive after a failure
+    return run;
+  }
 
   async list(): Promise<ContentDraft[]> {
     if (!this.cache.length) {
@@ -258,8 +270,10 @@ export class ContentService {
     const next = [...this.cache];
     if (i >= 0) next[i] = d; else next.push(d);
     this.cache = next;
-    await this.persist(next);
+    // Reflect the change in list views immediately, then persist. Fix 1 (memoized
+    // hashing) keeps this write fast; save still awaits it for durability.
     this.changed.next();
+    await this.schedulePersist(next);
   }
 
   /** Delete a content draft. */
@@ -268,8 +282,11 @@ export class ContentService {
     // New array reference (not in-place mutation) so list consumers re-render.
     const next = this.cache.filter((c) => c.id !== id);
     this.cache = next;
-    await this.persist(next);
+    // Update the UI now and persist in the background — the row disappears
+    // instantly instead of waiting on the IndexedDB gc / Preferences write. If the
+    // app is killed before it lands, the deleted item simply reappears (self-heals).
     this.changed.next();
+    this.schedulePersist(next);
   }
 
   /** Compile a draft into the deployable layout.json (the contract LCD renders).
