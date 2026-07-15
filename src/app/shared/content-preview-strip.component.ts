@@ -6,6 +6,7 @@ import { imageFitSize, NAV_ICONS, navIconKind, textScaleNum, textCaseCss, navBtn
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 type FinderSortKey = 'recommend' | 'alpha' | 'low-price' | 'on-sale';
+type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' | 'on sale' | 'onsale';
 
 /**
  * Reusable mini-LCD preview strip driven by real draft data.
@@ -772,15 +773,17 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   };
   get finderSortTabs(): { key: FinderSortKey; label: string }[] {
     const defaults: FinderSortKey[] = ['recommend', 'alpha', 'low-price', 'on-sale'];
-    const configured = (this.theme?.result?.sortTabs || []).filter((key): key is FinderSortKey => key in this.finderSortLabels);
+    const configured = (this.theme?.result?.sortTabs || [])
+      .map((key) => this.normalizeFinderSortKey(key as FinderSortInput))
+      .filter((key): key is FinderSortKey => !!key);
     const keys: FinderSortKey[] = configured.length ? configured : defaults;
     return keys.map((key) => ({ key, label: this.finderSortLabels[key] }));
   }
   isFinderSortActive(key: FinderSortKey): boolean {
     return key === this.activeFinderSortKey;
   }
-  selectFinderSort(key: FinderSortKey): void {
-    this.finderSortKey = key;
+  selectFinderSort(key: FinderSortInput): void {
+    this.finderSortKey = this.normalizeFinderSortKey(key) || 'recommend';
     this.localFinderProductId = this.finderDisplayCells[0]?.id || '';
     const idx = this.finderCells.findIndex((p) => p.id === this.localFinderProductId);
     this.localResultIndex = Math.max(0, idx);
@@ -795,15 +798,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get finderDisplayCells(): ResultProduct[] {
     const rows = this.finderCells.map((p, i) => ({ p, i }));
     const key = this.activeFinderSortKey;
-    const filtered = key === 'on-sale' ? rows.filter(({ p }) => p.onSale || !!p.salePrice) : rows;
+    const filtered = key === 'on-sale' ? rows.filter(({ p }) => this.finderIsOnSale(p)) : rows;
     const sorted = [...filtered];
-    if (key === 'alpha') {
-      sorted.sort((a, b) => (a.p.name || '').localeCompare(b.p.name || '', undefined, { sensitivity: 'base', numeric: true }) || a.i - b.i);
-    } else if (key === 'low-price') {
-      sorted.sort((a, b) => this.finderPriceValue(a.p) - this.finderPriceValue(b.p) || a.i - b.i);
-    } else {
-      sorted.sort((a, b) => this.finderRankValue(a.p, a.i) - this.finderRankValue(b.p, b.i));
-    }
+    sorted.sort((a, b) => this.compareFinderRows(a, b, key));
     return sorted.map(({ p }) => p);
   }
   /** finder-detail right detail: the first product, with a fallback description. */
@@ -813,15 +810,66 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return { ...f, description: f.description || 'Smooth, clean, streak-free wipe with embedded friction reducers and multiple pressure points.' } as ResultProduct;
   }
   private get activeFinderSortKey(): FinderSortKey {
-    return this.finderSortTabs.some((tab) => tab.key === this.finderSortKey) ? this.finderSortKey : this.finderSortTabs[0]?.key || 'recommend';
+    const key = this.normalizeFinderSortKey(this.finderSortKey) || 'recommend';
+    return this.finderSortTabs.some((tab) => tab.key === key) ? key : this.finderSortTabs[0]?.key || 'recommend';
   }
   private finderRankValue(p: ResultProduct, index: number): number {
     return typeof p.rank === 'number' && Number.isFinite(p.rank) ? p.rank : index + 10000;
   }
+  private normalizeFinderSortKey(key?: FinderSortInput | string): FinderSortKey | null {
+    const normalized = String(key || '').trim().toLowerCase().replace(/[\s_]+/g, '-');
+    if (normalized === 'recommend') return 'recommend';
+    if (normalized === 'alpha' || normalized === 'alphabet' || normalized === 'alphabetical') return 'alpha';
+    if (normalized === 'low-price' || normalized === 'lowprice') return 'low-price';
+    if (normalized === 'on-sale' || normalized === 'onsale') return 'on-sale';
+    return null;
+  }
+  private compareFinderRows(a: { p: ResultProduct; i: number }, b: { p: ResultProduct; i: number }, key: FinderSortKey): number {
+    if (key === 'alpha') return this.compareFinderAlpha(a, b);
+    if (key === 'low-price') return this.compareFinderPrice(a, b);
+    if (key === 'on-sale') return this.compareFinderSale(a, b);
+    return this.compareFinderRecommend(a, b);
+  }
+  private compareFinderRecommend(a: { p: ResultProduct; i: number }, b: { p: ResultProduct; i: number }): number {
+    return this.finderRankValue(a.p, a.i) - this.finderRankValue(b.p, b.i) || a.i - b.i;
+  }
+  private compareFinderAlpha(a: { p: ResultProduct; i: number }, b: { p: ResultProduct; i: number }): number {
+    return this.finderAlphaValue(a.p).localeCompare(this.finderAlphaValue(b.p), undefined, { sensitivity: 'base', numeric: true }) || a.i - b.i;
+  }
+  private compareFinderPrice(a: { p: ResultProduct; i: number }, b: { p: ResultProduct; i: number }): number {
+    return this.finderPriceValue(a.p) - this.finderPriceValue(b.p) || this.compareFinderAlpha(a, b);
+  }
+  private compareFinderSale(a: { p: ResultProduct; i: number }, b: { p: ResultProduct; i: number }): number {
+    return this.finderDiscountValue(b.p) - this.finderDiscountValue(a.p) || this.compareFinderPrice(a, b);
+  }
+  private finderIsOnSale(p: ResultProduct): boolean {
+    return p.onSale === true;
+  }
   private finderPriceValue(p: ResultProduct): number {
     const raw = p.salePrice || p.price || '';
-    const value = Number(String(raw).replace(/[^0-9.]/g, ''));
+    const match = String(raw).replace(/,/g, '').match(/\d+(?:\.\d+)?/);
+    const value = match ? Number(match[0]) : Number.NaN;
     return Number.isFinite(value) ? value : Number.MAX_SAFE_INTEGER;
+  }
+  private finderOriginalPriceValue(p: ResultProduct): number {
+    const match = String(p.price || '').replace(/,/g, '').match(/\d+(?:\.\d+)?/);
+    const value = match ? Number(match[0]) : Number.NaN;
+    return Number.isFinite(value) ? value : this.finderPriceValue(p);
+  }
+  private finderDiscountValue(p: ResultProduct): number {
+    const original = this.finderOriginalPriceValue(p);
+    const current = this.finderPriceValue(p);
+    return Number.isFinite(original) && Number.isFinite(current) ? Math.max(0, original - current) : 0;
+  }
+  private finderAlphaValue(p: ResultProduct): string {
+    return (p.name || '')
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/^[^a-z0-9]+/i, '')
+      .replace(/^(the|a|an)\s+/i, '')
+      .replace(/[^a-z0-9]+/gi, ' ')
+      .trim()
+      .toLowerCase();
   }
   /** promo-map-rank preview: floor selector labels (default when none set). */
   get previewFloors(): string[] {
