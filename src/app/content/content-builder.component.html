@@ -247,10 +247,16 @@
         <p class="note">Shown on the L{{ brStepLevel }} page. Leave blank to inherit the message from a higher level. Message colors are set in the theme wizard's Intermediate colors step.</p>
       </ng-container>
 
-      <!-- finder-select: steps + prompt (the selection cards are the sub-items below) -->
-      <ng-container *ngIf="isFinderSelect">
-        <div class="sec"><span>Finder steps &amp; prompt</span></div>
-        <input class="inp" placeholder="Step labels (comma e.g. Manufacturer,Model,Year)" [ngModel]="tplStepsCsv" (ngModelChange)="tplStepsCsv=$event" />
+      <!-- finder-select: steps + prompt (shown once, on the first level; the
+           selection cards are edited per level in the block below) -->
+      <ng-container *ngIf="isFinderSelect && interLevel <= 1">
+        <div class="sec"><span>Finder steps ({{ finderStepCount }})</span></div>
+        <p class="note">One label per drill level — the count follows your Category depth. Edit any label, or leave it to use the default.</p>
+        <div class="erow" *ngFor="let i of finderStepIndices; trackBy: trackByIndex">
+          <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
+          <input class="inp" [ngModel]="finderStepValue(i)" (ngModelChange)="setFinderStep(i, $event)" [placeholder]="'Category ' + (i + 1)" />
+        </div>
+        <div class="sec"><span>Prompt</span></div>
         <input class="inp" placeholder="Prompt prefix (e.g. TOUCH YOUR)" [(ngModel)]="td.promptPrefix" />
         <div class="sec"><span>Fast lookup index</span></div>
         <p class="note">How the side index strip is generated for the selection cards.</p>

@@ -313,6 +313,15 @@ export class ContentService {
         if (base) im.brandRailMessageText = base;
       }
     }
+    // finder-select: the finder shows one progress step PER DRILL LEVEL (home +
+    // intermediate levels = "Category depth"). Emit exactly that many labels,
+    // filling blanks with the generic default so the step count always matches.
+    if (theme.intermediateStyle === 'finder-select') {
+      const levelCount = Math.min(3, Math.max(1, d.categoryLevelCount ?? 1)); // mirrors protoLevelCount
+      const count = levelCount + 1;
+      const raw = td?.stepLabels || [];
+      (theme.intermediate as any).stepLabels = Array.from({ length: count }, (_, i) => (raw[i] && raw[i].trim()) ? raw[i].trim() : 'Category ' + (i + 1));
+    }
     const payload: LayoutJson = {
       schemaVersion: 1,
       contentName: d.name,
