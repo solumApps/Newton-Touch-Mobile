@@ -189,12 +189,14 @@ export class ContentPage implements OnInit, OnDestroy {
     this.confirmDraft = c;
     this.confirmOpen = true;
   }
-  async doDelete(): Promise<void> {
+  doDelete(): void {
     if (!this.confirmDraft) return;
-    await this.content.remove(this.confirmDraft.id);
-    this.drafts = await this.content.list();
+    const id = this.confirmDraft.id;
+    // Close the modal right away; remove() updates the list synchronously via its
+    // `changed` emit and persists in the background, so there's nothing to await.
     this.confirmOpen = false;
     this.confirmDraft = null;
+    this.content.remove(id);
   }
 
   create(): void { this.router.navigateByUrl('/content-create'); }

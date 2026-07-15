@@ -147,12 +147,14 @@ export class ThemesPage implements OnInit, OnDestroy {
     this.confirmTheme = t;
     this.confirmOpen = true;
   }
-  async doDelete(): Promise<void> {
+  doDelete(): void {
     if (!this.confirmTheme) return;
-    await this.themes.remove(this.confirmTheme.id);
-    this.mine = await this.themes.list();
+    const id = this.confirmTheme.id;
+    // Close the modal right away; remove() updates the list synchronously via its
+    // `changed` emit and persists in the background, so there's nothing to await.
     this.confirmOpen = false;
     this.confirmTheme = null;
+    this.themes.remove(id);
   }
 
   use(t: SavedTheme): void { this.router.navigateByUrl('/theme-preview/' + t.id); }
