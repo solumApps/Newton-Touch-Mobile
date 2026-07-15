@@ -12121,7 +12121,7 @@
 
 .nt-inter .body.fs-body .fs-alpha-index .fs-letter.available {
   cursor: pointer;
-  color: var(--nt-int-accent, var(--prm-accent, #2bb7ff));
+  color: var(--fs-accent);
   font-weight: 800;
 }
 
@@ -12139,7 +12139,7 @@
 }
 
 .nt-inter .body.fs-body .fs-alpha-index .fs-letter.active {
-  color: var(--nt-int-accent, var(--prm-accent, #2bb7ff));
+  color: var(--fs-accent);
   transform: translateY(calc(var(--nt-vh)*-0.12));
 }
 
