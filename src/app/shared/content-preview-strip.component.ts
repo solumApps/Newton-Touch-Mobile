@@ -245,6 +245,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                 <span class="name">{{ it.name }}</span>
               </div>
+              <div class="brm-msg" *ngIf="theme?.intermediateStyle==='brand-rail'">{{ theme?.intermediate?.brandRailMessageText || 'Which one will you choose?' }}</div>
             </div>
           </ng-template>
         </ng-container>

@@ -56,6 +56,9 @@ export interface ContentDraft {
      *  drill levels / content). 'alpha' = A–Z; 'number' = min/max/interval. */
     indexMode?: 'alpha' | 'number'; indexNumberMin?: number; indexNumberMax?: number; indexNumberInterval?: number;
     fsSortOrder?: 'none' | 'az' | 'za';
+    /** brand-rail: per-drill-level headline messages (index 0 = L1). A blank
+     *  level inherits the nearest shallower level's message. */
+    brandRailMessages?: string[];
   };
   screensaver: Screensaver;
   /** Media mode only (appMode 'media'): the single image/video to play full-screen. */
@@ -303,6 +306,12 @@ export class ContentService {
       if (td.indexNumberMax != null) im.indexNumberMax = td.indexNumberMax;
       if (td.indexNumberInterval != null) im.indexNumberInterval = td.indexNumberInterval;
       if (td.fsSortOrder != null) im.fsSortOrder = td.fsSortOrder;
+      if (td.brandRailMessages && td.brandRailMessages.some((m) => m && m.trim())) {
+        im.brandRailMessages = td.brandRailMessages;
+        // Base fallback (single-value readers + L1) = first non-empty level.
+        const base = td.brandRailMessages.find((m) => m && m.trim());
+        if (base) im.brandRailMessageText = base;
+      }
     }
     const payload: LayoutJson = {
       schemaVersion: 1,

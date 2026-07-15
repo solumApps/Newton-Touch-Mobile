@@ -3840,8 +3840,9 @@
   max-width: 86%;
 }
 
-.nt-inter .int-brand-rail::after {
-  content: 'Which one will you choose?';
+/* .brm-msg is a real trailing element (text is user-editable in the theme
+   wizard) — was a ::after with a hardcoded content string. */
+.nt-inter .int-brand-rail .brm-msg {
   position: sticky;
   right: 0;
   order: 9999;
@@ -11619,7 +11620,7 @@
   margin-bottom: 0 !important;
 }
 
-.nt-inter .int-brand-rail::after {
+.nt-inter .int-brand-rail .brm-msg {
   align-self: stretch;
   display: flex;
   align-items: center;

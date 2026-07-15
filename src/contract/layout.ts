@@ -363,9 +363,15 @@ export interface ThemeTokens {
     navSplit?: boolean;
     navBackPosition?: NavButtonPosition;
     navHomePosition?: NavButtonPosition;
-    /** brand-rail: blur message container background + text colour. */
+    /** brand-rail: blur message container background + text colour + wording
+     *  (defaults to "Which one will you choose?"). */
     brandRailMessageBgColor?: string;
     brandRailMessageTextColor?: string;
+    brandRailMessageText?: string;
+    /** Per-drill-level message overrides (index 0 = L1). A level with no entry
+     *  inherits the nearest shallower level's message, then brandRailMessageText,
+     *  then the built-in default. */
+    brandRailMessages?: string[];
     /** finder-select template: dark hero rail + selection cards + index strip. */
     heroColor?: string;
     heroImage?: string;

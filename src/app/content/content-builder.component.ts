@@ -689,6 +689,8 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
 
   /** Is the finder-select intermediate template active? */
   get isFinderSelect(): boolean { return this.draft?.themeTokens.intermediateStyle === 'finder-select'; }
+  /** Is the brand-rail intermediate style active? */
+  get isBrandRail(): boolean { return this.draft?.themeTokens.intermediateStyle === 'brand-rail'; }
   /** Templates that display a full category → sub → products hierarchy and so need
    *  products attachable to each sub-item in the intermediate tree editor. */
   get interAllowProducts(): boolean {
@@ -729,7 +731,36 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (td.indexNumberMax != null) im.indexNumberMax = td.indexNumberMax;
     if (td.indexNumberInterval != null) im.indexNumberInterval = td.indexNumberInterval;
     if (td.fsSortOrder != null) im.fsSortOrder = td.fsSortOrder;
+    // Preview shows the CURRENT step's level (with inheritance) — the preview
+    // strip renders one intermediate view and reads brandRailMessageText.
+    im.brandRailMessageText = this.brandRailMessageAt(this.brStepLevel);
     return { ...t, result: r, intermediate: im };
+  }
+
+  // ── brand-rail per-level message (index 0 = L1; blank inherits shallower) ──
+  /** Level the brand-rail input on the current Intermediate step edits (1-based).
+   *  The legacy single 'inter' step (interLevel 0) maps to L1. */
+  get brStepLevel(): number { return this.interLevel || 1; }
+  /** Resolved message for a level: own value, else nearest shallower, else default. */
+  brandRailMessageAt(level: number): string {
+    const arr = this.draft?.templateData?.brandRailMessages || [];
+    for (let l = level; l >= 1; l--) { const m = arr[l - 1]; if (m && m.trim()) return m; }
+    return 'Which one will you choose?';
+  }
+  /** The raw (own) value for the current step's level — '' when it inherits. */
+  get brandRailMsgForStep(): string { return this.td.brandRailMessages?.[this.brStepLevel - 1] || ''; }
+  setBrandRailMsg(v: string): void {
+    const arr = [...(this.td.brandRailMessages || [])];
+    arr[this.brStepLevel - 1] = v;
+    // Trim trailing empties so the array stays compact.
+    while (arr.length && !(arr[arr.length - 1] && arr[arr.length - 1].trim())) arr.pop();
+    this.td.brandRailMessages = arr;
+  }
+  /** Placeholder for the current level's input: what it inherits when left blank. */
+  get brandRailMsgPlaceholder(): string {
+    const arr = this.td.brandRailMessages || [];
+    for (let l = this.brStepLevel - 1; l >= 1; l--) { const m = arr[l - 1]; if (m && m.trim()) return m + '  (inherited from L' + l + ')'; }
+    return 'Which one will you choose?';
   }
 
   /** shelf uses the promo image as its side category panel. */
@@ -1341,6 +1372,12 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     this.draft = (await this.content.list()).find((d) => d.id === id);
     if (!this.draft) { this.router.navigateByUrl('/tabs/content'); return; }
     if (this.draft.appMode === 'prototype-esl' && !this.draft.eslBlinkBy) this.draft.eslBlinkBy = 'article';
+    // Migrate the earlier single brand-rail message → per-level array (index 0 = L1).
+    const tdMig = this.draft.templateData as (typeof this.draft.templateData & { brandRailMessage?: string }) | undefined;
+    if (tdMig?.brandRailMessage && !tdMig.brandRailMessages) {
+      tdMig.brandRailMessages = [tdMig.brandRailMessage];
+      delete tdMig.brandRailMessage;
+    }
     // Prototype leveled drill: infer the depth from the deepest existing children
     // so drafts built before the depth control keep their whole tree editable.
     if ((this.draft.appMode === 'prototype' || this.draft.appMode === 'prototype-esl') && this.draft.categoryLevelCount == null) {

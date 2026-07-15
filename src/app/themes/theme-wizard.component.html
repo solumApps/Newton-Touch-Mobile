@@ -628,8 +628,7 @@
           <div class="seg">
             <button class="tile" *ngFor="let v of brandRailValigns" [class.sel]="(t.intermediate.brandRailMessageAlign||'center')===v.id" (click)="t.intermediate.brandRailMessageAlign=v.id">{{ v.label }}</button>
           </div>
-          <app-color-picker label="Message background" hint="blur panel" [value]="t.intermediate.brandRailMessageBgColor || 'rgba(0,0,0,0.35)'" (valueChange)="t.intermediate.brandRailMessageBgColor=$event"></app-color-picker>
-          <app-color-picker label="Message text" [value]="t.intermediate.brandRailMessageTextColor || '#ffffff'" (valueChange)="t.intermediate.brandRailMessageTextColor=$event"></app-color-picker>
+          <p class="hint">Message colors are set on the Intermediate colors step.</p>
         </ng-container>
 
         <ng-container *ngIf="t.intermediateStyle==='finder-select'">
@@ -821,6 +820,9 @@
         <app-color-picker *ngIf="showInterCardTextColor" label="Card text" [value]="t.intermediate.cardText" (valueChange)="t.intermediate.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
         <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Text overlay" hint="background behind overlaid finder card text" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
+        <app-color-picker *ngIf="t.intermediateStyle==='brand-rail'" label="Message background" hint="blur panel behind the headline" [value]="t.intermediate.brandRailMessageBgColor || 'rgba(0,0,0,0.35)'" (valueChange)="t.intermediate.brandRailMessageBgColor=$event"></app-color-picker>
+        <app-color-picker *ngIf="t.intermediateStyle==='brand-rail'" label="Message text color" [value]="t.intermediate.brandRailMessageTextColor || '#ffffff'" (valueChange)="t.intermediate.brandRailMessageTextColor=$event"></app-color-picker>
+        <p class="hint" *ngIf="t.intermediateStyle==='brand-rail'">The message wording is set per-content in Content creation (defaults to "Which one will you choose?").</p>
         <app-color-picker label="Accent / active" [value]="t.intermediate.accent" (valueChange)="t.intermediate.accent=$event"></app-color-picker>
         <div class="step-title sm">Navigation buttons</div>
         <p class="hint">Style the Back and Home buttons. Set a position to “Hidden” to hide that button.</p>

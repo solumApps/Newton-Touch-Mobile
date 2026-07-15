@@ -240,6 +240,13 @@
         </ng-container>
       </ng-container>
 
+      <!-- brand-rail: headline message text, per drill level (colors stay in the theme wizard) -->
+      <ng-container *ngIf="isBrandRail">
+        <div class="sec"><span>Brand rail message (L{{ brStepLevel }})</span></div>
+        <input class="inp" [placeholder]="brandRailMsgPlaceholder" [ngModel]="brandRailMsgForStep" (ngModelChange)="setBrandRailMsg($event)" />
+        <p class="note">Shown on the L{{ brStepLevel }} page. Leave blank to inherit the message from a higher level. Message colors are set in the theme wizard's Intermediate colors step.</p>
+      </ng-container>
+
       <!-- finder-select: steps + prompt (the selection cards are the sub-items below) -->
       <ng-container *ngIf="isFinderSelect">
         <div class="sec"><span>Finder steps &amp; prompt</span></div>
