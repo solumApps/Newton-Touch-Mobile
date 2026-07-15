@@ -1244,9 +1244,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   get resultCells(): ResultProduct[] {
     const branchProducts = this.intermediateSource.flatMap((c) => c.products || []);
+    const allResultProducts = branchProducts.length ? branchProducts : (this.result?.products || []);
     const real = this.resTpl === 'finder-detail'
       ? (this.result?.products || [])
-      : (branchProducts.length ? branchProducts : (this.result?.products || [])).slice(0, 6);
+      : this.resTpl === 'shelf'
+        ? allResultProducts
+        : allResultProducts.slice(0, 6);
     if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
     const labels = this.previewLabels('result');
     const count = this.resTpl === 'catalog-grid' ? 6 : 3;
