@@ -5,6 +5,7 @@ import type { ThemeTokens, CardItem, ResultProduct, Screensaver, CardTextPos } f
 import { imageFitSize, NAV_ICONS, navIconKind, textScaleNum, textCaseCss, navBtnSizeNum } from '@contract/layout';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
+type FinderSortKey = 'recommend' | 'alpha' | 'low-price' | 'on-sale';
 
 /**
  * Reusable mini-LCD preview strip driven by real draft data.
@@ -434,21 +435,23 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               <div class="fd-chips"><div class="fd-chip" *ngFor="let c of breadcrumbPreview"><span class="fd-chip-lbl">{{ c.label }}</span><span class="fd-chip-val">{{ c.value }}</span></div></div>
             </div>
             <div class="fd-list">
-              <div class="fd-sorts"><div class="fd-sort active">Recommend</div><div class="fd-sort">A&ndash;Z</div></div>
+              <div class="fd-sorts"><div class="fd-sort" *ngFor="let tab of finderSortTabs" [class.active]="isFinderSortActive(tab.key)" (click)="selectFinderSort(tab.key)">{{ tab.label }}</div></div>
               <div class="fd-products">
-                <div class="fd-prod" [class.found]="i===0" *ngFor="let p of finderCells; let i=index">
+                <div class="fd-prod" [class.found]="p.id===finderFound.id" *ngFor="let p of finderDisplayCells" (click)="selectFinderProduct(p)">
                   <div class="fd-prod-top"><div class="fd-prod-nm">{{ p.name }}</div><div class="fd-price"><span class="fd-sale-badge" *ngIf="theme?.result?.showSaleBadge!==false && p.onSale">SALE</span><span class="fd-orig" *ngIf="p.onSale && p.salePrice">{{ p.price }}</span><span class="fd-now" [class.sale]="p.onSale && p.salePrice">{{ (p.onSale && p.salePrice) ? p.salePrice : (p.price || '$58.88') }}</span></div></div>
                   <div class="fd-specs" *ngIf="p.specs?.length"><span class="fd-spec" *ngFor="let s of p.specs">{{ s.label }} &middot; {{ s.value }}</span></div>
                 </div>
               </div>
             </div>
             <div class="fd-detail" *ngIf="finderFound as r">
-              <div class="fd-d-head"><div class="fd-d-title">{{ r.name }}</div><button type="button" class="fd-find-all" [style.background]="theme?.result?.findColor || null">{{ theme?.result?.findAllLabel || 'Find All' }}</button></div>
-              <div class="fd-d-desc" *ngIf="r.description">{{ r.description }}</div>
+              <div class="fd-d-sticky">
+                <div class="fd-d-head"><div class="fd-d-title">{{ r.name }}</div><button type="button" class="fd-find-all" [style.background]="theme?.result?.findColor || null">{{ theme?.result?.findAllLabel || 'Find All' }}</button></div>
+                <div class="fd-d-desc" *ngIf="r.description">{{ r.description }}</div>
+              </div>
               <div class="fd-fit" *ngFor="let f of (r.fitments?.length ? r.fitments : previewFitments)">
+                <div class="fd-fit-img" *ngIf="f.image" [style.background-image]="'url('+f.image+')'"></div>
                 <div class="fd-fit-info"><div class="fd-fit-nm">{{ f.label }}</div><div class="fd-fit-sub" *ngIf="f.articleId || f.name">{{ f.articleId }}<span *ngIf="f.name"> &middot; {{ f.name }}</span></div><div class="fd-fit-price"><span class="fd-orig" *ngIf="f.salePrice">{{ f.price }}</span><span class="fd-now" [class.sale]="f.salePrice">{{ f.salePrice || f.price }}</span></div></div>
                 <button type="button" class="fd-find-it" [style.background]="theme?.result?.findColor || null">{{ theme?.result?.findItLabel || 'Find It' }}</button>
-                <div class="fd-fit-img" *ngIf="f.image" [style.background-image]="'url('+f.image+')'"></div>
               </div>
             </div>
           </div>
@@ -759,10 +762,66 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       price: p.price || '$88.88',
     } as ResultProduct));
   }
+  finderSortKey: FinderSortKey = 'recommend';
+  private localFinderProductId = '';
+  private readonly finderSortLabels: Record<FinderSortKey, string> = {
+    recommend: 'Recommend',
+    alpha: 'Alphabetical',
+    'low-price': 'Low Price',
+    'on-sale': 'On Sale',
+  };
+  get finderSortTabs(): { key: FinderSortKey; label: string }[] {
+    const defaults: FinderSortKey[] = ['recommend', 'alpha', 'low-price', 'on-sale'];
+    const configured = (this.theme?.result?.sortTabs || []).filter((key): key is FinderSortKey => key in this.finderSortLabels);
+    const keys: FinderSortKey[] = configured.length ? configured : defaults;
+    return keys.map((key) => ({ key, label: this.finderSortLabels[key] }));
+  }
+  isFinderSortActive(key: FinderSortKey): boolean {
+    return key === this.activeFinderSortKey;
+  }
+  selectFinderSort(key: FinderSortKey): void {
+    this.finderSortKey = key;
+    this.localFinderProductId = this.finderDisplayCells[0]?.id || '';
+    const idx = this.finderCells.findIndex((p) => p.id === this.localFinderProductId);
+    this.localResultIndex = Math.max(0, idx);
+    this.selectedResultIndexChange.emit(this.localResultIndex);
+  }
+  selectFinderProduct(p: ResultProduct): void {
+    this.localFinderProductId = p.id;
+    const idx = this.finderCells.findIndex((item) => item.id === p.id);
+    this.localResultIndex = Math.max(0, idx);
+    this.selectedResultIndexChange.emit(this.localResultIndex);
+  }
+  get finderDisplayCells(): ResultProduct[] {
+    const rows = this.finderCells.map((p, i) => ({ p, i }));
+    const key = this.activeFinderSortKey;
+    const filtered = key === 'on-sale' ? rows.filter(({ p }) => p.onSale || !!p.salePrice) : rows;
+    const sorted = [...filtered];
+    if (key === 'alpha') {
+      sorted.sort((a, b) => (a.p.name || '').localeCompare(b.p.name || '', undefined, { sensitivity: 'base', numeric: true }) || a.i - b.i);
+    } else if (key === 'low-price') {
+      sorted.sort((a, b) => this.finderPriceValue(a.p) - this.finderPriceValue(b.p) || a.i - b.i);
+    } else {
+      sorted.sort((a, b) => this.finderRankValue(a.p, a.i) - this.finderRankValue(b.p, b.i));
+    }
+    return sorted.map(({ p }) => p);
+  }
   /** finder-detail right detail: the first product, with a fallback description. */
   get finderFound(): ResultProduct {
-    const f = this.finderCells[0];
+    const rows = this.finderDisplayCells;
+    const f = rows.find((p) => p.id === this.localFinderProductId) || rows[0] || this.finderCells[0];
     return { ...f, description: f.description || 'Smooth, clean, streak-free wipe with embedded friction reducers and multiple pressure points.' } as ResultProduct;
+  }
+  private get activeFinderSortKey(): FinderSortKey {
+    return this.finderSortTabs.some((tab) => tab.key === this.finderSortKey) ? this.finderSortKey : this.finderSortTabs[0]?.key || 'recommend';
+  }
+  private finderRankValue(p: ResultProduct, index: number): number {
+    return typeof p.rank === 'number' && Number.isFinite(p.rank) ? p.rank : index + 10000;
+  }
+  private finderPriceValue(p: ResultProduct): number {
+    const raw = p.salePrice || p.price || '';
+    const value = Number(String(raw).replace(/[^0-9.]/g, ''));
+    return Number.isFinite(value) ? value : Number.MAX_SAFE_INTEGER;
   }
   /** promo-map-rank preview: floor selector labels (default when none set). */
   get previewFloors(): string[] {
