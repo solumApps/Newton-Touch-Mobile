@@ -627,7 +627,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       ? 'center'
       : (this.theme?.intermediate?.fsTextAlign || 'center');
   }
-  homeFinderSteps = ['Category 1', 'Category 2', 'Category 3', 'Category 4'];
+  /** Home finder-select progress labels — driven by the content's step labels
+   *  (fs-step-lbl), falling back to generic Category N when none are set. */
+  get homeFinderSteps(): string[] {
+    const labels = this.theme?.intermediate?.stepLabels;
+    return labels && labels.length ? labels : ['Category 1', 'Category 2', 'Category 3', 'Category 4'];
+  }
   /** Result: dummy product images (unless content is text-only). */
   get resUsePh(): boolean {
     return this.page === 'result' && this.theme?.result?.content !== 'text-only';
