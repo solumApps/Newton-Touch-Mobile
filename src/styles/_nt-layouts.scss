@@ -12623,7 +12623,7 @@
   align-items: center;
   height: calc(var(--nt-vh)*3.7);
   margin-bottom: calc(var(--nt-vh)*2.3);
-  padding: calc(var(--nt-vh)*3.25);
+  padding: calc(var(--nt-vh)*3.25) calc(var(--nt-vw) * 0);
   background: #f7f7f7;
   border: 1px solid #d8d8d8;
   border-radius: 999px;
@@ -12633,7 +12633,7 @@
 .nt-result.res-finder-detail .fd-sort {
   flex: 1 1 0;
   min-width: 0;
-  padding: calc(var(--nt-vh)*0.75) calc(var(--nt-vw)*0.6);
+  padding: calc(var(--nt-vh)*0.75) calc(var(--nt-vw)*0);
   border-radius: 999px;
   color: #8d9096;
   font-size: calc(var(--nt-vw)*0.62);
@@ -12648,7 +12648,7 @@
 .nt-result.res-finder-detail .fd-sort.active {
   background: #ffffff;
   color: #30333a;
-  box-shadow: 0 calc(var(--nt-vh)*0.25) calc(var(--nt-vh)*0.65) rgba(0, 0, 0, .16);
+  padding: 4px 0px !important;
 }
 
 .nt-result.res-finder-detail .fd-prod {

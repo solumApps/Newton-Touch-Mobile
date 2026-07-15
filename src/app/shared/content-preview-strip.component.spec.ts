@@ -232,6 +232,35 @@ describe('ContentPreviewStripComponent', () => {
     ]);
   });
 
+  it('sorts finder-detail result products for recommend, alphabet, low price, and on sale tabs', () => {
+    fixture.componentInstance.page = 'result';
+    fixture.componentInstance.theme = {
+      resultTemplate: 'finder-detail',
+      result: {},
+    } as any;
+    fixture.componentInstance.result = {
+      products: [
+        { id: 'rain', name: 'Rain-X WeatherBeater', price: '$88.88', salePrice: '$58.88', onSale: true, rank: 2 },
+        { id: 'trico', name: 'TRICO Ice Beam', price: '$42.00', rank: 1 },
+        { id: 'aero', name: 'Aero Blade', price: '$15.00', salePrice: '$12.00', onSale: true, rank: 3 },
+        { id: 'bosch', name: 'Bosch Clear Advantage', price: '$24.50', rank: 4 },
+      ],
+    } as any;
+
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.finderDisplayCells.map((p) => p.id)).toEqual(['trico', 'rain', 'aero', 'bosch']);
+
+    fixture.componentInstance.selectFinderSort('alphabet');
+    expect(fixture.componentInstance.finderDisplayCells.map((p) => p.id)).toEqual(['aero', 'bosch', 'rain', 'trico']);
+
+    fixture.componentInstance.selectFinderSort('lowprice');
+    expect(fixture.componentInstance.finderDisplayCells.map((p) => p.id)).toEqual(['aero', 'bosch', 'trico', 'rain']);
+
+    fixture.componentInstance.selectFinderSort('on sale');
+    expect(fixture.componentInstance.finderDisplayCells.map((p) => p.id)).toEqual(['rain', 'aero']);
+  });
+
   it('forces finder-select circle and hexagon text alignment to center', () => {
     fixture.componentInstance.theme = {
       intermediate: { fsCardShape: 'circle', fsTextAlign: 'left' },
