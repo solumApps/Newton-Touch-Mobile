@@ -12648,7 +12648,7 @@
 .nt-result.res-finder-detail .fd-sort.active {
   background: #ffffff;
   color: #30333a;
-  padding: 4px 0px !important;
+  padding: calc(var(--nt-vh) * 1.95) !important;
 }
 
 .nt-result.res-finder-detail .fd-prod {
