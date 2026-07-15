@@ -1208,6 +1208,10 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     // Baseline for the unsaved-changes guard: anything the user edits after this
     // point makes the wizard "dirty" and cancelling asks for confirmation.
     this.baseline = this.snapshot();
+    // Baseline for the per-step Reset button: the configuration the wizard opened
+    // with (factory defaults for a new theme, the saved values when editing).
+    this.baseTokens = JSON.parse(JSON.stringify(this.t));
+    this.baseSaverMode = this.saverMode;
   }
 
   /** Serialized wizard state — compared against the baseline to detect edits. */
@@ -1559,6 +1563,119 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
 
   /** Set after init(); non-empty means the guard is armed. */
   private baseline = '';
+
+  // ---- Per-step Reset (back to the configuration the wizard opened with) ----
+
+  /** Deep-cloned tokens captured at the end of init(): factory defaults for a
+   *  new theme, the saved values when editing. Per-step Reset restores from here. */
+  private baseTokens: ThemeTokens = ThemeService.defaultTokens();
+  private baseSaverMode: ScreensaverMode = 'slideshow';
+
+  /** Token paths each wizard step's controls write. Tokens surfaced on more than
+   *  one step (cardSurface, overlayColor, scrollMode, nav, navStyle) are listed
+   *  under every step that shows them — resetting either page restores the same
+   *  baseline value, so there is no conflict. Review has no entry (nothing to reset). */
+  private static readonly STEP_RESET_FIELDS: Record<string, string[]> = {
+    home: [
+      'homeLayout', 'columns', 'scrollMode', 'cardSize', 'cardSizeScale', 'cardGap', 'cardGapNum',
+      'cardAlign', 'cardVAlign', 'cardContent', 'cardShape', 'cardSurface', 'cardTextPos',
+      'cardTextAlign', 'cardTextShadow', 'cardTextOverlay', 'cardOverlayStyle', 'cardOverlayShape',
+      'overlayColor', 'showHeader', 'headerLayout', 'headerStyle', 'logoPos', 'titlePos', 'captionPos',
+      'includeIntermediate',
+      // finder-select home options live on the intermediate sub-object
+      'intermediate.fsShowPrompt', 'intermediate.fsPromptPos', 'intermediate.fsCardContent',
+      'intermediate.fsCardShape', 'intermediate.fsTextPos', 'intermediate.fsTextAlign',
+      'intermediate.itemSize', 'intermediate.itemSizeScale',
+    ],
+    colors: [
+      'headerColor', 'headerTextColor', 'background', 'backgroundImage', 'bgImageX', 'bgImageY',
+      'bgImageZoom', 'cardBackground', 'cardText', 'overlayColor', 'accent', 'logoPosition',
+      'intermediate.promptTextColor', 'intermediate.heroColor',
+    ],
+    type: ['typography'],
+    intStyle: [
+      'intermediateStyle', 'cardSurface', 'overlayColor',
+      'intermediate.columns', 'intermediate.scrollMode', 'intermediate.content', 'intermediate.cardShape',
+      'intermediate.textPos', 'intermediate.textAlign', 'intermediate.textShadow', 'intermediate.textOverlay',
+      'intermediate.overlayStyle', 'intermediate.overlayShape', 'intermediate.align', 'intermediate.valign',
+      'intermediate.gap', 'intermediate.gapNum', 'intermediate.itemSize', 'intermediate.itemSizeScale',
+      'intermediate.showHeader', 'intermediate.showTracklist',
+      'intermediate.headerStyle', 'intermediate.headerLayout', 'intermediate.logoPos', 'intermediate.titlePos', 'intermediate.captionPos',
+      'intermediate.brandRailMessagePos', 'intermediate.brandRailMessageAlign',
+      'intermediate.fsShowPrompt', 'intermediate.fsPromptPos', 'intermediate.fsShowBack',
+      'intermediate.fsCardContent', 'intermediate.fsCardShape', 'intermediate.fsTextPos', 'intermediate.fsTextAlign',
+    ],
+    intColors: [
+      'intermediate.headerColor', 'intermediate.headerTextColor', 'intermediate.background',
+      'intermediate.backgroundImage', 'intermediate.bgImageX', 'intermediate.bgImageY', 'intermediate.bgImageZoom',
+      'intermediate.cardBackground', 'intermediate.cardText', 'intermediate.heroColor', 'intermediate.accent',
+      'intermediate.brandRailMessageBgColor', 'intermediate.brandRailMessageTextColor', 'overlayColor',
+      'nav', 'navStyle', 'intermediate.navSplit', 'intermediate.navPosition',
+      'intermediate.navBackPosition', 'intermediate.navHomePosition',
+    ],
+    resTemplate: [
+      'resultTemplate', 'scrollMode', 'result.showTimer', 'result.showBell', 'result.showRanks',
+      'result.showSortTabs', 'result.showZone', 'result.sortTabs', 'result.showSaleBadge',
+      'result.filterPos', 'result.content', 'result.cardShape', 'result.textPos',
+    ],
+    resColors: [
+      'result.headerColor', 'result.background', 'result.backgroundImage', 'result.cardBackground',
+      'result.cardText', 'result.popularText', 'result.accent', 'result.findColor', 'result.listBg',
+      'result.cardBg', 'result.cardTextColor', 'result.panelColor', 'result.railBg', 'result.subPanelColor',
+      'result.secondaryTextColor', 'result.pinColor', 'result.dotColor', 'result.mapBg',
+      'result.showHeader', 'result.showTracklist',
+      'nav', 'navStyle', 'result.navSplit', 'result.navPosition', 'result.navBackPosition', 'result.navHomePosition',
+    ],
+    anim: ['animation', 'loader'],
+    saver: ['saverOverlay'],
+  };
+
+  /** Whether the current step has a Reset button (all except Review). */
+  get stepResettable(): boolean { return !!ThemeWizardComponent.STEP_RESET_FIELDS[this.step.key]; }
+
+  /** Restore one dot-path in `t` from the baseline. Values the baseline doesn't
+   *  have are deleted so `?? / ||` display fallbacks apply again. */
+  private restoreTokenPath(path: string): void {
+    const segs = path.split('.');
+    let src: any = this.baseTokens;
+    let dst: any = this.t;
+    for (let i = 0; i < segs.length - 1; i++) {
+      src = src?.[segs[i]];
+      if (typeof dst[segs[i]] !== 'object' || dst[segs[i]] == null) dst[segs[i]] = {};
+      dst = dst[segs[i]];
+    }
+    const last = segs[segs.length - 1];
+    const v = src?.[last];
+    if (v === undefined) delete dst[last];
+    else dst[last] = JSON.parse(JSON.stringify(v));
+  }
+
+  /** Reset every field the current page edits back to its opening value
+   *  (defaults for a new theme, the saved values when editing) — confirmed first. */
+  async resetStep(): Promise<void> {
+    const key = this.step.key;
+    const paths = ThemeWizardComponent.STEP_RESET_FIELDS[key];
+    if (!paths) return;
+    const alert = await this.alertController.create({
+      header: 'Reset this page?',
+      message: 'All settings on this page go back to their starting values. Other pages are not affected.',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        { text: 'Reset', role: 'destructive', handler: () => this.applyStepReset(key, paths) },
+      ],
+    });
+    await alert.present();
+  }
+
+  private applyStepReset(key: string, paths: string[]): void {
+    if (key === 'saver') this.saverMode = this.baseSaverMode;
+    for (const p of paths) this.restoreTokenPath(p);
+    // Re-run the coercions/inherits that fire when the step is entered, so the
+    // page shows exactly what it did the first time it was opened.
+    this.coerceTextPos();
+    if (key === 'intStyle' || key === 'intColors') { this.syncInterFromHome(); this.clampIntColumns(); }
+    if (key === 'resColors') { this.resultSynced = false; this.syncResultFromHome(); }
+  }
 
   async cancel(): Promise<void> {
     // Unsaved edits → confirm before throwing them away.

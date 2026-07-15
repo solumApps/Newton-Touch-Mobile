@@ -265,7 +265,12 @@
             <div class="ldr ldr-{{t.loader.style}}" [style.--ldr]="t.loader.color"></div>
           </div>
         </div>
-        <div class="prev-cap">{{ pageCaption(previewPage) }} preview</div>
+        <div class="prev-cap">{{ pageCaption(previewPage) }} preview
+          <!-- Per-step undo — lives in the sticky preview bar so it stays visible
+               while the options scroll. Restores this page's settings to their
+               starting values (defaults for new themes, saved values on edit). -->
+          <button class="replay step-reset" *ngIf="stepResettable" (click)="resetStep()" title="Reset this page to its starting configuration">↺ Reset page</button>
+        </div>
       </div>
     </ng-container>
 
