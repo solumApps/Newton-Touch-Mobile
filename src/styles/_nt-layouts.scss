@@ -8989,7 +8989,7 @@
   border-radius: 50%;
   border: 0;
   background: transparent;
-  color: #2c2c2a;
+  color: var(--fs-accent, #4ea1ff);
   font-size: calc(var(--nt-vw)*1.4);
   cursor: pointer;
 }
@@ -10470,7 +10470,7 @@
   border-radius: 50%;
   border: 0;
   background: transparent;
-  color: #2c2c2a;
+  color: var(--fs-accent, #4ea1ff);
   font-size: calc(var(--nt-vw)*1.4);
   cursor: pointer;
 }
