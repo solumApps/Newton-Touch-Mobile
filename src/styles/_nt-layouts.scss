@@ -8994,6 +8994,11 @@
   cursor: pointer;
 }
 
+.nt-inter .fs-back ion-icon {
+  color: inherit;
+  font-size: inherit;
+}
+
 .nt-inter .fs-prompt {
   font-size: calc(var(--nt-vw)*1);
   font-weight: 800;
@@ -10473,6 +10478,11 @@
   color: var(--fs-accent, #4ea1ff);
   font-size: calc(var(--nt-vw)*1.4);
   cursor: pointer;
+}
+
+.nt-inter .fs-back ion-icon {
+  color: inherit;
+  font-size: inherit;
 }
 
 .nt-inter .fs-prompt {

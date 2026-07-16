@@ -1,6 +1,9 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { IonIcon } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { arrowBackOutline } from 'ionicons/icons';
 import type { ThemeTokens, CardItem, ResultProduct, Screensaver, CardTextPos } from '@contract/layout';
 import { imageFitSize, NAV_ICONS, navIconKind, textScaleNum, textCaseCss, navBtnSizeNum } from '@contract/layout';
 
@@ -23,7 +26,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
 @Component({
   selector: 'app-content-preview-strip',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IonIcon],
   encapsulation: ViewEncapsulation.None,
   styleUrls: ['./content-preview-strip.component.scss'],
   template: `
@@ -203,7 +206,9 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
             </div>
             <div class="fs-main" [style.background]="intermediateCardAreaBackground">
               <div class="fs-top fs-back-{{theme?.intermediate?.fsBackPos||'left'}} fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}">
-                <button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">&#8592;</button>
+                <button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">
+                  <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
+                </button>
                 <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div>
               </div>
               <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{finderTextAlignClass}}">
@@ -568,7 +573,9 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
 export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   /** Per-item image fit → CSS background-size (null = preview default) — matches the LCD. */
   fitSize = imageFitSize;
-  constructor(private sanitizer: DomSanitizer) {}
+  constructor(private sanitizer: DomSanitizer) {
+    addIcons({ arrowBackOutline });
+  }
   @Input() theme?: ThemeTokens;
   @Input() page: PreviewPage = 'home';
   @Input() home: CardItem[] = [];
