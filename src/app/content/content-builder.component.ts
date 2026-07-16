@@ -725,8 +725,24 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   /** Track step-label inputs by index — the value changes on every keystroke, so
    *  the default value-identity tracking would recreate the <input> and drop focus. */
   trackByIndex = (i: number): number => i;
-  get tplCrumbsCsv(): string { return (this.td.breadcrumbLabels || []).join(','); }
-  set tplCrumbsCsv(v: string) { this.td.breadcrumbLabels = v.split(',').map((s) => s.trim()).filter(Boolean); }
+  // ── finder-detail breadcrumb labels — the result screen's "Finder steps" ──
+  // When the intermediate is finder-select these INHERIT td.stepLabels (edited on
+  // the Intermediate step); otherwise they get their own per-level editor below.
+  /** Breadcrumb chips = levels drilled before the result: just the home pick when
+   *  the theme skips the intermediate, else home + every intermediate level. */
+  get crumbStepCount(): number {
+    return this.draft?.themeTokens.includeIntermediate === false ? 1 : this.finderStepCount;
+  }
+  get crumbStepIndices(): number[] { return Array.from({ length: this.crumbStepCount }, (_, i) => i); }
+  crumbValue(i: number): string { return this.td.breadcrumbLabels?.[i] || ''; }
+  setCrumb(i: number, v: string): void {
+    const arr = [...(this.td.breadcrumbLabels || [])];
+    while (arr.length < this.crumbStepCount) arr.push('');
+    arr[i] = v;
+    this.td.breadcrumbLabels = arr.slice(0, this.crumbStepCount);
+  }
+  /** Effective breadcrumb label: the user's value, else the generic default. */
+  crumbLabel(i: number): string { return this.crumbValue(i).trim() || 'Category ' + (i + 1); }
   setTplTimer(v: string): void { this.td.timerSeconds = Math.max(0, Math.round(Number(v) || 0)); }
   /** Theme overlaid with per-content template data, for the live preview. */
   get previewTheme(): ThemeTokens {
@@ -738,6 +754,14 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (td.youAreHereLabel != null) r.youAreHereLabel = td.youAreHereLabel;
     if (td.timerSeconds != null) r.timerSeconds = td.timerSeconds;
     if (td.breadcrumbLabels) r.breadcrumbLabels = td.breadcrumbLabels;
+    // finder-detail: preview the EFFECTIVE breadcrumb chips — inherited from the
+    // Finder steps when the intermediate is finder-select, else the per-level
+    // breadcrumb editor values — with generic defaults filled, matching deploy.
+    if (this.isFinder) {
+      r.breadcrumbLabels = this.isFinderSelect
+        ? this.finderStepIndices.map((i) => this.finderStepLabel(i))
+        : this.crumbStepIndices.map((i) => this.crumbLabel(i));
+    }
     if (td.findItLabel != null) r.findItLabel = td.findItLabel;
     if (td.findAllLabel != null) r.findAllLabel = td.findAllLabel;
     if (td.heroImage != null) r.heroImage = td.heroImage;

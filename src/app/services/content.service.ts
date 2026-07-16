@@ -333,11 +333,21 @@ export class ContentService {
     // finder-select: the finder shows one progress step PER DRILL LEVEL (home +
     // intermediate levels = "Category depth"). Emit exactly that many labels,
     // filling blanks with the generic default so the step count always matches.
+    const levelCount = Math.min(3, Math.max(1, d.categoryLevelCount ?? 1)); // mirrors protoLevelCount
+    const fillLabels = (raw: string[], count: number): string[] =>
+      Array.from({ length: count }, (_, i) => (raw[i] && raw[i].trim()) ? raw[i].trim() : 'Category ' + (i + 1));
     if (theme.intermediateStyle === 'finder-select') {
-      const levelCount = Math.min(3, Math.max(1, d.categoryLevelCount ?? 1)); // mirrors protoLevelCount
-      const count = levelCount + 1;
-      const raw = td?.stepLabels || [];
-      (theme.intermediate as any).stepLabels = Array.from({ length: count }, (_, i) => (raw[i] && raw[i].trim()) ? raw[i].trim() : 'Category ' + (i + 1));
+      (theme.intermediate as any).stepLabels = fillLabels(td?.stepLabels || [], levelCount + 1);
+    }
+    // finder-detail: the breadcrumb chips are the result screen's "Finder steps".
+    // When the intermediate is finder-select they INHERIT its step labels (single
+    // source of truth); otherwise normalize the per-level breadcrumb editor values
+    // to one label per drilled level (just the home pick when the theme skips the
+    // intermediate), with the same generic defaults.
+    if (theme.resultTemplate === 'finder-detail') {
+      (theme.result as any).breadcrumbLabels = theme.intermediateStyle === 'finder-select'
+        ? (theme.intermediate as any).stepLabels
+        : fillLabels(td?.breadcrumbLabels || [], theme.includeIntermediate === false ? 1 : levelCount + 1);
     }
     const payload: LayoutJson = {
       schemaVersion: 1,

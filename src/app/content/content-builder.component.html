@@ -637,10 +637,28 @@
         <p class="note">Categories → sub-categories → products come from your Home cards &amp; their children/products. The ranked list shows the picked sub-item's products (LED blinks those).</p>
       </ng-container>
 
-      <!-- finder-detail: per-content text/data -->
+      <!-- finder-detail: per-content text/data. The breadcrumb chips are the
+           result screen's "Finder steps" — inherited from the Intermediate
+           step's Finder steps when the theme uses finder-select there, else
+           edited here with the same per-drill-level UI. -->
       <ng-container *ngIf="isFinder">
+        <ng-container *ngIf="isFinderSelect">
+          <div class="sec"><span>Finder steps (inherited)</span></div>
+          <p class="note">The result breadcrumb chips inherit your Finder steps — edit them on the Intermediate step.</p>
+          <div class="erow" *ngFor="let i of finderStepIndices; trackBy: trackByIndex">
+            <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
+            <span class="inp" style="opacity:.6;pointer-events:none">{{ finderStepLabel(i) }}</span>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="!isFinderSelect">
+          <div class="sec"><span>Finder steps ({{ crumbStepCount }})</span></div>
+          <p class="note">One breadcrumb label per drill level — the count follows your Category depth. Edit any label, or leave it to use the default.</p>
+          <div class="erow" *ngFor="let i of crumbStepIndices; trackBy: trackByIndex">
+            <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
+            <input class="inp" [ngModel]="crumbValue(i)" (ngModelChange)="setCrumb(i, $event)" [placeholder]="'Category ' + (i + 1)" />
+          </div>
+        </ng-container>
         <div class="sec"><span>Finder labels</span></div>
-        <input class="inp" placeholder="Breadcrumb labels (comma e.g. Manufacturer,Model,Year)" [ngModel]="tplCrumbsCsv" (ngModelChange)="tplCrumbsCsv=$event" />
         <div class="prow">
           <input class="inp" placeholder="Find It label" [(ngModel)]="td.findItLabel" />
           <input class="inp" placeholder="Find All label" [(ngModel)]="td.findAllLabel" />

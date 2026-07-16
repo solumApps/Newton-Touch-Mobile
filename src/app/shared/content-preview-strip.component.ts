@@ -428,8 +428,12 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
             </div>
           </div>
 
-          <!-- finder-detail -->
-          <div class="body finder-body" *ngIf="resTpl==='finder-detail'">
+          <!-- finder-detail. --prm-panel must be set explicitly here: the stage
+               wrapper pins it to 'transparent', which would defeat the SCSS
+               #172033 fallback the LCD gets. Inherits the finder-select
+               heroColor so the fd-hero matches the intermediate fs-hero. -->
+          <div class="body finder-body" *ngIf="resTpl==='finder-detail'"
+               [style.--prm-panel]="(theme?.intermediateStyle==='finder-select' ? theme?.intermediate?.heroColor : theme?.result?.panelColor) || '#172033'">
             <div class="fd-hero" [style.background-image]="theme?.result?.heroImage ? 'url('+theme?.result?.heroImage+')' : null">
               <div class="fd-hero-title">{{ titleText || 'Product Finder' }}</div>
               <div class="fd-home"><span class="fd-home-ic">&#8962;</span> Home</div>
@@ -718,11 +722,14 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get specialResult(): boolean {
     return ['drill-stair', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'product-focus', 'hero-product', 'shelf', 'promo-map-rank', 'finder-detail'].includes(this.resTpl);
   }
-  /** finder-detail preview breadcrumb chips (custom labels + sample values). */
+  /** finder-detail preview breadcrumb chips (custom labels + sample values).
+   *  Capped at 4 (not removed) to match the design max: finderStepCount /
+   *  crumbStepCount are both protoLevelCount(max 3) + 1 = 4. Sample values match
+   *  fsStepRows' so the Intermediate and Result previews tell one consistent story. */
   get breadcrumbPreview(): { label: string; value: string }[] {
     const labels = this.theme?.result?.breadcrumbLabels?.length ? this.theme.result.breadcrumbLabels : ['Manufacturer', 'Model', 'Year'];
-    const vals = ['Mercedes-Benz', 'S Class', '2021'];
-    return labels.slice(0, 3).map((label, i) => ({ label, value: vals[i] || '—' }));
+    const vals = ['Bosch', 'X5 Series', '2021', 'Premium'];
+    return labels.slice(0, 4).map((label, i) => ({ label, value: vals[i] || '—' }));
   }
   /** drill-filter result preview: one breadcrumb column per real hierarchy level. */
   get drillFilterColumns(): { label: string; items: CardItem[]; pickedIndex: number }[] {
