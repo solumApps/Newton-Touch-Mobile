@@ -849,7 +849,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     'map-list': 'Map List', 'drill-filter': 'Drill Filter', 'map-filter-list': 'Map + Filter',
     'filter-list': 'Filter List', 'card-grid': 'Card Grid', 'promo-list': 'Promo List',
     'product-focus': 'Product Focus', 'hero-product': 'Hero Product', 'shelf': 'Shelf',
-    'promo-map-rank': 'Promo Map + Ranks', 'finder-detail': 'Finder + Detail',
+    'promo-map-rank': 'Promo Map + Ranks', 'finder-detail': 'Finder Select',
   };
   tplLabel(o: string): string { return this.tplLabels[o] || o; }
   pickResultTemplate(o: ResultTemplate): void {
