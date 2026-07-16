@@ -6,6 +6,7 @@ import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, Ion
 import { unzipSync } from 'fflate';
 import { ContentService, ContentDraft } from '../services/content.service';
 import { ImagePickerService } from '../services/image-picker.service';
+import { ColorPickerComponent } from '../shared/color-picker.component';
 import type { CanvasElement, CanvasElementKind, CanvasShapeKind, CustomCanvasContent, ProductPromoContent, ProductPromoPreset } from '@contract/layout';
 
 type CanvasLike = CustomCanvasContent | ProductPromoContent;
@@ -13,7 +14,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
 @Component({
   selector: 'app-content-canvas',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter],
+  imports: [CommonModule, FormsModule, ColorPickerComponent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter],
   template: `
 <ion-header>
   <ion-toolbar>
@@ -24,13 +25,13 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
 
 <ion-content>
   <div class="wrap" *ngIf="draft">
-    <div class="preview-dock">
+    <div class="preview-dock" #previewDock>
       <div class="stage-head">
         <div>
           <strong>{{ isPromo ? 'Product promo preview' : 'Custom layout preview' }}</strong>
           <span>LCD canvas · 1920 x 540</span>
         </div>
-        <button class="add-main" (click)="showAddPanel=!showAddPanel">{{ showAddPanel ? 'Close' : '+ Add element' }}</button>
+        <button class="add-main" (click)="toggleAddPanel()">{{ showAddPanel ? 'Close' : '+ Add element' }}</button>
       </div>
 
       <div #stageEl class="stage" [style.background]="canvas.background" (pointerdown)="selectCanvas()">
@@ -90,7 +91,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
       </div>
     </div>
 
-    <div class="tool-card" *ngIf="showAddPanel">
+    <div class="tool-card" #toolCard *ngIf="showAddPanel">
       <ng-container *ngIf="!isPromo; else promoTools">
         <div class="tool-title">Add to canvas</div>
         <div class="toolbar">
@@ -120,7 +121,12 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
         </div>
       </ng-template>
 
-      <label class="bg-field">Canvas background<input type="color" [ngModel]="toColor(canvas.background || (isPromo ? '#FFFFFF' : '#0A0A1A'))" (ngModelChange)="canvas.background=$event; saveSoon()" /></label>
+      <app-color-picker class="canvas-bg-picker"
+        label="Canvas background"
+        [value]="canvas.background || (isPromo ? '#FFFFFF' : '#0A0A1A')"
+        [allowTransparent]="false"
+        [presets]="canvasBgPresets"
+        (valueChange)="canvas.background=$event; saveSoon()"></app-color-picker>
     </div>
 
     <div class="panel" *ngIf="selected as el; else noSelection">
@@ -306,6 +312,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
     .preset-grid .sel,.toggles .sel { background:#2F006D; color:#fff; }
     .bg-field { display:grid; grid-template-columns:1fr 52px; align-items:center; grid-column-gap:10px; margin:12px 2px 0; color:#475467; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.06em; }
     .bg-field input { width:52px; height:38px; padding:3px; border:1.5px solid #d0d5dd; border-radius:12px; background:#fff; }
+    .canvas-bg-picker { display:block; margin:12px 2px 0; }
     .panel { padding:14px; }
     .panel-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
     .panel h3 { margin:0; font-size:18px; color:#101828; }
@@ -336,7 +343,12 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
 })
 export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('stageEl') stageEl?: ElementRef<HTMLElement>;
+  @ViewChild('toolCard') toolCardEl?: ElementRef<HTMLElement>;
+  @ViewChild('previewDock') previewDockEl?: ElementRef<HTMLElement>;
   draft?: ContentDraft;
+  /** Canvas-appropriate solids for the background picker: dark (custom-canvas
+   *  default) + white (promo default) + brand tones. */
+  canvasBgPresets = ['#0A0A1A', '#FFFFFF', '#12002D', '#001973', '#0F172A', '#111827', '#FFCD00'];
   selectedId = '';
   showAddPanel = false;
   /** 360° spin authoring state: preview frame index + zip import progress. */
@@ -609,6 +621,24 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
     this.selectedId = product.id;
     this.showAddPanel = false;
     this.saveSoon();
+  }
+
+  /** Toggle the "Add element" panel; when opening, scroll it into view so the
+   *  user sees the tool-card instead of it appearing below the fold. */
+  toggleAddPanel(): void {
+    this.showAddPanel = !this.showAddPanel;
+    if (!this.showAddPanel) return;
+    // The panel is *ngIf'd in on the next change-detection tick; defer the scroll
+    // one macrotask so the element exists, then bring its top into view. The
+    // preview dock is position:sticky and would cover the panel's top rows, so
+    // offset the scroll by the dock's (dynamic) height via scroll-margin-top.
+    setTimeout(() => {
+      const tc = this.toolCardEl?.nativeElement;
+      if (!tc) return;
+      const dockH = this.previewDockEl?.nativeElement.offsetHeight ?? 0;
+      tc.style.scrollMarginTop = (dockH + 12) + 'px';
+      tc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
   }
 
   saveSoon(): void {
