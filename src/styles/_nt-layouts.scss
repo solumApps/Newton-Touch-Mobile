@@ -7858,6 +7858,7 @@
   padding: calc(var(--nt-vh)*1.5) calc(var(--nt-vw)*0.8);
   box-sizing: border-box;
   cursor: pointer;
+  justify-content: center;
 }
 
 .nt-result.res-shelf .sprod .s-img {
@@ -7915,7 +7916,7 @@
 }
 
 .nt-result.scroll-vertical.res-shelf .sprod {
-  height: 64%;
+  height: 100% !important;
 }
 
 /* ---- result card shape (res-shape-*, optional — default keeps each template's look) ---- */
@@ -12648,7 +12649,7 @@
 .nt-result.res-finder-detail .fd-sort.active {
   background: #ffffff;
   color: #30333a;
-  padding: 4px 0px !important;
+  padding: calc(var(--nt-vh) * 1.95) !important;
 }
 
 .nt-result.res-finder-detail .fd-prod {
@@ -12858,4 +12859,26 @@
   align-self: flex-start;
   padding: calc(var(--nt-vh)*1.65) calc(var(--nt-vw)*1.1);
   font-size: calc(var(--nt-vw)*0.58);
+}
+
+.nt-result.res-shelf.res-content-text-only .sprod .s-img.no-img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8);
+  box-sizing: border-box;
+  background: var(--nt-res-card, rgba(255, 255, 255, .08));
+}
+
+.nt-result.res-shelf.res-content-text-only .sprod .s-img.no-img .s-img-text {
+  color: var(--nt-res-text, #fff);
+  font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw) * 0.85);
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.nt-result.res-shelf.res-content-text-only .sprod .s-img.no-img + .s-nm {
+  display: none;
 }

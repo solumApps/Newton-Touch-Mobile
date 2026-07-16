@@ -47,6 +47,8 @@
   --border-radius: var(--nt-r);
   --padding-start: 12px;
   --inner-padding-end: 12px;
+  --inner-padding-top:12px;
+  --inner-padding-bottom:12px;
   --min-height: 0;
   border: 1px solid var(--nt-border);
   border-radius: var(--nt-r);
@@ -61,7 +63,7 @@
   border-left: 3px solid var(--nt-success);
 }
 
-.item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 0; }
+.item { display: flex; align-items: center; gap: 12px; width: 100%; }
 .item .sw { width: 44px; height: 44px; border-radius: var(--nt-r); flex-shrink: 0; border: 1px solid var(--nt-border); }
 .item .meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .item .top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
