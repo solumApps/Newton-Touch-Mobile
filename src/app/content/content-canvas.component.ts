@@ -143,13 +143,13 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
           <textarea [(ngModel)]="el.text" (ngModelChange)="saveSoon()"></textarea>
         </label>
 
-        <label *ngIf="el.kind==='text' || el.kind==='shape'">Text color
-          <input type="color" [ngModel]="toColor(el.color || '#ffffff')" (ngModelChange)="el.color=$event; saveSoon()" />
-        </label>
+        <app-color-picker class="el-color-picker" *ngIf="el.kind==='text' || el.kind==='shape'"
+          label="Text color" [value]="el.color || '#FFFFFF'" [allowTransparent]="false"
+          [presets]="elementColorPresets" (valueChange)="el.color=$event; saveSoon()"></app-color-picker>
 
-        <label *ngIf="el.kind==='shape'">Fill
-          <input type="color" [ngModel]="toColor(el.fill || '#FFCD00')" (ngModelChange)="el.fill=$event; saveSoon()" />
-        </label>
+        <app-color-picker class="el-color-picker" *ngIf="el.kind==='shape'"
+          label="Fill" [value]="el.fill || '#FFCD00'" [allowTransparent]="false"
+          [presets]="elementColorPresets" (valueChange)="el.fill=$event; saveSoon()"></app-color-picker>
 
         <label *ngIf="el.kind==='shape'">Shape
           <select [(ngModel)]="el.shape" (ngModelChange)="saveSoon()">
@@ -169,9 +169,9 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
           </select>
         </label>
 
-        <label>Border color
-          <input type="color" [ngModel]="toColor(el.borderColor || '#000000')" (ngModelChange)="el.borderColor=$event; saveSoon()" />
-        </label>
+        <app-color-picker class="el-color-picker"
+          label="Border color" [value]="el.borderColor || '#000000'" [allowTransparent]="false"
+          [presets]="elementColorPresets" (valueChange)="el.borderColor=$event; saveSoon()"></app-color-picker>
 
         <div class="upload-box" *ngIf="el.kind==='image'">
           <span>{{ el.src ? 'Image selected' : 'No image selected' }}</span>
@@ -313,6 +313,7 @@ type CanvasLike = CustomCanvasContent | ProductPromoContent;
     .bg-field { display:grid; grid-template-columns:1fr 52px; align-items:center; grid-column-gap:10px; margin:12px 2px 0; color:#475467; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.06em; }
     .bg-field input { width:52px; height:38px; padding:3px; border:1.5px solid #d0d5dd; border-radius:12px; background:#fff; }
     .canvas-bg-picker { display:block; margin:12px 2px 0; }
+    .form-grid app-color-picker { grid-column:1 / -1; display:block; }
     .panel { padding:14px; }
     .panel-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
     .panel h3 { margin:0; font-size:18px; color:#101828; }
@@ -349,6 +350,9 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
   /** Canvas-appropriate solids for the background picker: dark (custom-canvas
    *  default) + white (promo default) + brand tones. */
   canvasBgPresets = ['#0A0A1A', '#FFFFFF', '#12002D', '#001973', '#0F172A', '#111827', '#FFCD00'];
+  /** Presets for element Text/Fill/Border pickers: white + dark + brand tones
+   *  (the cp-custom HSL panel covers anything else). */
+  elementColorPresets = ['#FFFFFF', '#12002D', '#0F172A', '#2F006D', '#001973', '#FFCD00', '#EF4444', '#10B981'];
   selectedId = '';
   showAddPanel = false;
   /** 360° spin authoring state: preview frame index + zip import progress. */
@@ -445,7 +449,6 @@ export class ContentCanvasComponent implements OnInit, AfterViewInit, OnDestroy 
     if (el.kind === 'shape') return 'Use this for offer badges, tags, arrows, and retail promotion callouts.';
     return 'Edit the message, size, style, and placement directly from here.';
   }
-  toColor(v: string): string { return /^#[0-9a-fA-F]{6}$/.test(v || '') ? v : '#ffffff'; }
   nextZ(): number { return Math.max(0, ...this.canvas.elements.map((e) => e.z || 0)) + 1; }
   makeId(): string { return 'el_' + Date.now() + '_' + Math.floor(Math.random() * 1000); }
   add(el: Partial<CanvasElement>): void {
