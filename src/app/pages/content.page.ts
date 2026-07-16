@@ -31,6 +31,7 @@ export class ContentPage implements OnInit, OnDestroy {
   private wsSub?: Subscription;
   private contentSub?: Subscription;
   private devices: SavedDevice[] = [];
+  private unavailablePreviewImages = new Set<string>();
 
   constructor(
     private content: ContentService,
@@ -148,13 +149,20 @@ export class ContentPage implements OnInit, OnDestroy {
   previewImage(c: ContentDraft): string | undefined {
     const sampleCover = this.sampleCover(c.id);
     if (sampleCover) return sampleCover;
-    return c.home.find((card) => !!card.image)?.image
+    const image = c.home.find((card) => !!card.image)?.image
       || c.result.promoImage
       || c.result.products.find((p) => !!p.image)?.image
       || Object.values(c.itemResults || {}).find((r) => !!r.promoImage)?.promoImage
       || Object.values(c.itemResults || {}).flatMap((r) => r.products || []).find((p) => !!p.image)?.image
       || c.screensaver?.media?.[0]
       || c.header?.logo;
+    return image && !this.unavailablePreviewImages.has(image) ? image : undefined;
+  }
+
+  previewImageFailed(src?: string): void {
+    if (!src) return;
+    this.unavailablePreviewImages.add(src);
+    this.cdr.detectChanges();
   }
 
   private sampleCover(id: string): string | undefined {

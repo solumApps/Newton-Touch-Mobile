@@ -28,11 +28,14 @@
               <div class="item">
                 <div
                   class="sw"
-                  [style.background]="c.themeTokens.background || '#2F006D'"
-                  [style.background-image]="previewImage(c) ? 'url(' + (previewImage(c) || '') + ')' : null"
-                  [style.background-size]="previewImage(c) ? 'cover' : null"
-                  [style.background-position]="previewImage(c) ? 'center' : null"
-                  [style.background-repeat]="previewImage(c) ? 'no-repeat' : null"></div>
+                  [style.background]="c.themeTokens.background || '#2F006D'">
+                  <img
+                    *ngIf="previewImage(c) as img"
+                    [src]="img"
+                    alt=""
+                    aria-hidden="true"
+                    (error)="previewImageFailed(img)" />
+                </div>
                 <div class="meta">
                   <div class="top">
                     <div class="nm">{{ c.name }}</div>
