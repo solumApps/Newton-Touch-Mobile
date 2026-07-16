@@ -331,6 +331,10 @@
             <div class="step-title sm">Card shape</div>
             <div class="tiles"><button class="tile" *ngFor="let s of cardShapes" [class.sel]="(t.intermediate.fsCardShape||'rect')===s.id" (click)="setFsCardShape(s.id)">{{ s.label }}</button></div>
           </ng-container>
+          <div class="step-title sm">Card surface</div>
+          <div class="seg">
+            <button class="tile" *ngFor="let s of cardSurfaces" [class.sel]="(t.cardSurface||'flat')===s.id" (click)="t.cardSurface=s.id">{{ s.label }}</button>
+          </div>
           <ng-container *ngIf="finderTextPositionMatters">
             <div class="step-title sm">Text vertical position</div>
             <div class="seg"><button class="tile" *ngFor="let p of fsTextVPositions" [class.sel]="(t.intermediate.fsTextPos||'center')===p.id" (click)="t.intermediate.fsTextPos=p.id">{{ p.label }}</button></div>
