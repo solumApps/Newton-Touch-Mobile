@@ -5,6 +5,7 @@ import { addIcons } from 'ionicons';
 import { searchOutline, chevronForward, trashOutline, documentsOutline, tvOutline, timeOutline } from 'ionicons/icons';
 import { Router } from '@angular/router';
 import { ContentService, ContentDraft } from '../services/content.service';
+import { DeviceService, SavedDevice } from '../services/device.service';
 import { WorkspaceService } from '../services/workspace.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
 import { NtButtonComponent, NtBadgeComponent, NtEmptyComponent, NtSectionHeaderComponent } from '../shared/ui';
@@ -29,9 +30,11 @@ export class ContentPage implements OnInit, OnDestroy {
   confirmDraft: ContentDraft | null = null;
   private wsSub?: Subscription;
   private contentSub?: Subscription;
+  private devices: SavedDevice[] = [];
 
   constructor(
     private content: ContentService,
+    private deviceSvc: DeviceService,
     private ws: WorkspaceService,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -48,10 +51,10 @@ export class ContentPage implements OnInit, OnDestroy {
     // Refresh when a draft is saved/removed — covers returning from the builder
     // when the Ionic view lifecycle doesn't re-fire.
     this.contentSub = this.content.changed.subscribe(async () => {
-      this.drafts = await this.content.list();
+      await this.loadContentState();
       this.cdr.detectChanges();
     });
-    this.drafts = await this.content.list();
+    await this.loadContentState();
     this.loading = false;
     await this.loadWorkspace();
   }
@@ -62,9 +65,18 @@ export class ContentPage implements OnInit, OnDestroy {
   }
 
   async ionViewWillEnter(): Promise<void> {
-    this.drafts = await this.content.list();
+    await this.loadContentState();
     this.loading = false;
     await this.loadWorkspace();
+  }
+
+  private async loadContentState(): Promise<void> {
+    const [drafts, devices] = await Promise.all([
+      this.content.list(),
+      this.deviceSvc.list(),
+    ]);
+    this.drafts = drafts;
+    this.devices = devices;
   }
 
   private async loadWorkspace(): Promise<void> {
@@ -76,7 +88,7 @@ export class ContentPage implements OnInit, OnDestroy {
 
   /** Pull-to-refresh — re-runs the existing reload methods. */
   async doRefresh(ev: Event): Promise<void> {
-    this.drafts = await this.content.list();
+    await this.loadContentState();
     await this.loadWorkspace();
     (ev.target as any)?.complete();
   }
@@ -125,6 +137,12 @@ export class ContentPage implements OnInit, OnDestroy {
       : m === 'custom-canvas' ? 'Custom Canvas'
       : m === 'product-promo' ? 'Product Promo'
       : 'Prototype + ESL';
+  }
+
+  isLiveOnLcd(c: ContentDraft): boolean {
+    if (!c.deployedTo) return false;
+    const name = (c.name || '').trim().toLowerCase();
+    return !!name && this.devices.some((d) => (d.lastContentName || '').trim().toLowerCase() === name);
   }
 
   previewImage(c: ContentDraft): string | undefined {
@@ -189,12 +207,14 @@ export class ContentPage implements OnInit, OnDestroy {
     this.confirmDraft = c;
     this.confirmOpen = true;
   }
-  async doDelete(): Promise<void> {
+  doDelete(): void {
     if (!this.confirmDraft) return;
-    await this.content.remove(this.confirmDraft.id);
-    this.drafts = await this.content.list();
+    const id = this.confirmDraft.id;
+    // Close the modal right away; remove() updates the list synchronously via its
+    // `changed` emit and persists in the background, so there's nothing to await.
     this.confirmOpen = false;
     this.confirmDraft = null;
+    this.content.remove(id);
   }
 
   create(): void { this.router.navigateByUrl('/content-create'); }

@@ -7858,6 +7858,7 @@
   padding: calc(var(--nt-vh)*1.5) calc(var(--nt-vw)*0.8);
   box-sizing: border-box;
   cursor: pointer;
+  justify-content: center;
 }
 
 .nt-result.res-shelf .sprod .s-img {
@@ -7915,7 +7916,7 @@
 }
 
 .nt-result.scroll-vertical.res-shelf .sprod {
-  height: 64%;
+  height: 100% !important;
 }
 
 /* ---- result card shape (res-shape-*, optional — default keeps each template's look) ---- */
@@ -12648,7 +12649,7 @@
 .nt-result.res-finder-detail .fd-sort.active {
   background: #ffffff;
   color: #30333a;
-  padding: 4px 0px !important;
+  padding: calc(var(--nt-vh) * 1.95) !important;
 }
 
 .nt-result.res-finder-detail .fd-prod {
@@ -12858,4 +12859,110 @@
   align-self: flex-start;
   padding: calc(var(--nt-vh)*1.65) calc(var(--nt-vw)*1.1);
   font-size: calc(var(--nt-vw)*0.58);
+}
+
+.nt-result.res-shelf.res-content-text-only .sprod .s-img.no-img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*0.8);
+  box-sizing: border-box;
+  background: var(--nt-res-card, rgba(255, 255, 255, .08));
+}
+
+.nt-result.res-shelf.res-content-text-only .sprod .s-img.no-img .s-img-text {
+  color: var(--nt-res-text, #fff);
+  font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw) * 0.85);
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.nt-result.res-shelf.res-content-text-only .sprod .s-img.no-img + .s-nm {
+  display: none;
+}
+
+/* ============================================================================
+   finder-detail hero — restyled to MATCH the finder-select fs-hero progress
+   rail (same panel, title, Home pill and step-row look) so the intermediate
+   and result screens read as one continuous finder flow. Every breadcrumb on
+   the result is a completed step, so chips take the fs-step "done" state and
+   a trailing check mark. Chromium 66-safe (sibling margins, no flex gap).
+   ========================================================================== */
+.nt-result.res-finder-detail .fd-hero {
+  background: var(--prm-panel, #172033);
+  background-size: cover;
+  background-position: center;
+  padding: calc(var(--nt-vh)*2.4) calc(var(--nt-vw)*1.6);
+  padding-top: calc(var(--nt-vh)*3.4);
+}
+
+.nt-result.res-finder-detail .fd-hero-title {
+  font-size: calc(var(--nt-vw)*2.6);
+  font-weight: 900;
+  line-height: 1.12;
+  margin: calc(var(--nt-vh)*1.4) auto;
+}
+
+.nt-result.res-finder-detail .fd-home {
+  margin-top: calc(var(--nt-vh)*5);
+  text-align: center;
+  padding: calc(var(--nt-vh)*1.1) calc(var(--nt-vw)*1.8);
+  background: rgba(255, 255, 255, .12);
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: calc(var(--nt-vw)*1.15);
+}
+
+.nt-result.res-finder-detail .fd-chips {
+  margin-top: calc(var(--nt-vh)*2.4);
+  flex: 1;
+  justify-content: center;
+}
+
+.nt-result.res-finder-detail .fd-chips > * + * {
+  margin-top: calc(var(--nt-vh)*5);
+}
+
+.nt-result.res-finder-detail .fd-chip {
+  align-items: center;
+  padding: calc(var(--nt-vh)*1.35) calc(var(--nt-vw)*1.4);
+  min-height: calc(var(--nt-vh)*9);
+  margin-bottom: 0;
+  background: rgba(255, 255, 255, .11);
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 999px;
+  box-sizing: border-box;
+}
+
+.nt-result.res-finder-detail .fd-chip-lbl {
+  flex: 1;
+  font-size: calc(var(--nt-vw)*0.95);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: #fff;
+}
+
+.nt-result.res-finder-detail .fd-chip-val {
+  margin-left: auto;
+  font-size: calc(var(--nt-vw)*0.72);
+  font-weight: 800;
+  color: var(--prm-accent, #4ea1ff);
+  max-width: 46%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+
+/* completed-step check mark, mirroring the fs-step-ic on done steps */
+.nt-result.res-finder-detail .fd-chip::after {
+  content: '\2713';
+  margin-left: calc(var(--nt-vw)*0.9);
+  color: var(--prm-accent, #4ea1ff);
+  font-weight: 900;
+  font-size: calc(var(--nt-vw)*0.95);
 }

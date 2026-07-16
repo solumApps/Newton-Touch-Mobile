@@ -27,8 +27,19 @@ export class ThemeService {
   /** Emits whenever the saved-theme list changes (save / remove / import) so list
    *  views refresh immediately, independent of Ionic view lifecycle timing. */
   readonly changed = new Subject<void>();
+  /** Serializes background persists so rapid saves/deletes can't interleave writes
+   *  or race `gc`. */
+  private persistChain: Promise<void> = Promise.resolve();
 
   constructor(private images: ImageStoreService) {}
+
+  /** Queue a persist behind any in-flight one. Save awaits it (durability); delete
+   *  fires it and lets it run in the background so the UI updates immediately. */
+  private schedulePersist(snapshot: SavedTheme[]): Promise<void> {
+    const run = this.persistChain.catch(() => {}).then(() => this.persist(snapshot));
+    this.persistChain = run.catch(() => {});
+    return run;
+  }
 
   static defaultTokens(): ThemeTokens {
     return {
@@ -436,8 +447,10 @@ export class ThemeService {
     const next = [...this.cache];
     if (i >= 0) next[i] = theme; else next.push(theme);
     this.cache = next;
-    await this.persist(next);
+    // Reflect the change in list views immediately, then persist (awaited for
+    // durability — Fix 1 keeps the write fast).
     this.changed.next();
+    await this.schedulePersist(next);
   }
 
   /** Delete a saved theme (predefined themes are read-only and cannot be deleted). */
@@ -446,8 +459,9 @@ export class ThemeService {
     // New array reference (not in-place mutation) so list consumers re-render.
     const next = this.cache.filter((t) => t.id !== id);
     this.cache = next;
-    await this.persist(next);
+    // Update the UI now and persist in the background so the row disappears instantly.
     this.changed.next();
+    this.schedulePersist(next);
   }
 
   /** Editing a predefined theme creates a copy in My Themes. */

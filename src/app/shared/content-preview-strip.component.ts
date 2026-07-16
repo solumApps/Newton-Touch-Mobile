@@ -398,7 +398,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
               </div>
               <div class="shelf-prods">
                 <div class="sprod" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
-                  <div class="s-img" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)"></div>
+                  <div class="s-img" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)"><span class="s-img-text" *ngIf="theme?.result?.content === 'text-only' && !p.image && !resUsePh">{{ p.name }}</span></div>
                   <div class="s-nm">{{ p.name }}</div>
                   <div class="s-price" *ngIf="p.price">{{ p.price }}</div>
                   <div class="s-meta" *ngIf="p.aisle">Zone {{ p.aisle }}</div>
@@ -428,8 +428,12 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
             </div>
           </div>
 
-          <!-- finder-detail -->
-          <div class="body finder-body" *ngIf="resTpl==='finder-detail'">
+          <!-- finder-detail. --prm-panel must be set explicitly here: the stage
+               wrapper pins it to 'transparent', which would defeat the SCSS
+               #172033 fallback the LCD gets. Inherits the finder-select
+               heroColor so the fd-hero matches the intermediate fs-hero. -->
+          <div class="body finder-body" *ngIf="resTpl==='finder-detail'"
+               [style.--prm-panel]="(theme?.intermediateStyle==='finder-select' ? theme?.intermediate?.heroColor : theme?.result?.panelColor) || '#172033'">
             <div class="fd-hero" [style.background-image]="theme?.result?.heroImage ? 'url('+theme?.result?.heroImage+')' : null">
               <div class="fd-hero-title">{{ titleText || 'Product Finder' }}</div>
               <div class="fd-home"><span class="fd-home-ic">&#8962;</span> Home</div>
@@ -627,7 +631,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       ? 'center'
       : (this.theme?.intermediate?.fsTextAlign || 'center');
   }
-  homeFinderSteps = ['Category 1', 'Category 2', 'Category 3', 'Category 4'];
+  /** Home finder-select progress labels — driven by the content's step labels
+   *  (fs-step-lbl), falling back to generic Category N when none are set. */
+  get homeFinderSteps(): string[] {
+    const labels = this.theme?.intermediate?.stepLabels;
+    return labels && labels.length ? labels : ['Category 1', 'Category 2', 'Category 3', 'Category 4'];
+  }
   /** Result: dummy product images (unless content is text-only). */
   get resUsePh(): boolean {
     return this.page === 'result' && this.theme?.result?.content !== 'text-only';
@@ -713,11 +722,14 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get specialResult(): boolean {
     return ['drill-stair', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'product-focus', 'hero-product', 'shelf', 'promo-map-rank', 'finder-detail'].includes(this.resTpl);
   }
-  /** finder-detail preview breadcrumb chips (custom labels + sample values). */
+  /** finder-detail preview breadcrumb chips (custom labels + sample values).
+   *  Capped at 4 (not removed) to match the design max: finderStepCount /
+   *  crumbStepCount are both protoLevelCount(max 3) + 1 = 4. Sample values match
+   *  fsStepRows' so the Intermediate and Result previews tell one consistent story. */
   get breadcrumbPreview(): { label: string; value: string }[] {
     const labels = this.theme?.result?.breadcrumbLabels?.length ? this.theme.result.breadcrumbLabels : ['Manufacturer', 'Model', 'Year'];
-    const vals = ['Mercedes-Benz', 'S Class', '2021'];
-    return labels.slice(0, 3).map((label, i) => ({ label, value: vals[i] || '—' }));
+    const vals = ['Bosch', 'X5 Series', '2021', 'Premium'];
+    return labels.slice(0, 4).map((label, i) => ({ label, value: vals[i] || '—' }));
   }
   /** drill-filter result preview: one breadcrumb column per real hierarchy level. */
   get drillFilterColumns(): { label: string; items: CardItem[]; pickedIndex: number }[] {
@@ -1244,9 +1256,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   get resultCells(): ResultProduct[] {
     const branchProducts = this.intermediateSource.flatMap((c) => c.products || []);
+    const allResultProducts = branchProducts.length ? branchProducts : (this.result?.products || []);
     const real = this.resTpl === 'finder-detail'
       ? (this.result?.products || [])
-      : (branchProducts.length ? branchProducts : (this.result?.products || [])).slice(0, 6);
+      : this.resTpl === 'shelf'
+        ? allResultProducts
+        : allResultProducts.slice(0, 6);
     if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
     const labels = this.previewLabels('result');
     const count = this.resTpl === 'catalog-grid' ? 6 : 3;
