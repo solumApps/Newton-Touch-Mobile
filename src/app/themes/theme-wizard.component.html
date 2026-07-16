@@ -217,7 +217,7 @@
             </div>
           </div>
         </div>
-        <ng-container *ngIf="page !== 'home' && page !== 'saver'">
+        <ng-container *ngIf="page !== 'home' && page !== 'saver' && !(page === 'inter' && t.intermediateStyle === 'finder-select')">
           <!-- Grouped: both buttons together (hidden when grouped position is Hidden) -->
           <div class="mock-nav" *ngIf="!t.nav?.split && (t.nav?.position || 'bottom-left') !== 'hidden'" [ngClass]="'nav-pos-'+(t.nav?.position || 'bottom-left')">
             <span class="mock-btn" [style.color]="t.nav?.backColor || '#fff'" [style.background]="t.nav?.backBg || '#0f172a'">&#8249;</span>
@@ -833,6 +833,7 @@
         <app-color-picker *ngIf="t.intermediateStyle==='brand-rail'" label="Message text color" [value]="t.intermediate.brandRailMessageTextColor || '#ffffff'" (valueChange)="t.intermediate.brandRailMessageTextColor=$event"></app-color-picker>
         <p class="hint" *ngIf="t.intermediateStyle==='brand-rail'">The message wording is set per-content in Content creation (defaults to "Which one will you choose?").</p>
         <app-color-picker label="Accent / active" [value]="t.intermediate.accent" (valueChange)="t.intermediate.accent=$event"></app-color-picker>
+        <ng-container *ngIf="t.intermediateStyle !== 'finder-select'">
         <div class="step-title sm">Navigation buttons</div>
         <p class="hint">Style the Back and Home buttons. Set a position to “Hidden” to hide that button.</p>
         <div class="nav-btn-row">
@@ -907,6 +908,7 @@
           <div class="seg">
             <button class="tile" *ngFor="let p of navPositionsFor('intermediate', 'home')" [class.sel]="navHomePositionFor('intermediate')===p.id" (click)="setNavHomePosition('intermediate', p.id)">{{ p.label }}</button>
           </div>
+        </ng-container>
         </ng-container>
       </div>
 
