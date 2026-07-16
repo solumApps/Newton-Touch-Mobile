@@ -469,7 +469,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (this.perItemActive) d.itemResults = { ...(d.itemResults || {}), [this.activeCardId]: r };
     else d.result = r;
   }
-  clearMap(): void { this.setCurResult({ ...this.curResult, mapImage: undefined }); }
+  clearMap(): void { this.setCurResult({ ...this.curResult, mapImage: undefined, mapImageWidth: undefined, mapImageHeight: undefined }); }
   clearPromo(): void { this.setCurResult({ ...this.curResult, promoImage: undefined }); }
 
   /** End items that own an individual result page: tree leaves (individual drill),
@@ -1643,7 +1643,9 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   /** Pick the result map background image (active result page). */
   async pickMap(): Promise<void> {
     const dataUrl = await this.picker.pick();
-    if (dataUrl) this.setCurResult({ ...this.curResult, mapImage: dataUrl });
+    if (!dataUrl) return;
+    const natural = this.loadImageNatural(dataUrl);
+    this.setCurResult({ ...this.curResult, mapImage: dataUrl, mapImageWidth: natural?.w, mapImageHeight: natural?.h });
   }
 
   async pickPromo(): Promise<void> {
