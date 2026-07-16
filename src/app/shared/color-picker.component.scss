@@ -36,6 +36,12 @@
 
 .cc-row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
 .cc-row > span { flex: 0 0 78px; font-size: 12px; font-weight: 700; color: var(--nt-text-2); }
+/* Extra breathing room between the HSL sliders so mobile drags don't catch the
+   neighbouring slider (accidental-touch fix). Uses PADDING (not margin) because
+   sibling margins collapse — padding sums between rows, and the big 24px thumb
+   overflows the 14px track, so a generous non-collapsing gap is needed. Scoped to
+   cp-custom so the gradient builder's tighter spacing (.cg-hsl .cc-row) is intact. */
+.cp-custom .cc-row { margin: 0; padding: 14px 0; }
 
 /* sliders — coloured tracks, big round thumb (easy to drag on mobile) */
 .cc-slider { -webkit-appearance: none; appearance: none; flex: 1; height: 14px; border-radius: 999px; outline: none; cursor: pointer; }
