@@ -469,7 +469,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (this.perItemActive) d.itemResults = { ...(d.itemResults || {}), [this.activeCardId]: r };
     else d.result = r;
   }
-  clearMap(): void { this.setCurResult({ ...this.curResult, mapImage: undefined }); }
+  clearMap(): void { this.setCurResult({ ...this.curResult, mapImage: undefined, mapImageWidth: undefined, mapImageHeight: undefined }); }
   clearPromo(): void { this.setCurResult({ ...this.curResult, promoImage: undefined }); }
 
   /** End items that own an individual result page: tree leaves (individual drill),
@@ -1541,26 +1541,50 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     node.products = [...products];
   }
   /** Editor map zoom (H-2) — 1 = fit. Coordinates stay correct because
-   *  placeMarker reads the (scaled) bounding rect. */
+    *  placeMarker reads the (scaled) bounding rect. */
   mapZoom = 1;
   zoomMapIn(): void { this.mapZoom = Math.min(3, Math.round((this.mapZoom + 0.25) * 100) / 100); }
   zoomMapOut(): void { this.mapZoom = Math.max(1, Math.round((this.mapZoom - 0.25) * 100) / 100); }
   get mapDotsEnabled(): boolean { return this.mapRoute?.kind !== 'none'; }
+
+  private loadImageNatural(src: string | undefined): { w: number; h: number } | null {
+    if (!src) return null;
+    const img = new Image();
+    img.src = src;
+    if (!img.naturalWidth || !img.naturalHeight) return null;
+    return { w: img.naturalWidth, h: img.naturalHeight };
+  }
+
+  private coverBounds(containerW: number, containerH: number, imgW: number, imgH: number): { x: number; y: number; w: number; h: number; scale: number } {
+    const scale = Math.max(containerW / imgW, containerH / imgH);
+    const renderedW = imgW * scale;
+    const renderedH = imgH * scale;
+    const offsetX = (containerW - renderedW) / 2;
+    const offsetY = (containerH - renderedH) / 2;
+    return { x: -offsetX, y: -offsetY, w: containerW / scale, h: containerH / scale, scale };
+  }
+
   /** Set the selected product's mapX/mapY (0–100 %) from a tap on the map preview. */
   placeMarker(ev: MouseEvent, box: HTMLElement): void {
     if (!this.mapDotsEnabled) return;
     const r = box.getBoundingClientRect();
     if (!r.width || !r.height) return;
-    const x = Math.round(Math.max(0, Math.min(100, ((ev.clientX - r.left) / r.width) * 100)));
-    const y = Math.round(Math.max(0, Math.min(100, ((ev.clientY - r.top) / r.height) * 100)));
-    // All reads/writes go through curResult so per-item mode edits the ACTIVE card's page.
+    const natural = this.loadImageNatural(this.curResult.mapImage);
+    if (!natural) return;
+    const b = this.coverBounds(r.width, r.height, natural.w, natural.h);
+    const tapX = ev.clientX - r.left;
+    const tapY = ev.clientY - r.top;
+    const imgX = tapX / b.scale + b.x;
+    const imgY = tapY / b.scale + b.y;
+    if (imgX < 0 || imgX > natural.w || imgY < 0 || imgY > natural.h) return;
+    const x = Math.round(Math.max(0, Math.min(100, (imgX / natural.w) * 100)));
+    const y = Math.round(Math.max(0, Math.min(100, (imgY / natural.h) * 100)));
     const cur = this.curResult;
     const products = cur.products || [];
     if (this.markerIdx >= products.length) this.markerIdx = 0;
     const p = products[this.markerIdx];
     if (!p) return;
     p.mapX = x; p.mapY = y;
-    // New products array reference so the preview strip re-renders the dot immediately.
     this.setCurResult({ ...cur, products: [...products] });
     if (this.draft?.appMode === 'category') {
       this.syncResultProducts();
@@ -1572,11 +1596,19 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (!this.mapDotsEnabled) return;
     const rect = box.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
+    const natural = this.loadImageNatural(this.curResult.mapImage);
+    if (!natural) return;
+    const b = this.coverBounds(rect.width, rect.height, natural.w, natural.h);
+    const tapX = ev.clientX - rect.left;
+    const tapY = ev.clientY - rect.top;
+    const imgX = tapX / b.scale + b.x;
+    const imgY = tapY / b.scale + b.y;
+    if (imgX < 0 || imgX > natural.w || imgY < 0 || imgY > natural.h) return;
     const products = node.products || [];
     const product = products[this.leafMarkerIndex(node)];
     if (!product) return;
-    product.mapX = Math.round(Math.max(0, Math.min(100, ((ev.clientX - rect.left) / rect.width) * 100)));
-    product.mapY = Math.round(Math.max(0, Math.min(100, ((ev.clientY - rect.top) / rect.height) * 100)));
+    product.mapX = Math.round(Math.max(0, Math.min(100, (imgX / natural.w) * 100)));
+    product.mapY = Math.round(Math.max(0, Math.min(100, (imgY / natural.h) * 100)));
     node.products = [...products];
   }
 
@@ -1611,7 +1643,9 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   /** Pick the result map background image (active result page). */
   async pickMap(): Promise<void> {
     const dataUrl = await this.picker.pick();
-    if (dataUrl) this.setCurResult({ ...this.curResult, mapImage: dataUrl });
+    if (!dataUrl) return;
+    const natural = this.loadImageNatural(dataUrl);
+    this.setCurResult({ ...this.curResult, mapImage: dataUrl, mapImageWidth: natural?.w, mapImageHeight: natural?.h });
   }
 
   async pickPromo(): Promise<void> {

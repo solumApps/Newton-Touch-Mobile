@@ -577,6 +577,8 @@ export interface Screensaver {
 export interface ResultContent {
   mapImage?: string;
   promoImage?: string;
+  mapImageWidth?: number;
+  mapImageHeight?: number;
   products: ResultProduct[];
   /** Category mode: which product fields the result page should display. Absent =
    *  default (name + price + zone). Drives both the builder preview and the LCD. */
