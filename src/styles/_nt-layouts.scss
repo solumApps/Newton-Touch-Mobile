@@ -4781,6 +4781,15 @@
   background: var(--nt-res-card, rgba(255, 205, 0, .12));
 }
 
+.nt-result.res-map-list .prod.found {
+  background: var(--nt-res-accent, #FFCD00);
+}
+
+.nt-result.res-map-list .prod.found .loc {
+  color: inherit;
+  opacity: .85;
+}
+
 .nt-result .nm {
   font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw) * 1);
   font-weight: 800;
