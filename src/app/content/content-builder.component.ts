@@ -1561,7 +1561,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     const renderedH = imgH * scale;
     const offsetX = (containerW - renderedW) / 2;
     const offsetY = (containerH - renderedH) / 2;
-    return { x: -offsetX, y: -offsetY, w: containerW / scale, h: containerH / scale, scale };
+    return { x: -offsetX, y: -offsetY, w: renderedW, h: renderedH, scale };
   }
 
   /** Set the selected product's mapX/mapY (0–100 %) from a tap on the map preview. */
@@ -1571,12 +1571,16 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (!r.width || !r.height) return;
     const natural = this.loadImageNatural(this.curResult.mapImage);
     if (!natural) return;
-    const b = this.coverBounds(r.width, r.height, natural.w, natural.h);
+    const scale = Math.max(r.width / natural.w, r.height / natural.h);
+    const renderedW = natural.w * scale;
+    const renderedH = natural.h * scale;
+    const offsetX = (r.width - renderedW) / 2;
+    const offsetY = (r.height - renderedH) / 2;
     const tapX = ev.clientX - r.left;
     const tapY = ev.clientY - r.top;
-    const imgX = tapX / b.scale + b.x;
-    const imgY = tapY / b.scale + b.y;
-    if (imgX < 0 || imgX > natural.w || imgY < 0 || imgY > natural.h) return;
+    if (tapX < offsetX || tapX > offsetX + renderedW || tapY < offsetY || tapY > offsetY + renderedH) return;
+    const imgX = ((tapX - offsetX) / renderedW) * natural.w;
+    const imgY = ((tapY - offsetY) / renderedH) * natural.h;
     const x = Math.round(Math.max(0, Math.min(100, (imgX / natural.w) * 100)));
     const y = Math.round(Math.max(0, Math.min(100, (imgY / natural.h) * 100)));
     const cur = this.curResult;
@@ -1598,15 +1602,19 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (!rect.width || !rect.height) return;
     const natural = this.loadImageNatural(this.curResult.mapImage);
     if (!natural) return;
-    const b = this.coverBounds(rect.width, rect.height, natural.w, natural.h);
+    const scale = Math.max(rect.width / natural.w, rect.height / natural.h);
+    const renderedW = natural.w * scale;
+    const renderedH = natural.h * scale;
+    const offsetX = (rect.width - renderedW) / 2;
+    const offsetY = (rect.height - renderedH) / 2;
     const tapX = ev.clientX - rect.left;
     const tapY = ev.clientY - rect.top;
-    const imgX = tapX / b.scale + b.x;
-    const imgY = tapY / b.scale + b.y;
-    if (imgX < 0 || imgX > natural.w || imgY < 0 || imgY > natural.h) return;
+    if (tapX < offsetX || tapX > offsetX + renderedW || tapY < offsetY || tapY > offsetY + renderedH) return;
     const products = node.products || [];
     const product = products[this.leafMarkerIndex(node)];
     if (!product) return;
+    const imgX = ((tapX - offsetX) / renderedW) * natural.w;
+    const imgY = ((tapY - offsetY) / renderedH) * natural.h;
     product.mapX = Math.round(Math.max(0, Math.min(100, (imgX / natural.w) * 100)));
     product.mapY = Math.round(Math.max(0, Math.min(100, (imgY / natural.h) * 100)));
     node.products = [...products];
