@@ -5794,8 +5794,8 @@
   flex: 0 0 auto;
   background: transparent;
   border-bottom: 1px solid rgba(0, 0, 0, .16);
-  border-radius: 4px;
-  margin: 2px 0px 4px;
+  border-radius: calc(var(--nt-vh) * 3);
+  margin: calc(var(--nt-vh) * 1) 0px calc(var(--nt-vh) * 1);
   padding: calc(var(--nt-vh)*1) 0;
   padding-left: calc(var(--nt-vw)*0.5);
 }
