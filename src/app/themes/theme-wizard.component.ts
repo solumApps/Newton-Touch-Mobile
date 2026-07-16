@@ -669,7 +669,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   // choosing a base style (e.g. Image grid) and selecting the Circle/Hexagon
   // Card shape, instead of being separate layout styles. Enums + CSS retained so
   // existing themes that use them still render.
-  intStyles: IntermediateStyle[] = ['columns', 'card-strip', 'fullscreen', 'brand-rail', 'drill-stair', 'finder-select'];
+  intStyles: IntermediateStyle[] = ['columns', 'card-strip', 'fullscreen', 'brand-rail', 'finder-select'];
   intStyleLabels: Partial<Record<IntermediateStyle, string>> = {
     'columns': 'Columns', 'hex-grid': 'Hex grid', 'circular': 'Circular',
     'card-strip': 'Card strip',
@@ -683,6 +683,22 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   fsTextVPositions: { id: CardTextPos; label: string }[] = [
     { id: 'overlay-top', label: 'Top' }, { id: 'center', label: 'Center' }, { id: 'overlay-bottom', label: 'Bottom' },
   ];
+  get finderTextPositionMatters(): boolean {
+    const shape = this.t.intermediate.fsCardShape || 'rect';
+    return shape !== 'circle' && shape !== 'hexagon';
+  }
+  get finderTextAlignMatters(): boolean {
+    const shape = this.t.intermediate.fsCardShape || 'rect';
+    return shape !== 'circle' && shape !== 'hexagon';
+  }
+  get fsTextPosClass(): CardTextPos {
+    return this.finderTextPositionMatters
+      ? (this.t.intermediate.fsTextPos || 'center')
+      : 'below';
+  }
+  get fsTextAlignClass(): 'left' | 'center' | 'right' {
+    return this.finderTextAlignMatters ? (this.t.intermediate.fsTextAlign || 'center') : 'center';
+  }
   /** finder-select fs-card content options (#5). */
   fsCardContents: { id: CardContent; label: string }[] = [
     { id: 'image-text', label: 'Image + text' }, { id: 'image-only', label: 'Image only' },
@@ -693,6 +709,15 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     this.t.intermediate.fsCardContent = c;
     if (c === 'image-only') this.t.intermediate.fsCardShape = 'none';
     else if (this.t.intermediate.fsCardShape === 'none') this.t.intermediate.fsCardShape = 'rect';
+    this.coerceFsTextAlign();
+  }
+  setFsCardShape(s: CardShape): void {
+    this.t.intermediate.fsCardShape = s;
+    this.coerceFsTextAlign();
+  }
+  private coerceFsTextAlign(): void {
+    const shape = this.t.intermediate.fsCardShape || 'rect';
+    if (shape === 'circle' || shape === 'hexagon') this.t.intermediate.fsTextAlign = 'center';
   }
   /** Card shape only affects intermediate styles that show a per-item image. */
   get intShapeMatters(): boolean {
@@ -818,13 +843,13 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   // 'cards-map' dropped from the picker (near-duplicate of Map-List); enum + CSS
   // kept so existing themes using it still render. Lower-priority layouts remain
   // available rather than deleted — removal of specific ones is a product call.
-  resultTemplates: ResultTemplate[] = ['map-list', 'drill-filter','map-filter-list', 'filter-list','card-grid', 'promo-list', 'product-focus', 'hero-product', 'shelf', 'promo-map-rank', 'finder-detail'];
+  resultTemplates: ResultTemplate[] = ['map-list', 'filter-list', 'promo-list', 'product-focus', 'shelf', 'promo-map-rank', 'finder-detail'];
   /** Friendly labels for the result-template tiles. */
   private tplLabels: Record<string, string> = {
     'map-list': 'Map List', 'drill-filter': 'Drill Filter', 'map-filter-list': 'Map + Filter',
     'filter-list': 'Filter List', 'card-grid': 'Card Grid', 'promo-list': 'Promo List',
     'product-focus': 'Product Focus', 'hero-product': 'Hero Product', 'shelf': 'Shelf',
-    'promo-map-rank': 'Promo Map + Ranks', 'finder-detail': 'Finder + Detail',
+    'promo-map-rank': 'Promo Map + Ranks', 'finder-detail': 'Finder Select',
   };
   tplLabel(o: string): string { return this.tplLabels[o] || o; }
   pickResultTemplate(o: ResultTemplate): void {
@@ -1183,6 +1208,10 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     // Baseline for the unsaved-changes guard: anything the user edits after this
     // point makes the wizard "dirty" and cancelling asks for confirmation.
     this.baseline = this.snapshot();
+    // Baseline for the per-step Reset button: the configuration the wizard opened
+    // with (factory defaults for a new theme, the saved values when editing).
+    this.baseTokens = JSON.parse(JSON.stringify(this.t));
+    this.baseSaverMode = this.saverMode;
   }
 
   /** Serialized wizard state — compared against the baseline to detect edits. */
@@ -1251,6 +1280,12 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
       : page === 'result' ? this.t.result.backgroundImage
       : this.t.backgroundImage;
     return image ? `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.28)), url("${image}") center/cover no-repeat, ${bg}` : bg;
+  }
+  get homeCardAreaBackground(): string {
+    return this.t.backgroundImage ? 'transparent' : this.t.background;
+  }
+  get intermediateCardAreaBackground(): string {
+    return this.t.intermediate.backgroundImage ? 'transparent' : this.t.intermediate.background;
   }
   pageCaption(page: PreviewPage): string {
     return page === 'inter' ? 'Intermediate' : page === 'result' ? 'Result' : page === 'saver' ? 'Screensaver' : 'Home';
@@ -1328,9 +1363,23 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   async pickBackground(page: PreviewPage): Promise<void> {
     const dataUrl = await this.picker.pick();
     if (!dataUrl) return;
-    if (page === 'inter') this.t.intermediate.backgroundImage = dataUrl;
-    else if (page === 'result') this.t.result.backgroundImage = dataUrl;
-    else this.t.backgroundImage = dataUrl;
+    if (page === 'inter') {
+      this.t.intermediate.backgroundImage = dataUrl;
+    } else if (page === 'result') {
+      this.t.result.backgroundImage = dataUrl;
+    } else {
+      this.t.backgroundImage = dataUrl;
+    }
+    this.applyFinderTransparentPageBackground(page);
+  }
+
+  private applyFinderTransparentPageBackground(page: PreviewPage): void {
+    if (page === 'home' && this.t.homeLayout === 'finder-select' && this.t.backgroundImage) {
+      this.t.background = 'transparent';
+    }
+    if (page === 'inter' && this.t.intermediateStyle === 'finder-select' && this.t.intermediate.backgroundImage) {
+      this.t.intermediate.background = 'transparent';
+    }
   }
 
   /** Reset a nav-button colour to its built-in default (undefined = default). */
@@ -1382,6 +1431,8 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     this.t.intermediate.bgImageX = this.t.bgImageX;
     this.t.intermediate.bgImageY = this.t.bgImageY;
     this.t.intermediate.bgImageZoom = this.t.bgImageZoom;
+    this.applyFinderTransparentPageBackground('home');
+    this.applyFinderTransparentPageBackground('inter');
   }
 
   /**
@@ -1512,6 +1563,119 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
 
   /** Set after init(); non-empty means the guard is armed. */
   private baseline = '';
+
+  // ---- Per-step Reset (back to the configuration the wizard opened with) ----
+
+  /** Deep-cloned tokens captured at the end of init(): factory defaults for a
+   *  new theme, the saved values when editing. Per-step Reset restores from here. */
+  private baseTokens: ThemeTokens = ThemeService.defaultTokens();
+  private baseSaverMode: ScreensaverMode = 'slideshow';
+
+  /** Token paths each wizard step's controls write. Tokens surfaced on more than
+   *  one step (cardSurface, overlayColor, scrollMode, nav, navStyle) are listed
+   *  under every step that shows them — resetting either page restores the same
+   *  baseline value, so there is no conflict. Review has no entry (nothing to reset). */
+  private static readonly STEP_RESET_FIELDS: Record<string, string[]> = {
+    home: [
+      'homeLayout', 'columns', 'scrollMode', 'cardSize', 'cardSizeScale', 'cardGap', 'cardGapNum',
+      'cardAlign', 'cardVAlign', 'cardContent', 'cardShape', 'cardSurface', 'cardTextPos',
+      'cardTextAlign', 'cardTextShadow', 'cardTextOverlay', 'cardOverlayStyle', 'cardOverlayShape',
+      'overlayColor', 'showHeader', 'headerLayout', 'headerStyle', 'logoPos', 'titlePos', 'captionPos',
+      'includeIntermediate',
+      // finder-select home options live on the intermediate sub-object
+      'intermediate.fsShowPrompt', 'intermediate.fsPromptPos', 'intermediate.fsCardContent',
+      'intermediate.fsCardShape', 'intermediate.fsTextPos', 'intermediate.fsTextAlign',
+      'intermediate.itemSize', 'intermediate.itemSizeScale',
+    ],
+    colors: [
+      'headerColor', 'headerTextColor', 'background', 'backgroundImage', 'bgImageX', 'bgImageY',
+      'bgImageZoom', 'cardBackground', 'cardText', 'overlayColor', 'accent', 'logoPosition',
+      'intermediate.promptTextColor', 'intermediate.heroColor',
+    ],
+    type: ['typography'],
+    intStyle: [
+      'intermediateStyle', 'cardSurface', 'overlayColor',
+      'intermediate.columns', 'intermediate.scrollMode', 'intermediate.content', 'intermediate.cardShape',
+      'intermediate.textPos', 'intermediate.textAlign', 'intermediate.textShadow', 'intermediate.textOverlay',
+      'intermediate.overlayStyle', 'intermediate.overlayShape', 'intermediate.align', 'intermediate.valign',
+      'intermediate.gap', 'intermediate.gapNum', 'intermediate.itemSize', 'intermediate.itemSizeScale',
+      'intermediate.showHeader', 'intermediate.showTracklist',
+      'intermediate.headerStyle', 'intermediate.headerLayout', 'intermediate.logoPos', 'intermediate.titlePos', 'intermediate.captionPos',
+      'intermediate.brandRailMessagePos', 'intermediate.brandRailMessageAlign',
+      'intermediate.fsShowPrompt', 'intermediate.fsPromptPos', 'intermediate.fsShowBack',
+      'intermediate.fsCardContent', 'intermediate.fsCardShape', 'intermediate.fsTextPos', 'intermediate.fsTextAlign',
+    ],
+    intColors: [
+      'intermediate.headerColor', 'intermediate.headerTextColor', 'intermediate.background',
+      'intermediate.backgroundImage', 'intermediate.bgImageX', 'intermediate.bgImageY', 'intermediate.bgImageZoom',
+      'intermediate.cardBackground', 'intermediate.cardText', 'intermediate.heroColor', 'intermediate.accent',
+      'intermediate.brandRailMessageBgColor', 'intermediate.brandRailMessageTextColor', 'overlayColor',
+      'nav', 'navStyle', 'intermediate.navSplit', 'intermediate.navPosition',
+      'intermediate.navBackPosition', 'intermediate.navHomePosition',
+    ],
+    resTemplate: [
+      'resultTemplate', 'scrollMode', 'result.showTimer', 'result.showBell', 'result.showRanks',
+      'result.showSortTabs', 'result.showZone', 'result.sortTabs', 'result.showSaleBadge',
+      'result.filterPos', 'result.content', 'result.cardShape', 'result.textPos',
+    ],
+    resColors: [
+      'result.headerColor', 'result.background', 'result.backgroundImage', 'result.cardBackground',
+      'result.cardText', 'result.popularText', 'result.accent', 'result.findColor', 'result.listBg',
+      'result.cardBg', 'result.cardTextColor', 'result.panelColor', 'result.railBg', 'result.subPanelColor',
+      'result.secondaryTextColor', 'result.pinColor', 'result.dotColor', 'result.mapBg',
+      'result.showHeader', 'result.showTracklist',
+      'nav', 'navStyle', 'result.navSplit', 'result.navPosition', 'result.navBackPosition', 'result.navHomePosition',
+    ],
+    anim: ['animation', 'loader'],
+    saver: ['saverOverlay'],
+  };
+
+  /** Whether the current step has a Reset button (all except Review). */
+  get stepResettable(): boolean { return !!ThemeWizardComponent.STEP_RESET_FIELDS[this.step.key]; }
+
+  /** Restore one dot-path in `t` from the baseline. Values the baseline doesn't
+   *  have are deleted so `?? / ||` display fallbacks apply again. */
+  private restoreTokenPath(path: string): void {
+    const segs = path.split('.');
+    let src: any = this.baseTokens;
+    let dst: any = this.t;
+    for (let i = 0; i < segs.length - 1; i++) {
+      src = src?.[segs[i]];
+      if (typeof dst[segs[i]] !== 'object' || dst[segs[i]] == null) dst[segs[i]] = {};
+      dst = dst[segs[i]];
+    }
+    const last = segs[segs.length - 1];
+    const v = src?.[last];
+    if (v === undefined) delete dst[last];
+    else dst[last] = JSON.parse(JSON.stringify(v));
+  }
+
+  /** Reset every field the current page edits back to its opening value
+   *  (defaults for a new theme, the saved values when editing) — confirmed first. */
+  async resetStep(): Promise<void> {
+    const key = this.step.key;
+    const paths = ThemeWizardComponent.STEP_RESET_FIELDS[key];
+    if (!paths) return;
+    const alert = await this.alertController.create({
+      header: 'Reset this page?',
+      message: 'All settings on this page go back to their starting values. Other pages are not affected.',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        { text: 'Reset', role: 'destructive', handler: () => this.applyStepReset(key, paths) },
+      ],
+    });
+    await alert.present();
+  }
+
+  private applyStepReset(key: string, paths: string[]): void {
+    if (key === 'saver') this.saverMode = this.baseSaverMode;
+    for (const p of paths) this.restoreTokenPath(p);
+    // Re-run the coercions/inherits that fire when the step is entered, so the
+    // page shows exactly what it did the first time it was opened.
+    this.coerceTextPos();
+    if (key === 'intStyle' || key === 'intColors') { this.syncInterFromHome(); this.clampIntColumns(); }
+    if (key === 'resColors') { this.resultSynced = false; this.syncResultFromHome(); }
+  }
 
   async cancel(): Promise<void> {
     // Unsaved edits → confirm before throwing them away.

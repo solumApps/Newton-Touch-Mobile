@@ -27,8 +27,19 @@ export class ThemeService {
   /** Emits whenever the saved-theme list changes (save / remove / import) so list
    *  views refresh immediately, independent of Ionic view lifecycle timing. */
   readonly changed = new Subject<void>();
+  /** Serializes background persists so rapid saves/deletes can't interleave writes
+   *  or race `gc`. */
+  private persistChain: Promise<void> = Promise.resolve();
 
   constructor(private images: ImageStoreService) {}
+
+  /** Queue a persist behind any in-flight one. Save awaits it (durability); delete
+   *  fires it and lets it run in the background so the UI updates immediately. */
+  private schedulePersist(snapshot: SavedTheme[]): Promise<void> {
+    const run = this.persistChain.catch(() => {}).then(() => this.persist(snapshot));
+    this.persistChain = run.catch(() => {});
+    return run;
+  }
 
   static defaultTokens(): ThemeTokens {
     return {
@@ -64,7 +75,7 @@ export class ThemeService {
       includeIntermediate: true,
       intermediateStyle: 'columns',
       resultTemplate: 'map-list',
-    intermediate: { headerColor: 'rgba(0,0,0,0.45)', headerTextColor: '#FFFFFF', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, showTracklist: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'top', gap: 'normal', textPos: 'overlay-bottom', navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right' },
+    intermediate: { headerColor: 'rgba(0,0,0,0.45)', headerTextColor: '#FFFFFF', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, showTracklist: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'top', gap: 'normal', textPos: 'overlay-bottom', navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right', fsSortOrder: 'az' },
       result: { headerColor: 'transparent', background: '#1a0036', cardBackground: '#0f172a', cardText: '#FFFFFF', accent: '#ffcd00', popularText: '#FFFFFF', pathColor: '#ffcd00', pathStyle: 'dashed', showHeader: true, showTracklist: true, navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right', filterPos: 'center' },
       // Default to fade-slide transition (original default).
       // The transition options remain available in the
@@ -137,6 +148,7 @@ export class ThemeService {
     out.intermediate = {
       ...d.intermediate,
       ...(t?.intermediate || {}),
+      promptTextColor: t?.intermediate?.promptTextColor ?? (t?.intermediate?.headerTextColor ?? d.intermediate.headerTextColor),
       showHeader: t?.intermediate?.showHeader ?? true,
       showTracklist: t?.intermediate?.showTracklist ?? true,
       navPosition: t?.intermediate?.navPosition ?? (t?.nav?.position ?? d.intermediate.navPosition),
@@ -144,6 +156,7 @@ export class ThemeService {
       navBackPosition: t?.intermediate?.navBackPosition ?? (t?.nav?.backPosition ?? d.intermediate.navBackPosition),
       navHomePosition: t?.intermediate?.navHomePosition ?? (t?.nav?.homePosition ?? d.intermediate.navHomePosition),
     };
+    out.intermediate.fsSortOrder = out.intermediate.fsSortOrder === 'za' || out.intermediate.fsSortOrder === 'none' ? out.intermediate.fsSortOrder : 'az';
     out.result = {
       ...d.result,
       ...(t?.result || {}),
@@ -434,8 +447,10 @@ export class ThemeService {
     const next = [...this.cache];
     if (i >= 0) next[i] = theme; else next.push(theme);
     this.cache = next;
-    await this.persist(next);
+    // Reflect the change in list views immediately, then persist (awaited for
+    // durability — Fix 1 keeps the write fast).
     this.changed.next();
+    await this.schedulePersist(next);
   }
 
   /** Delete a saved theme (predefined themes are read-only and cannot be deleted). */
@@ -444,8 +459,9 @@ export class ThemeService {
     // New array reference (not in-place mutation) so list consumers re-render.
     const next = this.cache.filter((t) => t.id !== id);
     this.cache = next;
-    await this.persist(next);
+    // Update the UI now and persist in the background so the row disappears instantly.
     this.changed.next();
+    this.schedulePersist(next);
   }
 
   /** Editing a predefined theme creates a copy in My Themes. */

@@ -55,6 +55,10 @@ export interface ContentDraft {
     /** finder-select fast-lookup index (moved out of the theme — depends on the
      *  drill levels / content). 'alpha' = A–Z; 'number' = min/max/interval. */
     indexMode?: 'alpha' | 'number'; indexNumberMin?: number; indexNumberMax?: number; indexNumberInterval?: number;
+    fsSortOrder?: 'none' | 'az' | 'za';
+    /** brand-rail: per-drill-level headline messages (index 0 = L1). A blank
+     *  level inherits the nearest shallower level's message. */
+    brandRailMessages?: string[];
   };
   screensaver: Screensaver;
   /** Media mode only (appMode 'media'): the single image/video to play full-screen. */
@@ -63,8 +67,9 @@ export interface ContentDraft {
   customCanvas?: CustomCanvasContent;
   /** Product Promo mode: guided retail promo composition. */
   productPromo?: ProductPromoContent;
-  /** Per-deploy header content — fields shown depend on theme.headerStyle. */
-  header?: { title?: string; caption?: string; logo?: string };
+  /** Per-deploy header content — fields shown depend on theme.headerStyle.
+   *  logoScale is a size multiplier for the header logo (1 = default). */
+  header?: { title?: string; caption?: string; logo?: string; logoScale?: number };
   status: 'draft' | 'complete';
   /** Last builder step the user was on — restored when the draft is reopened
    *  so editing resumes where it stopped. Optional (older drafts start at 0). */
@@ -86,8 +91,20 @@ export class ContentService {
   /** Emits when the draft list changes (save / remove) so list views refresh
    *  immediately regardless of Ionic view-lifecycle timing. */
   readonly changed = new Subject<void>();
+  /** Serializes background persists so rapid saves/deletes can't interleave their
+   *  Preferences writes or race `gc`. Each task snapshots the array it was given. */
+  private persistChain: Promise<void> = Promise.resolve();
 
   constructor(private images: ImageStoreService) {}
+
+  /** Queue a persist behind any in-flight one. Returns the promise for callers that
+   *  want durability (save awaits it); delete fires it and lets it run in the
+   *  background so the UI updates immediately. */
+  private schedulePersist(snapshot: ContentDraft[]): Promise<void> {
+    const run = this.persistChain.catch(() => {}).then(() => this.persist(snapshot));
+    this.persistChain = run.catch(() => {}); // keep the chain alive after a failure
+    return run;
+  }
 
   async list(): Promise<ContentDraft[]> {
     if (!this.cache.length) {
@@ -253,8 +270,10 @@ export class ContentService {
     const next = [...this.cache];
     if (i >= 0) next[i] = d; else next.push(d);
     this.cache = next;
-    await this.persist(next);
+    // Reflect the change in list views immediately, then persist. Fix 1 (memoized
+    // hashing) keeps this write fast; save still awaits it for durability.
     this.changed.next();
+    await this.schedulePersist(next);
   }
 
   /** Delete a content draft. */
@@ -263,8 +282,11 @@ export class ContentService {
     // New array reference (not in-place mutation) so list consumers re-render.
     const next = this.cache.filter((c) => c.id !== id);
     this.cache = next;
-    await this.persist(next);
+    // Update the UI now and persist in the background — the row disappears
+    // instantly instead of waiting on the IndexedDB gc / Preferences write. If the
+    // app is killed before it lands, the deleted item simply reappears (self-heals).
     this.changed.next();
+    this.schedulePersist(next);
   }
 
   /** Compile a draft into the deployable layout.json (the contract LCD renders).
@@ -300,6 +322,32 @@ export class ContentService {
       if (td.indexNumberMin != null) im.indexNumberMin = td.indexNumberMin;
       if (td.indexNumberMax != null) im.indexNumberMax = td.indexNumberMax;
       if (td.indexNumberInterval != null) im.indexNumberInterval = td.indexNumberInterval;
+      if (td.fsSortOrder != null) im.fsSortOrder = td.fsSortOrder;
+      if (td.brandRailMessages && td.brandRailMessages.some((m) => m && m.trim())) {
+        im.brandRailMessages = td.brandRailMessages;
+        // Base fallback (single-value readers + L1) = first non-empty level.
+        const base = td.brandRailMessages.find((m) => m && m.trim());
+        if (base) im.brandRailMessageText = base;
+      }
+    }
+    // finder-select: the finder shows one progress step PER DRILL LEVEL (home +
+    // intermediate levels = "Category depth"). Emit exactly that many labels,
+    // filling blanks with the generic default so the step count always matches.
+    const levelCount = Math.min(3, Math.max(1, d.categoryLevelCount ?? 1)); // mirrors protoLevelCount
+    const fillLabels = (raw: string[], count: number): string[] =>
+      Array.from({ length: count }, (_, i) => (raw[i] && raw[i].trim()) ? raw[i].trim() : 'Category ' + (i + 1));
+    if (theme.intermediateStyle === 'finder-select') {
+      (theme.intermediate as any).stepLabels = fillLabels(td?.stepLabels || [], levelCount + 1);
+    }
+    // finder-detail: the breadcrumb chips are the result screen's "Finder steps".
+    // When the intermediate is finder-select they INHERIT its step labels (single
+    // source of truth); otherwise normalize the per-level breadcrumb editor values
+    // to one label per drilled level (just the home pick when the theme skips the
+    // intermediate), with the same generic defaults.
+    if (theme.resultTemplate === 'finder-detail') {
+      (theme.result as any).breadcrumbLabels = theme.intermediateStyle === 'finder-select'
+        ? (theme.intermediate as any).stepLabels
+        : fillLabels(td?.breadcrumbLabels || [], theme.includeIntermediate === false ? 1 : levelCount + 1);
     }
     const payload: LayoutJson = {
       schemaVersion: 1,
@@ -324,7 +372,7 @@ export class ContentService {
     }
     // Include the header whenever ANY field is set — a logo-only header was
     // previously dropped here, so the deployed LCD never showed the custom logo.
-    if (d.header && (d.header.title || d.header.caption || d.header.logo)) payload.header = { ...d.header };
+    if (d.header && (d.header.title || d.header.caption || d.header.logo || (d.header.logoScale != null && d.header.logoScale !== 1))) payload.header = { ...d.header };
     if (d.appMode === 'prototype-esl') {
       payload.eslLinks = d.eslLinks ?? [];
       payload.eslBlinkBy = d.eslBlinkBy ?? 'article';

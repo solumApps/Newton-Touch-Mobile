@@ -1,4 +1,4 @@
-.sf { margin-bottom: 12px; }
+.sf { position: relative; margin-bottom: 12px; }
 .sf-label {
   font-size: 11px; font-weight: 700; text-transform: uppercase;
   letter-spacing: .5px; color: var(--nt-text-2, #64748b); margin-bottom: 6px;
@@ -10,19 +10,38 @@
   cursor: pointer;
 }
 .sf-trigger.open { border-color: var(--nt-purple, #2f006d); }
-.sf-trigger:disabled { opacity: .5; }
+.sf-trigger.disabled { opacity: .5; pointer-events: none; }
 .sf-val.ph { color: var(--nt-muted, #94a3b8); }
-.sf-caret { color: var(--nt-brand-ink, #2f006d); font-size: 12px; margin-left: 8px; }
+.sf-caret {
+  appearance: none; border: 0; padding: 3px 0 3px 8px; margin: -3px 0 -3px 8px;
+  background: transparent; color: inherit; font: inherit; line-height: 1; cursor: pointer;
+}
+.sf-input-wrap {
+  display: flex; align-items: center; flex: 1; gap: 8px;
+  min-width: 0;
+}
+.sf-search-icon {
+  font-size: 14px; color: var(--nt-muted, #94a3b8);
+}
+.sf-input-wrap input {
+  flex: 1; min-width: 0;
+  background: transparent; border: none; outline: none;
+  color: var(--nt-text, #0f172a); font-size: 14px; font-family: inherit;
+}
 .sf-list {
-  margin-top: 6px; background: var(--nt-card, #fff); border: 1.5px solid var(--nt-border, #e2e8f0);
+  position: absolute; top: calc(100% + 6px); right: 0; left: 0; z-index: 1000;
+  background: var(--nt-card, #fff); border: 1.5px solid var(--nt-border, #e2e8f0);
   border-radius: 10px; overflow: hidden; max-height: 280px; overflow-y: auto;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, .18);
 }
 .sf-opt {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 14px; cursor: pointer; border-bottom: 1px solid var(--nt-border, #e2e8f0);
+  width: 100%; padding: 12px 14px; cursor: pointer; border: 0; border-bottom: 1px solid var(--nt-border, #e2e8f0);
+  background: var(--nt-card, #fff); text-align: left; font-family: inherit;
 }
 .sf-opt:last-child { border-bottom: none; }
 .sf-opt.sel { background: var(--nt-tint, #f8f5ff); }
+.sf-opt:active, .sf-opt:focus-visible { background: var(--nt-tint, #f8f5ff); outline: none; }
 .sf-opt-label { font-size: 14px; font-weight: 600; color: var(--nt-text, #0f172a); }
 .sf-opt-sub { font-size: 11px; color: var(--nt-muted, #94a3b8); margin-top: 2px; }
 .sf-tick { color: var(--nt-brand-ink, #2f006d); font-weight: 800; }

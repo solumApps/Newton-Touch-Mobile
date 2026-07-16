@@ -24,19 +24,23 @@
         <nt-section-header [title]="g.label" [subtitle]="g.drafts.length + (g.drafts.length === 1 ? ' item' : ' items')"></nt-section-header>
         <ion-list class="slides" lines="none" [class.deployed]="g.label === 'Deployed'">
           <ion-item-sliding *ngFor="let c of g.drafts">
-            <ion-item button detail="false" (click)="open(c)">
+            <ion-item button detail="false" (click)="open(c)" [class.changed]="c.deployedTo && !isLiveOnLcd(c)">
               <div class="item">
                 <div
                   class="sw"
-                  [style.background]="c.themeTokens.background || '#2F006D'"
-                  [style.background-image]="previewImage(c) ? 'url(' + (previewImage(c) || '') + ')' : null"
-                  [style.background-size]="previewImage(c) ? 'cover' : null"
-                  [style.background-position]="previewImage(c) ? 'center' : null"
-                  [style.background-repeat]="previewImage(c) ? 'no-repeat' : null"></div>
+                  [style.background]="c.themeTokens.background || '#2F006D'">
+                  <img
+                    *ngIf="previewImage(c) as img"
+                    [src]="img"
+                    alt=""
+                    aria-hidden="true"
+                    (error)="previewImageFailed(img)" />
+                </div>
                 <div class="meta">
                   <div class="top">
                     <div class="nm">{{ c.name }}</div>
-                    <nt-badge *ngIf="c.deployedTo" variant="live" [dot]="true">Live</nt-badge>
+                    <nt-badge *ngIf="c.deployedTo && isLiveOnLcd(c)" variant="live" [dot]="true">Live</nt-badge>
+                    <nt-badge *ngIf="c.deployedTo && !isLiveOnLcd(c)" variant="warn">Offline</nt-badge>
                     <nt-badge *ngIf="!c.deployedTo && c.status === 'complete'" variant="complete">Ready</nt-badge>
                     <nt-badge *ngIf="!c.deployedTo && c.status !== 'complete'" variant="draft">Draft</nt-badge>
                   </div>

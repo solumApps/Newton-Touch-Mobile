@@ -134,7 +134,22 @@
 .del { border: none; background: none; color: var(--nt-muted); font-size: 15px; cursor: pointer; padding: 6px; }
 
 /* Per-image fit segment (Cover / Contain / Fill) — shown only when an image is set. */
-.fit-seg { display: flex; align-items: center; gap: 6px; margin: -2px 0 10px; }
+.fit-seg {
+  display: flex; align-items: center; gap: 6px;
+  margin: -2px 0 8px; padding: 0 2px;
+  /* auto (not scroll): the scrollbar track/thumb only render when the buttons
+     actually overflow the row — no scroll UI for short option lists. */
+  overflow-x: auto; overflow-y: hidden;
+  overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin; scrollbar-color: var(--nt-brand-ink, #2f006d) transparent;
+}
+.fit-seg > * { flex: 0 0 auto; }
+.fit-seg::-webkit-scrollbar { height: 7px; }
+.fit-seg::-webkit-scrollbar-track { background: transparent; }
+.fit-seg::-webkit-scrollbar-thumb {
+  background: var(--nt-brand-ink, #2f006d); border: 2px solid transparent;
+  border-radius: 999px; background-clip: padding-box;
+}
 .fit-seg .fit-lbl { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; color: var(--nt-muted); }
 .fit-seg .mini { padding: 4px 11px; font-size: 11px; box-shadow: none; }
 .fit-seg .mini.sel { background: var(--nt-brand-ink); color: #fff; }
@@ -270,6 +285,12 @@ table.sum td:first-child {
 .step-label { font-size: 11px; }
 
 .progress { height: 3px; background: rgba(0,0,0,.08); margin: 4px -14px 0; }
+
+/* Header logo size slider */
+.logo-size-row { display: flex; align-items: center; gap: 10px; margin: 2px 0 8px; }
+.logo-size-row .ls-lbl { font-size: 12px; font-weight: 700; color: var(--nt-muted); white-space: nowrap; }
+.logo-size-row input[type=range] { flex: 1; min-width: 0; accent-color: var(--nt-purple); }
+.logo-size-row .ls-val { font-size: 12px; font-weight: 800; color: var(--nt-text); min-width: 40px; text-align: right; }
 .progress .bar { height: 100%; background: var(--nt-yellow, #FFCD00); transition: width .2s ease; }
 .step-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 22px; font-weight: 900; color: var(--nt-text); margin: 8px 0 14px; letter-spacing: -.25px; }
 .preview-block {

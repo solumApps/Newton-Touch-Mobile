@@ -1,10 +1,12 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import type { ThemeTokens, CardItem, ResultProduct, Screensaver } from '@contract/layout';
+import type { ThemeTokens, CardItem, ResultProduct, Screensaver, CardTextPos } from '@contract/layout';
 import { imageFitSize, NAV_ICONS, navIconKind, textScaleNum, textCaseCss, navBtnSizeNum } from '@contract/layout';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
+type FinderSortKey = 'recommend' | 'alpha' | 'low-price' | 'on-sale';
+type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' | 'on sale' | 'onsale';
 
 /**
  * Reusable mini-LCD preview strip driven by real draft data.
@@ -47,6 +49,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
            [style.--nt-base-text]="theme?.typography?.baseTextColor"
            [style.--nt-header-text]="headerTextColor"
            [style.--nt-int-header-text]="theme?.intermediate?.headerTextColor || '#FFFFFF'"
+           [style.--nt-fs-prompt-text]="theme?.intermediate?.promptTextColor || theme?.intermediate?.headerTextColor || theme?.headerTextColor || '#FFFFFF'"
            [style.--nt-res-header-text]="'#FFFFFF'"
            [style.--nt-accent]="theme?.accent"
            [style.--nt-card]="theme?.cardBackground"
@@ -83,6 +86,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
              [class.right]="logoRight && !isCustomHeader" [class.center]="logoCenter && !isCustomHeader"
              [class.hdr-transparent]="isTransparentHeader" [class.hdr-custom]="isCustomHeader"
              [ngClass]="isCustomHeader ? '' : ('hdr-style-' + headerStyle)"
+             [style.--nt-logo-scale]="header?.logoScale || null"
              [style.background]="isTransparentHeader ? 'transparent' : headerColor">
           <ng-container *ngIf="!isCustomHeader">
             <img *ngIf="showLogo" [src]="header?.logo || 'assets/solum-logo-white.svg'" alt="Logo" class="brand-logo" />
@@ -116,22 +120,29 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 
         <!-- HOME (LCD markup: .cards.layout-*) -->
         <ng-container *ngSwitchCase="'home'">
-        <div class="body fs-body" *ngIf="theme?.homeLayout==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || null" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--nt-int-bg]="theme?.background || null" [style.--int-gap]="cardGapPx" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
+        <div class="body fs-body" *ngIf="theme?.homeLayout==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || '#172033'" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--nt-int-bg]="homeCardAreaBackground" [style.--int-gap]="cardGapPx" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
           <div class="fs-hero" [style.background]="theme?.intermediate?.heroColor || null">
             <div class="fs-hero-title">{{ titleText || 'Product Finder' }}</div>
             <div class="fs-steps">
               <div class="fs-step" *ngFor="let s of homeFinderSteps; let i=index" [class.current]="i===0" [class.todo]="i>0"><span class="fs-step-lbl">{{ s }}</span><span class="fs-step-val">-</span><span class="fs-step-dot" *ngIf="i===0"></span></div>
             </div>
           </div>
-          <div class="fs-main" [style.background]="theme?.background || null">
-            <div class="fs-top fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}"><div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div></div>
-          <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{theme?.intermediate?.fsTextPos||'center'}} textalign-{{theme?.intermediate?.fsTextAlign||'center'}}">
-              <div class="fs-card" *ngFor="let c of homeCells; let i = index" (click)="selectIntermediateBranch(i)" [class.cps-selected]="i===activeIntermediateHomeIndex">
+          <div class="fs-main" [style.background]="homeCardAreaBackground">
+            <div class="fs-top fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}">
+              <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div>
+            </div>
+          <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{finderTextAlignClass}}">
+              <div class="fs-card" *ngFor="let c of finderHomeCells; let i = index" (click)="selectIntermediateBranchById(c.id)" [class.cps-selected]="c.id===activeIntermediateHomeItem?.id || (!activeIntermediateHomeItem && i===0)">
                 <div class="fs-card-img" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='text-only'" [class.no-img]="!c.image && !finderUsePh" [style.background-image]="c.image ? 'url('+c.image+')' : (finderUsePh ? phImg(i) : null)" [style.background-size]="fitSize(c.imageFit)" [style.background-repeat]="c.imageFit ? 'no-repeat' : null"></div>
                 <span class="fs-card-nm" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='image-only'">{{ c.name }}</span>
               </div>
             </div>
-            <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let c of homeCells; let i=index" [class.active]="i===0">{{ c.name }}</span></div>
+            <div class="fs-index-row">
+              <div class="fs-index fs-alpha-index" aria-label="Finder A to Z filter">
+                <button type="button" class="fs-letter fs-all available" [class.active]="!activeFinderHomeLetter" (click)="selectFinderHomeLetter('')">All</button>
+                <button type="button" class="fs-letter" *ngFor="let letter of finderAlphabet" [class.available]="finderHomeLetters.has(letter)" [class.active]="letter===activeFinderHomeLetter" [disabled]="!finderHomeLetters.has(letter)" (click)="selectFinderHomeLetter(letter)">{{ letter }}</button>
+              </div>
+            </div>
           </div>
         </div>
         <div *ngIf="theme?.homeLayout!=='finder-select'" class="cards layout-{{theme?.homeLayout}} card-size-{{theme?.cardSize||'normal'}} align-{{theme?.cardAlign||'center'}} valign-{{theme?.cardVAlign||'middle'}} gap-{{theme?.cardGap||'normal'}} htext-{{theme?.cardTextPos||'center'}} ovl-{{theme?.cardOverlayStyle||'gradient'}} oshape-{{theme?.cardOverlayShape||''}}" [class.shape]="shapeCard" [class.shape-hex]="shapeCard && theme?.cardShape==='hexagon'"
@@ -177,7 +188,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         <!-- INTERMEDIATE (LCD markup: .body.int-*) -->
         <ng-container *ngSwitchCase="'inter'">
           <!-- finder-select: hero progress rail + selection cards + index strip -->
-          <div class="body fs-body" *ngIf="theme?.intermediateStyle==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || null" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--nt-int-bg]="theme?.intermediate?.background || null" [style.--int-gap]="theme?.intermediate?.gapNum != null ? theme?.intermediate?.gapNum + 'px' : null" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
+          <div class="body fs-body" *ngIf="theme?.intermediateStyle==='finder-select'" [style.--prm-panel]="theme?.intermediate?.heroColor || '#172033'" [style.--prm-accent]="theme?.intermediate?.accent || null" [style.--nt-int-bg]="intermediateCardAreaBackground" [style.--int-gap]="theme?.intermediate?.gapNum != null ? theme?.intermediate?.gapNum + 'px' : null" [style.--nt-int-scale]="theme?.intermediate?.itemSizeScale || 1">
             <div class="fs-hero" [style.background]="theme?.intermediate?.heroColor || null">
               <div class="fs-hero-title">{{ titleText || 'Product Finder' }}</div>
               <div class="fs-home"><span class="fs-home-ic">&#8962;</span> Home</div>
@@ -190,15 +201,23 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 </div>
               </div>
             </div>
-            <div class="fs-main" [style.background]="theme?.intermediate?.background || null">
-              <div class="fs-top fs-back-{{theme?.intermediate?.fsBackPos||'left'}} fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}"><button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">&#8592;</button><div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div></div>
-              <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{theme?.intermediate?.fsTextPos||'center'}} textalign-{{theme?.intermediate?.fsTextAlign||'center'}}">
-                <div class="fs-card" *ngFor="let it of interCells.slice(0,5); let i = index">
+            <div class="fs-main" [style.background]="intermediateCardAreaBackground">
+              <div class="fs-top fs-back-{{theme?.intermediate?.fsBackPos||'left'}} fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}">
+                <button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">&#8592;</button>
+                <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div>
+              </div>
+              <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{finderTextAlignClass}}">
+                <div class="fs-card" *ngFor="let it of finderInterCells; let i = index">
                   <div class="fs-card-img" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='text-only'" [class.no-img]="!it.image && !finderUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (finderUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                   <span class="fs-card-nm" *ngIf="(theme?.intermediate?.fsCardContent||'text-only')!=='image-only'">{{ it.name }}</span>
                 </div>
               </div>
-              <div class="fs-index fs-index-values"><span class="fs-val" *ngFor="let v of fsIndexValues; let i=index" [class.active]="i===0">{{ v }}</span></div>
+              <div class="fs-index-row">
+                <div class="fs-index fs-alpha-index" aria-label="Finder A to Z filter">
+                  <button type="button" class="fs-letter fs-all available" [class.active]="!activeFinderInterLetter" (click)="selectFinderInterLetter('')">All</button>
+                  <button type="button" class="fs-letter" *ngFor="let letter of finderAlphabet" [class.available]="finderInterLetters.has(letter)" [class.active]="letter===activeFinderInterLetter" [disabled]="!finderInterLetters.has(letter)" (click)="selectFinderInterLetter(letter)">{{ letter }}</button>
+                </div>
+              </div>
             </div>
           </div>
           <ng-container *ngIf="theme?.intermediateStyle!=='finder-select'">
@@ -228,6 +247,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
                 <div class="img" [class.no-img]="!it.image && !interUsePh" [style.background-image]="it.image ? 'url('+it.image+')' : (interUsePh ? phImg(i) : null)" [style.background-size]="fitSize(it.imageFit)" [style.background-repeat]="it.imageFit ? 'no-repeat' : null"></div>
                 <span class="name">{{ it.name }}</span>
               </div>
+              <div class="brm-msg" *ngIf="theme?.intermediateStyle==='brand-rail'">{{ theme?.intermediate?.brandRailMessageText || 'Which one will you choose?' }}</div>
             </div>
           </ng-template>
         </ng-container>
@@ -378,7 +398,7 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
               </div>
               <div class="shelf-prods">
                 <div class="sprod" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
-                  <div class="s-img" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)"></div>
+                  <div class="s-img" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)"><span class="s-img-text" *ngIf="theme?.result?.content === 'text-only' && !p.image && !resUsePh">{{ p.name }}</span></div>
                   <div class="s-nm">{{ p.name }}</div>
                   <div class="s-price" *ngIf="p.price">{{ p.price }}</div>
                   <div class="s-meta" *ngIf="p.aisle">Zone {{ p.aisle }}</div>
@@ -408,27 +428,35 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             </div>
           </div>
 
-          <!-- finder-detail -->
-          <div class="body finder-body" *ngIf="resTpl==='finder-detail'">
+          <!-- finder-detail. --prm-panel must be set explicitly here: the stage
+               wrapper pins it to 'transparent', which would defeat the SCSS
+               #172033 fallback the LCD gets. Inherits the finder-select
+               heroColor so the fd-hero matches the intermediate fs-hero. -->
+          <div class="body finder-body" *ngIf="resTpl==='finder-detail'"
+               [style.--prm-panel]="(theme?.intermediateStyle==='finder-select' ? theme?.intermediate?.heroColor : theme?.result?.panelColor) || '#172033'">
             <div class="fd-hero" [style.background-image]="theme?.result?.heroImage ? 'url('+theme?.result?.heroImage+')' : null">
               <div class="fd-hero-title">{{ titleText || 'Product Finder' }}</div>
               <div class="fd-home"><span class="fd-home-ic">&#8962;</span> Home</div>
               <div class="fd-chips"><div class="fd-chip" *ngFor="let c of breadcrumbPreview"><span class="fd-chip-lbl">{{ c.label }}</span><span class="fd-chip-val">{{ c.value }}</span></div></div>
             </div>
             <div class="fd-list">
-              <div class="fd-sorts"><div class="fd-sort active">Recommend</div><div class="fd-sort">A&ndash;Z</div></div>
-              <div class="fd-prod" [class.found]="i===0" *ngFor="let p of finderCells; let i=index">
-                <div class="fd-prod-top"><div class="fd-prod-nm">{{ p.name }}</div><div class="fd-price"><span class="fd-sale-badge" *ngIf="theme?.result?.showSaleBadge!==false && p.onSale">SALE</span><span class="fd-orig" *ngIf="p.onSale && p.salePrice">{{ p.price }}</span><span class="fd-now" [class.sale]="p.onSale && p.salePrice">{{ (p.onSale && p.salePrice) ? p.salePrice : (p.price || '$58.88') }}</span></div></div>
-                <div class="fd-specs" *ngIf="p.specs?.length"><span class="fd-spec" *ngFor="let s of p.specs">{{ s.label }} &middot; {{ s.value }}</span></div>
+              <div class="fd-sorts"><div class="fd-sort" *ngFor="let tab of finderSortTabs" [class.active]="isFinderSortActive(tab.key)" (click)="selectFinderSort(tab.key)">{{ tab.label }}</div></div>
+              <div class="fd-products">
+                <div class="fd-prod" [class.found]="p.id===finderFound.id" *ngFor="let p of finderDisplayCells" (click)="selectFinderProduct(p)">
+                  <div class="fd-prod-top"><div class="fd-prod-nm">{{ p.name }}</div><div class="fd-price"><span class="fd-sale-badge" *ngIf="theme?.result?.showSaleBadge!==false && p.onSale">SALE</span><span class="fd-orig" *ngIf="p.onSale && p.salePrice">{{ p.price }}</span><span class="fd-now" [class.sale]="p.onSale && p.salePrice">{{ (p.onSale && p.salePrice) ? p.salePrice : (p.price || '$58.88') }}</span></div></div>
+                  <div class="fd-specs" *ngIf="p.specs?.length"><span class="fd-spec" *ngFor="let s of p.specs">{{ s.label }} &middot; {{ s.value }}</span></div>
+                </div>
               </div>
             </div>
             <div class="fd-detail" *ngIf="finderFound as r">
-              <div class="fd-d-head"><div class="fd-d-title">{{ r.name }}</div><button type="button" class="fd-find-all" [style.background]="theme?.result?.findColor || null">{{ theme?.result?.findAllLabel || 'Find All' }}</button></div>
-              <div class="fd-d-desc" *ngIf="r.description">{{ r.description }}</div>
+              <div class="fd-d-sticky">
+                <div class="fd-d-head"><div class="fd-d-title">{{ r.name }}</div><button type="button" class="fd-find-all" [style.background]="theme?.result?.findColor || null">{{ theme?.result?.findAllLabel || 'Find All' }}</button></div>
+                <div class="fd-d-desc" *ngIf="r.description">{{ r.description }}</div>
+              </div>
               <div class="fd-fit" *ngFor="let f of (r.fitments?.length ? r.fitments : previewFitments)">
+                <div class="fd-fit-img" *ngIf="f.image" [style.background-image]="'url('+f.image+')'"></div>
                 <div class="fd-fit-info"><div class="fd-fit-nm">{{ f.label }}</div><div class="fd-fit-sub" *ngIf="f.articleId || f.name">{{ f.articleId }}<span *ngIf="f.name"> &middot; {{ f.name }}</span></div><div class="fd-fit-price"><span class="fd-orig" *ngIf="f.salePrice">{{ f.price }}</span><span class="fd-now" [class.sale]="f.salePrice">{{ f.salePrice || f.price }}</span></div></div>
                 <button type="button" class="fd-find-it" [style.background]="theme?.result?.findColor || null">{{ theme?.result?.findItLabel || 'Find It' }}</button>
-                <div class="fd-fit-img" *ngIf="f.image" [style.background-image]="'url('+f.image+')'"></div>
               </div>
             </div>
           </div>
@@ -436,7 +464,6 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
           <!-- default: map + list -->
           <div class="body" *ngIf="!specialResult">
             <div class="result-tools" *ngIf="resTpl==='map-list'">
-              <input class="res-search" type="text" value="" placeholder="Search products..." readonly />
               <div class="res-sort">
                 <button type="button" class="active">Popular</button>
                 <button type="button">A-Z</button>
@@ -500,16 +527,27 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
         <!-- SCREENSAVER (studio mock — no LCD equivalent layout) -->
         <div *ngSwitchCase="'saver'" class="stage saver saver-{{screensaver?.mode || 'slideshow'}}">
           <div class="ss-media">
-            <ng-container *ngIf="(screensaver?.media?.length||0) > 0; else saverPlaceholders">
-              <span class="ss-slide" *ngFor="let m of (screensaver?.media || []).slice(0,3)" [style.background-image]="'url('+m+')'"></span>
+            <!-- VIDEO: play the clip full-bleed, fall back to a colored plate -->
+            <ng-container *ngIf="screensaver?.mode === 'video'">
+              <video class="ss-video" *ngIf="saverFirstMedia" [src]="saverFirstMedia" muted autoplay loop playsinline></video>
+              <div class="ss-ph" *ngIf="!saverFirstMedia" [style.background]="theme?.headerColor || '#2F006D'"></div>
             </ng-container>
-            <ng-template #saverPlaceholders>
-              <span class="ss-slide" [style.background]="theme?.headerColor"></span>
-              <span class="ss-slide" [style.background]="theme?.accent"></span>
-              <span class="ss-slide" [style.background]="theme?.background"></span>
-            </ng-template>
+            <!-- IMAGE (single-image + slideshow) -->
+            <ng-container *ngIf="screensaver?.mode !== 'video'">
+              <ng-container *ngIf="saverImages.length > 0; else saverPlaceholders">
+                <span class="ss-slide" *ngFor="let m of saverImages" [style.background-image]="'url('+m+')'"></span>
+              </ng-container>
+              <ng-template #saverPlaceholders>
+                <span class="ss-slide" [style.background]="theme?.headerColor || '#2F006D'"></span>
+                <span class="ss-slide" [style.background]="theme?.accent || '#FFCD00'"></span>
+                <span class="ss-slide" [style.background]="theme?.background || '#0F172A'"></span>
+              </ng-template>
+            </ng-container>
           </div>
           <span class="ss-play" *ngIf="screensaver?.mode === 'video'">&#9654;</span>
+          <div class="ss-dots" *ngIf="screensaver?.mode === 'slideshow' && saverRaw.length > 1">
+            <i *ngFor="let m of saverRaw; let i = index" [class.on]="i === 0"></i>
+          </div>
           <span class="ss-badge">{{ saverBadge }}</span>
           <div class="ss-overlay"></div>
           <div class="ss-c"
@@ -522,13 +560,6 @@ type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
             <div class="cta">{{ theme?.saverOverlay?.subtitle || 'Touch screen to begin' }}</div>
           </div>
         </div>
-      </div>
-      <div class="cps-branch-nav" *ngIf="branchNavVisible">
-        <button type="button" class="cps-branch-step" (click)="selectIntermediateBranch(activeIntermediateHomeIndex - 1)" aria-label="Previous category">&#8249;</button>
-        <button type="button" class="cps-branch-chip" *ngFor="let c of branchNavItems; let i = index" [class.active]="i===activeIntermediateHomeIndex" (click)="selectIntermediateBranch(i)">
-          {{ c.name }}
-        </button>
-        <button type="button" class="cps-branch-step" (click)="selectIntermediateBranch(activeIntermediateHomeIndex + 1)" aria-label="Next category">&#8250;</button>
       </div>
       <div class="cps-cap" *ngIf="showStripCaption">{{ caption || pageCaption }} preview</div>
     </div>
@@ -546,7 +577,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   @Input() intermediateCreatePreview = false;
   @Input() result?: { mapImage?: string; promoImage?: string; products: ResultProduct[]; route?: { kind?: 'line' | 'dot' | 'none'; x?: number; y?: number; w?: number; color?: string } };
   @Input() screensaver?: Screensaver;
-  @Input() header?: { title?: string; caption?: string; logo?: string };
+  @Input() header?: { title?: string; caption?: string; logo?: string; logoScale?: number };
   /** Optional caption override under the strip. */
   @Input() caption?: string;
   /** Set false to hide the caption text under the preview. */
@@ -588,7 +619,24 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     if (!((this.page === 'inter' && this.theme?.intermediateStyle === 'finder-select') || (this.page === 'home' && this.theme?.homeLayout === 'finder-select'))) return false;
     return this.imageContent(this.theme?.intermediate?.fsCardContent || 'text-only');
   }
-  homeFinderSteps = ['Category 1', 'Category 2', 'Category 3', 'Category 4'];
+  get finderTextPosClass(): CardTextPos {
+    const shape = this.theme?.intermediate?.fsCardShape || 'rect';
+    return shape === 'circle' || shape === 'hexagon'
+      ? 'below'
+      : (this.theme?.intermediate?.fsTextPos || 'center');
+  }
+  get finderTextAlignClass(): 'left' | 'center' | 'right' {
+    const shape = this.theme?.intermediate?.fsCardShape || 'rect';
+    return shape === 'circle' || shape === 'hexagon'
+      ? 'center'
+      : (this.theme?.intermediate?.fsTextAlign || 'center');
+  }
+  /** Home finder-select progress labels — driven by the content's step labels
+   *  (fs-step-lbl), falling back to generic Category N when none are set. */
+  get homeFinderSteps(): string[] {
+    const labels = this.theme?.intermediate?.stepLabels;
+    return labels && labels.length ? labels : ['Category 1', 'Category 2', 'Category 3', 'Category 4'];
+  }
   /** Result: dummy product images (unless content is text-only). */
   get resUsePh(): boolean {
     return this.page === 'result' && this.theme?.result?.content !== 'text-only';
@@ -674,11 +722,14 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get specialResult(): boolean {
     return ['drill-stair', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'product-focus', 'hero-product', 'shelf', 'promo-map-rank', 'finder-detail'].includes(this.resTpl);
   }
-  /** finder-detail preview breadcrumb chips (custom labels + sample values). */
+  /** finder-detail preview breadcrumb chips (custom labels + sample values).
+   *  Capped at 4 (not removed) to match the design max: finderStepCount /
+   *  crumbStepCount are both protoLevelCount(max 3) + 1 = 4. Sample values match
+   *  fsStepRows' so the Intermediate and Result previews tell one consistent story. */
   get breadcrumbPreview(): { label: string; value: string }[] {
     const labels = this.theme?.result?.breadcrumbLabels?.length ? this.theme.result.breadcrumbLabels : ['Manufacturer', 'Model', 'Year'];
-    const vals = ['Mercedes-Benz', 'S Class', '2021'];
-    return labels.slice(0, 3).map((label, i) => ({ label, value: vals[i] || '—' }));
+    const vals = ['Bosch', 'X5 Series', '2021', 'Premium'];
+    return labels.slice(0, 4).map((label, i) => ({ label, value: vals[i] || '—' }));
   }
   /** drill-filter result preview: one breadcrumb column per real hierarchy level. */
   get drillFilterColumns(): { label: string; items: CardItem[]; pickedIndex: number }[] {
@@ -724,10 +775,113 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       price: p.price || '$88.88',
     } as ResultProduct));
   }
+  finderSortKey: FinderSortKey = 'recommend';
+  private localFinderProductId = '';
+  private readonly finderSortLabels: Record<FinderSortKey, string> = {
+    recommend: 'Recommend',
+    alpha: 'Alphabetical',
+    'low-price': 'Low Price',
+    'on-sale': 'On Sale',
+  };
+  get finderSortTabs(): { key: FinderSortKey; label: string }[] {
+    const defaults: FinderSortKey[] = ['recommend', 'alpha', 'low-price', 'on-sale'];
+    const configured = (this.theme?.result?.sortTabs || [])
+      .map((key) => this.normalizeFinderSortKey(key as FinderSortInput))
+      .filter((key): key is FinderSortKey => !!key);
+    const keys: FinderSortKey[] = configured.length ? configured : defaults;
+    return keys.map((key) => ({ key, label: this.finderSortLabels[key] }));
+  }
+  isFinderSortActive(key: FinderSortKey): boolean {
+    return key === this.activeFinderSortKey;
+  }
+  selectFinderSort(key: FinderSortInput): void {
+    this.finderSortKey = this.normalizeFinderSortKey(key) || 'recommend';
+    this.localFinderProductId = this.finderDisplayCells[0]?.id || '';
+    const idx = this.finderCells.findIndex((p) => p.id === this.localFinderProductId);
+    this.localResultIndex = Math.max(0, idx);
+    this.selectedResultIndexChange.emit(this.localResultIndex);
+  }
+  selectFinderProduct(p: ResultProduct): void {
+    this.localFinderProductId = p.id;
+    const idx = this.finderCells.findIndex((item) => item.id === p.id);
+    this.localResultIndex = Math.max(0, idx);
+    this.selectedResultIndexChange.emit(this.localResultIndex);
+  }
+  get finderDisplayCells(): ResultProduct[] {
+    const rows = this.finderCells.map((p, i) => ({ p, i }));
+    const key = this.activeFinderSortKey;
+    const filtered = key === 'on-sale' ? rows.filter(({ p }) => this.finderIsOnSale(p)) : rows;
+    const sorted = [...filtered];
+    sorted.sort((a, b) => this.compareFinderRows(a, b, key));
+    return sorted.map(({ p }) => p);
+  }
   /** finder-detail right detail: the first product, with a fallback description. */
   get finderFound(): ResultProduct {
-    const f = this.finderCells[0];
+    const rows = this.finderDisplayCells;
+    const f = rows.find((p) => p.id === this.localFinderProductId) || rows[0] || this.finderCells[0];
     return { ...f, description: f.description || 'Smooth, clean, streak-free wipe with embedded friction reducers and multiple pressure points.' } as ResultProduct;
+  }
+  private get activeFinderSortKey(): FinderSortKey {
+    const key = this.normalizeFinderSortKey(this.finderSortKey) || 'recommend';
+    return this.finderSortTabs.some((tab) => tab.key === key) ? key : this.finderSortTabs[0]?.key || 'recommend';
+  }
+  private finderRankValue(p: ResultProduct, index: number): number {
+    return typeof p.rank === 'number' && Number.isFinite(p.rank) ? p.rank : index + 10000;
+  }
+  private normalizeFinderSortKey(key?: FinderSortInput | string): FinderSortKey | null {
+    const normalized = String(key || '').trim().toLowerCase().replace(/[\s_]+/g, '-');
+    if (normalized === 'recommend') return 'recommend';
+    if (normalized === 'alpha' || normalized === 'alphabet' || normalized === 'alphabetical') return 'alpha';
+    if (normalized === 'low-price' || normalized === 'lowprice') return 'low-price';
+    if (normalized === 'on-sale' || normalized === 'onsale') return 'on-sale';
+    return null;
+  }
+  private compareFinderRows(a: { p: ResultProduct; i: number }, b: { p: ResultProduct; i: number }, key: FinderSortKey): number {
+    if (key === 'alpha') return this.compareFinderAlpha(a, b);
+    if (key === 'low-price') return this.compareFinderPrice(a, b);
+    if (key === 'on-sale') return this.compareFinderSale(a, b);
+    return this.compareFinderRecommend(a, b);
+  }
+  private compareFinderRecommend(a: { p: ResultProduct; i: number }, b: { p: ResultProduct; i: number }): number {
+    return this.finderRankValue(a.p, a.i) - this.finderRankValue(b.p, b.i) || a.i - b.i;
+  }
+  private compareFinderAlpha(a: { p: ResultProduct; i: number }, b: { p: ResultProduct; i: number }): number {
+    return this.finderAlphaValue(a.p).localeCompare(this.finderAlphaValue(b.p), undefined, { sensitivity: 'base', numeric: true }) || a.i - b.i;
+  }
+  private compareFinderPrice(a: { p: ResultProduct; i: number }, b: { p: ResultProduct; i: number }): number {
+    return this.finderPriceValue(a.p) - this.finderPriceValue(b.p) || this.compareFinderAlpha(a, b);
+  }
+  private compareFinderSale(a: { p: ResultProduct; i: number }, b: { p: ResultProduct; i: number }): number {
+    return this.finderDiscountValue(b.p) - this.finderDiscountValue(a.p) || this.compareFinderPrice(a, b);
+  }
+  private finderIsOnSale(p: ResultProduct): boolean {
+    return p.onSale === true;
+  }
+  private finderPriceValue(p: ResultProduct): number {
+    const raw = p.salePrice || p.price || '';
+    const match = String(raw).replace(/,/g, '').match(/\d+(?:\.\d+)?/);
+    const value = match ? Number(match[0]) : Number.NaN;
+    return Number.isFinite(value) ? value : Number.MAX_SAFE_INTEGER;
+  }
+  private finderOriginalPriceValue(p: ResultProduct): number {
+    const match = String(p.price || '').replace(/,/g, '').match(/\d+(?:\.\d+)?/);
+    const value = match ? Number(match[0]) : Number.NaN;
+    return Number.isFinite(value) ? value : this.finderPriceValue(p);
+  }
+  private finderDiscountValue(p: ResultProduct): number {
+    const original = this.finderOriginalPriceValue(p);
+    const current = this.finderPriceValue(p);
+    return Number.isFinite(original) && Number.isFinite(current) ? Math.max(0, original - current) : 0;
+  }
+  private finderAlphaValue(p: ResultProduct): string {
+    return (p.name || '')
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/^[^a-z0-9]+/i, '')
+      .replace(/^(the|a|an)\s+/i, '')
+      .replace(/[^a-z0-9]+/gi, ' ')
+      .trim()
+      .toLowerCase();
   }
   /** promo-map-rank preview: floor selector labels (default when none set). */
   get previewFloors(): string[] {
@@ -765,9 +919,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get branchNavItems(): CardItem[] {
     return (this.home || []).filter((c) => (c.children?.length || c.products?.length));
   }
-  get branchNavVisible(): boolean {
-    return (this.page === 'inter' || this.page === 'result') && this.branchNavItems.length > 1;
-  }
+
   get activeIntermediateHomeIndex(): number {
     const n = this.branchNavItems.length;
     if (!n) return 0;
@@ -779,6 +931,13 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     this.localIntermediateHomeIndex = (Math.trunc(i) + n) % n;
     this.localResultIndex = 0;
     this.selectedResultIndexChange.emit(0);
+  }
+  get activeIntermediateHomeItem(): CardItem | undefined {
+    return this.branchNavItems[this.activeIntermediateHomeIndex];
+  }
+  selectIntermediateBranchById(id?: string): void {
+    const idx = this.branchNavItems.findIndex((c) => c.id === id);
+    if (idx >= 0) this.selectIntermediateBranch(idx);
   }
 
   get scaleNum(): number {
@@ -948,6 +1107,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     }
     return `linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.28)), url("${image}") ${pos}/${size} no-repeat, ${bg || '#000'}`;
   }
+  get homeCardAreaBackground(): string | null {
+    return this.theme?.backgroundImage ? 'transparent' : (this.theme?.background || null);
+  }
+  get intermediateCardAreaBackground(): string | null {
+    return this.theme?.intermediate?.backgroundImage ? 'transparent' : (this.theme?.intermediate?.background || null);
+  }
   get pageCaption(): string {
     return this.page === 'inter' ? 'Intermediate'
       : this.page === 'result' ? 'Result'
@@ -971,6 +1136,43 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     if (real.length) return real.map(c => ({ ...c, name: c.name || 'Item' }));
     const labels = this.previewLabels('home');
     return Array.from({ length: n }, (_, i) => ({ id: 'ph' + i, name: labels[i % labels.length] } as CardItem));
+  }
+  readonly finderAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  private selectedFinderHomeLetter = '';
+  private selectedFinderInterLetter = '';
+  private finderSort<T extends { name?: string }>(items: T[]): T[] {
+    return [...items].sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base', numeric: true }));
+  }
+  private filterFinderByLetter(items: CardItem[], letter: string): CardItem[] {
+    if (!letter) return items;
+    return items.filter((item) => (item.name || '').trim().charAt(0).toUpperCase() === letter);
+  }
+  get finderHomeAllCells(): CardItem[] {
+    return this.finderSort(this.homeCells);
+  }
+  get finderHomeCells(): CardItem[] {
+    return this.filterFinderByLetter(this.finderHomeAllCells, this.activeFinderHomeLetter);
+  }
+  private finderLettersFor(items: CardItem[]): Set<string> {
+    return new Set(items.map((item) => (item.name || '').trim().charAt(0).toUpperCase()).filter((letter) => /^[A-Z]$/.test(letter)));
+  }
+  get finderHomeLetters(): Set<string> {
+    return this.finderLettersFor(this.finderHomeAllCells);
+  }
+  get finderInterLetters(): Set<string> {
+    return this.finderLettersFor(this.finderInterAllCells);
+  }
+  get activeFinderHomeLetter(): string {
+    return this.finderHomeLetters.has(this.selectedFinderHomeLetter) ? this.selectedFinderHomeLetter : '';
+  }
+  get activeFinderInterLetter(): string {
+    return this.finderInterLetters.has(this.selectedFinderInterLetter) ? this.selectedFinderInterLetter : '';
+  }
+  selectFinderHomeLetter(letter: string): void {
+    if (!letter || this.finderHomeLetters.has(letter)) this.selectedFinderHomeLetter = letter;
+  }
+  selectFinderInterLetter(letter: string): void {
+    if (!letter || this.finderInterLetters.has(letter)) this.selectedFinderInterLetter = letter;
   }
   get intermediateSource(): CardItem[] {
     if (this.forceSharedIntermediate) return this.intermediate || [];
@@ -996,18 +1198,16 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       state: i < labels.length - 1 ? 'done' : 'current',
     }));
   }
-  /** finder-select fast-lookup values: numeric (min/max/interval) when the
-   *  content/theme sets indexMode='number', else item names (#4). */
+  /** finder-select fast-lookup values retained for older callers; the preview
+   *  now renders an A-Z letter strip for both Home and Intermediate. */
   get fsIndexValues(): string[] {
-    const im = this.theme?.intermediate;
-    if (im?.indexMode === 'number') {
-      const min = Number(im.indexNumberMin ?? 0), max = Number(im.indexNumberMax ?? 100);
-      const step = Math.max(1, Number(im.indexNumberInterval ?? 10));
-      const out: string[] = [];
-      if (max >= min) for (let v = min; v <= max && out.length < 12; v += step) out.push(String(v));
-      return out;
-    }
-    return this.interCells.slice(0, 6).map((it) => it.name);
+    return ['All', ...this.finderAlphabet];
+  }
+  get finderInterAllCells(): CardItem[] {
+    return this.finderSort(this.interCells);
+  }
+  get finderInterCells(): CardItem[] {
+    return this.filterFinderByLetter(this.finderInterAllCells, this.activeFinderInterLetter);
   }
   get interCells(): CardItem[] {
     // Builder shared-intermediate previews render every item, with a 3-card
@@ -1056,7 +1256,12 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   }
   get resultCells(): ResultProduct[] {
     const branchProducts = this.intermediateSource.flatMap((c) => c.products || []);
-    const real = (branchProducts.length ? branchProducts : (this.result?.products || [])).slice(0, 6);
+    const allResultProducts = branchProducts.length ? branchProducts : (this.result?.products || []);
+    const real = this.resTpl === 'finder-detail'
+      ? (this.result?.products || [])
+      : this.resTpl === 'shelf'
+        ? allResultProducts
+        : allResultProducts.slice(0, 6);
     if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
     const labels = this.previewLabels('result');
     const count = this.resTpl === 'catalog-grid' ? 6 : 3;
@@ -1069,6 +1274,17 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     const labels = this.previewLabels('result');
     return Array.from({ length: 8 }, (_, i) => ({ id: 'promo-ph' + i, name: labels[i % labels.length] } as ResultProduct));
   }
+  /** Raw uploaded screensaver media (first 3), regardless of mode. */
+  get saverRaw(): string[] { return (this.screensaver?.media || []).slice(0, 3); }
+  /** Slides to render: single-image → first only; slideshow → up to 3 (padded so the
+   *  crossfade never shows a blank slot); video handled separately by the template. */
+  get saverImages(): string[] {
+    const raw = this.saverRaw;
+    if (this.screensaver?.mode === 'single-image') return raw.slice(0, 1);
+    if (raw.length === 2) return [raw[0], raw[1], raw[1]];
+    return raw;
+  }
+  get saverFirstMedia(): string { return (this.screensaver?.media || [])[0] || ''; }
   get saverBadge(): string {
     const m = this.screensaver?.mode;
     return m === 'single-image' ? 'Single image' : m === 'video' ? 'Video' : 'Slideshow';
