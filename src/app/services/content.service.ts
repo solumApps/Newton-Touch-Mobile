@@ -51,7 +51,7 @@ export interface ContentDraft {
   templateData?: {
     floors?: string[]; youAreHereLabel?: string; timerSeconds?: number;       // promo-map-rank
     breadcrumbLabels?: string[]; findItLabel?: string; findAllLabel?: string; heroImage?: string; // finder-detail
-    promptPrefix?: string; stepLabels?: string[];                              // finder-select
+    promptPrefix?: string; promptText?: string; stepLabels?: string[];         // finder-select
     /** finder-select fast-lookup index (moved out of the theme — depends on the
      *  drill levels / content). 'alpha' = A–Z; 'number' = min/max/interval. */
     indexMode?: 'alpha' | 'number'; indexNumberMin?: number; indexNumberMax?: number; indexNumberInterval?: number;
@@ -317,6 +317,7 @@ export class ContentService {
       if (td.findAllLabel != null) r.findAllLabel = td.findAllLabel;
       if (td.heroImage != null) r.heroImage = td.heroImage;
       if (td.promptPrefix != null) im.promptPrefix = td.promptPrefix;
+      if (td.promptText != null) im.promptText = td.promptText;
       if (td.stepLabels) im.stepLabels = td.stepLabels;
       if (td.indexMode != null) im.indexMode = td.indexMode;
       if (td.indexNumberMin != null) im.indexNumberMin = td.indexNumberMin;

@@ -790,6 +790,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (td.findAllLabel != null) r.findAllLabel = td.findAllLabel;
     if (td.heroImage != null) r.heroImage = td.heroImage;
     if (td.promptPrefix != null) im.promptPrefix = td.promptPrefix;
+    if (td.promptText != null) im.promptText = td.promptText;
     if (td.stepLabels) im.stepLabels = td.stepLabels;
     // finder-select: preview exactly `finderStepCount` steps (drill depth), each
     // filled with the user's label or the generic default, so the preview matches

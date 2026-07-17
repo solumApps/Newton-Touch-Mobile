@@ -256,8 +256,10 @@
           <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
           <input class="inp" [ngModel]="finderStepValue(i)" (ngModelChange)="setFinderStep(i, $event)" [placeholder]="'Category ' + (i + 1)" />
         </div>
+        <div class="sec"><span>Hero Title</span></div>
+        <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Hero title (default: content name)" />
         <div class="sec"><span>Prompt</span></div>
-        <input class="inp" placeholder="Prompt prefix (e.g. TOUCH YOUR)" [(ngModel)]="td.promptPrefix" />
+        <input class="inp" placeholder="Prompt (e.g. TOUCH YOUR CATEGORY)" [(ngModel)]="td.promptText" />
         <div class="sec"><span>Fast lookup index</span></div>
         <p class="note">How the side index strip is generated for the selection cards.</p>
         <div class="seg">
@@ -658,6 +660,13 @@
             <input class="inp" [ngModel]="crumbValue(i)" (ngModelChange)="setCrumb(i, $event)" [placeholder]="'Category ' + (i + 1)" />
           </div>
         </ng-container>
+        <div class="sec"><span>Hero Title</span></div>
+        <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Hero title (default: content name)" />
+        <div class="sec"><span>Finder labels</span></div>
+        <div class="prow">
+          <input class="inp" placeholder="Find It label" [(ngModel)]="td.findItLabel" />
+          <input class="inp" placeholder="Find All label" [(ngModel)]="td.findAllLabel" />
+        </div>
       </ng-container>
 
     </div>
