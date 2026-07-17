@@ -8908,7 +8908,7 @@
 .nt-result.res-finder-detail .fd-find-all,
 .nt-result.res-finder-detail .fd-find-it {
   background: #1d3a66;
-  color: #fff;
+  color: var(--nt-res-accent, #ffff);
   border: 0;
   border-radius: 999px;
   font-weight: 800;
@@ -10402,7 +10402,7 @@
 .nt-result.res-finder-detail .fd-find-all,
 .nt-result.res-finder-detail .fd-find-it {
   background: #1d3a66;
-  color: #fff;
+  color: var(--nt-res-accent, #FFCD00);
   border: 0;
   border-radius: 999px;
   font-weight: 800;
@@ -12905,7 +12905,7 @@
 .nt-result.res-finder-detail .fd-find-it {
   min-width: calc(var(--nt-vw)*5.8);
   background: #1d222c;
-  color: #00a7ff;
+  color: var(--nt-res-accent, #FFCD00);
   border: 0;
   border-radius: 999px;
   font-weight: 900;
