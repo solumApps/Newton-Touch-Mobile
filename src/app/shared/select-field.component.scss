@@ -7,7 +7,7 @@
   width: 100%; display: flex; align-items: center; justify-content: space-between;
   background: var(--nt-card, #fff); border: 1.5px solid var(--nt-border, #e2e8f0); border-radius: 10px;
   padding: 13px 14px; font-size: 14px; font-family: inherit; color: var(--nt-text, #0f172a);
-  cursor: pointer;
+  cursor: pointer; touch-action: manipulation;
 }
 .sf-trigger.open { border-color: var(--nt-purple, #2f006d); }
 .sf-trigger.disabled { opacity: .5; pointer-events: none; }
@@ -32,12 +32,12 @@
   position: absolute; top: calc(100% + 6px); right: 0; left: 0; z-index: 1000;
   background: var(--nt-card, #fff); border: 1.5px solid var(--nt-border, #e2e8f0);
   border-radius: 10px; overflow: hidden; max-height: 280px; overflow-y: auto;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, .18);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, .18); touch-action: manipulation;
 }
 .sf-opt {
   display: flex; align-items: center; justify-content: space-between;
   width: 100%; padding: 12px 14px; cursor: pointer; border: 0; border-bottom: 1px solid var(--nt-border, #e2e8f0);
-  background: var(--nt-card, #fff); text-align: left; font-family: inherit;
+  background: var(--nt-card, #fff); text-align: left; font-family: inherit; touch-action: manipulation;
 }
 .sf-opt:last-child { border-bottom: none; }
 .sf-opt.sel { background: var(--nt-tint, #f8f5ff); }

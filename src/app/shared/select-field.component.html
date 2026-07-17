@@ -6,7 +6,7 @@
     [class.disabled]="disabled"
     role="button"
     [attr.tabindex]="disabled ? null : 0"
-    (click)="toggle()"
+    (pointerdown)="toggle()"
     (keydown.enter)="toggle()"
     (keydown.space)="$event.preventDefault(); toggle()"
   >
@@ -28,15 +28,20 @@
     </div>
     <span class="sf-caret">{{ open ? '▴' : '▾' }}</span>
   </div>
-  <div class="sf-list" *ngIf="open" role="listbox">
+  <div
+    class="sf-list"
+    *ngIf="open"
+    role="listbox"
+    (pointerdown)="$event.stopPropagation()"
+  >
     <button
       class="sf-opt"
       type="button"
       *ngFor="let o of filteredOptions"
       [class.sel]="o.value===value"
       [attr.aria-selected]="o.value===value"
-      (pointerdown)="pick(o.value, $event)"
       (click)="pick(o.value, $event)"
+      (pointerup)="pick(o.value, $event)"
     >
       <div>
         <div class="sf-opt-label">{{ o.label }}</div>
