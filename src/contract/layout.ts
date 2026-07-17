@@ -376,6 +376,10 @@ export interface ThemeTokens {
     heroColor?: string;
     heroImage?: string;
     promptPrefix?: string;
+    /** Full editable finder prompt (e.g. "TOUCH YOUR CATEGORY"). When set it replaces
+     *  the WHOLE prompt on every finder screen; empty falls back to promptPrefix + the
+     *  per-screen default word (home) / picked node name (intermediate). */
+    promptText?: string;
     /** Optional colour for the Finder Select prompt text (e.g. "TOUCH YOUR"). */
     promptTextColor?: string;
     showPrompt?: boolean;

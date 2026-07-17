@@ -132,7 +132,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
           </div>
           <div class="fs-main" [style.background]="homeCardAreaBackground">
             <div class="fs-top fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}">
-              <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div>
+              <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ theme?.intermediate?.promptText || ((theme?.intermediate?.promptPrefix || 'TOUCH YOUR') + ' CATEGORY') }}</div>
             </div>
           <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{finderTextAlignClass}}">
               <div class="fs-card" *ngFor="let c of finderHomeCells; let i = index" (click)="selectIntermediateBranchById(c.id)" [class.cps-selected]="c.id===activeIntermediateHomeItem?.id || (!activeIntermediateHomeItem && i===0)">
@@ -209,7 +209,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
                 <button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">
                   <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
                 </button>
-                <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div>
+                <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ theme?.intermediate?.promptText || ((theme?.intermediate?.promptPrefix || 'TOUCH YOUR') + ' YEAR') }}</div>
               </div>
               <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{finderTextAlignClass}}">
                 <div class="fs-card" *ngFor="let it of finderInterCells; let i = index">
