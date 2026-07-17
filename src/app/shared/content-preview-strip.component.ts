@@ -291,7 +291,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
               </div>
               <div class="filter-list">
                 <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
-                  <span class="fnum">{{ i + 1 }}</span>
+                  <span class="fnum">{{ i + 1 }}.</span>
                   <div class="fimg" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                   <div class="finfo">
                     <div class="fnm">{{ p.name }}</div>
@@ -309,7 +309,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
             </div>
             <div class="filter-list">
                 <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
-                <span class="fnum">{{ i + 1 }}</span>
+                <span class="fnum">{{ i + 1 }}.</span>
                 <div class="fimg" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="finfo">
                   <div class="fnm">{{ p.name }}</div>
@@ -329,7 +329,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
             </div>
             <div class="filter-list">
               <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
-                <span class="fnum">{{ i + 1 }}</span>
+                <span class="fnum">{{ i + 1 }}.</span>
                 <div class="fimg" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="finfo">
                   <div class="fnm">{{ p.name }}</div>

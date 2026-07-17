@@ -6025,7 +6025,7 @@
   flex: 0 0 calc(var(--nt-vw)*16);
   height: 82%;
   margin: 0 calc(var(--nt-vw)*0.6);
-  padding: calc(var(--nt-vh)*1.6) calc(var(--nt-vw)*1.2);
+  padding: calc(var(--nt-vh) * 4.2) calc(var(--nt-vw) * 1.2);
   box-sizing: border-box;
   flex-direction: column !important;
   align-items: center !important;
@@ -6049,6 +6049,70 @@
   flex: 0 0 auto;
   width: 100%;
   min-width: 0;
+}
+
+.nt-result.scroll-horizontal.res-filter-list .filter-list .fitem {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  column-gap: calc(var(--nt-vw)*0.45);
+  row-gap: calc(var(--nt-vh)*0.45);
+  align-content: stretch !important;
+  align-items: end !important;
+  text-align: left;
+}
+
+.nt-result.scroll-horizontal.res-filter-list .filter-list .fitem .fimg {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  height: 100%;
+  margin-bottom: 0;
+}
+
+.nt-result.scroll-horizontal.res-filter-list .filter-list .fitem .fnum {
+  grid-column: 1;
+  grid-row: 2;
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  padding-bottom: calc(var(--nt-vh)*0.4);
+  text-align: left;
+}
+
+// .nt-result.scroll-horizontal.res-filter-list .filter-list .fitem .fnum::after {
+//   content: '';
+//   position: absolute;
+//   left: 0;
+//   bottom: 0;
+//   width: calc(var(--nt-vw)*2.1);
+//   height: calc(var(--nt-vh)*0.45);
+//   border-radius: 999px;
+// }
+
+.nt-result.scroll-horizontal.res-filter-list .filter-list .fitem.found .fnum::after {
+  background: currentColor;
+}
+
+.nt-result.scroll-horizontal.res-filter-list .filter-list .fitem .finfo {
+  display: contents;
+  width: auto;
+  min-width: 0;
+}
+
+.nt-result.scroll-horizontal.res-filter-list .filter-list .fitem .fnm {
+  grid-column: 2;
+  grid-row: 2;
+  padding: 0;
+  line-height: 2.1;
+}
+
+.nt-result.scroll-horizontal.res-filter-list .filter-list .fitem .fmeta {
+  display: block;
+  grid-column: 1 / -1;
+  grid-row: 3;
+  margin-top: 0;
+  min-width: 0;
+  padding-left: calc(var(--nt-vw)*2);
 }
 
 .nt-result.scroll-horizontal .list .prod .nm,
