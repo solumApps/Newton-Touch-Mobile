@@ -5515,7 +5515,7 @@
   align-items: center;
   padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1.2);
   border-radius: 6px;
-  margin-bottom: calc(var(--nt-vh)*0.6);
+  margin-bottom: calc(var(--nt-vh)*1.4);
   cursor: pointer;
   background: var(--nt-res-card, rgba(255, 255, 255, .06));
   min-width: 0;
@@ -8908,7 +8908,7 @@
 .nt-result.res-finder-detail .fd-find-all,
 .nt-result.res-finder-detail .fd-find-it {
   background: #1d3a66;
-  color: #fff;
+  color: var(--nt-res-accent, #ffff);
   border: 0;
   border-radius: 999px;
   font-weight: 800;
@@ -10402,7 +10402,7 @@
 .nt-result.res-finder-detail .fd-find-all,
 .nt-result.res-finder-detail .fd-find-it {
   background: #1d3a66;
-  color: #fff;
+  color: var(--nt-res-accent, #FFCD00);
   border: 0;
   border-radius: 999px;
   font-weight: 800;
@@ -12328,6 +12328,11 @@
   background-size: cover;
 }
 
+.nt-result.scroll-horizontal.res-filter-list.res-shape-circle .filter-list .fitem .fimg {
+  border-radius: 50%;
+  justify-self: center;
+}
+
 .nt-result.res-shape-hexagon.res-drill-filter .fimg,
 .nt-result.res-shape-hexagon.res-filter-list .fimg,
 .nt-result.res-shape-hexagon.res-map-filter-list .fimg,
@@ -12900,7 +12905,7 @@
 .nt-result.res-finder-detail .fd-find-it {
   min-width: calc(var(--nt-vw)*5.8);
   background: #1d222c;
-  color: #00a7ff;
+  color: var(--nt-res-accent, #FFCD00);
   border: 0;
   border-radius: 999px;
   font-weight: 900;
