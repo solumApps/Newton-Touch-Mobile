@@ -12328,6 +12328,11 @@
   background-size: cover;
 }
 
+.nt-result.scroll-horizontal.res-filter-list.res-shape-circle .filter-list .fitem .fimg {
+  border-radius: 50%;
+  justify-self: center;
+}
+
 .nt-result.res-shape-hexagon.res-drill-filter .fimg,
 .nt-result.res-shape-hexagon.res-filter-list .fimg,
 .nt-result.res-shape-hexagon.res-map-filter-list .fimg,
