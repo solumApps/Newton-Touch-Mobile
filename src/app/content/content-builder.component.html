@@ -609,7 +609,7 @@
               <input class="inp" [(ngModel)]="f.price" placeholder="Price" />
               <input class="inp" [(ngModel)]="f.salePrice" placeholder="Sale price" />
             </div>
-            <input class="inp" [(ngModel)]="f.articleId" placeholder="Article ID (LED blink target)" />
+            <input class="inp" *ngIf="d.appMode === 'prototype-esl'" [(ngModel)]="f.articleId" placeholder="Article ID (LED blink target)" />
           </div>
         </ng-container>
       </div>
@@ -658,11 +658,6 @@
             <input class="inp" [ngModel]="crumbValue(i)" (ngModelChange)="setCrumb(i, $event)" [placeholder]="'Category ' + (i + 1)" />
           </div>
         </ng-container>
-        <div class="sec"><span>Finder labels</span></div>
-        <div class="prow">
-          <input class="inp" placeholder="Find It label" [(ngModel)]="td.findItLabel" />
-          <input class="inp" placeholder="Find All label" [(ngModel)]="td.findAllLabel" />
-        </div>
       </ng-container>
 
     </div>
