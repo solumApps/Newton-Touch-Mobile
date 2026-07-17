@@ -4781,6 +4781,15 @@
   background: var(--nt-res-card, rgba(255, 205, 0, .12));
 }
 
+.nt-result.res-map-list .prod.found {
+  background: var(--nt-res-accent, #FFCD00);
+}
+
+.nt-result.res-map-list .prod.found .loc {
+  color: inherit;
+  opacity: .85;
+}
+
 .nt-result .nm {
   font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw) * 1);
   font-weight: 800;
@@ -5794,8 +5803,8 @@
   flex: 0 0 auto;
   background: transparent;
   border-bottom: 1px solid rgba(0, 0, 0, .16);
-  border-radius: 4px;
-  margin: 2px 0px 4px;
+  border-radius: calc(var(--nt-vh) * 3);
+  margin: calc(var(--nt-vh) * 1) 0px calc(var(--nt-vh) * 1);
   padding: calc(var(--nt-vh)*1) 0;
   padding-left: calc(var(--nt-vw)*0.5);
 }
@@ -8989,9 +8998,14 @@
   border-radius: 50%;
   border: 0;
   background: transparent;
-  color: #2c2c2a;
+  color: var(--fs-accent, #4ea1ff);
   font-size: calc(var(--nt-vw)*1.4);
   cursor: pointer;
+}
+
+.nt-inter .fs-back ion-icon {
+  color: inherit;
+  font-size: inherit;
 }
 
 .nt-inter .fs-prompt {
@@ -10470,9 +10484,14 @@
   border-radius: 50%;
   border: 0;
   background: transparent;
-  color: #2c2c2a;
+  color: var(--fs-accent, #4ea1ff);
   font-size: calc(var(--nt-vw)*1.4);
   cursor: pointer;
+}
+
+.nt-inter .fs-back ion-icon {
+  color: inherit;
+  font-size: inherit;
 }
 
 .nt-inter .fs-prompt {
