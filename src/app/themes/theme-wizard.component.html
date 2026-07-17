@@ -982,7 +982,7 @@
           <div class="step-title sm">Overflow scrolling</div>
           <p class="hint">How the product list scrolls when items don't fit. Auto uses the template's natural direction.</p>
           <div class="seg">
-            <button class="tile" *ngFor="let m of scrollModes" [class.sel]="effectiveResultScrollMode===m.id" (click)="t.scrollMode=m.id">{{ m.label }}</button>
+            <button class="tile" *ngFor="let m of scrollModes" [class.sel]="effectiveResultScrollMode===m.id" (click)="t.result.scrollMode=m.id">{{ m.label }}</button>
           </div>
         </ng-container>
 

@@ -413,6 +413,8 @@ export interface ThemeTokens {
     showHeader: boolean;
     showTracklist?: boolean;
     transparentHeader?: boolean;
+    /** Result-page overflow direction, independent of the Home page. */
+    scrollMode?: ScrollMode;
     content?: 'image-text' | 'text-only';
     textPos?: CardTextPos;
     cardShape?: CardShape;

@@ -806,7 +806,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'horizontal' ? 'horizontal' : 'vertical';
   }
   get effectiveResultScrollMode(): 'vertical' | 'horizontal' {
-    return this.t.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
+    return this.t.result.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
   }
   /** Set Home scroll + coerce alignment to a safe, non-clipping default. */
   setHomeScroll(m: ScrollMode): void {
@@ -1614,7 +1614,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
       'intermediate.navBackPosition', 'intermediate.navHomePosition',
     ],
     resTemplate: [
-      'resultTemplate', 'scrollMode', 'result.showTimer', 'result.showBell', 'result.showRanks',
+      'resultTemplate', 'result.scrollMode', 'result.showTimer', 'result.showBell', 'result.showRanks',
       'result.showSortTabs', 'result.showZone', 'result.sortTabs', 'result.showSaleBadge',
       'result.filterPos', 'result.content', 'result.cardShape', 'result.textPos',
     ],

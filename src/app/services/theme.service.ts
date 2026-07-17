@@ -76,7 +76,7 @@ export class ThemeService {
       intermediateStyle: 'columns',
       resultTemplate: 'map-list',
     intermediate: { headerColor: 'rgba(0,0,0,0.45)', headerTextColor: '#FFFFFF', background: '#1A0036', cardBackground: 'rgba(255,255,255,0.08)', cardText: '#FFFFFF', accent: '#FFCD00', itemSize: 'medium', showHeader: true, showTracklist: true, cardShape: 'rect', align: 'center', scrollMode: 'horizontal', valign: 'top', gap: 'normal', textPos: 'overlay-bottom', navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right', fsSortOrder: 'az' },
-      result: { headerColor: 'transparent', background: '#1a0036', cardBackground: '#0f172a', cardText: '#FFFFFF', accent: '#ffcd00', popularText: '#FFFFFF', pathColor: '#ffcd00', pathStyle: 'dashed', showHeader: true, showTracklist: true, navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right', filterPos: 'center' },
+      result: { headerColor: 'transparent', background: '#1a0036', cardBackground: '#0f172a', cardText: '#FFFFFF', accent: '#ffcd00', popularText: '#FFFFFF', pathColor: '#ffcd00', pathStyle: 'dashed', showHeader: true, showTracklist: true, scrollMode: 'horizontal', navPosition: 'bottom-left', navSplit: false, navBackPosition: 'bottom-left', navHomePosition: 'bottom-right', filterPos: 'center' },
       // Default to fade-slide transition (original default).
       // The transition options remain available in the
       // Animations step for anyone who wants them.
@@ -225,6 +225,9 @@ export class ThemeService {
     out.intermediate.gap = coerceEnum(out.intermediate.gap, E.gap, 'normal', 'intermediate.gap');
     out.intermediate.textPos = coerceEnum(out.intermediate.textPos, E.cardTextPos, d.intermediate.textPos || 'overlay-bottom', 'intermediate.textPos');
     out.result.pathStyle = coerceEnum(out.result.pathStyle, E.pathStyle, d.result.pathStyle, 'result.pathStyle');
+    // Older themes used the root Home scroll token for Result as well. Seed the
+    // new page-specific token from it once, then keep both pages independent.
+    out.result.scrollMode = coerceEnum(out.result.scrollMode, E.scrollMode, out.scrollMode, 'result.scrollMode');
     if (out.result.navPosition !== undefined) out.result.navPosition = coerceEnum(out.result.navPosition, E.navButtonPosition, 'bottom-left', 'result.navPosition');
     if (out.result.navBackPosition !== undefined) out.result.navBackPosition = coerceEnum(out.result.navBackPosition, E.navButtonPosition, 'bottom-left', 'result.navBackPosition');
     if (out.result.navHomePosition !== undefined) out.result.navHomePosition = coerceEnum(out.result.navHomePosition, E.navButtonPosition, 'bottom-right', 'result.navHomePosition');
