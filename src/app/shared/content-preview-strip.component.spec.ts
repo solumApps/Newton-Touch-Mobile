@@ -261,6 +261,41 @@ describe('ContentPreviewStripComponent', () => {
     expect(fixture.componentInstance.finderDisplayCells.map((p) => p.id)).toEqual(['rain', 'aero']);
   });
 
+  it('shows the selected category hierarchy in promo-list selected tags', () => {
+    fixture.componentInstance.page = 'result';
+    fixture.componentInstance.theme = {
+      resultTemplate: 'promo-list',
+      result: {},
+    } as any;
+    fixture.componentInstance.home = [
+      {
+        id: 'bakery',
+        name: 'Bakery',
+        children: [
+          {
+            id: 'bread',
+            name: 'Bread',
+            children: [
+              {
+                id: 'sourdough',
+                name: 'Sourdough',
+                products: [{ id: 'p1', name: 'Country Loaf' }],
+              },
+            ],
+          },
+        ],
+      },
+    ] as any;
+    fixture.componentInstance.result = { products: [{ id: 'fallback', name: 'Fallback Product' }] } as any;
+
+    fixture.detectChanges();
+
+    const tags = Array.from(fixture.nativeElement.querySelectorAll('.selected-tags .tag'))
+      .map((el: Element) => el.textContent?.trim());
+    expect(tags).toEqual(['#Bakery', '#Bread', '#Sourdough']);
+    expect(fixture.componentInstance.promoSelectedTags).toEqual(['Bakery', 'Bread', 'Sourdough']);
+  });
+
   it('forces finder-select circle and hexagon text alignment to center', () => {
     fixture.componentInstance.theme = {
       intermediate: { fsCardShape: 'circle', fsTextAlign: 'left' },

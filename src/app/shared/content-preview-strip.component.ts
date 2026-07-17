@@ -357,7 +357,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
               </div>
             </div>
             <div class="selected-tags">
-              <div class="tag" *ngFor="let p of resultCells.slice(0,4)">#{{ resultTag(p) }}</div>
+              <div class="tag" *ngFor="let tag of promoSelectedTags">#{{ tag }}</div>
             </div>
           </div>
           <!-- product-focus -->
@@ -1280,6 +1280,32 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
     const labels = this.previewLabels('result');
     return Array.from({ length: 8 }, (_, i) => ({ id: 'promo-ph' + i, name: labels[i % labels.length] } as ResultProduct));
+  }
+  get promoSelectedTags(): string[] {
+    const hierarchy = this.selectedHierarchyTags;
+    if (hierarchy.length) return hierarchy.slice(0, 4);
+    return this.resultCells.slice(0, 4).map((p) => this.resultTag(p));
+  }
+  private get selectedHierarchyTags(): string[] {
+    const selectedBranch = this.activeIntermediateHomeItem || this.home?.[0];
+    const fromTree = this.firstLeafPath(selectedBranch);
+    if (fromTree.length > 1 || (fromTree.length && (selectedBranch?.children?.length || selectedBranch?.products?.length))) return fromTree;
+    const sharedInter = this.intermediateSource.find((it) => (it.name || '').trim());
+    return [selectedBranch?.name, sharedInter?.name]
+      .map((name) => (name || '').trim())
+      .filter(Boolean);
+  }
+  private firstLeafPath(node?: CardItem): string[] {
+    if (!node) return [];
+    const name = (node.name || '').trim();
+    const path = name ? [name] : [];
+    let current: CardItem | undefined = node;
+    while (current?.children?.length) {
+      current = current.children.find((child) => (child.name || '').trim()) || current.children[0];
+      const childName = (current.name || '').trim();
+      if (childName) path.push(childName);
+    }
+    return path;
   }
   /** Raw uploaded screensaver media (first 3), regardless of mode. */
   get saverRaw(): string[] { return (this.screensaver?.media || []).slice(0, 3); }
