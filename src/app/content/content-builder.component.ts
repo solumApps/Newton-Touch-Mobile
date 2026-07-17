@@ -141,6 +141,9 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
         return missing;
       }
     }
+    if (key === 'result') {
+      return this.resultNeedsImage && this.resultProductsForValidation.some((p) => !p.image);
+    }
     return false;
   }
   isSegOptionMissingImages(segType: 'L0' | 'L1' | 'L2', value: string): boolean {
@@ -284,6 +287,10 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
         e.push('Add at least one result product.');
       }
       d.result.products.forEach((p, i) => { if (!p.name?.trim()) e.push(`Shared product ${i + 1} needs a name.`); });
+      if (this.resultNeedsImage) {
+        const missingImages = this.resultProductsForValidation.filter((p) => !p.image).length;
+        if (missingImages) e.push(`${missingImages} result product(s) have no image — this theme requires images/thumbnails.`);
+      }
       // Map/promo checks run against the ACTIVE result page (per-item: the selected card's).
       if (this.resultNeedsMap && !this.curResult.mapImage) w.push('This template shows a store map — no map image uploaded yet.');
       if (this.resultNeedsPromo && !this.curResult.promoImage) w.push('This template shows a side/promo panel — no panel image uploaded yet.');
@@ -379,6 +386,23 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   /** Result product media follows the Result card content setting. */
   get resultNeedsImage(): boolean {
     return (this.draft?.themeTokens.result?.content || 'image-text') !== 'text-only';
+  }
+
+  /** Every product configured for the current result-page mode. Used to enforce
+   *  required product media consistently with the Intermediate step. */
+  private get resultProductsForValidation(): ResultProduct[] {
+    const d = this.draft;
+    if (!d) return [];
+
+    const products: ResultProduct[] = [...(d.result.products || [])];
+    if (d.appMode === 'category' || (this.resultMode === 'individual' && !this.skipsIntermediate)) {
+      this.resultLeaves.forEach((leaf) => products.push(...(leaf.node.products || [])));
+    } else if (this.perItemActive) {
+      d.home.forEach((card) => products.push(...(d.itemResults?.[card.id]?.products || [])));
+    }
+
+    // A product can be represented by both the shared list and a derived leaf.
+    return products.filter((product, index) => products.indexOf(product) === index);
   }
 
   /** Intermediate styles that render an image/logo per item — drives image upload UI. */
