@@ -59,6 +59,8 @@ export interface ContentDraft {
     /** brand-rail: per-drill-level headline messages (index 0 = L1). A blank
      *  level inherits the nearest shallower level's message. */
     brandRailMessages?: string[];
+    /** promo-categories home layout: eyebrow label + promo message. */
+    promoFeatured?: string; promoCopy?: string;
   };
   screensaver: Screensaver;
   /** Media mode only (appMode 'media'): the single image/video to play full-screen. */
@@ -330,6 +332,8 @@ export class ContentService {
         const base = td.brandRailMessages.find((m) => m && m.trim());
         if (base) im.brandRailMessageText = base;
       }
+      if (td.promoFeatured != null) (theme as any).promoFeatured = td.promoFeatured;
+      if (td.promoCopy != null) (theme as any).promoCopy = td.promoCopy;
     }
     // finder-select: the finder shows one progress step PER DRILL LEVEL (home +
     // intermediate levels = "Category depth"). Emit exactly that many labels,

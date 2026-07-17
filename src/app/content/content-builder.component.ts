@@ -713,6 +713,8 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
 
   /** Is the finder-select intermediate template active? */
   get isFinderSelect(): boolean { return this.draft?.themeTokens.intermediateStyle === 'finder-select'; }
+  /** promo-categories home layout — gates the editable Featured/promo-copy inputs. */
+  get isPromoCategories(): boolean { return this.draft?.themeTokens.homeLayout === 'promo-categories'; }
   /** Is the brand-rail intermediate style active? */
   get isBrandRail(): boolean { return this.draft?.themeTokens.intermediateStyle === 'brand-rail'; }
   /** Templates that display a full category → sub → products hierarchy and so need
@@ -804,7 +806,11 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     // Preview shows the CURRENT step's level (with inheritance) — the preview
     // strip renders one intermediate view and reads brandRailMessageText.
     im.brandRailMessageText = this.brandRailMessageAt(this.brStepLevel);
-    return { ...t, result: r, intermediate: im };
+    return {
+      ...t, result: r, intermediate: im,
+      promoFeatured: td.promoFeatured != null ? td.promoFeatured : t.promoFeatured,
+      promoCopy: td.promoCopy != null ? td.promoCopy : t.promoCopy,
+    };
   }
 
   // ── brand-rail per-level message (index 0 = L1; blank inherits shallower) ──
