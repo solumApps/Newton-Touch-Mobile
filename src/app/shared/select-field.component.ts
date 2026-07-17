@@ -71,8 +71,8 @@ export class SelectFieldComponent implements AfterViewChecked {
     this.openChange.emit(open);
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event): void {
+  @HostListener('document:pointerdown', ['$event'])
+  onDocumentPointerDown(event: Event): void {
     if (this.open && !this.elementRef.nativeElement.contains(event.target as Node | null)) {
       this.close();
     }
@@ -94,6 +94,7 @@ export class SelectFieldComponent implements AfterViewChecked {
 
   pick(v: string, event?: Event): void {
     event?.stopPropagation();
+    if (!this.open) return;
     this.value = v;
     this.valueChange.emit(v);
     this.close();
