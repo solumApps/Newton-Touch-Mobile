@@ -7968,7 +7968,7 @@
 
 /* ---- result card shape (res-shape-*, optional — default keeps each template's look) ---- */
 /* row templates: pill rounds the row, circle/hexagon shape the thumbnail */
-.nt-result.res-shape-pill .prod {
+.nt-result.res-shape-pill:not(.res-promo-list) .prod {
   border-radius: 999px;
   padding-left: calc(var(--nt-vw)*1.4);
 }
@@ -7984,7 +7984,7 @@
   padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1);
 }
 
-.nt-result.res-shape-rect .prod,
+.nt-result.res-shape-rect:not(.res-promo-list) .prod,
 .nt-result.res-shape-rect .fitem {
   border-radius: 6px;
 }
@@ -7992,7 +7992,7 @@
 /* QA fix: circle/hexagon shape the PRODUCT CARD itself (like home cards) —
    previously they only reshaped the inner thumbnail. Grid/shelf templates keep
    their own dedicated shape rules below. */
-.nt-result.res-shape-circle:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only) .prod {
+.nt-result.res-shape-circle:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only):not(.res-promo-list) .prod {
   border-radius: 999px;
   justify-content: center;
   text-align: center;
@@ -8000,7 +8000,7 @@
   padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*2.2);
 }
 
-.nt-result.res-shape-hexagon:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only) .prod {
+.nt-result.res-shape-hexagon:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only):not(.res-promo-list) .prod {
   border-radius: 0;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   justify-content: center;
@@ -8044,7 +8044,8 @@
 
 .nt-result.res-shape-pill.res-card-grid .prod .img,
 .nt-result.res-shape-pill.res-cards-map .prod .img,
-.nt-result.res-shape-pill.res-catalog-grid .prod .img {
+.nt-result.res-shape-pill.res-catalog-grid .prod .img,
+.nt-result.res-shape-pill.res-promo-list .prod .img {
   border-radius: 999px;
   background-size: cover;
 }
@@ -9466,7 +9467,7 @@
 
 /* ---- result card shape (res-shape-*, optional — default keeps each template's look) ---- */
 /* row templates: pill rounds the row, circle/hexagon shape the thumbnail */
-.nt-result.res-shape-pill .prod {
+.nt-result.res-shape-pill:not(.res-promo-list) .prod {
   border-radius: 999px;
   padding-left: calc(var(--nt-vw)*1.4);
 }
@@ -9482,7 +9483,7 @@
   padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1);
 }
 
-.nt-result.res-shape-rect .prod,
+.nt-result.res-shape-rect:not(.res-promo-list) .prod,
 .nt-result.res-shape-rect .fitem {
   border-radius: 6px;
 }
@@ -9490,7 +9491,7 @@
 /* QA fix: circle/hexagon shape the PRODUCT CARD itself (like home cards) —
    previously they only reshaped the inner thumbnail. Grid/shelf templates keep
    their own dedicated shape rules below. */
-.nt-result.res-shape-circle:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only) .prod {
+.nt-result.res-shape-circle:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only):not(.res-promo-list) .prod {
   border-radius: 999px;
   justify-content: center;
   text-align: center;
@@ -9498,7 +9499,7 @@
   padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*2.2);
 }
 
-.nt-result.res-shape-hexagon:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only) .prod {
+.nt-result.res-shape-hexagon:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only):not(.res-promo-list) .prod {
   border-radius: 0;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   justify-content: center;
@@ -9542,7 +9543,8 @@
 
 .nt-result.res-shape-pill.res-card-grid .prod .img,
 .nt-result.res-shape-pill.res-cards-map .prod .img,
-.nt-result.res-shape-pill.res-catalog-grid .prod .img {
+.nt-result.res-shape-pill.res-catalog-grid .prod .img,
+.nt-result.res-shape-pill.res-promo-list .prod .img {
   border-radius: 999px;
   background-size: cover;
 }
