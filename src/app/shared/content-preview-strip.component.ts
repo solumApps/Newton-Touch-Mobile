@@ -141,9 +141,13 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
               </div>
             </div>
             <div class="fs-index-row">
-              <div class="fs-index fs-alpha-index" aria-label="Finder A to Z filter">
+              <div class="fs-index fs-alpha-index" *ngIf="!finderHomeNumeric" aria-label="Finder A to Z filter">
                 <button type="button" class="fs-letter fs-all available" [class.active]="!activeFinderHomeLetter" (click)="selectFinderHomeLetter('')">All</button>
                 <button type="button" class="fs-letter" *ngFor="let letter of finderAlphabet" [class.available]="finderHomeLetters.has(letter)" [class.active]="letter===activeFinderHomeLetter" [disabled]="!finderHomeLetters.has(letter)" (click)="selectFinderHomeLetter(letter)">{{ letter }}</button>
+              </div>
+              <div class="fs-index fs-index-values" *ngIf="finderHomeNumeric" aria-label="Finder number filter">
+                <button type="button" class="fs-val fs-all" [class.active]="!activeFinderHomeLetter" (click)="selectFinderHomeLetter('')">All</button>
+                <button type="button" class="fs-val" *ngFor="let v of finderHomeIndexValues" [class.active]="v===activeFinderHomeLetter" (click)="selectFinderHomeLetter(v)">{{ v }}</button>
               </div>
             </div>
           </div>
@@ -218,9 +222,13 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
                 </div>
               </div>
               <div class="fs-index-row">
-                <div class="fs-index fs-alpha-index" aria-label="Finder A to Z filter">
+                <div class="fs-index fs-alpha-index" *ngIf="!finderInterNumeric" aria-label="Finder A to Z filter">
                   <button type="button" class="fs-letter fs-all available" [class.active]="!activeFinderInterLetter" (click)="selectFinderInterLetter('')">All</button>
                   <button type="button" class="fs-letter" *ngFor="let letter of finderAlphabet" [class.available]="finderInterLetters.has(letter)" [class.active]="letter===activeFinderInterLetter" [disabled]="!finderInterLetters.has(letter)" (click)="selectFinderInterLetter(letter)">{{ letter }}</button>
+                </div>
+                <div class="fs-index fs-index-values" *ngIf="finderInterNumeric" aria-label="Finder number filter">
+                  <button type="button" class="fs-val fs-all" [class.active]="!activeFinderInterLetter" (click)="selectFinderInterLetter('')">All</button>
+                  <button type="button" class="fs-val" *ngFor="let v of finderInterIndexValues" [class.active]="v===activeFinderInterLetter" (click)="selectFinderInterLetter(v)">{{ v }}</button>
                 </div>
               </div>
             </div>
@@ -1150,15 +1158,28 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   private finderSort<T extends { name?: string }>(items: T[]): T[] {
     return [...items].sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base', numeric: true }));
   }
-  private filterFinderByLetter(items: CardItem[], letter: string): CardItem[] {
-    if (!letter) return items;
-    return items.filter((item) => (item.name || '').trim().charAt(0).toUpperCase() === letter);
+  /** All finder values numeric → auto number index (matches the LCD renderer). */
+  private finderIsNumeric(items: CardItem[]): boolean {
+    return items.length > 0 && items.every((it) => { const s = (it.name || '').trim(); return s !== '' && !isNaN(Number(s)); });
+  }
+  private finderValuesFor(items: CardItem[]): string[] {
+    return [...new Set(items.map((it) => (it.name || '').trim()).filter(Boolean))].sort((a, b) => Number(a) - Number(b));
+  }
+  private filterFinderByToken(items: CardItem[], token: string, numeric: boolean): CardItem[] {
+    if (!token) return items;
+    return numeric
+      ? items.filter((item) => (item.name || '').trim() === token)
+      : items.filter((item) => (item.name || '').trim().charAt(0).toUpperCase() === token);
   }
   get finderHomeAllCells(): CardItem[] {
     return this.finderSort(this.homeCells);
   }
+  get finderHomeNumeric(): boolean { return this.finderIsNumeric(this.finderHomeAllCells); }
+  get finderInterNumeric(): boolean { return this.finderIsNumeric(this.finderInterAllCells); }
+  get finderHomeIndexValues(): string[] { return this.finderValuesFor(this.finderHomeAllCells); }
+  get finderInterIndexValues(): string[] { return this.finderValuesFor(this.finderInterAllCells); }
   get finderHomeCells(): CardItem[] {
-    return this.filterFinderByLetter(this.finderHomeAllCells, this.activeFinderHomeLetter);
+    return this.filterFinderByToken(this.finderHomeAllCells, this.activeFinderHomeLetter, this.finderHomeNumeric);
   }
   private finderLettersFor(items: CardItem[]): Set<string> {
     return new Set(items.map((item) => (item.name || '').trim().charAt(0).toUpperCase()).filter((letter) => /^[A-Z]$/.test(letter)));
@@ -1169,17 +1190,23 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get finderInterLetters(): Set<string> {
     return this.finderLettersFor(this.finderInterAllCells);
   }
+  private finderHomeTokenValid(token: string): boolean {
+    return this.finderHomeNumeric ? this.finderHomeIndexValues.includes(token) : this.finderHomeLetters.has(token);
+  }
+  private finderInterTokenValid(token: string): boolean {
+    return this.finderInterNumeric ? this.finderInterIndexValues.includes(token) : this.finderInterLetters.has(token);
+  }
   get activeFinderHomeLetter(): string {
-    return this.finderHomeLetters.has(this.selectedFinderHomeLetter) ? this.selectedFinderHomeLetter : '';
+    return this.finderHomeTokenValid(this.selectedFinderHomeLetter) ? this.selectedFinderHomeLetter : '';
   }
   get activeFinderInterLetter(): string {
-    return this.finderInterLetters.has(this.selectedFinderInterLetter) ? this.selectedFinderInterLetter : '';
+    return this.finderInterTokenValid(this.selectedFinderInterLetter) ? this.selectedFinderInterLetter : '';
   }
   selectFinderHomeLetter(letter: string): void {
-    if (!letter || this.finderHomeLetters.has(letter)) this.selectedFinderHomeLetter = letter;
+    if (!letter || this.finderHomeTokenValid(letter)) this.selectedFinderHomeLetter = letter;
   }
   selectFinderInterLetter(letter: string): void {
-    if (!letter || this.finderInterLetters.has(letter)) this.selectedFinderInterLetter = letter;
+    if (!letter || this.finderInterTokenValid(letter)) this.selectedFinderInterLetter = letter;
   }
   get intermediateSource(): CardItem[] {
     if (this.forceSharedIntermediate) return this.intermediate || [];
@@ -1214,7 +1241,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return this.finderSort(this.interCells);
   }
   get finderInterCells(): CardItem[] {
-    return this.filterFinderByLetter(this.finderInterAllCells, this.activeFinderInterLetter);
+    return this.filterFinderByToken(this.finderInterAllCells, this.activeFinderInterLetter, this.finderInterNumeric);
   }
   get interCells(): CardItem[] {
     // Builder shared-intermediate previews render every item, with a 3-card

@@ -12210,6 +12210,25 @@
 }
 
 .nt-inter .body.fs-body .fs-index-values {
+  width: 86%;
+  max-width: calc(var(--nt-vw)*62);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: calc(var(--nt-vh)*0.55) 0;
+}
+
+.nt-inter .body.fs-body .fs-index-values .fs-val {
+  cursor: pointer;
+  color: var(--fs-accent);
+  font-weight: 800;
+}
+
+.nt-inter .body.fs-body .fs-index-values .fs-val.active {
+  color: var(--fs-accent);
+  font-weight: 900;
+  transform: translateY(calc(var(--nt-vh)*-0.12));
 }
 
 .nt-inter .body.fs-body .fs-alpha-index {
