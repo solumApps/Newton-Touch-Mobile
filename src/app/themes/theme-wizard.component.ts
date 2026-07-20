@@ -843,7 +843,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   // 'cards-map' dropped from the picker (near-duplicate of Map-List); enum + CSS
   // kept so existing themes using it still render. Lower-priority layouts remain
   // available rather than deleted — removal of specific ones is a product call.
-  resultTemplates: ResultTemplate[] = ['map-list', 'filter-list', 'promo-list', 'product-focus', 'shelf', 'promo-map-rank', 'finder-detail'];
+  resultTemplates: ResultTemplate[] = ['map-list', 'filter-list', 'promo-list', 'product-focus', 'shelf', 'finder-detail'];
   /** Friendly labels for the result-template tiles. */
   private tplLabels: Record<string, string> = {
     'map-list': 'Map List', 'drill-filter': 'Drill Filter', 'map-filter-list': 'Map + Filter',
