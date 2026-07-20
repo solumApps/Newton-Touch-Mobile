@@ -261,6 +261,10 @@ export interface ThemeTokens {
   nav?: NavButtonStyle;
   logoPosition: LogoPosition;
   homeLayout: HomeLayout;
+  /** promo-categories home layout: editable eyebrow label + promo message
+   *  (empty falls back to "Featured" + the header/hero title). */
+  promoFeatured?: string;
+  promoCopy?: string;
   /** Free column count (1–8) for grid/column home layouts. When set it overrides
    *  the column count implied by homeLayout (grid-template-columns:repeat(var(--cols),1fr)).
    *  Undefined = legacy behaviour, columns derived from the layout value. */
@@ -376,6 +380,10 @@ export interface ThemeTokens {
     heroColor?: string;
     heroImage?: string;
     promptPrefix?: string;
+    /** Full editable finder prompt (e.g. "TOUCH YOUR CATEGORY"). When set it replaces
+     *  the WHOLE prompt on every finder screen; empty falls back to promptPrefix + the
+     *  per-screen default word (home) / picked node name (intermediate). */
+    promptText?: string;
     /** Optional colour for the Finder Select prompt text (e.g. "TOUCH YOUR"). */
     promptTextColor?: string;
     showPrompt?: boolean;
@@ -413,6 +421,8 @@ export interface ThemeTokens {
     showHeader: boolean;
     showTracklist?: boolean;
     transparentHeader?: boolean;
+    /** Result-page overflow direction, independent of the Home page. */
+    scrollMode?: ScrollMode;
     content?: 'image-text' | 'text-only';
     textPos?: CardTextPos;
     cardShape?: CardShape;

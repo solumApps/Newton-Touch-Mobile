@@ -132,7 +132,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
           </div>
           <div class="fs-main" [style.background]="homeCardAreaBackground">
             <div class="fs-top fs-prompt-{{theme?.intermediate?.fsPromptPos||'center'}}">
-              <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} CATEGORY</div>
+              <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ theme?.intermediate?.promptText || ((theme?.intermediate?.promptPrefix || 'TOUCH YOUR') + ' CATEGORY') }}</div>
             </div>
           <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{finderTextAlignClass}}">
               <div class="fs-card" *ngFor="let c of finderHomeCells; let i = index" (click)="selectIntermediateBranchById(c.id)" [class.cps-selected]="c.id===activeIntermediateHomeItem?.id || (!activeIntermediateHomeItem && i===0)">
@@ -158,8 +158,8 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
             <b>Start Search</b>
           </div>
           <div class="promo-copy" *ngIf="theme?.homeLayout==='promo-categories'">
-            <b>Featured</b>
-            <span>{{ titleText || 'Find the right product faster' }}</span>
+            <b>{{ theme?.promoFeatured || 'Featured' }}</b>
+            <span>{{ theme?.promoCopy || titleText || 'Find the right product faster' }}</span>
           </div>
           <!-- promo-categories: scrollable rail, copy pinned left (mirrors LCD) -->
           <div class="promo-rail" *ngIf="theme?.homeLayout==='promo-categories'">
@@ -209,7 +209,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
                 <button type="button" class="fs-back" *ngIf="theme?.intermediate?.fsShowBack!==false">
                   <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
                 </button>
-                <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ (theme?.intermediate?.promptPrefix || 'TOUCH YOUR') }} YEAR</div>
+                <div class="fs-prompt" *ngIf="theme?.intermediate?.fsShowPrompt!==false">{{ theme?.intermediate?.promptText || ((theme?.intermediate?.promptPrefix || 'TOUCH YOUR') + ' YEAR') }}</div>
               </div>
               <div class="fs-cards content-{{theme?.intermediate?.fsCardContent||'text-only'}} shape-{{theme?.intermediate?.fsCardShape||'rect'}} textpos-{{finderTextPosClass}} textalign-{{finderTextAlignClass}}">
                 <div class="fs-card" *ngFor="let it of finderInterCells; let i = index">
@@ -291,7 +291,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
               </div>
               <div class="filter-list">
                 <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
-                  <span class="fnum">{{ i + 1 }}</span>
+                  <span class="fnum">{{ i + 1 }}.</span>
                   <div class="fimg" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                   <div class="finfo">
                     <div class="fnm">{{ p.name }}</div>
@@ -309,7 +309,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
             </div>
             <div class="filter-list">
                 <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
-                <span class="fnum">{{ i + 1 }}</span>
+                <span class="fnum">{{ i + 1 }}.</span>
                 <div class="fimg" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="finfo">
                   <div class="fnm">{{ p.name }}</div>
@@ -329,7 +329,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
             </div>
             <div class="filter-list">
               <div class="fitem" [class.found]="isFound(i)" *ngFor="let p of resultCells; let i = index" (click)="selectResult(i)">
-                <span class="fnum">{{ i + 1 }}</span>
+                <span class="fnum">{{ i + 1 }}.</span>
                 <div class="fimg" [class.no-img]="!p.image && !resUsePh" [style.background-image]="p.image ? 'url('+p.image+')' : (resUsePh ? phImg(i) : null)" [style.background-size]="fitSize(p.imageFit)" [style.background-repeat]="p.imageFit ? 'no-repeat' : null"></div>
                 <div class="finfo">
                   <div class="fnm">{{ p.name }}</div>
@@ -357,7 +357,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
               </div>
             </div>
             <div class="selected-tags">
-              <div class="tag" *ngFor="let p of resultCells.slice(0,4)">#{{ resultTag(p) }}</div>
+              <div class="tag" *ngFor="let tag of promoSelectedTags">#{{ tag }}</div>
             </div>
           </div>
           <!-- product-focus -->
@@ -973,7 +973,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal';
   }
   get resultScrollMode(): 'vertical' | 'horizontal' {
-    return this.theme?.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
+    return this.theme?.result?.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
   }
   get interVisibleColumns(): number {
     const cols = Math.max(1, this.theme?.intermediate?.columns || 3);
@@ -1280,6 +1280,32 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
     const labels = this.previewLabels('result');
     return Array.from({ length: 8 }, (_, i) => ({ id: 'promo-ph' + i, name: labels[i % labels.length] } as ResultProduct));
+  }
+  get promoSelectedTags(): string[] {
+    const hierarchy = this.selectedHierarchyTags;
+    if (hierarchy.length) return hierarchy.slice(0, 4);
+    return this.resultCells.slice(0, 4).map((p) => this.resultTag(p));
+  }
+  private get selectedHierarchyTags(): string[] {
+    const selectedBranch = this.activeIntermediateHomeItem || this.home?.[0];
+    const fromTree = this.firstLeafPath(selectedBranch);
+    if (fromTree.length > 1 || (fromTree.length && (selectedBranch?.children?.length || selectedBranch?.products?.length))) return fromTree;
+    const sharedInter = this.intermediateSource.find((it) => (it.name || '').trim());
+    return [selectedBranch?.name, sharedInter?.name]
+      .map((name) => (name || '').trim())
+      .filter(Boolean);
+  }
+  private firstLeafPath(node?: CardItem): string[] {
+    if (!node) return [];
+    const name = (node.name || '').trim();
+    const path = name ? [name] : [];
+    let current: CardItem | undefined = node;
+    while (current?.children?.length) {
+      current = current.children.find((child) => (child.name || '').trim()) || current.children[0];
+      const childName = (current.name || '').trim();
+      if (childName) path.push(childName);
+    }
+    return path;
   }
   /** Raw uploaded screensaver media (first 3), regardless of mode. */
   get saverRaw(): string[] { return (this.screensaver?.media || []).slice(0, 3); }

@@ -51,7 +51,7 @@ export interface ContentDraft {
   templateData?: {
     floors?: string[]; youAreHereLabel?: string; timerSeconds?: number;       // promo-map-rank
     breadcrumbLabels?: string[]; findItLabel?: string; findAllLabel?: string; heroImage?: string; // finder-detail
-    promptPrefix?: string; stepLabels?: string[];                              // finder-select
+    promptPrefix?: string; promptText?: string; stepLabels?: string[];         // finder-select
     /** finder-select fast-lookup index (moved out of the theme — depends on the
      *  drill levels / content). 'alpha' = A–Z; 'number' = min/max/interval. */
     indexMode?: 'alpha' | 'number'; indexNumberMin?: number; indexNumberMax?: number; indexNumberInterval?: number;
@@ -59,6 +59,8 @@ export interface ContentDraft {
     /** brand-rail: per-drill-level headline messages (index 0 = L1). A blank
      *  level inherits the nearest shallower level's message. */
     brandRailMessages?: string[];
+    /** promo-categories home layout: eyebrow label + promo message. */
+    promoFeatured?: string; promoCopy?: string;
   };
   screensaver: Screensaver;
   /** Media mode only (appMode 'media'): the single image/video to play full-screen. */
@@ -317,6 +319,7 @@ export class ContentService {
       if (td.findAllLabel != null) r.findAllLabel = td.findAllLabel;
       if (td.heroImage != null) r.heroImage = td.heroImage;
       if (td.promptPrefix != null) im.promptPrefix = td.promptPrefix;
+      if (td.promptText != null) im.promptText = td.promptText;
       if (td.stepLabels) im.stepLabels = td.stepLabels;
       if (td.indexMode != null) im.indexMode = td.indexMode;
       if (td.indexNumberMin != null) im.indexNumberMin = td.indexNumberMin;
@@ -329,6 +332,8 @@ export class ContentService {
         const base = td.brandRailMessages.find((m) => m && m.trim());
         if (base) im.brandRailMessageText = base;
       }
+      if (td.promoFeatured != null) (theme as any).promoFeatured = td.promoFeatured;
+      if (td.promoCopy != null) (theme as any).promoCopy = td.promoCopy;
     }
     // finder-select: the finder shows one progress step PER DRILL LEVEL (home +
     // intermediate levels = "Category depth"). Emit exactly that many labels,

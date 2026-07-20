@@ -4632,25 +4632,31 @@
 
 .nt-result .prod {
   box-sizing: border-box;
-  background: var(--nt-res-card, rgba(255, 255, 255, .06));
-  border-radius: 6px;
-  padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1);
-  margin-bottom: calc(var(--nt-vh)*2);
+  background: var(--nt-res-card, rgba(255, 255, 255, .08));
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 10px;
+  padding: calc(var(--nt-vh)*1.2) calc(var(--nt-vw)*1.2);
+  margin-bottom: calc(var(--nt-vh)*1.6);
   display: flex;
   align-items: center;
   color: var(--nt-res-text, #fff);
   min-width: 0;
-  box-shadow: 0 calc(var(--nt-vh)*0.6) calc(var(--nt-vh)*1.2) rgba(0, 0, 0, .10);
+  box-shadow: 0 calc(var(--nt-vh)*0.6) calc(var(--nt-vh)*1.4) rgba(0, 0, 0, .16);
+}
+
+.nt-result .prod:active {
+  background: rgba(255, 255, 255, .13);
 }
 
 .nt-result .prod .img {
-  flex: 0 0 calc(var(--nt-vw)*3);
-  height: calc(var(--nt-vw)*3);
-  border-radius: 5px;
-  margin-right: calc(var(--nt-vw)*1);
+  flex: 0 0 calc(var(--nt-vw)*3.4);
+  height: calc(var(--nt-vw)*3.4);
+  border-radius: calc(var(--nt-vw)*0.6);
+  margin-right: calc(var(--nt-vw)*1.2);
   background-size: cover;
   background-position: center;
-  background-color: rgba(255, 255, 255, .08);
+  background-color: rgba(255, 255, 255, .1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12);
 }
 
 .nt-result .prod .info {
@@ -4777,12 +4783,13 @@
 }
 
 .nt-result .prod.found {
-  // border-left: calc(var(--nt-vw)*0.5) solid var(--nt-res-accent, #FFCD00);
-  background: var(--nt-res-card, rgba(255, 205, 0, .12));
+  background: var(--nt-res-card, rgba(255, 205, 0, .16));
+  border-color: var(--nt-res-accent, #FFCD00);
 }
 
 .nt-result.res-map-list .prod.found {
   background: var(--nt-res-accent, #FFCD00);
+  border-color: transparent;
 }
 
 .nt-result.res-map-list .prod.found .loc {
@@ -4793,11 +4800,11 @@
 .nt-result .nm {
   font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw) * 1);
   font-weight: 800;
+  line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
-  padding: 4px;
 }
 
 .nt-result .price {
@@ -4807,7 +4814,7 @@
 .nt-result .loc {
   font-size: calc(var(--nt-text-scale, 1) * var(--nt-vw) * 0.7);
   color: var(--nt-res-accent, #FFCD00);
-  margin-top: calc(var(--nt-vh)*0.4);
+  margin-top: calc(var(--nt-vh)*0.35);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -5508,7 +5515,7 @@
   align-items: center;
   padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1.2);
   border-radius: 6px;
-  margin-bottom: calc(var(--nt-vh)*0.6);
+  margin-bottom: calc(var(--nt-vh)*1.4);
   cursor: pointer;
   background: var(--nt-res-card, rgba(255, 255, 255, .06));
   min-width: 0;
@@ -6015,9 +6022,104 @@
 
 .nt-result.scroll-horizontal .list .prod,
 .nt-result.scroll-horizontal .filter-list .fitem {
-  flex: 0 0 calc(var(--nt-vw)*18);
-  margin: auto calc(var(--nt-vw)*0.5);
-  min-height: 60%;
+  flex: 0 0 calc(var(--nt-vw)*16);
+  height: 82%;
+  margin: 0 calc(var(--nt-vw)*0.6);
+  padding: calc(var(--nt-vh) * 4.2) calc(var(--nt-vw) * 1.2);
+  box-sizing: border-box;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: center;
+}
+
+.nt-result.scroll-horizontal .list .prod .img,
+.nt-result.scroll-horizontal .filter-list .fitem .fimg {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0 0 calc(var(--nt-vh)*1.4) 0;
+  border-radius: calc(var(--nt-vw)*1);
+  background-size: cover;
+  background-position: center;
+}
+
+.nt-result.scroll-horizontal .list .prod .info,
+.nt-result.scroll-horizontal .filter-list .fitem .finfo {
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+.nt-result.scroll-horizontal.res-filter-list .filter-list .fitem {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  column-gap: calc(var(--nt-vw)*0.45);
+  row-gap: calc(var(--nt-vh)*0.45);
+  align-content: stretch !important;
+  align-items: end !important;
+  text-align: left;
+}
+
+.nt-result.scroll-horizontal.res-filter-list .filter-list .fitem .fimg {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  height: 100%;
+  margin-bottom: 0;
+}
+
+.nt-result.scroll-horizontal.res-filter-list .filter-list .fitem .fnum {
+  grid-column: 1;
+  grid-row: 2;
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  padding-bottom: calc(var(--nt-vh)*0.4);
+  text-align: left;
+}
+
+// .nt-result.scroll-horizontal.res-filter-list .filter-list .fitem .fnum::after {
+//   content: '';
+//   position: absolute;
+//   left: 0;
+//   bottom: 0;
+//   width: calc(var(--nt-vw)*2.1);
+//   height: calc(var(--nt-vh)*0.45);
+//   border-radius: 999px;
+// }
+
+.nt-result.scroll-horizontal.res-filter-list .filter-list .fitem.found .fnum::after {
+  background: currentColor;
+}
+
+.nt-result.scroll-horizontal.res-filter-list .filter-list .fitem .finfo {
+  display: contents;
+  width: auto;
+  min-width: 0;
+}
+
+.nt-result.scroll-horizontal.res-filter-list .filter-list .fitem .fnm {
+  grid-column: 2;
+  grid-row: 2;
+  padding: 0;
+  line-height: 2.1;
+}
+
+.nt-result.scroll-horizontal.res-filter-list .filter-list .fitem .fmeta {
+  display: block;
+  grid-column: 1 / -1;
+  grid-row: 3;
+  margin-top: 0;
+  min-width: 0;
+  padding-left: calc(var(--nt-vw)*2);
+}
+
+.nt-result.scroll-horizontal .list .prod .nm,
+.nt-result.scroll-horizontal .filter-list .fitem .fnm {
+  white-space: normal;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 /* ============== ADDENDUM: per-layout customisation options ================ */
@@ -7930,7 +8032,7 @@
 
 /* ---- result card shape (res-shape-*, optional — default keeps each template's look) ---- */
 /* row templates: pill rounds the row, circle/hexagon shape the thumbnail */
-.nt-result.res-shape-pill .prod {
+.nt-result.res-shape-pill:not(.res-promo-list) .prod {
   border-radius: 999px;
   padding-left: calc(var(--nt-vw)*1.4);
 }
@@ -7946,7 +8048,7 @@
   padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1);
 }
 
-.nt-result.res-shape-rect .prod,
+.nt-result.res-shape-rect:not(.res-promo-list) .prod,
 .nt-result.res-shape-rect .fitem {
   border-radius: 6px;
 }
@@ -7954,7 +8056,7 @@
 /* QA fix: circle/hexagon shape the PRODUCT CARD itself (like home cards) —
    previously they only reshaped the inner thumbnail. Grid/shelf templates keep
    their own dedicated shape rules below. */
-.nt-result.res-shape-circle:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only) .prod {
+.nt-result.res-shape-circle:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only):not(.res-promo-list) .prod {
   border-radius: 999px;
   justify-content: center;
   text-align: center;
@@ -7962,7 +8064,7 @@
   padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*2.2);
 }
 
-.nt-result.res-shape-hexagon:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only) .prod {
+.nt-result.res-shape-hexagon:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only):not(.res-promo-list) .prod {
   border-radius: 0;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   justify-content: center;
@@ -8006,7 +8108,8 @@
 
 .nt-result.res-shape-pill.res-card-grid .prod .img,
 .nt-result.res-shape-pill.res-cards-map .prod .img,
-.nt-result.res-shape-pill.res-catalog-grid .prod .img {
+.nt-result.res-shape-pill.res-catalog-grid .prod .img,
+.nt-result.res-shape-pill.res-promo-list .prod .img {
   border-radius: 999px;
   background-size: cover;
 }
@@ -8805,7 +8908,7 @@
 .nt-result.res-finder-detail .fd-find-all,
 .nt-result.res-finder-detail .fd-find-it {
   background: #1d3a66;
-  color: #fff;
+  color: var(--nt-res-accent, #ffff);
   border: 0;
   border-radius: 999px;
   font-weight: 800;
@@ -9428,7 +9531,7 @@
 
 /* ---- result card shape (res-shape-*, optional — default keeps each template's look) ---- */
 /* row templates: pill rounds the row, circle/hexagon shape the thumbnail */
-.nt-result.res-shape-pill .prod {
+.nt-result.res-shape-pill:not(.res-promo-list) .prod {
   border-radius: 999px;
   padding-left: calc(var(--nt-vw)*1.4);
 }
@@ -9444,7 +9547,7 @@
   padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*1);
 }
 
-.nt-result.res-shape-rect .prod,
+.nt-result.res-shape-rect:not(.res-promo-list) .prod,
 .nt-result.res-shape-rect .fitem {
   border-radius: 6px;
 }
@@ -9452,7 +9555,7 @@
 /* QA fix: circle/hexagon shape the PRODUCT CARD itself (like home cards) —
    previously they only reshaped the inner thumbnail. Grid/shelf templates keep
    their own dedicated shape rules below. */
-.nt-result.res-shape-circle:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only) .prod {
+.nt-result.res-shape-circle:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only):not(.res-promo-list) .prod {
   border-radius: 999px;
   justify-content: center;
   text-align: center;
@@ -9460,7 +9563,7 @@
   padding: calc(var(--nt-vh)*1) calc(var(--nt-vw)*2.2);
 }
 
-.nt-result.res-shape-hexagon:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only) .prod {
+.nt-result.res-shape-hexagon:not(.res-card-grid):not(.res-cards-map):not(.res-catalog-grid):not(.res-map-list):not(.res-list-only):not(.res-promo-list) .prod {
   border-radius: 0;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   justify-content: center;
@@ -9504,7 +9607,8 @@
 
 .nt-result.res-shape-pill.res-card-grid .prod .img,
 .nt-result.res-shape-pill.res-cards-map .prod .img,
-.nt-result.res-shape-pill.res-catalog-grid .prod .img {
+.nt-result.res-shape-pill.res-catalog-grid .prod .img,
+.nt-result.res-shape-pill.res-promo-list .prod .img {
   border-radius: 999px;
   background-size: cover;
 }
@@ -10298,7 +10402,7 @@
 .nt-result.res-finder-detail .fd-find-all,
 .nt-result.res-finder-detail .fd-find-it {
   background: #1d3a66;
-  color: #fff;
+  color: var(--nt-res-accent, #FFCD00);
   border: 0;
   border-radius: 999px;
   font-weight: 800;
@@ -12224,6 +12328,11 @@
   background-size: cover;
 }
 
+.nt-result.scroll-horizontal.res-filter-list.res-shape-circle .filter-list .fitem .fimg {
+  border-radius: 50%;
+  justify-self: center;
+}
+
 .nt-result.res-shape-hexagon.res-drill-filter .fimg,
 .nt-result.res-shape-hexagon.res-filter-list .fimg,
 .nt-result.res-shape-hexagon.res-map-filter-list .fimg,
@@ -12796,7 +12905,7 @@
 .nt-result.res-finder-detail .fd-find-it {
   min-width: calc(var(--nt-vw)*5.8);
   background: #1d222c;
-  color: #00a7ff;
+  color: var(--nt-res-accent, #FFCD00);
   border: 0;
   border-radius: 999px;
   font-weight: 900;

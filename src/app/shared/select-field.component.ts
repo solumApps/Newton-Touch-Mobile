@@ -4,8 +4,6 @@ import { FormsModule } from '@angular/forms';
 
 export interface SelectOption { value: string; label: string; sub?: string; }
 
-/** Collapsed dropdown: tap → reveal option list with ✓ on the selected one.
- *  Two-way bind via [(value)]. Reused for company/store/theme/mode. */
 @Component({
   selector: 'app-select-field',
   standalone: true,
@@ -23,10 +21,15 @@ export class SelectFieldComponent implements AfterViewChecked {
   @Output() valueChange = new EventEmitter<string>();
 
   private _open = false;
+  private shouldFocusInput = false;
+
   @Input() set open(value: boolean) {
+    const wasOpen = this._open;
     this._open = value;
     if (!value) {
       this.filterText = '';
+    } else if (!wasOpen) {
+      this.shouldFocusInput = true;
     }
   }
   get open(): boolean {
@@ -68,9 +71,8 @@ export class SelectFieldComponent implements AfterViewChecked {
     this.openChange.emit(open);
   }
 
-  /** Close when the user taps anywhere outside this field. */
   @HostListener('document:pointerdown', ['$event'])
-  onDocumentPointerDown(event: PointerEvent): void {
+  onDocumentPointerDown(event: Event): void {
     if (this.open && !this.elementRef.nativeElement.contains(event.target as Node | null)) {
       this.close();
     }
@@ -84,13 +86,15 @@ export class SelectFieldComponent implements AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    if (this.open && this.filterInput) {
-      this.filterInput.nativeElement.focus();
+    if (this.shouldFocusInput && this.filterInput) {
+      this.shouldFocusInput = false;
+      this.filterInput.nativeElement.focus({ preventScroll: true });
     }
   }
 
   pick(v: string, event?: Event): void {
     event?.stopPropagation();
+    if (!this.open) return;
     this.value = v;
     this.valueChange.emit(v);
     this.close();

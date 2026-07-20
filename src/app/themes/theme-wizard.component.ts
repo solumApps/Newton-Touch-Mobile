@@ -423,11 +423,11 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   }
   /** Result: card shape applies to templates with product cards/thumbnails. */
   get resShapeMatters(): boolean {
-    return ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'catalog-grid', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'promo-map-rank', 'shelf'].includes(this.t.resultTemplate);
+    return ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'catalog-grid', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'shelf'].includes(this.t.resultTemplate);
   }
   /** Row templates only change the small thumbnail — rect/pill are no-ops there. */
   get resShapesFor(): { id: CardShape; label: string }[] {
-    const thumbOnly = ['map-list', 'list-only', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'promo-map-rank'].includes(this.t.resultTemplate);
+    const thumbOnly = ['map-list', 'list-only', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list'].includes(this.t.resultTemplate);
     if (thumbOnly) return this.cardShapes.filter((s) => s.id === 'circle' || s.id === 'hexagon');
     if (this.t.resultTemplate === 'card-grid') return this.cardShapes.filter((s) => s.id !== 'circle' && s.id !== 'hexagon');
     return this.cardShapes;
@@ -806,7 +806,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'horizontal' ? 'horizontal' : 'vertical';
   }
   get effectiveResultScrollMode(): 'vertical' | 'horizontal' {
-    return this.t.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
+    return this.t.result.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
   }
   /** Set Home scroll + coerce alignment to a safe, non-clipping default. */
   setHomeScroll(m: ScrollMode): void {
@@ -843,7 +843,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   // 'cards-map' dropped from the picker (near-duplicate of Map-List); enum + CSS
   // kept so existing themes using it still render. Lower-priority layouts remain
   // available rather than deleted — removal of specific ones is a product call.
-  resultTemplates: ResultTemplate[] = ['map-list', 'filter-list', 'promo-list', 'product-focus', 'shelf', 'promo-map-rank', 'finder-detail'];
+  resultTemplates: ResultTemplate[] = ['map-list', 'filter-list', 'promo-list', 'product-focus', 'shelf', 'finder-detail'];
   /** Friendly labels for the result-template tiles. */
   private tplLabels: Record<string, string> = {
     'map-list': 'Map List', 'drill-filter': 'Drill Filter', 'map-filter-list': 'Map + Filter',
@@ -1614,7 +1614,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
       'intermediate.navBackPosition', 'intermediate.navHomePosition',
     ],
     resTemplate: [
-      'resultTemplate', 'scrollMode', 'result.showTimer', 'result.showBell', 'result.showRanks',
+      'resultTemplate', 'result.scrollMode', 'result.showTimer', 'result.showBell', 'result.showRanks',
       'result.showSortTabs', 'result.showZone', 'result.sortTabs', 'result.showSaleBadge',
       'result.filterPos', 'result.content', 'result.cardShape', 'result.textPos',
     ],
