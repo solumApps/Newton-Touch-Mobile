@@ -81,6 +81,13 @@
       </ng-container>
       <p class="note" *ngIf="!d.themeTokens.showHeader">Header is hidden in this theme. Change it in the theme wizard.</p>
 
+      <!-- promo-categories: editable eyebrow label + promo message -->
+      <ng-container *ngIf="isPromoCategories">
+        <div class="sec"><span>Promo message</span></div>
+        <input class="inp" [ngModel]="td.promoFeatured" (ngModelChange)="td.promoFeatured=$event" placeholder="Eyebrow label (e.g. Featured)" />
+        <input class="inp" [ngModel]="td.promoCopy" (ngModelChange)="td.promoCopy=$event" placeholder="Promo message (e.g. Find the right product faster)" />
+      </ng-container>
+
       <!-- CATEGORY: API fetch + selection -->
       <ng-container *ngIf="d.appMode === 'category'">
         <div class="sec">

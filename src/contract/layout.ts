@@ -261,6 +261,10 @@ export interface ThemeTokens {
   nav?: NavButtonStyle;
   logoPosition: LogoPosition;
   homeLayout: HomeLayout;
+  /** promo-categories home layout: editable eyebrow label + promo message
+   *  (empty falls back to "Featured" + the header/hero title). */
+  promoFeatured?: string;
+  promoCopy?: string;
   /** Free column count (1–8) for grid/column home layouts. When set it overrides
    *  the column count implied by homeLayout (grid-template-columns:repeat(var(--cols),1fr)).
    *  Undefined = legacy behaviour, columns derived from the layout value. */

@@ -158,8 +158,8 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
             <b>Start Search</b>
           </div>
           <div class="promo-copy" *ngIf="theme?.homeLayout==='promo-categories'">
-            <b>Featured</b>
-            <span>{{ titleText || 'Find the right product faster' }}</span>
+            <b>{{ theme?.promoFeatured || 'Featured' }}</b>
+            <span>{{ theme?.promoCopy || titleText || 'Find the right product faster' }}</span>
           </div>
           <!-- promo-categories: scrollable rail, copy pinned left (mirrors LCD) -->
           <div class="promo-rail" *ngIf="theme?.homeLayout==='promo-categories'">

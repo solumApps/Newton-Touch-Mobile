@@ -423,11 +423,11 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   }
   /** Result: card shape applies to templates with product cards/thumbnails. */
   get resShapeMatters(): boolean {
-    return ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'catalog-grid', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'promo-map-rank', 'shelf'].includes(this.t.resultTemplate);
+    return ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'catalog-grid', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'shelf'].includes(this.t.resultTemplate);
   }
   /** Row templates only change the small thumbnail — rect/pill are no-ops there. */
   get resShapesFor(): { id: CardShape; label: string }[] {
-    const thumbOnly = ['map-list', 'list-only', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'promo-map-rank'].includes(this.t.resultTemplate);
+    const thumbOnly = ['map-list', 'list-only', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list'].includes(this.t.resultTemplate);
     if (thumbOnly) return this.cardShapes.filter((s) => s.id === 'circle' || s.id === 'hexagon');
     if (this.t.resultTemplate === 'card-grid') return this.cardShapes.filter((s) => s.id !== 'circle' && s.id !== 'hexagon');
     return this.cardShapes;
