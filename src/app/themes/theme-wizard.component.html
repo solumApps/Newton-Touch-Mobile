@@ -994,12 +994,12 @@
           <span>&#9432;</span> Colors pre-filled from your Home page — adjust below if needed.
         </div>
         <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='finder-detail'" label="Header" [value]="t.result.headerColor" [transparentValue]="resultTransparentHeaderColor" (valueChange)="t.result.headerColor=$event"></app-color-picker>
-        <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank' && !t.result.backgroundImage" label="Page background" [value]="t.result.background" (valueChange)="t.result.background=$event" [presets]="bgPresets"></app-color-picker>
-        <div class="media-row" *ngIf="t.resultTemplate!=='promo-map-rank'">
+        <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='finder-detail' && !t.result.backgroundImage" label="Page background" [value]="t.result.background" (valueChange)="t.result.background=$event" [presets]="bgPresets"></app-color-picker>
+        <div class="media-row" *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='finder-detail'">
           <button class="btn-o media-btn" (click)="pickBackground('result')">{{ t.result.backgroundImage ? 'Replace result background image' : 'Upload result background image' }}</button>
           <button class="btn-o media-clear" *ngIf="t.result.backgroundImage" (click)="clearBackground('result')">Clear</button>
         </div>
-        <p class="hint" *ngIf="t.result.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
+        <p class="hint" *ngIf="t.resultTemplate!=='finder-detail' && t.result.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
         <app-color-picker *ngIf="t.resultTemplate!=='finder-detail' && t.resultTemplate!=='hero-product' && !(t.resultTemplate==='shelf' && (t.result.content||'image-text')==='image-text')" label="Product card background" [value]="t.result.cardBackground" (valueChange)="t.result.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker *ngIf="t.resultTemplate!=='hero-product' && t.resultTemplate!=='finder-detail'" label="Card text" [value]="t.result.cardText" (valueChange)="t.result.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker *ngIf="t.resultTemplate==='map-list'" label="Popular button text" [value]="t.result.popularText || t.result.cardText" (valueChange)="t.result.popularText=$event" [presets]="textPresets"></app-color-picker>
@@ -1007,8 +1007,6 @@
         <ng-container *ngIf="t.resultTemplate==='finder-detail'">
           <app-color-picker label="Find button" [value]="t.result.findColor || '#2f006d'" (valueChange)="t.result.findColor=$event"></app-color-picker>
           <app-color-picker label="List background" [value]="t.result.listBg || '#ffffff'" (valueChange)="t.result.listBg=$event"></app-color-picker>
-          <app-color-picker label="Product / detail card" [value]="t.result.cardBg || '#ffffff'" (valueChange)="t.result.cardBg=$event"></app-color-picker>
-          <app-color-picker label="Card text" [value]="t.result.cardTextColor || '#0F172A'" (valueChange)="t.result.cardTextColor=$event"></app-color-picker>
         </ng-container>
         <ng-container *ngIf="t.resultTemplate==='promo-map-rank'">
           <app-color-picker label="Promo panel" [value]="t.result.panelColor || '#001973'" (valueChange)="t.result.panelColor=$event"></app-color-picker>
