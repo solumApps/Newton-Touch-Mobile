@@ -28,6 +28,7 @@ interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' 
   styleUrls: ['./content-builder.component.scss'],
 })
 export class ContentBuilderComponent implements OnInit, OnDestroy {
+  readonly maxResultProducts = 8;
   @ViewChild('builderSteps') builderSteps?: ElementRef<HTMLElement>;
   @ViewChild(IonContent) contentViewport?: IonContent;
   draft?: ContentDraft;
@@ -528,7 +529,11 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     return out;
   }
   addLeafProduct(n: CardItem): void {
+    if ((n.products?.length || 0) >= this.maxResultProducts) return;
     n.products = [...(n.products || []), { id: 'p' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), name: '' } as any];
+  }
+  leafProductCapReached(n: CardItem): boolean {
+    return (n.products?.length || 0) >= this.maxResultProducts;
   }
   removeLeafProduct(n: CardItem, i: number): void {
     const arr = n.products || [];
@@ -1539,7 +1544,11 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   }
   addProduct(): void {
     const r = this.curResult;
+    if (r.products.length >= this.maxResultProducts) return;
     this.setCurResult({ ...r, products: [...r.products, { id: 'p' + Date.now(), name: '' }] });
+  }
+  get resultProductCapReached(): boolean {
+    return this.curResult.products.length >= this.maxResultProducts;
   }
   addIntermediate(): void { this.draft!.intermediate = [...this.draft!.intermediate, { id: 'i' + Date.now(), name: '' }]; }
 

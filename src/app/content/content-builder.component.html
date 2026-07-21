@@ -341,7 +341,8 @@
             </div>
             <!-- promo-map-rank: leaf nodes carry their own result products -->
             <ng-container *ngIf="interAllowProducts && !(it.node.children && it.node.children.length)">
-              <div class="sec sub"><span>Own result products ({{ (it.node.products || []).length }})</span><button class="mini" (click)="addLeafProduct(it.node)">+ Add</button></div>
+              <div class="sec sub"><span>Own result products ({{ (it.node.products || []).length }})</span><button class="mini" [disabled]="leafProductCapReached(it.node)" (click)="addLeafProduct(it.node)">+ Add</button></div>
+              <p class="note err" *ngIf="leafProductCapReached(it.node)">Maximum {{ maxResultProducts }} products can be added.</p>
               <div class="erow" *ngFor="let p of it.node.products || []; let pi = index">
                 <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
                 <input class="inp" [(ngModel)]="p.name" placeholder="Product name" />
@@ -518,7 +519,8 @@
         <div class="sec"><span>Individual result pages ({{ resultLeaves.length }})</span></div>
         <p class="note">Each end item gets its own products. Items left empty fall back to the shared list at the bottom.</p>
         <div class="pcard" *ngFor="let leaf of resultLeaves">
-          <div class="sec"><span>{{ leaf.label }}</span><button class="mini" (click)="addLeafProduct(leaf.node)">+ Add</button></div>
+          <div class="sec"><span>{{ leaf.label }}</span><button class="mini" [disabled]="leafProductCapReached(leaf.node)" (click)="addLeafProduct(leaf.node)">+ Add</button></div>
+          <p class="note err" *ngIf="leafProductCapReached(leaf.node)">Maximum {{ maxResultProducts }} products can be added.</p>
           <ng-container *ngFor="let p of (leaf.node.products || []).slice().reverse(); let pi = index">
             <div class="erow">
               <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
@@ -569,7 +571,8 @@
       </ng-container>
 
       <ng-container *ngIf="d.appMode !== 'category'">
-      <div class="sec"><span>{{ perItemActive ? ('Products — ' + activeCardLabel) : (resultMode==='individual' && !skipsIntermediate) ? 'Shared / fallback products' : 'Result products' }} ({{ curResult.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>
+      <div class="sec"><span>{{ perItemActive ? ('Products — ' + activeCardLabel) : (resultMode==='individual' && !skipsIntermediate) ? 'Shared / fallback products' : 'Result products' }} ({{ curResult.products.length }})</span><button class="mini" [disabled]="resultProductCapReached" (click)="addProduct()">+ Add</button></div>
+      <p class="note err" *ngIf="resultProductCapReached">Maximum {{ maxResultProducts }} products can be added.</p>
       <div class="pcard" *ngFor="let p of curResult.products.slice().reverse(); let i = index">
         <div class="erow">
           <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>
