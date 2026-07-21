@@ -821,6 +821,12 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   setResultContent(content: 'image-text' | 'text-only'): void {
     this.t.result.content = content;
     if (this.resultTextOnlyUsesVerticalScroll) this.t.result.scrollMode = 'vertical';
+    this.coerceShelfTextOnlyShape();
+  }
+  private coerceShelfTextOnlyShape(): void {
+    if (this.t.resultTemplate === 'shelf' && this.t.result.content === 'text-only') {
+      this.t.result.cardShape = 'rect';
+    }
   }
   /** Set Home scroll + coerce alignment to a safe, non-clipping default. */
   setHomeScroll(m: ScrollMode): void {
@@ -877,6 +883,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     else if (o === 'finder-detail') this.applyFinderDetailDefaults();
     else this.applyMapListDefaults();
     if (o === 'map-filter-list') this.t.result.filterPos = 'center';
+    this.coerceShelfTextOnlyShape();
   }
   private applyMapListDefaults(): void {
     const d = ThemeService.defaultTokens().result;
@@ -1217,6 +1224,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
         // Edit-time only: a loaded theme may carry a textPos that is hidden for
         // its content/layout combo — coerce so the wizard never saves it back.
         this.coerceTextPos();
+        this.coerceShelfTextOnlyShape();
       }
     }
     this.bindCustomColors();
