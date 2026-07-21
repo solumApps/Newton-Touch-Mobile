@@ -711,7 +711,10 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       if (rk) cls.push('route-kind-' + rk);
       if (this.theme?.result?.content === 'text-only') cls.push('res-content-text-only');
       if (this.theme?.result?.textPos) cls.push('res-textpos-' + this.theme.result.textPos);
-      if (this.theme?.result?.cardShape) cls.push('res-shape-' + this.theme.result.cardShape);
+      const resultShape = this.resTpl === 'shelf' && this.theme?.result?.content === 'text-only'
+        ? 'rect'
+        : this.theme?.result?.cardShape;
+      if (resultShape) cls.push('res-shape-' + resultShape);
       if (this.resTpl === 'map-filter-list' && this.theme?.result?.filterPos) cls.push('res-filter-pos-' + this.theme.result.filterPos);
       if (!this.fixedResultTemplate) {
         cls.push(`scroll-${this.resultScrollMode}`);
