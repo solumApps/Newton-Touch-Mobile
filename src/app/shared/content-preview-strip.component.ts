@@ -491,7 +491,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
         </ng-container>
 
         <!-- NAV (LCD markup: .nav.nav-pos-* > .fb) — grouped OR split (independent positions) -->
-        <ng-container *ngIf="page !== 'home' && page !== 'saver' && !(page === 'inter' && theme?.intermediateStyle === 'finder-select') && (theme?.navStyle || 'floating') !== 'hidden'">
+        <ng-container *ngIf="page !== 'home' && page !== 'saver' && !(page === 'inter' && theme?.intermediateStyle === 'finder-select') && !(page === 'result' && resTpl === 'finder-detail') && (theme?.navStyle || 'floating') !== 'hidden'">
           <ng-template #backBtn>
             <div class="fb" [class.fb-text]="navMode === 'text'" [class.fb-icon-text]="navMode === 'icon-text'"
                  [style.color]="theme?.nav?.backColor || '#fff'" [style.background]="theme?.nav?.backBg || '#0f172a'">

@@ -1033,6 +1033,7 @@
             </div>
           </ng-container>
         </ng-container>
+        <ng-container *ngIf="t.resultTemplate!=='finder-detail'">
         <div class="step-title sm">Navigation buttons</div>
         <p class="hint">Style the Back and Home buttons. Set a position to “Hidden” to hide that button.</p>
         <div class="nav-btn-row">
@@ -1107,6 +1108,7 @@
           <div class="seg">
             <button class="tile" *ngFor="let p of navPositionsFor('result', 'home')" [class.sel]="navHomePositionFor('result')===p.id" (click)="setNavHomePosition('result', p.id)">{{ p.label }}</button>
           </div>
+        </ng-container>
         </ng-container>
       </div>
 
