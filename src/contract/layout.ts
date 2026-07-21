@@ -384,6 +384,10 @@ export interface ThemeTokens {
      *  the WHOLE prompt on every finder screen; empty falls back to promptPrefix + the
      *  per-screen default word (home) / picked node name (intermediate). */
     promptText?: string;
+    /** Per-level finder prompts: index 0 = home, 1 = L1, 2 = L2, 3 = L3.
+     *  When present the LCD/content-builder use this array instead of the single
+     *  promptText so each level can show different copy. */
+    promptTexts?: string[];
     /** Optional colour for the Finder Select prompt text (e.g. "TOUCH YOUR"). */
     promptTextColor?: string;
     showPrompt?: boolean;

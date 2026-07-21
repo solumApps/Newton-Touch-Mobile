@@ -751,6 +751,31 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   /** Track step-label inputs by index — the value changes on every keystroke, so
    *  the default value-identity tracking would recreate the <input> and drop focus. */
   trackByIndex = (i: number): number => i;
+  // ── finder-select prompt text — one input PER LEVEL (home + each intermediate) ──
+  get homePromptText(): string {
+    return (this.td.promptTexts && this.td.promptTexts[0]) || this.td.promptText || '';
+  }
+  set homePromptText(v: string) {
+    const src = this.td.promptTexts || (this.td.promptText ? [this.td.promptText] : []);
+    const arr = [...src];
+    while (arr.length <= 0) arr.push('');
+    arr[0] = v;
+    this.td.promptTexts = arr;
+  }
+  /** Prompt text for the current intermediate level (interLevel 0 → L1). */
+  get promptTextForLevel(): string {
+    const level = this.interLevel || 1;
+    if (this.td.promptTexts) return this.td.promptTexts[level] || '';
+    return this.td.promptText || '';
+  }
+  set promptTextForLevel(v: string) {
+    const level = this.interLevel || 1;
+    const src = this.td.promptTexts || (this.td.promptText ? [this.td.promptText] : []);
+    const arr = [...src];
+    while (arr.length <= level) arr.push('');
+    arr[level] = v;
+    this.td.promptTexts = arr;
+  }
   // ── finder-detail breadcrumb labels — the result screen's "Finder steps" ──
   // When the intermediate is finder-select these INHERIT td.stepLabels (edited on
   // the Intermediate step); otherwise they get their own per-level editor below.
@@ -792,7 +817,15 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     if (td.findAllLabel != null) r.findAllLabel = td.findAllLabel;
     if (td.heroImage != null) r.heroImage = td.heroImage;
     if (td.promptPrefix != null) im.promptPrefix = td.promptPrefix;
-    if (td.promptText != null) im.promptText = td.promptText;
+    if (this.isFinderSelect) {
+      if (this.step.page === 'home') {
+        im.promptText = this.homePromptText || undefined;
+      } else {
+        im.promptText = this.promptTextForLevel || undefined;
+      }
+    } else if (td.promptText != null) {
+      im.promptText = td.promptText;
+    }
     if (td.stepLabels) im.stepLabels = td.stepLabels;
     // finder-select: preview exactly `finderStepCount` steps (drill depth), each
     // filled with the user's label or the generic default, so the preview matches
