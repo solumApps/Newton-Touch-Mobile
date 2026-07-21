@@ -141,9 +141,8 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
               </div>
             </div>
             <div class="fs-index-row">
-              <div class="fs-index fs-alpha-index" aria-label="Finder A to Z filter">
-                <button type="button" class="fs-letter fs-all available" [class.active]="!activeFinderHomeLetter" (click)="selectFinderHomeLetter('')">All</button>
-                <button type="button" class="fs-letter" *ngFor="let letter of finderAlphabet" [class.available]="finderHomeLetters.has(letter)" [class.active]="letter===activeFinderHomeLetter" [disabled]="!finderHomeLetters.has(letter)" (click)="selectFinderHomeLetter(letter)">{{ letter }}</button>
+              <div class="fs-index fs-alpha-index" aria-label="Finder lookup index">
+                <button type="button" class="fs-letter" *ngFor="let item of finderHomeIndexItems" [class.available]="item.available" [class.active]="item.value===activeFinderHomeLetter" [disabled]="!item.available" (click)="selectFinderHomeLetter(item.value)">{{ item.label }}</button>
               </div>
             </div>
           </div>
@@ -218,9 +217,8 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
                 </div>
               </div>
               <div class="fs-index-row">
-                <div class="fs-index fs-alpha-index" aria-label="Finder A to Z filter">
-                  <button type="button" class="fs-letter fs-all available" [class.active]="!activeFinderInterLetter" (click)="selectFinderInterLetter('')">All</button>
-                  <button type="button" class="fs-letter" *ngFor="let letter of finderAlphabet" [class.available]="finderInterLetters.has(letter)" [class.active]="letter===activeFinderInterLetter" [disabled]="!finderInterLetters.has(letter)" (click)="selectFinderInterLetter(letter)">{{ letter }}</button>
+                <div class="fs-index fs-alpha-index" aria-label="Finder lookup index">
+                  <button type="button" class="fs-letter" *ngFor="let item of finderInterIndexItems" [class.available]="item.available" [class.active]="item.value===activeFinderInterLetter" [disabled]="!item.available" (click)="selectFinderInterLetter(item.value)">{{ item.label }}</button>
                 </div>
               </div>
             </div>
@@ -1150,11 +1148,125 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   readonly finderAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   private selectedFinderHomeLetter = '';
   private selectedFinderInterLetter = '';
+
+  get indexMode(): 'alpha' | 'number' {
+    return this.theme?.intermediate?.indexMode || 'alpha';
+  }
+  get indexNumberMin(): number {
+    const v = this.theme?.intermediate?.indexNumberMin;
+    return typeof v === 'number' && Number.isFinite(v) ? v : 0;
+  }
+  get indexNumberMax(): number {
+    const v = this.theme?.intermediate?.indexNumberMax;
+    return typeof v === 'number' && Number.isFinite(v) ? v : 100;
+  }
+  get indexNumberInterval(): number {
+    const v = this.theme?.intermediate?.indexNumberInterval;
+    return typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : 10;
+  }
+
+  get finderHomeIndexItems(): { label: string; value: string; available: boolean }[] {
+    if (this.indexMode === 'number') {
+      return this.generateNumberIndexItems(this.finderHomeAllCells);
+    }
+    return [
+      { label: 'All', value: '', available: this.finderHomeLetters.size > 0 },
+      ...this.finderAlphabet.map((letter) => ({
+        label: letter,
+        value: letter,
+        available: this.finderHomeLetters.has(letter),
+      })),
+    ];
+  }
+  get finderInterIndexItems(): { label: string; value: string; available: boolean }[] {
+    if (this.indexMode === 'number') {
+      return this.generateNumberIndexItems(this.finderInterAllCells);
+    }
+    return [
+      { label: 'All', value: '', available: this.finderInterLetters.size > 0 },
+      ...this.finderAlphabet.map((letter) => ({
+        label: letter,
+        value: letter,
+        available: this.finderInterLetters.has(letter),
+      })),
+    ];
+  }
+
+  private generateNumberIndexItems(
+    items: CardItem[],
+  ): { label: string; value: string; available: boolean }[] {
+    const min = this.indexNumberMin;
+    const max = this.indexNumberMax;
+    const interval = this.indexNumberInterval;
+    const rangeAvailability = new Map<string, boolean>();
+
+    if (min > max || interval <= 0) {
+      return [{ label: 'All', value: '', available: false }];
+    }
+
+    for (const item of items) {
+      const num = this.extractLeadingNumber(item);
+      if (num != null && num >= min && num <= max) {
+        const rangeKey = this.numberRangeKey(num);
+        rangeAvailability.set(rangeKey, true);
+      }
+    }
+
+    const result: { label: string; value: string; available: boolean }[] = [
+      { label: 'All', value: '', available: rangeAvailability.size > 0 },
+    ];
+
+    for (let start = min; start <= max; start += interval) {
+      const end = Math.min(start + interval - 1, max);
+      const rangeKey = `${start}-${end}`;
+      const label = start === end ? String(start) : `${start}\u2013${end}`;
+      result.push({
+        label,
+        value: rangeKey,
+        available: rangeAvailability.get(rangeKey) || false,
+      });
+    }
+
+    return result;
+  }
+
+  private extractLeadingNumber(item: CardItem): number | null {
+    const nameMatch = (item.name || '').trim().match(/^(\d+)/);
+    if (nameMatch) return parseInt(nameMatch[1], 10);
+
+    const articleId = (item as any).articleId;
+    if (articleId != null) {
+      const idMatch = String(articleId).trim().match(/^(\d+)/);
+      if (idMatch) return parseInt(idMatch[1], 10);
+    }
+
+    return null;
+  }
+
+  private numberRangeKey(num: number): string {
+    const interval = this.indexNumberInterval;
+    const min = this.indexNumberMin;
+    if (interval <= 0) return `${min}-${this.indexNumberMax}`;
+    const start = Math.floor((num - min) / interval) * interval + min;
+    const end = Math.min(start + interval - 1, this.indexNumberMax);
+    return `${start}-${end}`;
+  }
+
   private finderSort<T extends { name?: string }>(items: T[]): T[] {
     return [...items].sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base', numeric: true }));
   }
   private filterFinderByLetter(items: CardItem[], letter: string): CardItem[] {
     if (!letter) return items;
+    if (this.indexMode === 'number') {
+      const parts = letter.split('-').map(Number);
+      const start = parts[0];
+      const end = parts[1] != null && Number.isFinite(parts[1]) ? parts[1] : start;
+      if (!Number.isFinite(start)) return items;
+      return items.filter((item) => {
+        const num = this.extractLeadingNumber(item);
+        return num != null && num >= start && num <= end;
+      });
+    }
     return items.filter((item) => (item.name || '').trim().charAt(0).toUpperCase() === letter);
   }
   get finderHomeAllCells(): CardItem[] {
@@ -1173,16 +1285,36 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return this.finderLettersFor(this.finderInterAllCells);
   }
   get activeFinderHomeLetter(): string {
-    return this.finderHomeLetters.has(this.selectedFinderHomeLetter) ? this.selectedFinderHomeLetter : '';
+    if (!this.selectedFinderHomeLetter) return '';
+    return this.finderHomeIndexItems.some(
+      (item) => item.value === this.selectedFinderHomeLetter && item.available,
+    )
+      ? this.selectedFinderHomeLetter
+      : '';
   }
   get activeFinderInterLetter(): string {
-    return this.finderInterLetters.has(this.selectedFinderInterLetter) ? this.selectedFinderInterLetter : '';
+    if (!this.selectedFinderInterLetter) return '';
+    return this.finderInterIndexItems.some(
+      (item) => item.value === this.selectedFinderInterLetter && item.available,
+    )
+      ? this.selectedFinderInterLetter
+      : '';
   }
   selectFinderHomeLetter(letter: string): void {
-    if (!letter || this.finderHomeLetters.has(letter)) this.selectedFinderHomeLetter = letter;
+    if (!letter) {
+      this.selectedFinderHomeLetter = '';
+      return;
+    }
+    const item = this.finderHomeIndexItems.find((i) => i.value === letter);
+    if (item?.available) this.selectedFinderHomeLetter = letter;
   }
   selectFinderInterLetter(letter: string): void {
-    if (!letter || this.finderInterLetters.has(letter)) this.selectedFinderInterLetter = letter;
+    if (!letter) {
+      this.selectedFinderInterLetter = '';
+      return;
+    }
+    const item = this.finderInterIndexItems.find((i) => i.value === letter);
+    if (item?.available) this.selectedFinderInterLetter = letter;
   }
   get intermediateSource(): CardItem[] {
     if (this.forceSharedIntermediate) return this.intermediate || [];

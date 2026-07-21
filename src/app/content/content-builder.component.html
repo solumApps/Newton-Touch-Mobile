@@ -85,6 +85,18 @@
       <ng-container *ngIf="isFinderSelect">
         <div class="sec"><span>Home page prompt</span></div>
         <input class="inp" [ngModel]="homePromptText" (ngModelChange)="homePromptText=$event" placeholder="Prompt (e.g. TOUCH YOUR CATEGORY)" />
+
+        <div class="sec"><span>Fast lookup index</span></div>
+        <p class="note">How the side index strip is generated for the selection cards.</p>
+        <div class="seg">
+          <button type="button" class="tile" [class.sel]="levelIndexMode==='alpha'" (click)="levelIndexMode='alpha'">A–Z</button>
+          <button type="button" class="tile" [class.sel]="levelIndexMode==='number'" (click)="levelIndexMode='number'">Number</button>
+        </div>
+        <div class="row" *ngIf="levelIndexMode==='number'">
+          <input class="inp" type="number" placeholder="Min" [ngModel]="levelIndexNumberMin" (ngModelChange)="levelIndexNumberMin=($event === '' || $event === null || $event === undefined) ? 0 : (+$event || 0)" />
+          <input class="inp" type="number" placeholder="Max" [ngModel]="levelIndexNumberMax" (ngModelChange)="levelIndexNumberMax=($event === '' || $event === null || $event === undefined) ? 100 : (+$event || 0)" />
+          <input class="inp" type="number" min="1" placeholder="Interval" [ngModel]="levelIndexNumberInterval" (ngModelChange)="levelIndexNumberInterval=($event === '' || $event === null || $event === undefined) ? 10 : (+$event > 0 ? +$event : 10)" />
+        </div>
       </ng-container>
 
       <!-- promo-categories: editable eyebrow label + promo message -->
@@ -274,19 +286,17 @@
         </ng-container>
         <div class="sec"><span>{{ interLevel === 0 ? 'Prompt' : ('Intermediate L' + interLevel + ' prompt') }}</span></div>
         <input class="inp" [ngModel]="promptTextForLevel" (ngModelChange)="promptTextForLevel=$event" placeholder="Prompt text" />
-        <ng-container *ngIf="interLevel <= 1">
-          <div class="sec"><span>Fast lookup index</span></div>
-          <p class="note">How the side index strip is generated for the selection cards.</p>
-          <div class="seg">
-            <button type="button" class="tile" [class.sel]="(td.indexMode||'alpha')==='alpha'" (click)="td.indexMode='alpha'">A–Z</button>
-            <button type="button" class="tile" [class.sel]="td.indexMode==='number'" (click)="td.indexMode='number'">Number</button>
-          </div>
-          <div class="row" *ngIf="td.indexMode==='number'">
-            <input class="inp" type="number" placeholder="Min" [ngModel]="td.indexNumberMin ?? 0" (ngModelChange)="td.indexNumberMin=+$event" />
-            <input class="inp" type="number" placeholder="Max" [ngModel]="td.indexNumberMax ?? 100" (ngModelChange)="td.indexNumberMax=+$event" />
-            <input class="inp" type="number" min="1" placeholder="Interval" [ngModel]="td.indexNumberInterval ?? 10" (ngModelChange)="td.indexNumberInterval=+$event" />
-          </div>
-        </ng-container>
+        <div class="sec"><span>Fast lookup index</span></div>
+        <p class="note">How the side index strip is generated for the selection cards.</p>
+        <div class="seg">
+          <button type="button" class="tile" [class.sel]="levelIndexMode==='alpha'" (click)="levelIndexMode='alpha'">A–Z</button>
+          <button type="button" class="tile" [class.sel]="levelIndexMode==='number'" (click)="levelIndexMode='number'">Number</button>
+        </div>
+        <div class="row" *ngIf="levelIndexMode==='number'">
+          <input class="inp" type="number" placeholder="Min" [ngModel]="levelIndexNumberMin" (ngModelChange)="levelIndexNumberMin=($event === '' || $event === null || $event === undefined) ? 0 : (+$event || 0)" />
+          <input class="inp" type="number" placeholder="Max" [ngModel]="levelIndexNumberMax" (ngModelChange)="levelIndexNumberMax=($event === '' || $event === null || $event === undefined) ? 100 : (+$event || 0)" />
+          <input class="inp" type="number" min="1" placeholder="Interval" [ngModel]="levelIndexNumberInterval" (ngModelChange)="levelIndexNumberInterval=($event === '' || $event === null || $event === undefined) ? 10 : (+$event > 0 ? +$event : 10)" />
+        </div>
       </ng-container>
       <!-- PROTOTYPE / +ESL Individual mode: Category-style leveled editor —
            Home Fields + option segments + a flat, editable card list per level -->

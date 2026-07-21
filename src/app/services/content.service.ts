@@ -53,8 +53,11 @@ export interface ContentDraft {
     breadcrumbLabels?: string[]; findItLabel?: string; findAllLabel?: string; heroImage?: string; // finder-detail
     promptPrefix?: string; promptText?: string; promptTexts?: string[]; stepLabels?: string[];         // finder-select
     /** finder-select fast-lookup index (moved out of the theme — depends on the
-     *  drill levels / content). 'alpha' = A–Z; 'number' = min/max/interval. */
+     *  drill levels / content). 'alpha' = A–Z; 'number' = min/max/interval.
+     *  Legacy flat fields are kept for backward compatibility; per-level overrides
+     *  in indexConfig win when present. */
     indexMode?: 'alpha' | 'number'; indexNumberMin?: number; indexNumberMax?: number; indexNumberInterval?: number;
+    indexConfig?: Record<string, { mode?: 'alpha' | 'number'; min?: number; max?: number; interval?: number }>;
     fsSortOrder?: 'none' | 'az' | 'za';
     /** brand-rail: per-drill-level headline messages (index 0 = L1). A blank
      *  level inherits the nearest shallower level's message. */
@@ -332,6 +335,36 @@ export class ContentService {
       if (td.indexNumberMax != null) im.indexNumberMax = td.indexNumberMax;
       if (td.indexNumberInterval != null) im.indexNumberInterval = td.indexNumberInterval;
       if (td.fsSortOrder != null) im.fsSortOrder = td.fsSortOrder;
+
+      // Per-level fast-lookup index: if per-level overrides exist, populate the
+      // arrays (home = index 0, L1 = index 1, ...) and sync flat fallbacks.
+      const indexLevels = ['home', 'inter1', 'inter2', 'inter3'];
+      const indexCfg = td.indexConfig || {};
+      const indexModes: ('alpha' | 'number')[] = [];
+      const indexNumberMins: number[] = [];
+      const indexNumberMaxs: number[] = [];
+      const indexNumberIntervals: number[] = [];
+      for (const key of indexLevels) {
+        const lvl = indexCfg[key] || {};
+        const mode = lvl.mode || td.indexMode || 'alpha';
+        const min = lvl.min != null ? lvl.min : td.indexNumberMin ?? 0;
+        const max = lvl.max != null ? lvl.max : td.indexNumberMax ?? 100;
+        const interval = lvl.interval != null ? lvl.interval : (typeof td.indexNumberInterval === 'number' && Number.isFinite(td.indexNumberInterval) && td.indexNumberInterval > 0 ? td.indexNumberInterval : 10);
+        indexModes.push(mode);
+        indexNumberMins.push(min);
+        indexNumberMaxs.push(max);
+        indexNumberIntervals.push(interval);
+      }
+      if (indexModes.some((m, i) => m !== indexModes[0])) {
+        im.indexModes = indexModes;
+        im.indexNumberMins = indexNumberMins;
+        im.indexNumberMaxs = indexNumberMaxs;
+        im.indexNumberIntervals = indexNumberIntervals;
+      }
+      im.indexMode = indexModes[0];
+      im.indexNumberMin = indexNumberMins[0];
+      im.indexNumberMax = indexNumberMaxs[0];
+      im.indexNumberInterval = indexNumberIntervals[0];
       if (td.brandRailMessages && td.brandRailMessages.some((m) => m && m.trim())) {
         im.brandRailMessages = td.brandRailMessages;
         // Base fallback (single-value readers + L1) = first non-empty level.

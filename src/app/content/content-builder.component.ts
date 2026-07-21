@@ -735,6 +735,74 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     const d = this.draft!;
     return (d.templateData = d.templateData || {});
   }
+
+  /** Key for the current step's fast-lookup index config in td.indexConfig. */
+  private get levelIndexKey(): string {
+    if (this.step.page === 'home') return 'home';
+    const lvl = Math.max(1, this.interLevel);
+    return 'inter' + lvl;
+  }
+
+  /** Ensure td.indexConfig exists and return the config for a given level key. */
+  private levelIndexConfig(level: string): { mode?: 'alpha' | 'number'; min?: number; max?: number; interval?: number } {
+    if (!this.td.indexConfig) this.td.indexConfig = {};
+    if (!this.td.indexConfig[level]) this.td.indexConfig[level] = {};
+    return this.td.indexConfig[level];
+  }
+
+  /** Read the current level's indexMode, falling back to the legacy flat field. */
+  get levelIndexMode(): 'alpha' | 'number' {
+    const cfg = this.levelIndexConfig(this.levelIndexKey);
+    if (cfg.mode) return cfg.mode;
+    return this.td.indexMode || 'alpha';
+  }
+
+  /** Write the current level's indexMode. */
+  set levelIndexMode(v: 'alpha' | 'number') {
+    const cfg = this.levelIndexConfig(this.levelIndexKey);
+    cfg.mode = v;
+  }
+
+  /** Read the current level's indexNumberMin, falling back to legacy flat field. */
+  get levelIndexNumberMin(): number {
+    const cfg = this.levelIndexConfig(this.levelIndexKey);
+    if (cfg.min != null) return cfg.min;
+    return this.td.indexNumberMin ?? 0;
+  }
+
+  /** Write the current level's indexNumberMin. */
+  set levelIndexNumberMin(v: number) {
+    const cfg = this.levelIndexConfig(this.levelIndexKey);
+    cfg.min = v;
+  }
+
+  /** Read the current level's indexNumberMax, falling back to legacy flat field. */
+  get levelIndexNumberMax(): number {
+    const cfg = this.levelIndexConfig(this.levelIndexKey);
+    if (cfg.max != null) return cfg.max;
+    return this.td.indexNumberMax ?? 100;
+  }
+
+  /** Write the current level's indexNumberMax. */
+  set levelIndexNumberMax(v: number) {
+    const cfg = this.levelIndexConfig(this.levelIndexKey);
+    cfg.max = v;
+  }
+
+  /** Read the current level's indexNumberInterval, falling back to legacy flat field. */
+  get levelIndexNumberInterval(): number {
+    const cfg = this.levelIndexConfig(this.levelIndexKey);
+    if (cfg.interval != null) return cfg.interval;
+    const v = this.td.indexNumberInterval;
+    return typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : 10;
+  }
+
+  /** Write the current level's indexNumberInterval. */
+  set levelIndexNumberInterval(v: number) {
+    const cfg = this.levelIndexConfig(this.levelIndexKey);
+    cfg.interval = v;
+  }
+
   get tplFloorsCsv(): string { return (this.td.floors || []).join(','); }
   set tplFloorsCsv(v: string) { this.td.floors = v.split(',').map((s) => s.trim()).filter(Boolean); }
   get tplStepsCsv(): string { return (this.td.stepLabels || []).join(','); }
@@ -836,10 +904,12 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     // filled with the user's label or the generic default, so the preview matches
     // what deploys.
     if (this.isFinderSelect) im.stepLabels = this.finderStepIndices.map((i) => this.finderStepLabel(i));
-    if (td.indexMode != null) im.indexMode = td.indexMode;
-    if (td.indexNumberMin != null) im.indexNumberMin = td.indexNumberMin;
-    if (td.indexNumberMax != null) im.indexNumberMax = td.indexNumberMax;
-    if (td.indexNumberInterval != null) im.indexNumberInterval = td.indexNumberInterval;
+    if (this.levelIndexMode !== 'alpha' || this.levelIndexNumberMin !== 0 || this.levelIndexNumberMax !== 100 || this.levelIndexNumberInterval !== 10) {
+      im.indexMode = this.levelIndexMode;
+      im.indexNumberMin = this.levelIndexNumberMin;
+      im.indexNumberMax = this.levelIndexNumberMax;
+      im.indexNumberInterval = this.levelIndexNumberInterval;
+    }
     if (td.fsSortOrder != null) im.fsSortOrder = td.fsSortOrder;
     // Preview shows the CURRENT step's level (with inheritance) — the preview
     // strip renders one intermediate view and reads brandRailMessageText.
