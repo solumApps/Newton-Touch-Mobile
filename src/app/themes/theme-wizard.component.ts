@@ -865,15 +865,16 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     if (o === 'map-filter-list') this.t.result.filterPos = 'center';
   }
   private applyMapListDefaults(): void {
-    Object.assign(this.t.result, {
-      headerColor: 'transparent',
-      background: '#1a0036',
-      cardBackground: 'RGBA(255,255,255,0.15)',
-      accent: '#ffcd00',
-      popularText: '#ffffff',
-      pathColor: '#ffcd00',
-      cardText: '#ffffff',
-    });
+    const d = ThemeService.defaultTokens().result;
+    const r = this.t.result;
+    const atDefault = (val: string, def: string) => val === def;
+    if (atDefault(r.headerColor, d.headerColor)) this.t.result.headerColor = this.t.headerColor;
+    if (atDefault(r.background, d.background)) this.t.result.background = this.t.background;
+    if (atDefault(r.cardBackground, d.cardBackground)) this.t.result.cardBackground = this.t.cardBackground;
+    if (atDefault(r.cardText, d.cardText)) this.t.result.cardText = this.t.cardText;
+    if (atDefault(r.accent, d.accent)) this.t.result.accent = this.t.accent;
+    if (atDefault(r.popularText || '', d.popularText || '')) this.t.result.popularText = this.t.cardText;
+    if (atDefault(r.pathColor, d.pathColor)) this.t.result.pathColor = this.t.accent;
   }
   private applyPromoMapRankDefaults(): void {
     Object.assign(this.t.result, {
