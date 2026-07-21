@@ -1005,6 +1005,7 @@
         <app-color-picker *ngIf="t.resultTemplate==='map-list'" label="Popular button text" [value]="t.result.popularText || t.result.cardText" (valueChange)="t.result.popularText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='hero-product'" label="Accent / highlight" [value]="t.result.accent" (valueChange)="t.result.accent=$event"></app-color-picker>
         <ng-container *ngIf="t.resultTemplate==='finder-detail'">
+          <app-color-picker label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event"></app-color-picker>
           <app-color-picker label="Find button" [value]="t.result.findColor || '#2f006d'" (valueChange)="t.result.findColor=$event"></app-color-picker>
           <app-color-picker label="List background" [value]="t.result.listBg || '#ffffff'" (valueChange)="t.result.listBg=$event"></app-color-picker>
         </ng-container>
