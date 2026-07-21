@@ -5973,7 +5973,7 @@
 .nt-result.scroll-vertical .filter-list {
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .nt-result.scroll-vertical.res-map-list.res-content-text-only .prod {

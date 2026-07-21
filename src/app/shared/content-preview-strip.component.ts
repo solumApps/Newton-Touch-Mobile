@@ -973,6 +973,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal';
   }
   get resultScrollMode(): 'vertical' | 'horizontal' {
+    if (['map-list', 'filter-list'].includes(this.resTpl) && this.theme?.result?.content === 'text-only') {
+      return 'vertical';
+    }
     return this.theme?.result?.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
   }
   get interVisibleColumns(): number {
@@ -1264,11 +1267,15 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get resultCells(): ResultProduct[] {
     const branchProducts = this.intermediateSource.flatMap((c) => c.products || []);
     const allResultProducts = branchProducts.length ? branchProducts : (this.result?.products || []);
+    const renderFullVerticalList = this.resultScrollMode === 'vertical'
+      && ['map-list', 'filter-list'].includes(this.resTpl);
     const real = this.resTpl === 'finder-detail'
       ? (this.result?.products || [])
       : this.resTpl === 'shelf'
         ? allResultProducts
-        : allResultProducts.slice(0, 6);
+        : renderFullVerticalList
+          ? allResultProducts
+          : allResultProducts.slice(0, 6);
     if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
     const labels = this.previewLabels('result');
     const count = this.resTpl === 'catalog-grid' ? 6 : 3;
