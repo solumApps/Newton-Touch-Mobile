@@ -228,3 +228,33 @@ On deploy, a `serverConfig` payload is sent alongside `layout.json` containing: 
 - **LCD app:** [solumApps/Newton-Touch-LCD](https://github.com/solumApps/Newton-Touch-LCD)
 - **LAN transfer plugin:** [solumApps/capacitor-lan-transfer](https://github.com/solumApps/capacitor-lan-transfer)
 - **Wireframes & shared contract:** [solumApps/custom-lcd-poc](https://github.com/solumApps/custom-lcd-poc)
+
+## Mobile LCD Preview
+- Add this inside android/app/src/main/java/com/solum/newtontouch/mobile/MainActivity.java
+
+```
+package com.solum.newtontouch.mobile;
+
+import android.os.Bundle;
+import android.webkit.WebSettings;
+import androidx.appcompat.app.AppCompatDelegate;
+import com.getcapacitor.BridgeActivity;
+
+public class MainActivity extends BridgeActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        super.onCreate(savedInstanceState);
+
+        // The LCD preview intentionally renders sub-8px type when its 1920x540
+        // canvas is scaled down to a phone. Android WebView otherwise clamps
+        // those CSS sizes, so changing the preview font rules has no visible
+        // effect. Keep normal page typography unchanged while allowing the
+        // miniature preview to use its declared pixel sizes.
+        WebSettings webSettings = getBridge().getWebView().getSettings();
+        webSettings.setTextZoom(100);
+        webSettings.setMinimumFontSize(1);
+        webSettings.setMinimumLogicalFontSize(1);
+    }
+}
+```

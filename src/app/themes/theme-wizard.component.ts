@@ -421,6 +421,15 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   get resOverflowMatters(): boolean {
     return !['drill-stair', 'promo-list', 'product-focus', 'hero-product', 'promo-map-rank', 'finder-detail'].includes(this.t.resultTemplate);
   }
+  get resultTextOnlyUsesVerticalScroll(): boolean {
+    return ['map-list', 'filter-list'].includes(this.t.resultTemplate)
+      && (this.t.result.content || 'image-text') === 'text-only';
+  }
+  get resultScrollModes(): { id: ScrollMode; label: string }[] {
+    return this.resultTextOnlyUsesVerticalScroll
+      ? this.scrollModes.filter((mode) => mode.id === 'vertical')
+      : this.scrollModes;
+  }
   /** Result: card shape applies to templates with product cards/thumbnails. */
   get resShapeMatters(): boolean {
     return ['map-list', 'cards-map', 'list-only', 'map-full', 'card-grid', 'catalog-grid', 'drill-filter', 'filter-list', 'map-filter-list', 'promo-list', 'shelf'].includes(this.t.resultTemplate);
@@ -806,7 +815,12 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'horizontal' ? 'horizontal' : 'vertical';
   }
   get effectiveResultScrollMode(): 'vertical' | 'horizontal' {
+    if (this.resultTextOnlyUsesVerticalScroll) return 'vertical';
     return this.t.result.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
+  }
+  setResultContent(content: 'image-text' | 'text-only'): void {
+    this.t.result.content = content;
+    if (this.resultTextOnlyUsesVerticalScroll) this.t.result.scrollMode = 'vertical';
   }
   /** Set Home scroll + coerce alignment to a safe, non-clipping default. */
   setHomeScroll(m: ScrollMode): void {
