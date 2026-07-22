@@ -5973,7 +5973,7 @@
 .nt-result.scroll-vertical .filter-list {
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .nt-result.scroll-vertical.res-map-list.res-content-text-only .prod {
@@ -7644,6 +7644,42 @@
   top: 50% !important;
   bottom: auto !important;
   transform: translateY(-50%) !important;
+}
+
+/* Promo Categories: Text Only follows Icon + Text's direct label-positioning
+   model. The meta layer fills the tile and the label moves within it. */
+.nt-home .layout-promo-categories .promo-rail .card.content-text-only .meta {
+  position: absolute !important;
+  inset: 0 !important;
+  width: auto !important;
+  padding: 0 !important;
+  background: transparent !important;
+  transform: none !important;
+}
+
+.nt-home .layout-promo-categories .promo-rail .card.content-text-only .name {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  width: auto;
+}
+
+.nt-home .layout-promo-categories .promo-rail .card.content-text-only.pos-overlay-top .name {
+  top: 9%;
+  bottom: auto;
+  transform: none;
+}
+
+.nt-home .layout-promo-categories .promo-rail .card.content-text-only.pos-overlay-bottom .name {
+  top: auto;
+  bottom: 9%;
+  transform: none;
+}
+
+.nt-home .layout-promo-categories .promo-rail .card.content-text-only.pos-center .name {
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
 }
 
 /* intermediate: text position for circular / hex-grid / fullscreen / center-tiles */
@@ -12204,7 +12240,7 @@
 
 .nt-inter .body.fs-body .fs-index {
   padding: calc(var(--nt-vh)*0.7) calc(var(--nt-vw)*0.8);
-  background: #000;
+  // background: #000;
   border-radius: 999px;
   opacity: 0.7;
 }
@@ -12261,6 +12297,17 @@
 
 .nt-inter .body.fs-body .fs-alpha-index .fs-letter:disabled {
   cursor: default;
+}
+
+.nt-inter .body.fs-body .fs-index-values .fs-val.available {
+  cursor: pointer;
+  color: var(--fs-accent);
+  font-weight: 800;
+}
+
+.nt-inter .body.fs-body .fs-index-values .fs-val:disabled {
+  cursor: default;
+  opacity: 0.35;
 }
 
 .nt-inter .body.fs-body .fs-letter.active,

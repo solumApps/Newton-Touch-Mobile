@@ -51,10 +51,13 @@ export interface ContentDraft {
   templateData?: {
     floors?: string[]; youAreHereLabel?: string; timerSeconds?: number;       // promo-map-rank
     breadcrumbLabels?: string[]; findItLabel?: string; findAllLabel?: string; heroImage?: string; // finder-detail
-    promptPrefix?: string; promptText?: string; stepLabels?: string[];         // finder-select
+    promptPrefix?: string; promptText?: string; promptTexts?: string[]; stepLabels?: string[];         // finder-select
     /** finder-select fast-lookup index (moved out of the theme — depends on the
-     *  drill levels / content). 'alpha' = A–Z; 'number' = min/max/interval. */
+     *  drill levels / content). 'alpha' = A–Z; 'number' = min/max/interval.
+     *  Legacy flat fields are kept for backward compatibility; per-level overrides
+     *  in indexConfig win when present. */
     indexMode?: 'alpha' | 'number'; indexNumberMin?: number; indexNumberMax?: number; indexNumberInterval?: number;
+    indexConfig?: Record<string, { mode?: 'alpha' | 'number'; min?: number; max?: number; interval?: number }>;
     fsSortOrder?: 'none' | 'az' | 'za';
     /** brand-rail: per-drill-level headline messages (index 0 = L1). A blank
      *  level inherits the nearest shallower level's message. */
@@ -309,6 +312,7 @@ export class ContentService {
     // style-only and gets overwritten on re-sync, so the data lives on the draft).
     const theme: ThemeTokens = { ...d.themeTokens, result: { ...d.themeTokens.result }, intermediate: { ...d.themeTokens.intermediate } };
     const td = d.templateData;
+    const levelCount = Math.min(3, Math.max(1, d.categoryLevelCount ?? 1)); // mirrors protoLevelCount
     if (td) {
       const r: any = theme.result, im: any = theme.intermediate;
       if (td.floors) r.floors = td.floors;
@@ -319,13 +323,48 @@ export class ContentService {
       if (td.findAllLabel != null) r.findAllLabel = td.findAllLabel;
       if (td.heroImage != null) r.heroImage = td.heroImage;
       if (td.promptPrefix != null) im.promptPrefix = td.promptPrefix;
-      if (td.promptText != null) im.promptText = td.promptText;
+      if (td.promptTexts) {
+        im.promptTexts = [...td.promptTexts];
+        while (im.promptTexts.length < levelCount + 1) im.promptTexts.push('');
+      } else if (td.promptText != null) {
+        im.promptText = td.promptText;
+      }
       if (td.stepLabels) im.stepLabels = td.stepLabels;
       if (td.indexMode != null) im.indexMode = td.indexMode;
       if (td.indexNumberMin != null) im.indexNumberMin = td.indexNumberMin;
       if (td.indexNumberMax != null) im.indexNumberMax = td.indexNumberMax;
       if (td.indexNumberInterval != null) im.indexNumberInterval = td.indexNumberInterval;
       if (td.fsSortOrder != null) im.fsSortOrder = td.fsSortOrder;
+
+      // Per-level fast-lookup index: if per-level overrides exist, populate the
+      // arrays (home = index 0, L1 = index 1, ...) and sync flat fallbacks.
+      const indexLevels = ['home', 'inter1', 'inter2', 'inter3'];
+      const indexCfg = td.indexConfig || {};
+      const indexModes: ('alpha' | 'number')[] = [];
+      const indexNumberMins: number[] = [];
+      const indexNumberMaxs: number[] = [];
+      const indexNumberIntervals: number[] = [];
+      for (const key of indexLevels) {
+        const lvl = indexCfg[key] || {};
+        const mode = lvl.mode || td.indexMode || 'alpha';
+        const min = lvl.min != null ? lvl.min : td.indexNumberMin ?? 0;
+        const max = lvl.max != null ? lvl.max : td.indexNumberMax ?? 100;
+        const interval = lvl.interval != null ? lvl.interval : (typeof td.indexNumberInterval === 'number' && Number.isFinite(td.indexNumberInterval) && td.indexNumberInterval > 0 ? td.indexNumberInterval : 10);
+        indexModes.push(mode);
+        indexNumberMins.push(min);
+        indexNumberMaxs.push(max);
+        indexNumberIntervals.push(interval);
+      }
+      if (indexModes.some((m, i) => m !== indexModes[0])) {
+        im.indexModes = indexModes;
+        im.indexNumberMins = indexNumberMins;
+        im.indexNumberMaxs = indexNumberMaxs;
+        im.indexNumberIntervals = indexNumberIntervals;
+      }
+      im.indexMode = indexModes[0];
+      im.indexNumberMin = indexNumberMins[0];
+      im.indexNumberMax = indexNumberMaxs[0];
+      im.indexNumberInterval = indexNumberIntervals[0];
       if (td.brandRailMessages && td.brandRailMessages.some((m) => m && m.trim())) {
         im.brandRailMessages = td.brandRailMessages;
         // Base fallback (single-value readers + L1) = first non-empty level.
@@ -338,7 +377,6 @@ export class ContentService {
     // finder-select: the finder shows one progress step PER DRILL LEVEL (home +
     // intermediate levels = "Category depth"). Emit exactly that many labels,
     // filling blanks with the generic default so the step count always matches.
-    const levelCount = Math.min(3, Math.max(1, d.categoryLevelCount ?? 1)); // mirrors protoLevelCount
     const fillLabels = (raw: string[], count: number): string[] =>
       Array.from({ length: count }, (_, i) => (raw[i] && raw[i].trim()) ? raw[i].trim() : 'Category ' + (i + 1));
     if (theme.intermediateStyle === 'finder-select') {

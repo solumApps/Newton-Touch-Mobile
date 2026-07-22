@@ -151,6 +151,9 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   /** When the current selection is a now-hidden 'below', coerce it to 'center'
    *  (edit-time only — deployed themes keep rendering via CSS fallbacks). */
   private coerceTextPos(): void {
+    if (this.t.homeLayout === 'promo-categories' && this.t.cardContent === 'image-text') {
+      this.t.cardTextPos = 'overlay-bottom';
+    }
     if ((this.t.cardTextPos === 'below' || this.t.cardTextPos === 'above') && this.homeBelowHidden) this.t.cardTextPos = 'center';
     if (this.t.cardShape === 'hexagon' && this.t.cardTextPos === 'above') this.t.cardTextPos = 'center';
     
@@ -420,6 +423,15 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   /** Result: custom templates have fixed internal panels, not global list scrolling. */
   get resOverflowMatters(): boolean {
     return !['drill-stair', 'promo-list', 'product-focus', 'hero-product', 'promo-map-rank', 'finder-detail'].includes(this.t.resultTemplate);
+  }
+  get resultTextOnlyUsesVerticalScroll(): boolean {
+    return ['map-list', 'filter-list'].includes(this.t.resultTemplate)
+      && (this.t.result.content || 'image-text') === 'text-only';
+  }
+  get resultScrollModes(): { id: ScrollMode; label: string }[] {
+    return this.resultTextOnlyUsesVerticalScroll
+      ? this.scrollModes.filter((mode) => mode.id === 'vertical')
+      : this.scrollModes;
   }
   /** Result: card shape applies to templates with product cards/thumbnails. */
   get resShapeMatters(): boolean {
@@ -806,7 +818,18 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'horizontal' ? 'horizontal' : 'vertical';
   }
   get effectiveResultScrollMode(): 'vertical' | 'horizontal' {
+    if (this.resultTextOnlyUsesVerticalScroll) return 'vertical';
     return this.t.result.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
+  }
+  setResultContent(content: 'image-text' | 'text-only'): void {
+    this.t.result.content = content;
+    if (this.resultTextOnlyUsesVerticalScroll) this.t.result.scrollMode = 'vertical';
+    this.coerceShelfTextOnlyShape();
+  }
+  private coerceShelfTextOnlyShape(): void {
+    if (this.t.resultTemplate === 'shelf' && this.t.result.content === 'text-only') {
+      this.t.result.cardShape = 'rect';
+    }
   }
   /** Set Home scroll + coerce alignment to a safe, non-clipping default. */
   setHomeScroll(m: ScrollMode): void {
@@ -863,17 +886,19 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     else if (o === 'finder-detail') this.applyFinderDetailDefaults();
     else this.applyMapListDefaults();
     if (o === 'map-filter-list') this.t.result.filterPos = 'center';
+    this.coerceShelfTextOnlyShape();
   }
   private applyMapListDefaults(): void {
-    Object.assign(this.t.result, {
-      headerColor: 'transparent',
-      background: '#1a0036',
-      cardBackground: 'RGBA(255,255,255,0.15)',
-      accent: '#ffcd00',
-      popularText: '#ffffff',
-      pathColor: '#ffcd00',
-      cardText: '#ffffff',
-    });
+    const d = ThemeService.defaultTokens().result;
+    const r = this.t.result;
+    const atDefault = (val: string, def: string) => val === def;
+    if (atDefault(r.headerColor, d.headerColor)) this.t.result.headerColor = this.t.headerColor;
+    if (atDefault(r.background, d.background)) this.t.result.background = this.t.background;
+    if (atDefault(r.cardBackground, d.cardBackground)) this.t.result.cardBackground = this.t.cardBackground;
+    if (atDefault(r.cardText, d.cardText)) this.t.result.cardText = this.t.cardText;
+    if (atDefault(r.accent, d.accent)) this.t.result.accent = this.t.accent;
+    if (atDefault(r.popularText || '', d.popularText || '')) this.t.result.popularText = this.t.cardText;
+    if (atDefault(r.pathColor, d.pathColor)) this.t.result.pathColor = this.t.accent;
   }
   private applyPromoMapRankDefaults(): void {
     Object.assign(this.t.result, {
@@ -1202,6 +1227,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
         // Edit-time only: a loaded theme may carry a textPos that is hidden for
         // its content/layout combo — coerce so the wizard never saves it back.
         this.coerceTextPos();
+        this.coerceShelfTextOnlyShape();
       }
     }
     this.bindCustomColors();

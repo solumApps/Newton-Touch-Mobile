@@ -384,6 +384,10 @@ export interface ThemeTokens {
      *  the WHOLE prompt on every finder screen; empty falls back to promptPrefix + the
      *  per-screen default word (home) / picked node name (intermediate). */
     promptText?: string;
+    /** Per-level finder prompts: index 0 = home, 1 = L1, 2 = L2, 3 = L3.
+     *  When present the LCD/content-builder use this array instead of the single
+     *  promptText so each level can show different copy. */
+    promptTexts?: string[];
     /** Optional colour for the Finder Select prompt text (e.g. "TOUCH YOUR"). */
     promptTextColor?: string;
     showPrompt?: boolean;
@@ -401,6 +405,12 @@ export interface ThemeTokens {
     indexNumberMin?: number;
     indexNumberMax?: number;
     indexNumberInterval?: number;
+    /** Per-level fast-lookup overrides (index 0 = home, 1 = L1, 2 = L2, 3 = L3).
+     *  LCD runtime prefers these when present; flat fields above are the fallback. */
+    indexModes?: ('alpha' | 'number')[];
+    indexNumberMins?: number[];
+    indexNumberMaxs?: number[];
+    indexNumberIntervals?: number[];
     fsSortOrder?: 'none' | 'az' | 'za';
     /** finder-select fs-card appearance (independent of the brand-rail/columns card controls). */
     fsCardContent?: CardContent;
