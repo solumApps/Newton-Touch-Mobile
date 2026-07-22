@@ -501,32 +501,78 @@
       </div>
 
       <div *ngSwitchCase="'colors'">
-        <div class="step-title">Colors &amp; branding</div>
-        <app-color-picker *ngIf="t.showHeader" label="Header" hint="top bar" [value]="t.headerColor" (valueChange)="t.headerColor=$event"></app-color-picker>
-        <app-color-picker *ngIf="t.showHeader" label="Header text" hint="title and caption" [value]="t.headerTextColor || '#FFFFFF'" (valueChange)="t.headerTextColor=$event"></app-color-picker>
-        <app-color-picker *ngIf="t.homeLayout === 'finder-select' || t.intermediateStyle === 'finder-select'" label="Prompt text" hint="finder prompt" [value]="t.intermediate?.promptTextColor || t.intermediate?.headerTextColor || t.headerTextColor || '#FFFFFF'" (valueChange)="t.intermediate.promptTextColor=$event"></app-color-picker>
-        <app-color-picker *ngIf="!t.backgroundImage || t.homeLayout === 'finder-select'" label="Page background" [allowGradient]="true" [value]="t.backgroundImage && t.homeLayout === 'finder-select' ? 'transparent' : t.background" (valueChange)="t.background=$event" [presets]="bgPresets"></app-color-picker>
-        <div class="media-row">
-          <button class="btn-o media-btn" (click)="pickBackground('home')">{{ t.backgroundImage ? 'Replace home background image' : 'Upload home background image' }}</button>
-          <button class="btn-o media-clear" *ngIf="t.backgroundImage" (click)="clearBackground('home')">Clear</button>
+        <div class="step-title-row">
+          <div class="step-title">Colors &amp; branding</div>
+          <button type="button" class="all-settings-btn" (click)="colorsSettingsOpen = true">
+            <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
+          </button>
         </div>
-        <p class="hint" *ngIf="t.backgroundImage && t.homeLayout !== 'finder-select'">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
-        <ng-container *ngIf="t.backgroundImage">
-          <div class="step-title sm">Background framing</div>
-          <p class="hint">Pan and zoom to choose which part of the image shows.</p>
-          <div class="slider-row"><span class="slider-lbl">Pan X</span><input type="range" class="nt-slider" min="0" max="100" step="1" [value]="t.bgImageX ?? 50" (input)="t.bgImageX=+$any($event.target).value" aria-label="Background pan X" /><span class="slider-val">{{ t.bgImageX ?? 50 }}%</span></div>
-          <div class="slider-row"><span class="slider-lbl">Pan Y</span><input type="range" class="nt-slider" min="0" max="100" step="1" [value]="t.bgImageY ?? 50" (input)="t.bgImageY=+$any($event.target).value" aria-label="Background pan Y" /><span class="slider-val">{{ t.bgImageY ?? 50 }}%</span></div>
-          <div class="slider-row"><span class="slider-lbl">Zoom</span><input type="range" class="nt-slider" min="100" max="300" step="5" [value]="t.bgImageZoom ?? 100" (input)="t.bgImageZoom=+$any($event.target).value" aria-label="Background zoom" /><span class="slider-val">{{ t.bgImageZoom ?? 100 }}%</span></div>
-        </ng-container>
-        <app-color-picker *ngIf="(t.homeLayout !== 'finder-select' && t.cardContent !== 'image-only' && t.cardContent !== 'image-text') || (t.homeLayout === 'finder-select' && ((t.intermediate.fsCardContent || 'text-only') === 'text-only' || (t.intermediate.fsCardContent || 'text-only') === 'icon-text'))" label="Card background" [allowGradient]="true" [value]="t.cardBackground" (valueChange)="t.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
-        <app-color-picker *ngIf="(t.homeLayout !== 'finder-select' && t.cardContent !== 'image-only') || (t.homeLayout === 'finder-select' && (t.intermediate.fsCardContent || 'text-only') !== 'image-only')" label="Card text" [value]="t.cardText" (valueChange)="t.cardText=$event" [presets]="textPresets"></app-color-picker>
-        <app-color-picker *ngIf="t.homeLayout==='finder-select'" label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
-        <app-color-picker *ngIf="overlayRelevant || t.homeLayout==='finder-select'" label="Text overlay" hint="background behind text on cards" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
-        <app-color-picker label="Accent / highlight" [value]="t.accent" (valueChange)="t.accent=$event"></app-color-picker>
-        <ng-container *ngIf="t.showHeader && !isCustomHeader">
-          <div class="step-title sm">Logo position</div>
-          <div class="seg"><button class="tile" *ngFor="let o of logoPositions" [class.sel]="t.logoPosition===o" (click)="t.logoPosition=o">{{ o }}</button></div>
-        </ng-container>
+
+        <nt-deck-chips [chips]="colorsChipsInput" [activeIndex]="colorsActiveChip" (activeIndexChange)="onColorsChipChange($event)"></nt-deck-chips>
+        <nt-value-pill-row [pills]="colorsPillsInput" [activeIndex]="colorsActivePill" (activeIndexChange)="colorsActivePill = $event"></nt-value-pill-row>
+
+        <nt-editor-card [sectionLabel]="colorsActivePillLabel">
+          <ng-container [ngSwitch]="colorsActivePillKey">
+
+            <ng-container *ngSwitchCase="'headerColor'">
+              <app-color-picker label="Header" hint="top bar" [value]="t.headerColor" (valueChange)="t.headerColor=$event"></app-color-picker>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'headerTextColor'">
+              <app-color-picker label="Header text" hint="title and caption" [value]="t.headerTextColor || '#FFFFFF'" (valueChange)="t.headerTextColor=$event"></app-color-picker>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'promptTextColor'">
+              <app-color-picker label="Prompt text" hint="finder prompt" [value]="t.intermediate?.promptTextColor || t.intermediate?.headerTextColor || t.headerTextColor || '#FFFFFF'" (valueChange)="t.intermediate.promptTextColor=$event"></app-color-picker>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'background'">
+              <app-color-picker label="Page background" [allowGradient]="true" [value]="t.backgroundImage && t.homeLayout === 'finder-select' ? 'transparent' : t.background" (valueChange)="t.background=$event" [presets]="bgPresets"></app-color-picker>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'backgroundImage'">
+              <div class="media-row">
+                <button class="btn-o media-btn" (click)="pickBackground('home')">{{ t.backgroundImage ? 'Replace home background image' : 'Upload home background image' }}</button>
+                <button class="btn-o media-clear" *ngIf="t.backgroundImage" (click)="clearBackground('home')">Clear</button>
+              </div>
+              <p class="hint" *ngIf="t.backgroundImage && t.homeLayout !== 'finder-select'">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'bgImageX'">
+              <p class="hint">Pan and zoom to choose which part of the image shows.</p>
+              <div class="slider-row"><span class="slider-lbl">Pan X</span><input type="range" class="nt-slider" min="0" max="100" step="1" [value]="t.bgImageX ?? 50" (input)="t.bgImageX=+$any($event.target).value" aria-label="Background pan X" /><span class="slider-val">{{ t.bgImageX ?? 50 }}%</span></div>
+            </ng-container>
+            <ng-container *ngSwitchCase="'bgImageY'">
+              <div class="slider-row"><span class="slider-lbl">Pan Y</span><input type="range" class="nt-slider" min="0" max="100" step="1" [value]="t.bgImageY ?? 50" (input)="t.bgImageY=+$any($event.target).value" aria-label="Background pan Y" /><span class="slider-val">{{ t.bgImageY ?? 50 }}%</span></div>
+            </ng-container>
+            <ng-container *ngSwitchCase="'bgImageZoom'">
+              <div class="slider-row"><span class="slider-lbl">Zoom</span><input type="range" class="nt-slider" min="100" max="300" step="5" [value]="t.bgImageZoom ?? 100" (input)="t.bgImageZoom=+$any($event.target).value" aria-label="Background zoom" /><span class="slider-val">{{ t.bgImageZoom ?? 100 }}%</span></div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'cardBackground'">
+              <app-color-picker label="Card background" [allowGradient]="true" [value]="t.cardBackground" (valueChange)="t.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'cardText'">
+              <app-color-picker label="Card text" [value]="t.cardText" (valueChange)="t.cardText=$event" [presets]="textPresets"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'heroColor'">
+              <app-color-picker label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'overlayColor'">
+              <app-color-picker label="Text overlay" hint="background behind text on cards" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'accent'">
+              <app-color-picker label="Accent / highlight" [value]="t.accent" (valueChange)="t.accent=$event"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'logoPosition'">
+              <div class="deck-optrow"><button class="tile" *ngFor="let o of logoPositions" [class.sel]="t.logoPosition===o" (click)="t.logoPosition=o">{{ o }}</button></div>
+            </ng-container>
+
+          </ng-container>
+        </nt-editor-card>
+
+        <nt-settings-sheet [groups]="colorsSettingsGroups" [(isOpen)]="colorsSettingsOpen" title="All settings · Colors" (rowSelected)="onColorsRowSelected($event)"></nt-settings-sheet>
       </div>
 
       <div *ngSwitchCase="'type'">

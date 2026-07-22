@@ -2,7 +2,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter, AlertController } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter, IonIcon, AlertController } from '@ionic/angular/standalone';
 import { ColorPickerComponent } from '../shared/color-picker.component';
 import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
 import { ThemeService, SavedTheme } from '../services/theme.service';
@@ -13,16 +13,27 @@ import { Subscription } from 'rxjs';
 import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, CardOverlayStyle, OverlayShape, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, TextCase, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, NavButtonMode, NavButtonSize, SaverOverlayPosition, ScrollMode, ScreensaverMode } from '@contract/layout';
 import { MIN_COLUMNS, MAX_COLUMNS, columnsForLayout, coerceColumns, NAV_ICONS, navIconKind } from '@contract/layout';
 import { ThemeCustomColorService } from '../services/theme-custom-color.service';
+import {
+  NtDeckChipsComponent, NtDeckChip,
+  NtValuePillRowComponent, NtValuePill,
+  NtEditorCardComponent,
+  NtSettingsSheetComponent, NtSettingsGroup,
+} from '../shared/ui';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 interface Step { key: string; page: PreviewPage; }
+/** One option inside an Editor Deck category (Colors / Type steps, phase 3a).
+ *  `key` selects which existing control markup the editor-card level renders;
+ *  `value`/`swatch` feed the value-pill and All-settings-sheet row faces. */
+interface DeckOption { key: string; icon: string; label: string; value: string; swatch?: string; }
 
 /** Visual theme wizard. Live preview re-renders the selected layout/card/intermediate/result
  *  + colours. Steps for intermediate are hidden when intermediate is skipped. */
 @Component({
   selector: 'app-theme-wizard',
   standalone: true,
-  imports: [CommonModule, FormsModule, ColorPickerComponent, ContentPreviewStripComponent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter],
+  imports: [CommonModule, FormsModule, ColorPickerComponent, ContentPreviewStripComponent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter, IonIcon,
+    NtDeckChipsComponent, NtValuePillRowComponent, NtEditorCardComponent, NtSettingsSheetComponent],
   templateUrl: './theme-wizard.component.html',
   styleUrls: ['./theme-wizard.component.scss'],
 })
@@ -1675,6 +1686,114 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     this.coerceTextPos();
     if (key === 'intStyle' || key === 'intColors') { this.syncInterFromHome(); this.clampIntColumns(); }
     if (key === 'resColors') { this.resultSynced = false; this.syncResultFromHome(); }
+  }
+
+  // ===== Editor Deck (phase 3a) — Colors & Type steps =====
+  // View-only UI state (active category chip / value pill, sheet open flags).
+  // Every option below reads/writes the exact same `t.*` properties and calls
+  // the exact same methods as the original vertical form — only the presentation
+  // (chips → value pills → single editor card, plus an "All settings" sheet) is
+  // restructured. See UI-REDESIGN-INVENTORY.md Step 2 / Step 3 for the full list.
+
+  private capitalize(s: string): string { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+  private pct(v: number): string { return Math.round(v * 100) + '%'; }
+
+  // ----- Colors step -----
+  colorsActiveChip = 0;
+  colorsActivePill = 0;
+  colorsSettingsOpen = false;
+
+  private get colorsHeaderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.showHeader) {
+      out.push({ key: 'headerColor', icon: 'color-palette-outline', label: 'Header', value: this.t.headerColor, swatch: this.t.headerColor });
+      const htc = this.t.headerTextColor || '#FFFFFF';
+      out.push({ key: 'headerTextColor', icon: 'text-outline', label: 'Header text', value: htc, swatch: htc });
+    }
+    if (this.t.homeLayout === 'finder-select' || this.t.intermediateStyle === 'finder-select') {
+      const v = this.t.intermediate?.promptTextColor || this.t.intermediate?.headerTextColor || this.t.headerTextColor || '#FFFFFF';
+      out.push({ key: 'promptTextColor', icon: 'chatbubble-outline', label: 'Prompt text', value: v, swatch: v });
+    }
+    return out;
+  }
+
+  private get colorsBackgroundOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.t.backgroundImage || this.t.homeLayout === 'finder-select') {
+      const v = this.t.backgroundImage && this.t.homeLayout === 'finder-select' ? 'transparent' : this.t.background;
+      out.push({ key: 'background', icon: 'image-outline', label: 'Page background', value: v, swatch: v !== 'transparent' ? v : undefined });
+    }
+    out.push({ key: 'backgroundImage', icon: 'cloud-upload-outline', label: 'Background image', value: this.t.backgroundImage ? 'Image set' : 'None' });
+    if (this.t.backgroundImage) {
+      out.push({ key: 'bgImageX', icon: 'resize-outline', label: 'Pan X', value: `${this.t.bgImageX ?? 50}%` });
+      out.push({ key: 'bgImageY', icon: 'resize-outline', label: 'Pan Y', value: `${this.t.bgImageY ?? 50}%` });
+      out.push({ key: 'bgImageZoom', icon: 'expand-outline', label: 'Zoom', value: `${this.t.bgImageZoom ?? 100}%` });
+    }
+    return out;
+  }
+
+  private get colorsCardOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const fsContent = this.t.intermediate.fsCardContent || 'text-only';
+    const showCardBg = (this.t.homeLayout !== 'finder-select' && this.t.cardContent !== 'image-only' && this.t.cardContent !== 'image-text')
+      || (this.t.homeLayout === 'finder-select' && (fsContent === 'text-only' || fsContent === 'icon-text'));
+    if (showCardBg) out.push({ key: 'cardBackground', icon: 'square-outline', label: 'Card background', value: this.t.cardBackground, swatch: this.t.cardBackground });
+    const showCardText = (this.t.homeLayout !== 'finder-select' && this.t.cardContent !== 'image-only')
+      || (this.t.homeLayout === 'finder-select' && fsContent !== 'image-only');
+    if (showCardText) out.push({ key: 'cardText', icon: 'text-outline', label: 'Card text', value: this.t.cardText, swatch: this.t.cardText });
+    if (this.t.homeLayout === 'finder-select') {
+      const hero = this.t.intermediate.heroColor || '#172033';
+      out.push({ key: 'heroColor', icon: 'albums-outline', label: 'Hero panel', value: hero, swatch: hero });
+    }
+    if (this.overlayRelevant || this.t.homeLayout === 'finder-select') {
+      const ov = this.t.overlayColor || 'rgba(0,0,0,0.6)';
+      out.push({ key: 'overlayColor', icon: 'contrast-outline', label: 'Text overlay', value: ov, swatch: ov });
+    }
+    return out;
+  }
+
+  private get colorsAccentOptions(): DeckOption[] {
+    const out: DeckOption[] = [{ key: 'accent', icon: 'color-palette-outline', label: 'Accent / highlight', value: this.t.accent, swatch: this.t.accent }];
+    if (this.t.showHeader && !this.isCustomHeader) {
+      out.push({ key: 'logoPosition', icon: 'flag-outline', label: 'Logo position', value: this.capitalize(this.t.logoPosition || 'left') });
+    }
+    return out;
+  }
+
+  get colorsCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'header', icon: 'menu-outline', label: 'Header', options: this.colorsHeaderOptions },
+      { key: 'background', icon: 'image-outline', label: 'Background', options: this.colorsBackgroundOptions },
+      { key: 'cards', icon: 'albums-outline', label: 'Cards', options: this.colorsCardOptions },
+      { key: 'accent', icon: 'color-palette-outline', label: 'Accent & logo', options: this.colorsAccentOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get colorsActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.colorsCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.colorsActiveChip, cats.length - 1)];
+  }
+  get colorsChipsInput(): NtDeckChip[] { return this.colorsCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get colorsPillsInput(): NtValuePill[] {
+    return (this.colorsActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get colorsActiveOption(): DeckOption | undefined {
+    const opts = this.colorsActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.colorsActivePill, opts.length - 1)];
+  }
+  get colorsActivePillKey(): string { return this.colorsActiveOption?.key || ''; }
+  get colorsActivePillLabel(): string { return (this.colorsActiveOption?.label || '').toUpperCase(); }
+  get colorsSettingsGroups(): NtSettingsGroup[] {
+    return this.colorsCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onColorsChipChange(i: number): void { this.colorsActiveChip = i; this.colorsActivePill = 0; }
+  onColorsRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.colorsActiveChip = sel.groupIndex;
+    this.colorsActivePill = sel.rowIndex;
   }
 
   async cancel(): Promise<void> {

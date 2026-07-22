@@ -122,23 +122,29 @@ Source files inventoried (full read, all lines):
 
 ### Step 2 — Colors (`colors`, step-title "Colors & branding")
 
-- [ ] Header → color-picker (conditional `t.showHeader`) → `t.headerColor`
-- [ ] Header text → color-picker (conditional `t.showHeader`) → `t.headerTextColor`
-- [ ] Prompt text → color-picker (conditional finder-select home/intermediate style) → `t.intermediate.promptTextColor`
-- [ ] Page background → color-picker (allowGradient, presets `bgPresets`) → `t.background`
-- [ ] Upload/Replace home background image → image-upload button → `pickBackground('home')`
-- [ ] Clear home background image → button (conditional `t.backgroundImage`) → `clearBackground('home')`
-- [ ] Background framing · Pan X → slider (0–100, conditional `t.backgroundImage`) → `t.bgImageX`
-- [ ] Background framing · Pan Y → slider (0–100) → `t.bgImageY`
-- [ ] Background framing · Zoom → slider (100–300) → `t.bgImageZoom`
-- [ ] Card background → color-picker (allowGradient, presets `cardPresets`, conditional not image-only/-text) → `t.cardBackground`
-- [ ] Card text → color-picker (presets `textPresets`, conditional not image-only) → `t.cardText`
-- [ ] Hero panel → color-picker (presets `heroPanelPresets`, conditional finder-select) → `t.intermediate.heroColor`
-- [ ] Text overlay → color-picker (presets `overlayPresets`, conditional `overlayRelevant` or finder-select) → `t.overlayColor`
-- [ ] Accent / highlight → color-picker → `t.accent`
-- [ ] Logo position → segment (`logoPositions`, 3 states, conditional `t.showHeader && !isCustomHeader`) → `t.logoPosition`
+**Migrated to the Editor Deck pattern (phase 3a) — chips: Header / Background / Cards / Accent & logo. Each
+control is now one value pill in its category; opening the pill renders the exact same control markup/bindings
+inside `nt-editor-card`. All 15 rows also appear (grouped identically) in the `nt-settings-sheet` opened via the
+step's "All settings" button, with their live current value + swatch where applicable — selecting a sheet row
+jumps the deck to that chip + pill.**
 
-**Step 2 total: 15 controls (9 color-pickers, 2 buttons, 3 sliders, 1 segment)**
+- [x] Header → color-picker (conditional `t.showHeader`) → `t.headerColor` — deck: Colors ▸ Header chip ▸ "Header" pill
+- [x] Header text → color-picker (conditional `t.showHeader`) → `t.headerTextColor` — deck: Colors ▸ Header chip ▸ "Header text" pill
+- [x] Prompt text → color-picker (conditional finder-select home/intermediate style) → `t.intermediate.promptTextColor` — deck: Colors ▸ Header chip ▸ "Prompt text" pill
+- [x] Page background → color-picker (allowGradient, presets `bgPresets`) → `t.background` — deck: Colors ▸ Background chip ▸ "Page background" pill
+- [x] Upload/Replace home background image → image-upload button → `pickBackground('home')` — deck: Colors ▸ Background chip ▸ "Background image" pill (shared editor with Clear button, matches original `.media-row` grouping)
+- [x] Clear home background image → button (conditional `t.backgroundImage`) → `clearBackground('home')` — deck: Colors ▸ Background chip ▸ "Background image" pill (same editor as Upload)
+- [x] Background framing · Pan X → slider (0–100, conditional `t.backgroundImage`) → `t.bgImageX` — deck: Colors ▸ Background chip ▸ "Pan X" pill
+- [x] Background framing · Pan Y → slider (0–100) → `t.bgImageY` — deck: Colors ▸ Background chip ▸ "Pan Y" pill
+- [x] Background framing · Zoom → slider (100–300) → `t.bgImageZoom` — deck: Colors ▸ Background chip ▸ "Zoom" pill
+- [x] Card background → color-picker (allowGradient, presets `cardPresets`, conditional not image-only/-text) → `t.cardBackground` — deck: Colors ▸ Cards chip ▸ "Card background" pill
+- [x] Card text → color-picker (presets `textPresets`, conditional not image-only) → `t.cardText` — deck: Colors ▸ Cards chip ▸ "Card text" pill
+- [x] Hero panel → color-picker (presets `heroPanelPresets`, conditional finder-select) → `t.intermediate.heroColor` — deck: Colors ▸ Cards chip ▸ "Hero panel" pill
+- [x] Text overlay → color-picker (presets `overlayPresets`, conditional `overlayRelevant` or finder-select) → `t.overlayColor` — deck: Colors ▸ Cards chip ▸ "Text overlay" pill
+- [x] Accent / highlight → color-picker → `t.accent` — deck: Colors ▸ Accent & logo chip ▸ "Accent / highlight" pill
+- [x] Logo position → segment (`logoPositions`, 3 states, conditional `t.showHeader && !isCustomHeader`) → `t.logoPosition` — deck: Colors ▸ Accent & logo chip ▸ "Logo position" pill
+
+**Step 2 total: 15 controls (9 color-pickers, 2 buttons, 3 sliders, 1 segment) — all 15 migrated, all reachable via deck + All-settings sheet.**
 
 ### Step 3 — Type (`type`, step-title "Typography & appearance")
 
