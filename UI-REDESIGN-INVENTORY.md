@@ -148,18 +148,23 @@ jumps the deck to that chip + pill.**
 
 ### Step 3 — Type (`type`, step-title "Typography & appearance")
 
-- [ ] Font → tile-group (`fonts` = `FONTS` shared list) → `t.typography.fontFamily`
-- [ ] Text fit → segment (`textFits`) → `t.typography.textFit`
-- [ ] Card label size → slider (0.6–2.0, conditional `showCardTextScaleControl`) → `t.typography.cardTextScaleNum` via `setCardTextScale(v)`
-- [ ] Promo message text size → slider (0.6–2.0, conditional `showPromoTypographyControls`) → `t.typography.promoCopyTextScaleNum` via `setPromoCopyTextScale(v)`
-- [ ] Promo card label size → slider (0.6–2.0, conditional) → `t.typography.promoCardTextScaleNum` via `setPromoCardTextScale(v)`
-- [ ] Intermediate item text size → slider (0.6–2.0, conditional `showIntermediateTextScaleControl`) → `t.typography.intermediateTextScaleNum` via `setIntermediateTextScale(v)`
-- [ ] Result text size → slider (0.6–2.0, conditional `showResultTextScaleControl`) → `t.typography.resultTextScaleNum` via `setResultTextScale(v)`
-- [ ] Card text case → segment (`textCases`, conditional `showCardTextCaseControl`) → `t.typography.cardTextCase`
-- [ ] Header text size → slider (0.6–2.0, conditional `showHeaderTextScaleControl`) → `t.typography.headerTextScaleNum` via `setHeaderTextScale(v)`
-- [ ] Header text case → segment (`textCases`) → `t.typography.headerTextCase`
+**Migrated to the Editor Deck pattern (phase 3a) — chips: Font & fit / Text sizes / Text case. Each control is
+one value pill in its category; opening the pill renders the exact same control markup/bindings inside
+`nt-editor-card`. All 10 rows also appear (grouped identically) in the `nt-settings-sheet` opened via the step's
+"All settings" button, with their live current value — selecting a sheet row jumps the deck to that chip + pill.**
 
-**Step 3 total: 10 controls**
+- [x] Font → tile-group (`fonts` = `FONTS` shared list) → `t.typography.fontFamily` — deck: Type ▸ Font & fit chip ▸ "Font" pill
+- [x] Text fit → segment (`textFits`) → `t.typography.textFit` — deck: Type ▸ Font & fit chip ▸ "Text fit" pill
+- [x] Card label size → slider (0.6–2.0, conditional `showCardTextScaleControl`) → `t.typography.cardTextScaleNum` via `setCardTextScale(v)` — deck: Type ▸ Text sizes chip ▸ "Card label size" pill
+- [x] Promo message text size → slider (0.6–2.0, conditional `showPromoTypographyControls`) → `t.typography.promoCopyTextScaleNum` via `setPromoCopyTextScale(v)` — deck: Type ▸ Text sizes chip ▸ "Promo message text size" pill
+- [x] Promo card label size → slider (0.6–2.0, conditional) → `t.typography.promoCardTextScaleNum` via `setPromoCardTextScale(v)` — deck: Type ▸ Text sizes chip ▸ "Promo card label size" pill
+- [x] Intermediate item text size → slider (0.6–2.0, conditional `showIntermediateTextScaleControl`) → `t.typography.intermediateTextScaleNum` via `setIntermediateTextScale(v)` — deck: Type ▸ Text sizes chip ▸ "Intermediate item text size" pill
+- [x] Result text size → slider (0.6–2.0, conditional `showResultTextScaleControl`) → `t.typography.resultTextScaleNum` via `setResultTextScale(v)` — deck: Type ▸ Text sizes chip ▸ "Result text size" pill
+- [x] Card text case → segment (`textCases`, conditional `showCardTextCaseControl`) → `t.typography.cardTextCase` — deck: Type ▸ Text case chip ▸ "Card text case" pill
+- [x] Header text size → slider (0.6–2.0, conditional `showHeaderTextScaleControl`) → `t.typography.headerTextScaleNum` via `setHeaderTextScale(v)` — deck: Type ▸ Text sizes chip ▸ "Header text size" pill
+- [x] Header text case → segment (`textCases`) → `t.typography.headerTextCase` — deck: Type ▸ Text case chip ▸ "Header text case" pill
+
+**Step 3 total: 10 controls — all 10 migrated, all reachable via deck + All-settings sheet.**
 
 ### Step 4 — Intermediate design (`intStyle`, step-title "Intermediate design")
 

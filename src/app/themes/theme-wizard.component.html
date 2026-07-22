@@ -576,75 +576,97 @@
       </div>
 
       <div *ngSwitchCase="'type'">
-        <div class="step-title">Typography &amp; appearance</div>
-        <p class="hint">Applied consistently across every rendered page.</p>
-        <div class="step-title sm">Font</div>
-        <div class="tiles">
-          <button class="tile" *ngFor="let f of fonts" [class.sel]="t.typography.fontFamily===f.stack"
-                  [style.fontFamily]="f.stack" (click)="t.typography.fontFamily=f.stack">{{ f.label }}</button>
+        <div class="step-title-row">
+          <div class="step-title">Typography &amp; appearance</div>
+          <button type="button" class="all-settings-btn" (click)="typeSettingsOpen = true">
+            <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
+          </button>
         </div>
-        <div class="step-title sm">Text fit</div>
-        <div class="seg"><button class="tile" *ngFor="let f of textFits" [class.sel]="t.typography.textFit===f.id" (click)="t.typography.textFit=f.id">{{ f.label }}</button></div>
+        <p class="hint">Applied consistently across every rendered page.</p>
 
-        <ng-container *ngIf="showCardTextScaleControl">
-          <div class="step-title sm">Card label size</div>
-          <p class="hint">Controls only the visible Home category labels.</p>
-          <div class="slider-row">
-            <input type="range" class="nt-slider" min="0.6" max="2.0" step="0.05" [value]="cardTextScaleValue"
-                   (input)="setCardTextScale($any($event.target).value)" aria-label="Card label size" />
-            <span class="slider-val">{{ (cardTextScaleValue * 100) | number:'1.0-0' }}%</span>
-          </div>
-        </ng-container>
-        <ng-container *ngIf="showPromoTypographyControls">
-          <div class="step-title sm">Promo message text size</div>
-          <p class="hint">Controls the large promotional copy on the left side only.</p>
-          <div class="slider-row">
-            <input type="range" class="nt-slider" min="0.6" max="2.0" step="0.05" [value]="promoCopyTextScaleValue"
-                   (input)="setPromoCopyTextScale($any($event.target).value)" aria-label="Promo message text size" />
-            <span class="slider-val">{{ (promoCopyTextScaleValue * 100) | number:'1.0-0' }}%</span>
-          </div>
-          <div class="step-title sm">Promo card label size</div>
-          <p class="hint">Controls the category labels inside the promo rail only.</p>
-          <div class="slider-row">
-            <input type="range" class="nt-slider" min="0.6" max="2.0" step="0.05" [value]="promoCardTextScaleValue"
-                   (input)="setPromoCardTextScale($any($event.target).value)" aria-label="Promo card label size" />
-            <span class="slider-val">{{ (promoCardTextScaleValue * 100) | number:'1.0-0' }}%</span>
-          </div>
-        </ng-container>
-        <ng-container *ngIf="showIntermediateTextScaleControl">
-          <div class="step-title sm">Intermediate item text size</div>
-          <p class="hint">Controls drill-down option labels on the Intermediate page only.</p>
-          <div class="slider-row">
-            <input type="range" class="nt-slider" min="0.6" max="2.0" step="0.05" [value]="intermediateTextScaleValue"
-                   (input)="setIntermediateTextScale($any($event.target).value)" aria-label="Intermediate text size" />
-            <span class="slider-val">{{ (intermediateTextScaleValue * 100) | number:'1.0-0' }}%</span>
-          </div>
-        </ng-container>
-        <ng-container *ngIf="showResultTextScaleControl">
-          <div class="step-title sm">Result text size</div>
-          <p class="hint">Controls result list, filter and product text on the Result page only.</p>
-          <div class="slider-row">
-            <input type="range" class="nt-slider" min="0.6" max="2.0" step="0.05" [value]="resultTextScaleValue"
-                   (input)="setResultTextScale($any($event.target).value)" aria-label="Result text size" />
-            <span class="slider-val">{{ (resultTextScaleValue * 100) | number:'1.0-0' }}%</span>
-          </div>
-        </ng-container>
-        <ng-container *ngIf="showCardTextCaseControl">
-          <div class="step-title sm">Card text case</div>
-          <div class="seg"><button class="tile" *ngFor="let c of textCases" [class.sel]="(t.typography.cardTextCase||'default')===c.id" (click)="t.typography.cardTextCase=c.id">{{ c.label }}</button></div>
-        </ng-container>
+        <nt-deck-chips [chips]="typeChipsInput" [activeIndex]="typeActiveChip" (activeIndexChange)="onTypeChipChange($event)"></nt-deck-chips>
+        <nt-value-pill-row [pills]="typePillsInput" [activeIndex]="typeActivePill" (activeIndexChange)="typeActivePill = $event"></nt-value-pill-row>
 
-        <ng-container *ngIf="showHeaderTextScaleControl">
-          <div class="step-title sm">Header text size</div>
-          <p class="hint">Controls the visible header title and caption.</p>
-          <div class="slider-row">
-            <input type="range" class="nt-slider" min="0.6" max="2.0" step="0.05" [value]="headerTextScaleValue"
-                   (input)="setHeaderTextScale($any($event.target).value)" aria-label="Header text size" />
-            <span class="slider-val">{{ (headerTextScaleValue * 100) | number:'1.0-0' }}%</span>
-          </div>
-          <div class="step-title sm">Header text case</div>
-          <div class="seg"><button class="tile" *ngFor="let c of textCases" [class.sel]="(t.typography.headerTextCase||'default')===c.id" (click)="t.typography.headerTextCase=c.id">{{ c.label }}</button></div>
-        </ng-container>
+        <nt-editor-card [sectionLabel]="typeActivePillLabel">
+          <ng-container [ngSwitch]="typeActivePillKey">
+
+            <ng-container *ngSwitchCase="'font'">
+              <div class="deck-optrow">
+                <button class="tile" *ngFor="let f of fonts" [class.sel]="t.typography.fontFamily===f.stack"
+                        [style.fontFamily]="f.stack" (click)="t.typography.fontFamily=f.stack">{{ f.label }}</button>
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'textFit'">
+              <div class="deck-optrow"><button class="tile" *ngFor="let f of textFits" [class.sel]="t.typography.textFit===f.id" (click)="t.typography.textFit=f.id">{{ f.label }}</button></div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'cardTextScale'">
+              <p class="hint">Controls only the visible Home category labels.</p>
+              <div class="slider-row">
+                <input type="range" class="nt-slider" min="0.6" max="2.0" step="0.05" [value]="cardTextScaleValue"
+                       (input)="setCardTextScale($any($event.target).value)" aria-label="Card label size" />
+                <span class="slider-val">{{ (cardTextScaleValue * 100) | number:'1.0-0' }}%</span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'promoCopyTextScale'">
+              <p class="hint">Controls the large promotional copy on the left side only.</p>
+              <div class="slider-row">
+                <input type="range" class="nt-slider" min="0.6" max="2.0" step="0.05" [value]="promoCopyTextScaleValue"
+                       (input)="setPromoCopyTextScale($any($event.target).value)" aria-label="Promo message text size" />
+                <span class="slider-val">{{ (promoCopyTextScaleValue * 100) | number:'1.0-0' }}%</span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'promoCardTextScale'">
+              <p class="hint">Controls the category labels inside the promo rail only.</p>
+              <div class="slider-row">
+                <input type="range" class="nt-slider" min="0.6" max="2.0" step="0.05" [value]="promoCardTextScaleValue"
+                       (input)="setPromoCardTextScale($any($event.target).value)" aria-label="Promo card label size" />
+                <span class="slider-val">{{ (promoCardTextScaleValue * 100) | number:'1.0-0' }}%</span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'intermediateTextScale'">
+              <p class="hint">Controls drill-down option labels on the Intermediate page only.</p>
+              <div class="slider-row">
+                <input type="range" class="nt-slider" min="0.6" max="2.0" step="0.05" [value]="intermediateTextScaleValue"
+                       (input)="setIntermediateTextScale($any($event.target).value)" aria-label="Intermediate text size" />
+                <span class="slider-val">{{ (intermediateTextScaleValue * 100) | number:'1.0-0' }}%</span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'resultTextScale'">
+              <p class="hint">Controls result list, filter and product text on the Result page only.</p>
+              <div class="slider-row">
+                <input type="range" class="nt-slider" min="0.6" max="2.0" step="0.05" [value]="resultTextScaleValue"
+                       (input)="setResultTextScale($any($event.target).value)" aria-label="Result text size" />
+                <span class="slider-val">{{ (resultTextScaleValue * 100) | number:'1.0-0' }}%</span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'headerTextScale'">
+              <p class="hint">Controls the visible header title and caption.</p>
+              <div class="slider-row">
+                <input type="range" class="nt-slider" min="0.6" max="2.0" step="0.05" [value]="headerTextScaleValue"
+                       (input)="setHeaderTextScale($any($event.target).value)" aria-label="Header text size" />
+                <span class="slider-val">{{ (headerTextScaleValue * 100) | number:'1.0-0' }}%</span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'cardTextCase'">
+              <div class="deck-optrow"><button class="tile" *ngFor="let c of textCases" [class.sel]="(t.typography.cardTextCase||'default')===c.id" (click)="t.typography.cardTextCase=c.id">{{ c.label }}</button></div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'headerTextCase'">
+              <div class="deck-optrow"><button class="tile" *ngFor="let c of textCases" [class.sel]="(t.typography.headerTextCase||'default')===c.id" (click)="t.typography.headerTextCase=c.id">{{ c.label }}</button></div>
+            </ng-container>
+
+          </ng-container>
+        </nt-editor-card>
+
+        <nt-settings-sheet [groups]="typeSettingsGroups" [(isOpen)]="typeSettingsOpen" title="All settings · Type" (rowSelected)="onTypeRowSelected($event)"></nt-settings-sheet>
       </div>
 
       <div *ngSwitchCase="'intStyle'">

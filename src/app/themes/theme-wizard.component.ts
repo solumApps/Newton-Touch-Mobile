@@ -1796,6 +1796,78 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     this.colorsActivePill = sel.rowIndex;
   }
 
+  // ----- Type step -----
+  typeActiveChip = 0;
+  typeActivePill = 0;
+  typeSettingsOpen = false;
+
+  private get typeFontFitOptions(): DeckOption[] {
+    const fontLabel = this.fonts.find((f) => f.stack === this.t.typography.fontFamily)?.label || 'Custom';
+    const fitLabel = this.textFits.find((f) => f.id === this.t.typography.textFit)?.label || this.t.typography.textFit;
+    return [
+      { key: 'font', icon: 'text-outline', label: 'Font', value: fontLabel },
+      { key: 'textFit', icon: 'contract-outline', label: 'Text fit', value: fitLabel },
+    ];
+  }
+  private get typeSizeOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.showCardTextScaleControl) out.push({ key: 'cardTextScale', icon: 'resize-outline', label: 'Card label size', value: this.pct(this.cardTextScaleValue) });
+    if (this.showPromoTypographyControls) {
+      out.push({ key: 'promoCopyTextScale', icon: 'resize-outline', label: 'Promo message text size', value: this.pct(this.promoCopyTextScaleValue) });
+      out.push({ key: 'promoCardTextScale', icon: 'resize-outline', label: 'Promo card label size', value: this.pct(this.promoCardTextScaleValue) });
+    }
+    if (this.showIntermediateTextScaleControl) out.push({ key: 'intermediateTextScale', icon: 'resize-outline', label: 'Intermediate item text size', value: this.pct(this.intermediateTextScaleValue) });
+    if (this.showResultTextScaleControl) out.push({ key: 'resultTextScale', icon: 'resize-outline', label: 'Result text size', value: this.pct(this.resultTextScaleValue) });
+    if (this.showHeaderTextScaleControl) out.push({ key: 'headerTextScale', icon: 'resize-outline', label: 'Header text size', value: this.pct(this.headerTextScaleValue) });
+    return out;
+  }
+  private get typeCaseOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.showCardTextCaseControl) {
+      const lbl = this.textCases.find((c) => c.id === (this.t.typography.cardTextCase || 'default'))?.label || 'Default';
+      out.push({ key: 'cardTextCase', icon: 'swap-vertical-outline', label: 'Card text case', value: lbl });
+    }
+    if (this.showHeaderTextScaleControl) {
+      const lbl = this.textCases.find((c) => c.id === (this.t.typography.headerTextCase || 'default'))?.label || 'Default';
+      out.push({ key: 'headerTextCase', icon: 'swap-vertical-outline', label: 'Header text case', value: lbl });
+    }
+    return out;
+  }
+  get typeCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'font', icon: 'text-outline', label: 'Font & fit', options: this.typeFontFitOptions },
+      { key: 'sizes', icon: 'resize-outline', label: 'Text sizes', options: this.typeSizeOptions },
+      { key: 'case', icon: 'swap-vertical-outline', label: 'Text case', options: this.typeCaseOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get typeActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.typeCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.typeActiveChip, cats.length - 1)];
+  }
+  get typeChipsInput(): NtDeckChip[] { return this.typeCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get typePillsInput(): NtValuePill[] {
+    return (this.typeActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get typeActiveOption(): DeckOption | undefined {
+    const opts = this.typeActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.typeActivePill, opts.length - 1)];
+  }
+  get typeActivePillKey(): string { return this.typeActiveOption?.key || ''; }
+  get typeActivePillLabel(): string { return (this.typeActiveOption?.label || '').toUpperCase(); }
+  get typeSettingsGroups(): NtSettingsGroup[] {
+    return this.typeCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onTypeChipChange(i: number): void { this.typeActiveChip = i; this.typeActivePill = 0; }
+  onTypeRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.typeActiveChip = sel.groupIndex;
+    this.typeActivePill = sel.rowIndex;
+  }
+
   async cancel(): Promise<void> {
     // Unsaved edits → confirm before throwing them away.
     if (this.baseline && this.snapshot() !== this.baseline) {
