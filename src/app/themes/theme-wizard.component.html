@@ -418,7 +418,7 @@
         </div>
         </ng-container>
 
-        <ng-container *ngIf="showTextPos && t.homeLayout!=='finder-select'">
+        <ng-container *ngIf="showTextPos && t.homeLayout!=='finder-select' && !(t.homeLayout==='promo-categories' && t.cardContent==='image-text')">
           <div class="step-title sm">Text vertical position</div>
           <div class="seg">
             <button class="tile" *ngFor="let p of textPositionsFor" [class.sel]="t.cardTextPos===p.id" (click)="t.cardTextPos=p.id">{{ p.label }}</button>
