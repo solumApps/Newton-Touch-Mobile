@@ -151,6 +151,9 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   /** When the current selection is a now-hidden 'below', coerce it to 'center'
    *  (edit-time only — deployed themes keep rendering via CSS fallbacks). */
   private coerceTextPos(): void {
+    if (this.t.homeLayout === 'promo-categories' && this.t.cardContent === 'image-text') {
+      this.t.cardTextPos = 'overlay-bottom';
+    }
     if ((this.t.cardTextPos === 'below' || this.t.cardTextPos === 'above') && this.homeBelowHidden) this.t.cardTextPos = 'center';
     if (this.t.cardShape === 'hexagon' && this.t.cardTextPos === 'above') this.t.cardTextPos = 'center';
     
