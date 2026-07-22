@@ -141,13 +141,8 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
               </div>
             </div>
             <div class="fs-index-row">
-              <div class="fs-index fs-alpha-index" *ngIf="!finderHomeNumeric" aria-label="Finder A to Z filter">
-                <button type="button" class="fs-letter fs-all available" [class.active]="!activeFinderHomeLetter" (click)="selectFinderHomeLetter('')">All</button>
-                <button type="button" class="fs-letter" *ngFor="let letter of finderAlphabet" [class.available]="finderHomeLetters.has(letter)" [class.active]="letter===activeFinderHomeLetter" [disabled]="!finderHomeLetters.has(letter)" (click)="selectFinderHomeLetter(letter)">{{ letter }}</button>
-              </div>
-              <div class="fs-index fs-index-values" *ngIf="finderHomeNumeric" aria-label="Finder number filter">
-                <button type="button" class="fs-val fs-all" [class.active]="!activeFinderHomeLetter" (click)="selectFinderHomeLetter('')">All</button>
-                <button type="button" class="fs-val" *ngFor="let v of finderHomeIndexValues" [class.active]="v===activeFinderHomeLetter" (click)="selectFinderHomeLetter(v)">{{ v }}</button>
+              <div class="fs-index fs-alpha-index" aria-label="Finder lookup index">
+                <button type="button" class="fs-letter" *ngFor="let item of finderHomeIndexItems" [class.available]="item.available" [class.active]="item.value===activeFinderHomeLetter" [disabled]="!item.available" (click)="selectFinderHomeLetter(item.value)">{{ item.label }}</button>
               </div>
             </div>
           </div>
@@ -222,13 +217,8 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
                 </div>
               </div>
               <div class="fs-index-row">
-                <div class="fs-index fs-alpha-index" *ngIf="!finderInterNumeric" aria-label="Finder A to Z filter">
-                  <button type="button" class="fs-letter fs-all available" [class.active]="!activeFinderInterLetter" (click)="selectFinderInterLetter('')">All</button>
-                  <button type="button" class="fs-letter" *ngFor="let letter of finderAlphabet" [class.available]="finderInterLetters.has(letter)" [class.active]="letter===activeFinderInterLetter" [disabled]="!finderInterLetters.has(letter)" (click)="selectFinderInterLetter(letter)">{{ letter }}</button>
-                </div>
-                <div class="fs-index fs-index-values" *ngIf="finderInterNumeric" aria-label="Finder number filter">
-                  <button type="button" class="fs-val fs-all" [class.active]="!activeFinderInterLetter" (click)="selectFinderInterLetter('')">All</button>
-                  <button type="button" class="fs-val" *ngFor="let v of finderInterIndexValues" [class.active]="v===activeFinderInterLetter" (click)="selectFinderInterLetter(v)">{{ v }}</button>
+                <div class="fs-index fs-alpha-index" aria-label="Finder lookup index">
+                  <button type="button" class="fs-letter" *ngFor="let item of finderInterIndexItems" [class.available]="item.available" [class.active]="item.value===activeFinderInterLetter" [disabled]="!item.available" (click)="selectFinderInterLetter(item.value)">{{ item.label }}</button>
                 </div>
               </div>
             </div>
@@ -379,7 +369,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
             </div>
             <div class="focus-image" *ngIf="resUsePh" [style.background-image]="found?.image ? 'url('+found?.image+')' : phImg(activeResultIndex)" [style.background-size]="fitSize(found?.imageFit)" [style.background-repeat]="found?.imageFit ? 'no-repeat' : null"></div>
             <div class="focus-list">
-              <div class="mini" *ngFor="let p of resultCells.slice(0,4); let i = index" [class.found]="isFound(i)" (click)="selectResult(i)">{{ p.name }}</div>
+              <div class="mini" *ngFor="let p of resultCells let i = index" [class.found]="isFound(i)" (click)="selectResult(i)">{{ p.name }}</div>
             </div>
           </div>
           <!-- hero-product -->
@@ -499,7 +489,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
         </ng-container>
 
         <!-- NAV (LCD markup: .nav.nav-pos-* > .fb) — grouped OR split (independent positions) -->
-        <ng-container *ngIf="page !== 'home' && page !== 'saver' && !(page === 'inter' && theme?.intermediateStyle === 'finder-select') && (theme?.navStyle || 'floating') !== 'hidden'">
+        <ng-container *ngIf="page !== 'home' && page !== 'saver' && !(page === 'inter' && theme?.intermediateStyle === 'finder-select') && !(page === 'result' && resTpl === 'finder-detail') && (theme?.navStyle || 'floating') !== 'hidden'">
           <ng-template #backBtn>
             <div class="fb" [class.fb-text]="navMode === 'text'" [class.fb-icon-text]="navMode === 'icon-text'"
                  [style.color]="theme?.nav?.backColor || '#fff'" [style.background]="theme?.nav?.backBg || '#0f172a'">
@@ -719,7 +709,10 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
       if (rk) cls.push('route-kind-' + rk);
       if (this.theme?.result?.content === 'text-only') cls.push('res-content-text-only');
       if (this.theme?.result?.textPos) cls.push('res-textpos-' + this.theme.result.textPos);
-      if (this.theme?.result?.cardShape) cls.push('res-shape-' + this.theme.result.cardShape);
+      const resultShape = this.resTpl === 'shelf' && this.theme?.result?.content === 'text-only'
+        ? 'rect'
+        : this.theme?.result?.cardShape;
+      if (resultShape) cls.push('res-shape-' + resultShape);
       if (this.resTpl === 'map-filter-list' && this.theme?.result?.filterPos) cls.push('res-filter-pos-' + this.theme.result.filterPos);
       if (!this.fixedResultTemplate) {
         cls.push(`scroll-${this.resultScrollMode}`);
@@ -981,6 +974,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal';
   }
   get resultScrollMode(): 'vertical' | 'horizontal' {
+    if (['map-list', 'filter-list'].includes(this.resTpl) && this.theme?.result?.content === 'text-only') {
+      return 'vertical';
+    }
     return this.theme?.result?.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
   }
   get interVisibleColumns(): number {
@@ -1155,31 +1151,132 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   readonly finderAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   private selectedFinderHomeLetter = '';
   private selectedFinderInterLetter = '';
+
+  get indexMode(): 'alpha' | 'number' {
+    return this.theme?.intermediate?.indexMode || 'alpha';
+  }
+  get indexNumberMin(): number {
+    const v = this.theme?.intermediate?.indexNumberMin;
+    return typeof v === 'number' && Number.isFinite(v) ? v : 0;
+  }
+  get indexNumberMax(): number {
+    const v = this.theme?.intermediate?.indexNumberMax;
+    return typeof v === 'number' && Number.isFinite(v) ? v : 100;
+  }
+  get indexNumberInterval(): number {
+    const v = this.theme?.intermediate?.indexNumberInterval;
+    return typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : 10;
+  }
+
+  get finderHomeIndexItems(): { label: string; value: string; available: boolean }[] {
+    if (this.indexMode === 'number') {
+      return this.generateNumberIndexItems(this.finderHomeAllCells);
+    }
+    return [
+      { label: 'All', value: '', available: this.finderHomeLetters.size > 0 },
+      ...this.finderAlphabet.map((letter) => ({
+        label: letter,
+        value: letter,
+        available: this.finderHomeLetters.has(letter),
+      })),
+    ];
+  }
+  get finderInterIndexItems(): { label: string; value: string; available: boolean }[] {
+    if (this.indexMode === 'number') {
+      return this.generateNumberIndexItems(this.finderInterAllCells);
+    }
+    return [
+      { label: 'All', value: '', available: this.finderInterLetters.size > 0 },
+      ...this.finderAlphabet.map((letter) => ({
+        label: letter,
+        value: letter,
+        available: this.finderInterLetters.has(letter),
+      })),
+    ];
+  }
+
+  private generateNumberIndexItems(
+    items: CardItem[],
+  ): { label: string; value: string; available: boolean }[] {
+    const min = this.indexNumberMin;
+    const max = this.indexNumberMax;
+    const interval = this.indexNumberInterval;
+    const rangeAvailability = new Map<string, boolean>();
+
+    if (min > max || interval <= 0) {
+      return [{ label: 'All', value: '', available: false }];
+    }
+
+    for (const item of items) {
+      const num = this.extractLeadingNumber(item);
+      if (num != null && num >= min && num <= max) {
+        const rangeKey = this.numberRangeKey(num);
+        rangeAvailability.set(rangeKey, true);
+      }
+    }
+
+    const result: { label: string; value: string; available: boolean }[] = [
+      { label: 'All', value: '', available: rangeAvailability.size > 0 },
+    ];
+
+    for (let start = min; start <= max; start += interval) {
+      const end = Math.min(start + interval - 1, max);
+      const rangeKey = `${start}-${end}`;
+      const label = start === end ? String(start) : `${start}\u2013${end}`;
+      result.push({
+        label,
+        value: rangeKey,
+        available: rangeAvailability.get(rangeKey) || false,
+      });
+    }
+
+    return result;
+  }
+
+  private extractLeadingNumber(item: CardItem): number | null {
+    const nameMatch = (item.name || '').trim().match(/^(\d+)/);
+    if (nameMatch) return parseInt(nameMatch[1], 10);
+
+    const articleId = (item as any).articleId;
+    if (articleId != null) {
+      const idMatch = String(articleId).trim().match(/^(\d+)/);
+      if (idMatch) return parseInt(idMatch[1], 10);
+    }
+
+    return null;
+  }
+
+  private numberRangeKey(num: number): string {
+    const interval = this.indexNumberInterval;
+    const min = this.indexNumberMin;
+    if (interval <= 0) return `${min}-${this.indexNumberMax}`;
+    const start = Math.floor((num - min) / interval) * interval + min;
+    const end = Math.min(start + interval - 1, this.indexNumberMax);
+    return `${start}-${end}`;
+  }
+
   private finderSort<T extends { name?: string }>(items: T[]): T[] {
     return [...items].sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base', numeric: true }));
   }
-  /** All finder values numeric → auto number index (matches the LCD renderer). */
-  private finderIsNumeric(items: CardItem[]): boolean {
-    return items.length > 0 && items.every((it) => { const s = (it.name || '').trim(); return s !== '' && !isNaN(Number(s)); });
-  }
-  private finderValuesFor(items: CardItem[]): string[] {
-    return [...new Set(items.map((it) => (it.name || '').trim()).filter(Boolean))].sort((a, b) => Number(a) - Number(b));
-  }
-  private filterFinderByToken(items: CardItem[], token: string, numeric: boolean): CardItem[] {
-    if (!token) return items;
-    return numeric
-      ? items.filter((item) => (item.name || '').trim() === token)
-      : items.filter((item) => (item.name || '').trim().charAt(0).toUpperCase() === token);
+  private filterFinderByLetter(items: CardItem[], letter: string): CardItem[] {
+    if (!letter) return items;
+    if (this.indexMode === 'number') {
+      const parts = letter.split('-').map(Number);
+      const start = parts[0];
+      const end = parts[1] != null && Number.isFinite(parts[1]) ? parts[1] : start;
+      if (!Number.isFinite(start)) return items;
+      return items.filter((item) => {
+        const num = this.extractLeadingNumber(item);
+        return num != null && num >= start && num <= end;
+      });
+    }
+    return items.filter((item) => (item.name || '').trim().charAt(0).toUpperCase() === letter);
   }
   get finderHomeAllCells(): CardItem[] {
     return this.finderSort(this.homeCells);
   }
-  get finderHomeNumeric(): boolean { return this.finderIsNumeric(this.finderHomeAllCells); }
-  get finderInterNumeric(): boolean { return this.finderIsNumeric(this.finderInterAllCells); }
-  get finderHomeIndexValues(): string[] { return this.finderValuesFor(this.finderHomeAllCells); }
-  get finderInterIndexValues(): string[] { return this.finderValuesFor(this.finderInterAllCells); }
   get finderHomeCells(): CardItem[] {
-    return this.filterFinderByToken(this.finderHomeAllCells, this.activeFinderHomeLetter, this.finderHomeNumeric);
+    return this.filterFinderByLetter(this.finderHomeAllCells, this.activeFinderHomeLetter);
   }
   private finderLettersFor(items: CardItem[]): Set<string> {
     return new Set(items.map((item) => (item.name || '').trim().charAt(0).toUpperCase()).filter((letter) => /^[A-Z]$/.test(letter)));
@@ -1190,23 +1287,37 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get finderInterLetters(): Set<string> {
     return this.finderLettersFor(this.finderInterAllCells);
   }
-  private finderHomeTokenValid(token: string): boolean {
-    return this.finderHomeNumeric ? this.finderHomeIndexValues.includes(token) : this.finderHomeLetters.has(token);
-  }
-  private finderInterTokenValid(token: string): boolean {
-    return this.finderInterNumeric ? this.finderInterIndexValues.includes(token) : this.finderInterLetters.has(token);
-  }
   get activeFinderHomeLetter(): string {
-    return this.finderHomeTokenValid(this.selectedFinderHomeLetter) ? this.selectedFinderHomeLetter : '';
+    if (!this.selectedFinderHomeLetter) return '';
+    return this.finderHomeIndexItems.some(
+      (item) => item.value === this.selectedFinderHomeLetter && item.available,
+    )
+      ? this.selectedFinderHomeLetter
+      : '';
   }
   get activeFinderInterLetter(): string {
-    return this.finderInterTokenValid(this.selectedFinderInterLetter) ? this.selectedFinderInterLetter : '';
+    if (!this.selectedFinderInterLetter) return '';
+    return this.finderInterIndexItems.some(
+      (item) => item.value === this.selectedFinderInterLetter && item.available,
+    )
+      ? this.selectedFinderInterLetter
+      : '';
   }
   selectFinderHomeLetter(letter: string): void {
-    if (!letter || this.finderHomeTokenValid(letter)) this.selectedFinderHomeLetter = letter;
+    if (!letter) {
+      this.selectedFinderHomeLetter = '';
+      return;
+    }
+    const item = this.finderHomeIndexItems.find((i) => i.value === letter);
+    if (item?.available) this.selectedFinderHomeLetter = letter;
   }
   selectFinderInterLetter(letter: string): void {
-    if (!letter || this.finderInterTokenValid(letter)) this.selectedFinderInterLetter = letter;
+    if (!letter) {
+      this.selectedFinderInterLetter = '';
+      return;
+    }
+    const item = this.finderInterIndexItems.find((i) => i.value === letter);
+    if (item?.available) this.selectedFinderInterLetter = letter;
   }
   get intermediateSource(): CardItem[] {
     if (this.forceSharedIntermediate) return this.intermediate || [];
@@ -1241,7 +1352,7 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return this.finderSort(this.interCells);
   }
   get finderInterCells(): CardItem[] {
-    return this.filterFinderByToken(this.finderInterAllCells, this.activeFinderInterLetter, this.finderInterNumeric);
+    return this.filterFinderByLetter(this.finderInterAllCells, this.activeFinderInterLetter);
   }
   get interCells(): CardItem[] {
     // Builder shared-intermediate previews render every item, with a 3-card
@@ -1291,11 +1402,15 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
   get resultCells(): ResultProduct[] {
     const branchProducts = this.intermediateSource.flatMap((c) => c.products || []);
     const allResultProducts = branchProducts.length ? branchProducts : (this.result?.products || []);
+    const renderFullVerticalList = this.resultScrollMode === 'vertical'
+      && ['map-list', 'filter-list'].includes(this.resTpl);
     const real = this.resTpl === 'finder-detail'
       ? (this.result?.products || [])
-      : this.resTpl === 'shelf'
+      : this.resTpl === 'shelf' || this.resTpl === 'product-focus'
         ? allResultProducts
-        : allResultProducts.slice(0, 6);
+        : renderFullVerticalList
+          ? allResultProducts
+          : allResultProducts.slice(0, 6);
     if (real.length) return real.map(p => ({ ...p, name: p.name || 'Product' }));
     const labels = this.previewLabels('result');
     const count = this.resTpl === 'catalog-grid' ? 6 : 3;

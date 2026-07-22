@@ -81,6 +81,24 @@
       </ng-container>
       <p class="note" *ngIf="!d.themeTokens.showHeader">Header is hidden in this theme. Change it in the theme wizard.</p>
 
+      <!-- finder-select: editable prompt text for the home screen -->
+      <ng-container *ngIf="isFinderSelect">
+        <div class="sec"><span>Home page prompt</span></div>
+        <input class="inp" [ngModel]="homePromptText" (ngModelChange)="homePromptText=$event" placeholder="Prompt (e.g. TOUCH YOUR CATEGORY)" />
+
+        <div class="sec"><span>Fast lookup index</span></div>
+        <p class="note">How the side index strip is generated for the selection cards.</p>
+        <div class="seg">
+          <button type="button" class="tile" [class.sel]="levelIndexMode==='alpha'" (click)="levelIndexMode='alpha'">A–Z</button>
+          <button type="button" class="tile" [class.sel]="levelIndexMode==='number'" (click)="levelIndexMode='number'">Number</button>
+        </div>
+        <div class="row" *ngIf="levelIndexMode==='number'">
+          <input class="inp" type="number" placeholder="Min" [ngModel]="levelIndexNumberMin" (ngModelChange)="levelIndexNumberMin=($event === '' || $event === null || $event === undefined) ? 0 : (+$event || 0)" />
+          <input class="inp" type="number" placeholder="Max" [ngModel]="levelIndexNumberMax" (ngModelChange)="levelIndexNumberMax=($event === '' || $event === null || $event === undefined) ? 100 : (+$event || 0)" />
+          <input class="inp" type="number" min="1" placeholder="Interval" [ngModel]="levelIndexNumberInterval" (ngModelChange)="levelIndexNumberInterval=($event === '' || $event === null || $event === undefined) ? 10 : (+$event > 0 ? +$event : 10)" />
+        </div>
+      </ng-container>
+
       <!-- promo-categories: editable eyebrow label + promo message -->
       <ng-container *ngIf="isPromoCategories">
         <div class="sec"><span>Promo message</span></div>
@@ -254,21 +272,31 @@
         <p class="note">Shown on the L{{ brStepLevel }} page. Leave blank to inherit the message from a higher level. Message colors are set in the theme wizard's Intermediate colors step.</p>
       </ng-container>
 
-      <!-- finder-select: steps + prompt (shown once, on the first level; the
-           selection cards are edited per level in the block below) -->
-      <ng-container *ngIf="isFinderSelect && interLevel <= 1">
-        <div class="sec"><span>Finder steps ({{ finderStepCount }})</span></div>
-        <p class="note">One label per drill level — the count follows your Category depth. Edit any label, or leave it to use the default.</p>
-        <div class="erow" *ngFor="let i of finderStepIndices; trackBy: trackByIndex">
-          <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
-          <input class="inp" [ngModel]="finderStepValue(i)" (ngModelChange)="setFinderStep(i, $event)" [placeholder]="'Category ' + (i + 1)" />
+      <!-- finder-select: steps + prompt (shared config on L1, per-level prompt on every level) -->
+      <ng-container *ngIf="isFinderSelect">
+        <ng-container *ngIf="interLevel <= 1">
+          <div class="sec"><span>Finder steps ({{ finderStepCount }})</span></div>
+          <p class="note">One label per drill level — the count follows your Category depth. Edit any label, or leave it to use the default.</p>
+          <div class="erow" *ngFor="let i of finderStepIndices; trackBy: trackByIndex">
+            <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
+            <input class="inp" [ngModel]="finderStepValue(i)" (ngModelChange)="setFinderStep(i, $event)" [placeholder]="'Category ' + (i + 1)" />
+          </div>
+          <div class="sec"><span>Hero Title</span></div>
+          <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Hero title (default: content name)" />
+        </ng-container>
+        <div class="sec"><span>{{ interLevel === 0 ? 'Prompt' : ('Intermediate L' + interLevel + ' prompt') }}</span></div>
+        <input class="inp" [ngModel]="promptTextForLevel" (ngModelChange)="promptTextForLevel=$event" placeholder="Prompt text" />
+        <div class="sec"><span>Fast lookup index</span></div>
+        <p class="note">How the side index strip is generated for the selection cards.</p>
+        <div class="seg">
+          <button type="button" class="tile" [class.sel]="levelIndexMode==='alpha'" (click)="levelIndexMode='alpha'">A–Z</button>
+          <button type="button" class="tile" [class.sel]="levelIndexMode==='number'" (click)="levelIndexMode='number'">Number</button>
         </div>
-        <div class="sec"><span>Hero Title</span></div>
-        <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Hero title (default: content name)" />
-        <div class="sec"><span>Prompt</span></div>
-        <input class="inp" placeholder="Prompt (e.g. TOUCH YOUR CATEGORY)" [(ngModel)]="td.promptText" />
-        <p class="note">The side index strip is automatic: it shows numbers when your selection values are numbers (e.g. years), otherwise A–Z.</p>
-        <p class="note">The selection cards for each level are the sub-items you add per card below (each card → its children → … → products).</p>
+        <div class="row" *ngIf="levelIndexMode==='number'">
+          <input class="inp" type="number" placeholder="Min" [ngModel]="levelIndexNumberMin" (ngModelChange)="levelIndexNumberMin=($event === '' || $event === null || $event === undefined) ? 0 : (+$event || 0)" />
+          <input class="inp" type="number" placeholder="Max" [ngModel]="levelIndexNumberMax" (ngModelChange)="levelIndexNumberMax=($event === '' || $event === null || $event === undefined) ? 100 : (+$event || 0)" />
+          <input class="inp" type="number" min="1" placeholder="Interval" [ngModel]="levelIndexNumberInterval" (ngModelChange)="levelIndexNumberInterval=($event === '' || $event === null || $event === undefined) ? 10 : (+$event > 0 ? +$event : 10)" />
+        </div>
       </ng-container>
       <!-- PROTOTYPE / +ESL Individual mode: Category-style leveled editor —
            Home Fields + option segments + a flat, editable card list per level -->
@@ -323,7 +351,8 @@
             </div>
             <!-- promo-map-rank: leaf nodes carry their own result products -->
             <ng-container *ngIf="interAllowProducts && !(it.node.children && it.node.children.length)">
-              <div class="sec sub"><span>Own result products ({{ (it.node.products || []).length }})</span><button class="mini" (click)="addLeafProduct(it.node)">+ Add</button></div>
+              <div class="sec sub"><span>Own result products ({{ (it.node.products || []).length }})</span><button class="mini" [disabled]="leafProductCapReached(it.node)" (click)="addLeafProduct(it.node)">+ Add</button></div>
+              <p class="note err" *ngIf="leafProductCapReached(it.node)">Maximum {{ maxResultProducts }} products can be added.</p>
               <div class="erow" *ngFor="let p of it.node.products || []; let pi = index">
                 <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
                 <input class="inp" [(ngModel)]="p.name" placeholder="Product name" />
@@ -500,7 +529,8 @@
         <div class="sec"><span>Individual result pages ({{ resultLeaves.length }})</span></div>
         <p class="note">Each end item gets its own products. Items left empty fall back to the shared list at the bottom.</p>
         <div class="pcard" *ngFor="let leaf of resultLeaves">
-          <div class="sec"><span>{{ leaf.label }}</span><button class="mini" (click)="addLeafProduct(leaf.node)">+ Add</button></div>
+          <div class="sec"><span>{{ leaf.label }}</span><button class="mini" [disabled]="leafProductCapReached(leaf.node)" (click)="addLeafProduct(leaf.node)">+ Add</button></div>
+          <p class="note err" *ngIf="leafProductCapReached(leaf.node)">Maximum {{ maxResultProducts }} products can be added.</p>
           <ng-container *ngFor="let p of (leaf.node.products || []).slice().reverse(); let pi = index">
             <div class="erow">
               <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
@@ -551,7 +581,8 @@
       </ng-container>
 
       <ng-container *ngIf="d.appMode !== 'category'">
-      <div class="sec"><span>{{ perItemActive ? ('Products — ' + activeCardLabel) : (resultMode==='individual' && !skipsIntermediate) ? 'Shared / fallback products' : 'Result products' }} ({{ curResult.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>
+      <div class="sec"><span>{{ perItemActive ? ('Products — ' + activeCardLabel) : (resultMode==='individual' && !skipsIntermediate) ? 'Shared / fallback products' : 'Result products' }} ({{ curResult.products.length }})</span><button class="mini" [disabled]="resultProductCapReached" (click)="addProduct()">+ Add</button></div>
+      <p class="note err" *ngIf="resultProductCapReached">Maximum {{ maxResultProducts }} products can be added.</p>
       <div class="pcard" *ngFor="let p of curResult.products.slice().reverse(); let i = index">
         <div class="erow">
           <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>

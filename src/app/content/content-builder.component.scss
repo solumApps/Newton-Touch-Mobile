@@ -32,13 +32,19 @@
   border: 1.5px solid var(--nt-brand-ink); color: var(--nt-brand-ink); background: var(--nt-card);
   border-radius: 999px; padding: 7px 13px; font-size: 12px; font-weight: 900;
   font-family: inherit; cursor: pointer; box-shadow: var(--nt-shadow-1);
+  transition: all 150ms ease;
 }
-.mini:hover { background: var(--nt-tint); }
-.mini:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+.mini:hover {
+  background: var(--nt-tint); transform: translateY(-1px); box-shadow: var(--nt-shadow-2);
+}
+.mini:active {
+  transform: translateY(0) scale(0.97); box-shadow: var(--nt-shadow-1);
+}
+.mini:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; }
 
 /* Tap-to-place map marker (Result step) — 1920:540-ish map preview with dots. */
 .marker-seg { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
-.marker-seg .mini.sel { background: var(--nt-brand-ink); color: var(--nt-card); }
+.marker-seg .mini.sel { background: var(--nt-brand-ink); color: var(--nt-card); box-shadow: var(--nt-shadow-2); }
 /* H-2: zoomable editor map */
 .map-zoombar { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
 .map-zoombar .map-zoomval { font-size: 12px; font-weight: 800; color: var(--nt-text-2); min-width: 44px; text-align: center; }
@@ -152,9 +158,75 @@
 }
 .fit-seg .fit-lbl { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; color: var(--nt-muted); }
 .fit-seg .mini { padding: 4px 11px; font-size: 11px; box-shadow: none; }
-.fit-seg .mini.sel { background: var(--nt-brand-ink); color: #fff; }
+.fit-seg .mini.sel { background: var(--nt-brand-ink); color: #fff; box-shadow: var(--nt-shadow-1); }
 .fit-seg .mini.danger { margin-left: auto; color: var(--nt-danger); border-color: var(--nt-danger); }
 .fit-seg .mini.danger:hover { background: var(--nt-danger); color: #fff; }
+
+/* Tile selection buttons (e.g. Fast lookup index A–Z / Number) */
+.tile {
+  min-height: 44px;
+  border: 1.5px solid var(--nt-border);
+  border-radius: var(--nt-r-lg);
+  padding: 12px 16px;
+  font-size: 13px;
+  background: var(--nt-card);
+  color: var(--nt-text-2);
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 600;
+  box-shadow: var(--nt-shadow-1);
+  transition: all 150ms ease;
+}
+.tile:hover {
+  border-color: var(--nt-brand-ink);
+  background: var(--nt-tint);
+  color: var(--nt-brand-ink);
+  transform: translateY(-1px);
+  box-shadow: var(--nt-shadow-2);
+}
+.tile:active {
+  transform: translateY(0) scale(0.98);
+}
+.tile.sel {
+  border-color: var(--nt-brand-ink);
+  background: var(--nt-brand-ink);
+  color: #fff;
+  font-weight: 800;
+  box-shadow: var(--nt-shadow-2);
+  transform: translateY(-1px);
+}
+
+/* Delete / remove action buttons */
+.del {
+  border: none;
+  background: none;
+  color: var(--nt-muted);
+  font-size: 15px;
+  cursor: pointer;
+  padding: 6px;
+  transition: color 150ms ease, background 150ms ease, transform 150ms ease;
+  border-radius: var(--nt-r-sm);
+}
+.del:hover {
+  color: var(--nt-danger);
+  background: var(--nt-danger-tint);
+  transform: scale(1.1);
+}
+.del:active {
+  transform: scale(0.95);
+}
+.del:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--nt-brand-focus-glow);
+  outline-offset: 2px;
+}
 
 .pcard {
   border: 1px solid var(--nt-border); border-radius: var(--nt-r-lg); padding: 12px; margin-bottom: 10px;

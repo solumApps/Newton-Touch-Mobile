@@ -5973,7 +5973,7 @@
 .nt-result.scroll-vertical .filter-list {
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .nt-result.scroll-vertical.res-map-list.res-content-text-only .prod {
@@ -12204,7 +12204,7 @@
 
 .nt-inter .body.fs-body .fs-index {
   padding: calc(var(--nt-vh)*0.7) calc(var(--nt-vw)*0.8);
-  background: #000;
+  // background: #000;
   border-radius: 999px;
   opacity: 0.7;
 }
@@ -12280,6 +12280,17 @@
 
 .nt-inter .body.fs-body .fs-alpha-index .fs-letter:disabled {
   cursor: default;
+}
+
+.nt-inter .body.fs-body .fs-index-values .fs-val.available {
+  cursor: pointer;
+  color: var(--fs-accent);
+  font-weight: 800;
+}
+
+.nt-inter .body.fs-body .fs-index-values .fs-val:disabled {
+  cursor: default;
+  opacity: 0.35;
 }
 
 .nt-inter .body.fs-body .fs-letter.active,

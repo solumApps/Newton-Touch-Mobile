@@ -960,7 +960,7 @@
         <ng-container *ngIf="resCardContentMatters">
           <div class="step-title sm">Card content</div>
           <p class="hint">Whether product cards show their image.</p>
-          <div class="seg"><button class="tile" *ngFor="let c of resultContents" [class.sel]="(t.result.content||'image-text')===c.id" (click)="t.result.content=c.id">{{ c.label }}</button></div>
+          <div class="seg"><button class="tile" *ngFor="let c of resultContents" [class.sel]="(t.result.content||'image-text')===c.id" (click)="setResultContent(c.id)">{{ c.label }}</button></div>
         </ng-container>
 
         <ng-container *ngIf="resShapeMatters && (t.result.content||'image-text')==='image-text'">
@@ -982,7 +982,7 @@
           <div class="step-title sm">Overflow scrolling</div>
           <p class="hint">How the product list scrolls when items don't fit. Auto uses the template's natural direction.</p>
           <div class="seg">
-            <button class="tile" *ngFor="let m of scrollModes" [class.sel]="effectiveResultScrollMode===m.id" (click)="t.result.scrollMode=m.id">{{ m.label }}</button>
+            <button class="tile" *ngFor="let m of resultScrollModes" [class.sel]="effectiveResultScrollMode===m.id" (click)="t.result.scrollMode=m.id">{{ m.label }}</button>
           </div>
         </ng-container>
 
@@ -994,21 +994,20 @@
           <span>&#9432;</span> Colors pre-filled from your Home page — adjust below if needed.
         </div>
         <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='finder-detail'" label="Header" [value]="t.result.headerColor" [transparentValue]="resultTransparentHeaderColor" (valueChange)="t.result.headerColor=$event"></app-color-picker>
-        <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank' && !t.result.backgroundImage" label="Page background" [value]="t.result.background" (valueChange)="t.result.background=$event" [presets]="bgPresets"></app-color-picker>
-        <div class="media-row" *ngIf="t.resultTemplate!=='promo-map-rank'">
+        <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='finder-detail' && !t.result.backgroundImage" label="Page background" [value]="t.result.background" (valueChange)="t.result.background=$event" [presets]="bgPresets"></app-color-picker>
+        <div class="media-row" *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='finder-detail'">
           <button class="btn-o media-btn" (click)="pickBackground('result')">{{ t.result.backgroundImage ? 'Replace result background image' : 'Upload result background image' }}</button>
           <button class="btn-o media-clear" *ngIf="t.result.backgroundImage" (click)="clearBackground('result')">Clear</button>
         </div>
-        <p class="hint" *ngIf="t.result.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
-        <app-color-picker *ngIf="t.resultTemplate!=='finder-detail' && t.resultTemplate!=='hero-product'" label="Product card background" [value]="t.result.cardBackground" (valueChange)="t.result.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
+        <p class="hint" *ngIf="t.resultTemplate!=='finder-detail' && t.result.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
+        <app-color-picker *ngIf="t.resultTemplate!=='finder-detail' && t.resultTemplate!=='hero-product' && !(t.resultTemplate==='shelf' && (t.result.content||'image-text')==='image-text')" label="Product card background" [value]="t.result.cardBackground" (valueChange)="t.result.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
         <app-color-picker *ngIf="t.resultTemplate!=='hero-product' && t.resultTemplate!=='finder-detail'" label="Card text" [value]="t.result.cardText" (valueChange)="t.result.cardText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker *ngIf="t.resultTemplate==='map-list'" label="Popular button text" [value]="t.result.popularText || t.result.cardText" (valueChange)="t.result.popularText=$event" [presets]="textPresets"></app-color-picker>
         <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='hero-product'" label="Accent / highlight" [value]="t.result.accent" (valueChange)="t.result.accent=$event"></app-color-picker>
         <ng-container *ngIf="t.resultTemplate==='finder-detail'">
+          <app-color-picker label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event"></app-color-picker>
           <app-color-picker label="Find button" [value]="t.result.findColor || '#2f006d'" (valueChange)="t.result.findColor=$event"></app-color-picker>
           <app-color-picker label="List background" [value]="t.result.listBg || '#ffffff'" (valueChange)="t.result.listBg=$event"></app-color-picker>
-          <app-color-picker label="Product / detail card" [value]="t.result.cardBg || '#ffffff'" (valueChange)="t.result.cardBg=$event"></app-color-picker>
-          <app-color-picker label="Card text" [value]="t.result.cardTextColor || '#0F172A'" (valueChange)="t.result.cardTextColor=$event"></app-color-picker>
         </ng-container>
         <ng-container *ngIf="t.resultTemplate==='promo-map-rank'">
           <app-color-picker label="Promo panel" [value]="t.result.panelColor || '#001973'" (valueChange)="t.result.panelColor=$event"></app-color-picker>
@@ -1033,6 +1032,7 @@
             </div>
           </ng-container>
         </ng-container>
+        <ng-container *ngIf="t.resultTemplate!=='finder-detail'">
         <div class="step-title sm">Navigation buttons</div>
         <p class="hint">Style the Back and Home buttons. Set a position to “Hidden” to hide that button.</p>
         <div class="nav-btn-row">
@@ -1107,6 +1107,7 @@
           <div class="seg">
             <button class="tile" *ngFor="let p of navPositionsFor('result', 'home')" [class.sel]="navHomePositionFor('result')===p.id" (click)="setNavHomePosition('result', p.id)">{{ p.label }}</button>
           </div>
+        </ng-container>
         </ng-container>
       </div>
 
