@@ -1,0 +1,128 @@
+/* Draggable bottom-sheet presentation for the modal itself. */
+ion-modal.nt-settings-sheet-modal {
+  --background: transparent;
+  --box-shadow: none;
+}
+ion-modal.nt-settings-sheet-modal::part(content) {
+  border-radius: var(--nt-r-lg) var(--nt-r-lg) 0 0;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.nt-settings-sheet {
+  background: var(--nt-card);
+  height: 100%;
+  padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.nt-settings-sheet .grab {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--nt-border);
+  margin: 0 auto 12px;
+  flex-shrink: 0;
+}
+
+.nt-settings-sheet .hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+}
+.nt-settings-sheet .hd .t {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--nt-text);
+}
+.nt-settings-sheet .hd .c {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--nt-muted);
+}
+
+.nt-settings-sheet .body {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nt-settings-sheet .grouplabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--nt-muted);
+  margin: 16px 0 4px;
+}
+.nt-settings-sheet .grouplabel:first-child { margin-top: 6px; }
+
+.nt-settings-sheet .row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 2px;
+  border: none;
+  border-bottom: 1px solid var(--nt-border);
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 150ms ease;
+}
+.nt-settings-sheet .row:hover { background: var(--nt-surface); }
+.nt-settings-sheet .row:last-child { border-bottom: none; }
+
+.nt-settings-sheet .row .ic {
+  font-size: 16px;
+  color: var(--nt-muted);
+  width: 18px;
+  flex-shrink: 0;
+  text-align: center;
+}
+.nt-settings-sheet .row .lbl {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--nt-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nt-settings-sheet .row .val {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  max-width: 45%;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nt-brand-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nt-settings-sheet .row .sw {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  border: 1px solid var(--nt-border);
+}
+.nt-settings-sheet .row .chev {
+  font-size: 13px;
+  color: var(--nt-muted);
+  flex-shrink: 0;
+}
+
+.nt-settings-sheet .row:focus-visible {
+  outline: 3px solid rgba(255, 205, 0, .55);
+  outline-offset: -2px;
+}

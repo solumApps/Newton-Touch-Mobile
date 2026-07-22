@@ -1,0 +1,15 @@
+.nt-editor-card {
+  background: var(--nt-surface);
+  border: 1px solid var(--nt-border);
+  border-radius: var(--nt-r-lg);
+  padding: 14px;
+}
+
+.nt-editor-card .sec {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--nt-muted);
+  margin: 0 0 10px;
+}

@@ -1,0 +1,81 @@
+.nt-pill-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 2px 4px;
+  -webkit-overflow-scrolling: touch;
+}
+.nt-pill-row::-webkit-scrollbar { display: none; }
+
+.nt-pill {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  max-width: 110px;
+  min-width: 74px;
+  padding: 8px 12px;
+  border-radius: var(--nt-r);
+  border: 1.5px solid var(--nt-border);
+  background: var(--nt-card);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nt-pill:hover:not(.active) { background: var(--nt-surface); }
+
+.nt-pill .lbl {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--nt-muted);
+  letter-spacing: .02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.nt-pill .val {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nt-text);
+}
+
+.nt-pill .val-txt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.nt-pill .sw {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  border: 1px solid var(--nt-border);
+}
+
+/* Active state mirrors .wizard-steps .active accent language, adapted to a
+   two-line pill: tinted purple/lavender surface + brand-ink text. */
+.nt-pill.active {
+  border-color: var(--nt-brand-ink);
+  background: var(--nt-tint);
+  transform: translateY(-1px);
+}
+.nt-pill.active .lbl { color: var(--nt-brand-ink); opacity: .8; }
+.nt-pill.active .val { color: var(--nt-brand-ink); }
+
+.nt-pill:focus-visible {
+  outline: 3px solid rgba(255, 205, 0, .55);
+  outline-offset: 2px;
+}
