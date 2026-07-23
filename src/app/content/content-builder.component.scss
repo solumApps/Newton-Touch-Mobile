@@ -364,3 +364,16 @@ ion-modal.inter-item-editor-modal .nt-sheet { max-height: 86vh; overflow-y: auto
 ion-modal.inter-card-editor-modal .sec,
 ion-modal.proto-card-editor-modal .sec,
 ion-modal.inter-item-editor-modal .sec { margin-top: 4px; }
+
+/* Result step — collapsed-row + bottom-sheet pattern (repeating lists, NOT
+   part of the deck above, per UI-REDESIGN-PROMPT.md §5): category-mode
+   hierarchy products, per-leaf individual result products, common/shared
+   result products (with nested Specs/Fitments inside their bottom sheet). */
+.result-products-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+
+ion-modal.hier-product-editor-modal .nt-sheet,
+ion-modal.leaf-product-editor-modal .nt-sheet,
+ion-modal.result-product-editor-modal .nt-sheet { max-height: 86vh; overflow-y: auto; }
+ion-modal.hier-product-editor-modal .sec,
+ion-modal.leaf-product-editor-modal .sec,
+ion-modal.result-product-editor-modal .sec { margin-top: 4px; }

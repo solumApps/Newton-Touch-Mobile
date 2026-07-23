@@ -1217,6 +1217,201 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     return this.interItemModalIndex != null ? this.draft?.intermediate[this.interItemModalIndex] : undefined;
   }
 
+  // ===== Editor Deck (Result step) — view-only UI state (active category chip
+  // / value pill, sheet + card-sheet open flags). Every option below reads/
+  // writes the exact same properties/methods as the original vertical form —
+  // only the presentation is restructured. Repeating lists (Hierarchy &
+  // matched products, Individual result pages, Result products — the latter
+  // with nested Specs/Fitments) use the separate collapsed-row + bottom-sheet
+  // pattern (not the deck) per UI-REDESIGN-PROMPT.md §5. Marker placement
+  // keeps its full tap-to-place interaction inside its editor-card, unchanged.
+  // See UI-REDESIGN-INVENTORY.md PART 2 Step C for the full control list.
+  resultActiveChip = 0;
+  resultActivePill = 0;
+  resultSettingsOpen = false;
+
+  private get resultFieldsOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const d = this.draft;
+    if (!d) return out;
+    if (d.appMode === 'category') {
+      const on = this.resultFieldOpts.filter((f) => this.resultFieldOn(f.id)).map((f) => f.label);
+      out.push({ key: 'fieldsToShow', icon: 'eye-outline', label: 'Fields to show', value: on.length ? on.join(', ') : 'None selected' });
+    }
+    if (d.appMode === 'category' || d.appMode === 'prototype-esl') {
+      out.push({ key: 'ledBlink', icon: 'bulb-outline', label: 'LED blink', value: `${d.ledColour || 'Red'} · ${d.ledDuration || '10s'}` });
+    }
+    if (d.appMode === 'prototype-esl') {
+      out.push({ key: 'eslBlinkBy', icon: 'pricetag-outline', label: 'ESL blink by', value: this.eslByOpts.find((o) => o.value === (d.eslBlinkBy || 'article'))?.label || 'Article ID' });
+    }
+    return out;
+  }
+
+  private get resultMapOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.resultNeedsMap) return out;
+    out.push({ key: 'resultMapImage', icon: 'map-outline', label: 'Result map image', value: this.curResult.mapImage ? 'Uploaded' : 'Not uploaded' });
+    if (this.curResult.mapImage && this.curResult.products.length) {
+      const placed = this.curResult.products.filter((p) => p.mapX != null && p.mapY != null).length;
+      out.push({ key: 'markerPlacement', icon: 'locate-outline', label: 'Marker placement', value: `${placed} marker${placed === 1 ? '' : 's'} placed` });
+      out.push({ key: 'mapDots', icon: 'ellipse-outline', label: 'Map dots', value: this.mapDotsEnabled ? 'Dot' : 'None', swatch: this.mapDotsEnabled ? (this.mapRoute?.color || this.draft?.themeTokens.result.pathColor) : undefined });
+    }
+    return out;
+  }
+
+  private get resultPanelOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.resultNeedsPromo) return out;
+    const isShelf = this.draft?.themeTokens.resultTemplate === 'shelf';
+    out.push({ key: 'panelImage', icon: 'image-outline', label: isShelf ? 'Side category image' : 'Promo / selection panel image', value: this.curResult.promoImage ? 'Uploaded' : 'Not uploaded' });
+    return out;
+  }
+
+  private get resultPagesOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.skipsIntermediate || this.draft?.appMode === 'category') return out;
+    out.push({ key: 'resultPagesMode', icon: 'git-network-outline', label: 'Result pages mode', value: this.itemResultMode === 'common' ? 'Common — one result page' : 'Per item — one per home card' });
+    return out;
+  }
+
+  private get resultFinderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.isFinder) return out;
+    if (this.isFinderSelect) {
+      out.push({ key: 'finderSteps', icon: 'list-outline', label: 'Finder steps', value: `${this.finderStepCount} inherited label${this.finderStepCount === 1 ? '' : 's'}` });
+    } else {
+      out.push({ key: 'finderSteps', icon: 'list-outline', label: 'Finder steps', value: `${this.crumbStepCount} label${this.crumbStepCount === 1 ? '' : 's'}` });
+    }
+    out.push({ key: 'heroTitleFinder', icon: 'text-outline', label: 'Hero Title', value: this.draft?.header?.title || 'Default (content name)' });
+    out.push({ key: 'finderLabels', icon: 'pricetags-outline', label: 'Finder labels', value: `${this.td.findItLabel || 'Find It'} / ${this.td.findAllLabel || 'Find All'}` });
+    return out;
+  }
+
+  private get resultPromotionOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.isPromoRank) return out;
+    out.push({ key: 'floorLabels', icon: 'layers-outline', label: 'Floor labels', value: this.tplFloorsCsv || 'Not set' });
+    out.push({ key: 'youAreHere', icon: 'location-outline', label: '"You are here" label', value: this.td.youAreHereLabel || 'Not set' });
+    out.push({ key: 'timerSeconds', icon: 'timer-outline', label: 'Timer seconds', value: this.td.timerSeconds != null ? `${this.td.timerSeconds}s` : 'Not set' });
+    return out;
+  }
+
+  get resultCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'fields', icon: 'options-outline', label: 'Fields & display', options: this.resultFieldsOptions },
+      { key: 'map', icon: 'map-outline', label: 'Map & markers', options: this.resultMapOptions },
+      { key: 'panel', icon: 'image-outline', label: 'Panel & promo', options: this.resultPanelOptions },
+      { key: 'pages', icon: 'git-network-outline', label: 'Pages', options: this.resultPagesOptions },
+      { key: 'finder', icon: 'compass-outline', label: 'Finder', options: this.resultFinderOptions },
+      { key: 'promotion', icon: 'megaphone-outline', label: 'Promotion', options: this.resultPromotionOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get resultActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.resultCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.resultActiveChip, cats.length - 1)];
+  }
+  get resultChipsInput(): NtDeckChip[] { return this.resultCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get resultPillsInput(): NtValuePill[] {
+    return (this.resultActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get resultActiveOption(): DeckOption | undefined {
+    const opts = this.resultActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.resultActivePill, opts.length - 1)];
+  }
+  get resultActivePillKey(): string { return this.resultActiveOption?.key || ''; }
+  get resultActivePillLabel(): string { return (this.resultActiveOption?.label || '').toUpperCase(); }
+  get resultSettingsGroups(): NtSettingsGroup[] {
+    return this.resultCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onResultChipChange(i: number): void { this.resultActiveChip = i; this.resultActivePill = 0; }
+  onResultRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.resultActiveChip = sel.groupIndex;
+    this.resultActivePill = sel.rowIndex;
+  }
+
+  // ----- Result product badges (collapsed-row summary text) -----
+  private resultProductBadgeParts(p: ResultProduct, includeFinderCounts: boolean): string {
+    const parts: string[] = [];
+    if (this.resultNeedsImage && p.image) {
+      const fit = this.fitOf(p);
+      parts.push(fit.charAt(0).toUpperCase() + fit.slice(1));
+    }
+    if (p.price) parts.push(p.price);
+    if (includeFinderCounts && this.isFinder) {
+      const specs = p.specs?.length || 0;
+      const fitments = p.fitments?.length || 0;
+      if (specs || fitments) parts.push(`${specs} spec${specs === 1 ? '' : 's'} · ${fitments} fitment${fitments === 1 ? '' : 's'}`);
+    }
+    return parts.join(' · ');
+  }
+  /** Hierarchy & matched products (category mode) — read-only from the API. */
+  hierProductBadge(p: ResultProduct): string { return this.resultProductBadgeParts(p, false); }
+  /** Individual result pages (drill-tree leaves) — no nested specs/fitments UI here. */
+  leafProductBadge(p: ResultProduct): string { return this.resultProductBadgeParts(p, false); }
+  /** Result products (common/shared list) — includes finder-detail specs/fitments counts. */
+  resultProductBadge(p: ResultProduct): string { return this.resultProductBadgeParts(p, true); }
+
+  // ----- Hierarchy & matched products (category mode) — collapsed-row +
+  // bottom-sheet (UI-REDESIGN-PROMPT.md §5). Read-only names from the API —
+  // no reorder/delete on the row (matches the original markup, which had none). -----
+  hierProductModalOpen = false;
+  private hierProductModalNode: CardItem | null = null;
+  private hierProductModalIndex: number | null = null;
+  openHierProductEditor(node: CardItem, idx: number): void { this.hierProductModalNode = node; this.hierProductModalIndex = idx; this.hierProductModalOpen = true; }
+  closeHierProductEditor(): void { this.hierProductModalOpen = false; this.hierProductModalNode = null; this.hierProductModalIndex = null; }
+  get hierProductModalItem(): ResultProduct | undefined {
+    if (!this.hierProductModalNode || this.hierProductModalIndex == null) return undefined;
+    return (this.hierProductModalNode.products || [])[this.hierProductModalIndex];
+  }
+
+  // ----- Individual result pages (drill-tree leaves) — collapsed-row +
+  // bottom-sheet, one list per leaf. No reorder in the original markup — only
+  // delete (removeLeafProduct) stays on the row. The leaf-level Map locator
+  // (tap-to-place) stays inline in the template, outside this modal. -----
+  leafProductModalOpen = false;
+  private leafProductModalNode: CardItem | null = null;
+  private leafProductModalIndex: number | null = null;
+  /** Products for a leaf node, newest-first (matches the original `.slice().reverse()`);
+   *  `idx` is the REAL index into `node.products[]` so delete calls the exact
+   *  same `removeLeafProduct()` with the exact same index the old template
+   *  computed via `node.products.length - 1 - pi`. */
+  leafProductsReversed(node: CardItem): { product: ResultProduct; idx: number }[] {
+    const arr = node.products || [];
+    return arr.map((product, idx) => ({ product, idx })).slice().reverse();
+  }
+  openLeafProductEditor(node: CardItem, idx: number): void { this.leafProductModalNode = node; this.leafProductModalIndex = idx; this.leafProductModalOpen = true; }
+  closeLeafProductEditor(): void { this.leafProductModalOpen = false; this.leafProductModalNode = null; this.leafProductModalIndex = null; }
+  get leafProductModalItem(): ResultProduct | undefined {
+    if (!this.leafProductModalNode || this.leafProductModalIndex == null) return undefined;
+    return (this.leafProductModalNode.products || [])[this.leafProductModalIndex];
+  }
+
+  // ----- Result products (common/shared list) — collapsed-row + bottom-sheet.
+  // Reorder + delete stay on the row (moveProduct/removeProduct, same as
+  // before). The bottom sheet holds the FULL original per-product editor,
+  // including the finder-detail nested Specs/Fitments add-remove lists. -----
+  resultProductModalOpen = false;
+  resultProductModalIndex: number | null = null;
+  /** Products of the ACTIVE result page, newest-first (matches the original
+   *  `curResult.products.slice().reverse()`); `idx` is the REAL index into
+   *  `curResult.products[]` so reorder/delete call the exact same
+   *  `moveProduct()` / `removeProduct()` with the exact same indices the old
+   *  template computed via `curResult.products.length - 1 - i`. */
+  get resultProductsReversed(): { product: ResultProduct; idx: number }[] {
+    const arr = this.curResult.products || [];
+    return arr.map((product, idx) => ({ product, idx })).slice().reverse();
+  }
+  openResultProductEditor(idx: number): void { this.resultProductModalIndex = idx; this.resultProductModalOpen = true; }
+  closeResultProductEditor(): void { this.resultProductModalOpen = false; this.resultProductModalIndex = null; }
+  get resultProductModalItem(): ResultProduct | undefined {
+    return this.resultProductModalIndex != null ? this.curResult.products[this.resultProductModalIndex] : undefined;
+  }
+
   constructor(private content: ContentService, private themes: ThemeService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private alertController: AlertController) {}
 
   async pickImage(item: CardItem | ResultProduct): Promise<void> {

@@ -533,39 +533,71 @@ list — see note above.**
 
 ### Step C — Result (`result`, step-title "Result page")
 
-- [ ] Fields to show (category mode) → multi-toggle segment (`resultFieldOpts`: Article name/Price/Zone/Article ID/Shelf — 5 sub-toggles) → via `toggleResultField(f.id)`, read `resultFieldOn(f.id)`
-- [ ] LED colour (category mode) → select-field (`ledColorOpts`) → `d.ledColour` via `setLedColour(v)`
-- [ ] Blink duration (category mode) → select-field (`ledDurationOpts`) → `d.ledDuration` via `setLedDuration(v)`
-- [ ] Hierarchy & matched products (category mode) → repeating-list-item (read-only, grouped by leaf) → `resultLeaves[].node.products[]` — sub-fields: image-upload, name (locked), price/zone/shelf inputs (conditional on Fields-to-show toggles), Article ID input, Fit segment
-- [ ] Result pages mode (skip-intermediate themes, non-category) → segment (Common — one result page / Per item — one per home card) → `itemResultMode` via `setItemResultMode(mode)`
-- [ ] Home card selector for per-item result (conditional `itemResultMode==='per-item'`) → segment (repeating per home card) → `activeCardId` via `selectItemCard(c.id)`
-- [ ] Result map image → image-upload (conditional `resultNeedsMap`) → `curResult.mapImage` via `pickMap()` / `clearMap()`
-- [ ] Marker placement · product selector (conditional map+products) → segment (repeating per product) → `markerIdx`
-- [ ] Map zoom → stepper (−/value/+, 1×–3×) → `mapZoom` via `zoomMapOut()` / `zoomMapIn()`
-- [ ] Map tap-to-place → interactive map click target → `p.mapX` / `p.mapY` via `placeMarker($event, mapBox)`
-- [ ] Map dots mode → segment (Dot/None) → via `setRouteKind(kind)`, read `mapDotsEnabled` / `mapRoute?.kind`
-- [ ] Marker color → color-picker (conditional `mapDotsEnabled`) → via `setRouteColor($event)`, reads `mapRoute?.color`
-- [ ] Promo / selection panel image (or "Side category image" for shelf template) → image-upload → `curResult.promoImage` via `pickPromo()` / `clearPromo()`
-- [ ] Individual result pages (drill-tree themes, `resultMode==='individual'`) → repeating-list-item (per leaf, "+ Add" via `addLeafProduct(leaf.node)`) → sub-fields as below plus per-leaf Map locator (product selector segment `leafMarkerIndex`/`selectLeafMarker`, color-picker `leafMarkerColor`/`setLeafMarkerColor`, tap-to-place `placeLeafMarker`)
-- [ ] Result products (common/shared list) → repeating-list-item ("+ Add" via `addProduct()`) → `curResult.products[]` via `moveProduct(i,dir)` / `removeProduct(i)`
-  - sub-fields: image-upload, name input (locked if `fromApi`), Fit segment, price input, aisle/zone input, shelf input, Map X/Map Y number inputs (conditional `resultNeedsMap`), ESL id input (conditional `appMode==='prototype-esl'`), zone input (conditional `isPromoRank`)
-  - finder-detail sub-fields (conditional `isFinder`): description input, sale price input, "On sale" checkbox, Attributes repeating-list-item (`p.specs[]` via `addSpec(p)`/`removeSpec(p,i)` — label + value text inputs), Fitments repeating-list-item (`p.fitments[]` via `addFitment(p)`/`removeFitment(p,i)` — sub-fields: image-upload `pickFitImage(f)`, label input, sub-name input, price input, sale price input, Article ID input conditional prototype-esl)
-- [ ] ESL blink by (prototype-esl mode) → select-field (`eslByOpts`) → `d.eslBlinkBy` via `setEslBy(v)`
-- [ ] LED colour (prototype-esl mode, duplicate of category-mode control above but different step condition) → select-field (`ledColorOpts`) → `d.ledColour` via `setLedColour(v)`
-- [ ] Blink duration (prototype-esl mode) → select-field (`ledDurationOpts`) → `d.ledDuration` via `setLedDuration(v)`
-- [ ] Floor labels (promo-map-rank) → text input (comma-separated) → `tplFloorsCsv` (getter/setter over `td.floors`)
-- [ ] "You are here" label (promo-map-rank) → text input → `td.youAreHereLabel`
-- [ ] Timer seconds (promo-map-rank) → number input → `td.timerSeconds` via `setTplTimer($event)`
-- [ ] Finder steps (finder-detail, inherited display when finder-select) → read-only repeating rows → `finderStepLabel(i)`
-- [ ] Finder steps (finder-detail, editable when not finder-select) → repeating-list-item text inputs → via `crumbValue(i)` / `setCrumb(i, $event)`
-- [ ] Hero Title (finder-detail) → text input → `d.header.title` via `setHeader('title', $event)`
-- [ ] Find It label (finder-detail) → text input → `td.findItLabel`
-- [ ] Find All label (finder-detail) → text input → `td.findAllLabel`
+**Migrated to the Editor Deck pattern — chips: Fields & display (Fields to show / LED blink /
+ESL blink by) / Map & markers (Result map image / Marker placement / Map dots) / Panel & promo
+(Promo / selection panel image) / Pages (Result pages mode, with the per-item Home card selector
+embedded in the same pill's editor-card — same precedent as Home step's "L0 selection" + its
+"Use N selected" action button) / Finder (Finder steps / Hero Title / Finder labels) / Promotion
+(Floor labels / "You are here" label / Timer seconds). Category names taken from the step's 16
+`.sec` section labels per the redesign prompt, grouped by theme (fields+LED, map, panel image,
+pages, finder-detail-only, promo-map-rank-only). "LED colour" and "Blink duration" appear TWICE in
+the original template (once under category mode's "LED blink" heading, once as two separate
+`.sec` headings under prototype-esl mode) but both pairs bind to the exact SAME `d.ledColour` /
+`d.ledDuration` — merged into ONE "LED blink" pill/settings-row shown whenever `appMode` is
+`'category'` OR `'prototype-esl'` (the two conditions are mutually exclusive), mirroring the merge
+precedent set by Home/Intermediate steps' "Card gap" and "Overflow scrolling" rows. **Marker
+placement keeps its full interactive tap-to-place UI (product selector, zoom stepper, and the
+`(click)="placeMarker($event, mapBox)"` map click target) unchanged inside its editor-card** — the
+pill face shows a live summary ("N markers placed"), not a flattened value-only control, per the
+task's explicit requirement. The THREE repeating/unbounded product lists (Hierarchy & matched
+products — category mode; Individual result pages — drill-tree leaves; Result products —
+common/shared list) use the collapsed-row + bottom-sheet pattern instead (see below), per
+UI-REDESIGN-PROMPT.md §5 — NOT part of the deck. The Result products bottom sheet contains the
+FULL original per-product editor unchanged, including the finder-detail nested Specs/Fitments
+add-remove sub-lists (`addSpec`/`removeSpec`, `addFitment`/`removeFitment`), relocated into the
+modal with zero flattening or simplification. All 14 deck pills also appear (grouped identically)
+in the `nt-settings-sheet` opened via the step's "All settings" button, with their live current
+value (and swatch for Map dots' marker color) — selecting a sheet row jumps the deck to that chip
++ pill.**
 
-**Step C total: 26 named controls + 3 repeating-list-item templates (result products with nested
-specs/fitments sub-lists, per-leaf individual result products, category-mode hierarchy products) — the
-result-products template is the deepest nested repeating structure in the app (product → specs[] AND
-fitments[], fitments containing their own image/price/sale-price/article-id fields)**
+- [x] Fields to show (category mode) → multi-toggle segment (`resultFieldOpts`: Article name/Price/Zone/Article ID/Shelf — 5 sub-toggles) → via `toggleResultField(f.id)`, read `resultFieldOn(f.id)` — deck: Result ▸ Fields & display chip ▸ "Fields to show" pill
+- [x] LED colour (category mode) → select-field (`ledColorOpts`) → `d.ledColour` via `setLedColour(v)` — deck: Result ▸ Fields & display chip ▸ "LED blink" pill (merged with Blink duration, see note above)
+- [x] Blink duration (category mode) → select-field (`ledDurationOpts`) → `d.ledDuration` via `setLedDuration(v)` — deck: Result ▸ Fields & display chip ▸ "LED blink" pill (same merged pill)
+- [x] Hierarchy & matched products (category mode) → repeating-list-item (read-only, grouped by leaf) → `resultLeaves[].node.products[]` — sub-fields: image-upload, name (locked), price/zone/shelf inputs (conditional on Fields-to-show toggles), Article ID input, Fit segment — collapsed-row + sheet: each product renders as one `nt-collapsed-item-row` per leaf group (thumbnail, locked name, Fit + price summary badge via `hierProductBadge()`, no reorder/delete — matches the original read-only markup); tapping the row opens an `ion-modal` bottom sheet (`.hier-product-editor-modal`) with the full original per-product editor markup
+- [x] Result pages mode (skip-intermediate themes, non-category) → segment (Common — one result page / Per item — one per home card) → `itemResultMode` via `setItemResultMode(mode)` — deck: Result ▸ Pages chip ▸ "Result pages mode" pill
+- [x] Home card selector for per-item result (conditional `itemResultMode==='per-item'`) → segment (repeating per home card) → `activeCardId` via `selectItemCard(c.id)` — deck: Result ▸ Pages chip ▸ "Result pages mode" pill (action segment rendered in the same editor-card, not its own pill — same precedent as Home step's "L0 selection" embedding "Use N selected")
+- [x] Result map image → image-upload (conditional `resultNeedsMap`) → `curResult.mapImage` via `pickMap()` / `clearMap()` — deck: Result ▸ Map & markers chip ▸ "Result map image" pill
+- [x] Marker placement · product selector (conditional map+products) → segment (repeating per product) → `markerIdx` — deck: Result ▸ Map & markers chip ▸ "Marker placement" pill (interactive editor-card, see note above)
+- [x] Map zoom → stepper (−/value/+, 1×–3×) → `mapZoom` via `zoomMapOut()` / `zoomMapIn()` — deck: Result ▸ Map & markers chip ▸ "Marker placement" pill (same editor-card)
+- [x] Map tap-to-place → interactive map click target → `p.mapX` / `p.mapY` via `placeMarker($event, mapBox)` — deck: Result ▸ Map & markers chip ▸ "Marker placement" pill (same editor-card — `(click)="placeMarker($event, mapBox)"` preserved byte-identical, see verification notes)
+- [x] Map dots mode → segment (Dot/None) → via `setRouteKind(kind)`, read `mapDotsEnabled` / `mapRoute?.kind` — deck: Result ▸ Map & markers chip ▸ "Map dots" pill
+- [x] Marker color → color-picker (conditional `mapDotsEnabled`) → via `setRouteColor($event)`, reads `mapRoute?.color` — deck: Result ▸ Map & markers chip ▸ "Map dots" pill (same editor-card)
+- [x] Promo / selection panel image (or "Side category image" for shelf template) → image-upload → `curResult.promoImage` via `pickPromo()` / `clearPromo()` — deck: Result ▸ Panel & promo chip ▸ "Promo / selection panel image" pill
+- [x] Individual result pages (drill-tree themes, `resultMode==='individual'`) → repeating-list-item (per leaf, "+ Add" via `addLeafProduct(leaf.node)`) → sub-fields as below plus per-leaf Map locator (product selector segment `leafMarkerIndex`/`selectLeafMarker`, color-picker `leafMarkerColor`/`setLeafMarkerColor`, tap-to-place `placeLeafMarker`) — collapsed-row + sheet: each product renders as one `nt-collapsed-item-row` per leaf group (thumbnail, name, Fit + price summary badge via `leafProductBadge()`, delete wired to `removeLeafProduct()` from the row, no reorder — matches the original markup, which had none); tapping the row opens an `ion-modal` bottom sheet (`.leaf-product-editor-modal`) with the full original per-product editor markup; the leaf-level Map locator (tap-to-place via `placeLeafMarker($event, leafMapBox, leaf.node)`) stays INLINE below the collapsed rows, unchanged — it edits the leaf's currently-selected marker, not a single product row
+- [x] Result products (common/shared list) → repeating-list-item ("+ Add" via `addProduct()`) → `curResult.products[]` via `moveProduct(i,dir)` / `removeProduct(i)` — collapsed-row + sheet: each product renders as one `nt-collapsed-item-row` (thumbnail, name, Fit + price + "N specs · M fitments" summary badge via `resultProductBadge()`, reorder ↑/↓ + delete wired directly to `moveProduct()`/`removeProduct()` from the row, same reversed-display-index convention as Home step's Home Cards); tapping the row opens an `ion-modal` bottom sheet (`.result-product-editor-modal`) with the full original per-product editor markup
+  - sub-fields: image-upload, name input (locked if `fromApi`), Fit segment, price input, aisle/zone input, shelf input, Map X/Map Y number inputs (conditional `resultNeedsMap`), ESL id input (conditional `appMode==='prototype-esl'`), zone input (conditional `isPromoRank`) — all moved verbatim into the bottom-sheet editor
+  - finder-detail sub-fields (conditional `isFinder`): description input, sale price input, "On sale" checkbox, Attributes repeating-list-item (`p.specs[]` via `addSpec(p)`/`removeSpec(p,i)` — label + value text inputs), Fitments repeating-list-item (`p.fitments[]` via `addFitment(p)`/`removeFitment(p,i)` — sub-fields: image-upload `pickFitImage(f)`, label input, sub-name input, price input, sale price input, Article ID input conditional prototype-esl) — kept as the original inline nested add/remove lists INSIDE the product bottom sheet, unchanged (deepest nested repeating structure in the app, relocated with zero flattening)
+- [x] ESL blink by (prototype-esl mode) → select-field (`eslByOpts`) → `d.eslBlinkBy` via `setEslBy(v)` — deck: Result ▸ Fields & display chip ▸ "ESL blink by" pill
+- [x] LED colour (prototype-esl mode, duplicate of category-mode control above but different step condition) → select-field (`ledColorOpts`) → `d.ledColour` via `setLedColour(v)` — deck: Result ▸ Fields & display chip ▸ "LED blink" pill (same merged pill as the category-mode row above — confirmed same `d.ledColour` field, not a duplicated copy)
+- [x] Blink duration (prototype-esl mode) → select-field (`ledDurationOpts`) → `d.ledDuration` via `setLedDuration(v)` — deck: Result ▸ Fields & display chip ▸ "LED blink" pill (same merged pill)
+- [x] Floor labels (promo-map-rank) → text input (comma-separated) → `tplFloorsCsv` (getter/setter over `td.floors`) — deck: Result ▸ Promotion chip ▸ "Floor labels" pill
+- [x] "You are here" label (promo-map-rank) → text input → `td.youAreHereLabel` — deck: Result ▸ Promotion chip ▸ ""You are here" label" pill
+- [x] Timer seconds (promo-map-rank) → number input → `td.timerSeconds` via `setTplTimer($event)` — deck: Result ▸ Promotion chip ▸ "Timer seconds" pill
+- [x] Finder steps (finder-detail, inherited display when finder-select) → read-only repeating rows → `finderStepLabel(i)` — deck: Result ▸ Finder chip ▸ "Finder steps" pill (mutually exclusive branch, same pill key as the editable row below)
+- [x] Finder steps (finder-detail, editable when not finder-select) → repeating-list-item text inputs → via `crumbValue(i)` / `setCrumb(i, $event)` — deck: Result ▸ Finder chip ▸ "Finder steps" pill
+- [x] Hero Title (finder-detail) → text input → `d.header.title` via `setHeader('title', $event)` — deck: Result ▸ Finder chip ▸ "Hero Title" pill
+- [x] Find It label (finder-detail) → text input → `td.findItLabel` — deck: Result ▸ Finder chip ▸ "Finder labels" pill (grouped with Find All label, one pill — matches the original single `.sec` heading with both inputs in one `.prow`)
+- [x] Find All label (finder-detail) → text input → `td.findAllLabel` — deck: Result ▸ Finder chip ▸ "Finder labels" pill (same pill)
+
+**Step C total: 26 named controls (14 distinct deck pills — the merges above: LED colour + Blink
+duration → 1 "LED blink" pill shared by category/esl modes; Home card selector folded into
+"Result pages mode"; Finder steps inherited/editable variants → 1 pill; Find It/Find All labels →
+1 "Finder labels" pill — plus 3 repeating-list-item templates: result products with nested
+specs/fitments sub-lists, per-leaf individual result products, category-mode hierarchy products) —
+all 26 controls migrated, all reachable via deck + All-settings sheet, or via the 3 repeating
+lists' collapsed rows + bottom sheets. The result-products template remains the deepest nested
+repeating structure in the app (product → specs[] AND fitments[], fitments containing their own
+image/price/sale-price/article-id fields) — relocated into its bottom sheet with zero flattening.**
 
 ### Step D — Screensaver (`saver`, step-title "Screensaver")
 

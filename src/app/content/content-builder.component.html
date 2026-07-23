@@ -521,160 +521,224 @@
 
     <!-- ============ RESULT ============ -->
     <div *ngSwitchCase="'result'">
-      <h2 class="step-title">Result page</h2>
+      <div class="step-title-row">
+        <h2 class="step-title">Result page</h2>
+        <button type="button" class="all-settings-btn" (click)="resultSettingsOpen = true">
+          <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
+        </button>
+      </div>
 
-      <!-- CATEGORY: hierarchy + matched products + field-visibility toggles -->
+      <nt-deck-chips [chips]="resultChipsInput" [activeIndex]="resultActiveChip" (activeIndexChange)="onResultChipChange($event)"></nt-deck-chips>
+      <nt-value-pill-row [pills]="resultPillsInput" [activeIndex]="resultActivePill" (activeIndexChange)="resultActivePill = $event"></nt-value-pill-row>
+
+      <nt-editor-card [sectionLabel]="resultActivePillLabel">
+        <ng-container [ngSwitch]="resultActivePillKey">
+
+          <!-- CATEGORY: which product fields appear on the result page -->
+          <ng-container *ngSwitchCase="'fieldsToShow'">
+            <div class="sec"><span>Fields to show</span></div>
+            <p class="note">Pick which product fields appear on the result page (kiosk + preview).</p>
+            <div class="seg fit-seg">
+              <button class="mini" *ngFor="let f of resultFieldOpts" [class.sel]="resultFieldOn(f.id)" (click)="toggleResultField(f.id)">{{ f.label }}</button>
+            </div>
+          </ng-container>
+
+          <!-- LED blink: the kiosk blinks every article shown here on result entry,
+               and turns the LEDs off (duration 0) when leaving the page. Shared pill
+               for category mode AND prototype-esl mode — both bind to the exact
+               same d.ledColour / d.ledDuration (see inventory note on duplicate rows). -->
+          <ng-container *ngSwitchCase="'ledBlink'">
+            <div class="sec"><span>LED blink</span></div>
+            <app-select-field placeholder="LED colour" [options]="ledColorOpts"
+              [value]="d.ledColour || 'Red'" (valueChange)="setLedColour($any($event))"></app-select-field>
+            <app-select-field placeholder="Blink duration" [options]="ledDurationOpts"
+              [value]="d.ledDuration || '10s'" (valueChange)="setLedDuration($any($event))"></app-select-field>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'eslBlinkBy'">
+            <div class="sec"><span>ESL blink by</span></div>
+            <app-select-field placeholder="Blink by" [options]="eslByOpts"
+              [value]="d.eslBlinkBy || 'article'" (valueChange)="setEslBy($any($event))"></app-select-field>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'resultMapImage'">
+            <div class="sec"><span>Result map image</span></div>
+            <div class="erow">
+              <div class="thumb wide" [style.background-image]="curResult.mapImage ? 'url('+curResult.mapImage+')' : null" (click)="pickMap()">{{ curResult.mapImage ? '' : '📷 Upload map' }}</div>
+              <button class="del" *ngIf="curResult.mapImage" (click)="clearMap()">✕</button>
+            </div>
+            <p class="note">Template <b>{{ d.themeTokens.resultTemplate }}</b> shows a store map.</p>
+          </ng-container>
+
+          <!-- Tap-to-place marker: pick a product, then tap the map to set its
+               mapX/mapY — the interactive click target is preserved byte-identical. -->
+          <ng-container *ngSwitchCase="'markerPlacement'">
+            <div class="sec"><span>Marker placement</span></div>
+            <p class="note">Select a product, then tap the map where it lives — the LCD shows the dot there.</p>
+            <div class="seg fit-seg marker-seg">
+              <button class="mini" *ngFor="let p of curResult.products; let i = index"
+                      [class.sel]="markerIdx===i" (click)="markerIdx=i">{{ p.name || ('Product ' + (i+1)) }}</button>
+            </div>
+            <div class="map-zoombar">
+              <button class="mini" (click)="zoomMapOut()" [disabled]="mapZoom<=1" title="Zoom out">−</button>
+              <span class="map-zoomval">{{ (mapZoom * 100) | number:'1.0-0' }}%</span>
+              <button class="mini" (click)="zoomMapIn()" [disabled]="mapZoom>=3" title="Zoom in">+</button>
+            </div>
+            <div class="map-zoomwrap">
+              <div class="map-place" #mapBox (click)="placeMarker($event, mapBox)"
+                   [style.transform]="'scale('+mapZoom+')'" [style.transformOrigin]="'top left'"
+                   [style.background-image]="'url('+curResult.mapImage+')'">
+                <ng-container *ngFor="let p of curResult.products; let i = index">
+                  <span class="map-dot" *ngIf="mapDotsEnabled && p.mapX != null && p.mapY != null"
+                        [class.sel]="markerIdx===i"
+                        [style.left.%]="p.mapX" [style.top.%]="p.mapY"
+                        [style.background]="mapRoute?.color || d.themeTokens.result.pathColor"></span>
+                </ng-container>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'mapDots'">
+            <div class="sec"><span>Map dots</span></div>
+            <p class="note"><b>Dot</b> lets you place product dots on the map. <b>None</b> hides dots and disables map placement.</p>
+            <div class="seg fit-seg">
+              <button class="mini" [class.sel]="mapDotsEnabled" (click)="setRouteKind('dot')">Dot</button>
+              <button class="mini" [class.sel]="mapRoute?.kind==='none'" (click)="setRouteKind('none')">None</button>
+            </div>
+            <app-color-picker *ngIf="mapDotsEnabled" label="Marker color"
+              [allowTransparent]="false"
+              [value]="mapRoute?.color || d.themeTokens.result.pathColor"
+              (valueChange)="setRouteColor($event)"></app-color-picker>
+            <p class="note" *ngIf="mapDotsEnabled">Marker color comes from the THEME (Result colors step) — override it per content below.</p>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'panelImage'">
+            <div class="sec"><span>{{ d.themeTokens.resultTemplate === 'shelf' ? 'Side category image (left panel)' : 'Promo / selection panel image' }}</span></div>
+            <div class="erow">
+              <div class="thumb wide" [style.background-image]="curResult.promoImage ? 'url('+curResult.promoImage+')' : null" (click)="pickPromo()">{{ curResult.promoImage ? '' : (d.themeTokens.resultTemplate === 'shelf' ? '📷 Upload side category image' : '📷 Upload promo or QR panel') }}</div>
+              <button class="del" *ngIf="curResult.promoImage" (click)="clearPromo()">✕</button>
+            </div>
+            <p class="note" *ngIf="d.themeTokens.resultTemplate === 'shelf'">Shown as the dark side panel on the left of the product shelf.</p>
+            <p class="note" *ngIf="d.themeTokens.resultTemplate !== 'shelf'">Use this for wine/pet promotion panels, QR-code panels, or branded result artwork.</p>
+          </ng-container>
+
+          <!-- Skip-intermediate themes: choose ONE common result page or one PER
+               home card (not for Category — it uses the hierarchy list below). -->
+          <ng-container *ngSwitchCase="'resultPagesMode'">
+            <div class="sec"><span>Result pages</span></div>
+            <div class="seg fit-seg">
+              <button class="mini" [class.sel]="itemResultMode==='common'" (click)="setItemResultMode('common')">Common — one result page</button>
+              <button class="mini" [class.sel]="itemResultMode==='per-item'" (click)="setItemResultMode('per-item')">Per item — one per home card</button>
+            </div>
+            <p class="note">{{ itemResultMode==='common'
+              ? 'Every home card opens the SAME result page (current behavior).'
+              : 'Each home card opens its OWN result page — pick a card below, then edit its map, panel and products. Switching modes keeps both versions.' }}</p>
+            <ng-container *ngIf="itemResultMode==='per-item'">
+              <p class="note" *ngIf="!d.home.length">Add home cards first — each one gets its own result page.</p>
+              <ng-container *ngIf="d.home.length">
+                <div class="seg fit-seg marker-seg">
+                  <button class="mini" *ngFor="let c of d.home; let ci = index"
+                          [class.sel]="activeCardId===c.id" (click)="selectItemCard(c.id)">{{ c.name || ('Card ' + (ci+1)) }}</button>
+                </div>
+                <p class="note">Editing the result page for <b>{{ activeCardLabel }}</b>. Cards with no own products fall back to the common result page.</p>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+
+          <!-- finder-detail: per-content text/data. The breadcrumb chips are the
+               result screen's "Finder steps" — inherited from the Intermediate
+               step's Finder steps when the theme uses finder-select there, else
+               edited here with the same per-drill-level UI. -->
+          <ng-container *ngSwitchCase="'finderSteps'">
+            <ng-container *ngIf="isFinderSelect">
+              <div class="sec"><span>Finder steps (inherited)</span></div>
+              <p class="note">The result breadcrumb chips inherit your Finder steps — edit them on the Intermediate step.</p>
+              <div class="erow" *ngFor="let i of finderStepIndices; trackBy: trackByIndex">
+                <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
+                <span class="inp" style="opacity:.6;pointer-events:none">{{ finderStepLabel(i) }}</span>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="!isFinderSelect">
+              <div class="sec"><span>Finder steps ({{ crumbStepCount }})</span></div>
+              <p class="note">One breadcrumb label per drill level — the count follows your Category depth. Edit any label, or leave it to use the default.</p>
+              <div class="erow" *ngFor="let i of crumbStepIndices; trackBy: trackByIndex">
+                <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
+                <input class="inp" [ngModel]="crumbValue(i)" (ngModelChange)="setCrumb(i, $event)" [placeholder]="'Category ' + (i + 1)" />
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'heroTitleFinder'">
+            <div class="sec"><span>Hero Title</span></div>
+            <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Hero title (default: content name)" />
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'finderLabels'">
+            <div class="sec"><span>Finder labels</span></div>
+            <div class="prow">
+              <input class="inp" placeholder="Find It label" [(ngModel)]="td.findItLabel" />
+              <input class="inp" placeholder="Find All label" [(ngModel)]="td.findAllLabel" />
+            </div>
+          </ng-container>
+
+          <!-- promo-map-rank: per-content text/data (theme keeps only styling) -->
+          <ng-container *ngSwitchCase="'floorLabels'">
+            <div class="sec"><span>Promotion header &amp; map</span></div>
+            <input class="inp" placeholder="Floor labels (comma e.g. 3F,2F,1F)" [ngModel]="tplFloorsCsv" (ngModelChange)="tplFloorsCsv=$event" />
+            <p class="note">Categories → sub-categories → products come from your Home cards &amp; their children/products. The ranked list shows the picked sub-item's products (LED blinks those).</p>
+          </ng-container>
+          <ng-container *ngSwitchCase="'youAreHere'">
+            <input class="inp" placeholder="'You are here' label" [(ngModel)]="td.youAreHereLabel" />
+          </ng-container>
+          <ng-container *ngSwitchCase="'timerSeconds'">
+            <input class="inp" type="number" min="0" max="36000" placeholder="Timer seconds (e.g. 1553)" [ngModel]="td.timerSeconds" (ngModelChange)="setTplTimer($event)" />
+          </ng-container>
+
+        </ng-container>
+      </nt-editor-card>
+
+      <nt-settings-sheet [groups]="resultSettingsGroups" [(isOpen)]="resultSettingsOpen" title="All settings · Result" (rowSelected)="onResultRowSelected($event)"></nt-settings-sheet>
+
+      <!-- CATEGORY: Hierarchy & matched products — repeating/unbounded list,
+           grouped by leaf: collapsed-row + bottom-sheet pattern (UI-REDESIGN-
+           PROMPT.md §5), NOT part of the deck above. Read-only names from the
+           API — no reorder/delete (matches the original markup). -->
       <ng-container *ngIf="d.appMode === 'category'">
-        <div class="sec"><span>Fields to show</span></div>
-        <p class="note">Pick which product fields appear on the result page (kiosk + preview).</p>
-        <div class="seg fit-seg">
-          <button class="mini" *ngFor="let f of resultFieldOpts" [class.sel]="resultFieldOn(f.id)" (click)="toggleResultField(f.id)">{{ f.label }}</button>
-        </div>
-
-        <!-- LED blink: the kiosk blinks every article shown here on result entry,
-             and turns the LEDs off (duration 0) when leaving the page. -->
-        <div class="sec"><span>LED blink</span></div>
-        <app-select-field placeholder="LED colour" [options]="ledColorOpts"
-          [value]="d.ledColour || 'Red'" (valueChange)="setLedColour($any($event))"></app-select-field>
-        <app-select-field placeholder="Blink duration" [options]="ledDurationOpts"
-          [value]="d.ledDuration || '10s'" (valueChange)="setLedDuration($any($event))"></app-select-field>
-
         <div class="sec"><span>Hierarchy &amp; matched products ({{ d.result.products.length }})</span></div>
         <p class="note">Each matched article shows inputs for the fields you enabled above — edit per product as needed.</p>
         <p class="note err" *ngIf="!resultLeaves.length">Select categories on the previous steps first.</p>
-        <div class="pcard" *ngFor="let leaf of resultLeaves">
-          <div class="sec"><span>{{ leaf.label }} ({{ (leaf.node.products || []).length }})</span></div>
-          <div class="pcard sub" *ngFor="let p of leaf.node.products || []">
-            <div class="erow">
-              <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
-              <input class="inp locked" [value]="p.name" readonly title="Article name (from API — locked)" />
-            </div>
-            <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
-              <span class="fit-lbl">Fit</span>
-              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf($any(p))===f" (click)="setFit($any(p), f)">{{ f | titlecase }}</button>
-              <button class="mini danger" (click)="clearImage($any(p))" title="Remove image">✕ Image</button>
-            </div>
-            <div class="prow">
-              <input class="inp" *ngIf="resultFieldOn('price')" [(ngModel)]="p.price" (ngModelChange)="syncResultProducts()" placeholder="Price" />
-              <input class="inp" *ngIf="resultFieldOn('zone')" [(ngModel)]="p.aisle" (ngModelChange)="syncResultProducts()" placeholder="Zone / Aisle" />
-              <input class="inp" *ngIf="resultFieldOn('shelf')" [(ngModel)]="p.shelf" (ngModelChange)="syncResultProducts()" placeholder="Shelf" />
-            </div>
-            <input class="inp" *ngIf="resultFieldOn('articleId')" [(ngModel)]="p.articleId" (ngModelChange)="syncResultProducts()" placeholder="Article ID" />
+        <ng-container *ngFor="let leaf of resultLeaves">
+          <div class="sec sub"><span>{{ leaf.label }} ({{ (leaf.node.products || []).length }})</span></div>
+          <div class="result-products-list">
+            <nt-collapsed-item-row *ngFor="let p of leaf.node.products || []; let pi = index"
+              [thumbnail]="resultNeedsImage ? (p.image || null) : null"
+              [name]="p.name || 'Untitled product'"
+              [badge]="hierProductBadge(p)"
+              [canMoveUp]="false" [canMoveDown]="false" [canDelete]="false"
+              (rowClick)="openHierProductEditor(leaf.node, pi)"></nt-collapsed-item-row>
           </div>
           <p class="note" *ngIf="!(leaf.node.products && leaf.node.products.length)">No matching products.</p>
-        </div>
-      </ng-container>
-
-      <!-- Skip-intermediate themes: choose ONE common result page or one PER home card
-           (not for Category — it uses the hierarchy block above). -->
-      <ng-container *ngIf="skipsIntermediate && d.appMode !== 'category'">
-        <div class="sec"><span>Result pages</span></div>
-        <div class="seg fit-seg">
-          <button class="mini" [class.sel]="itemResultMode==='common'" (click)="setItemResultMode('common')">Common — one result page</button>
-          <button class="mini" [class.sel]="itemResultMode==='per-item'" (click)="setItemResultMode('per-item')">Per item — one per home card</button>
-        </div>
-        <p class="note">{{ itemResultMode==='common'
-          ? 'Every home card opens the SAME result page (current behavior).'
-          : 'Each home card opens its OWN result page — pick a card below, then edit its map, panel and products. Switching modes keeps both versions.' }}</p>
-        <ng-container *ngIf="itemResultMode==='per-item'">
-          <p class="note" *ngIf="!d.home.length">Add home cards first — each one gets its own result page.</p>
-          <ng-container *ngIf="d.home.length">
-            <div class="seg fit-seg marker-seg">
-              <button class="mini" *ngFor="let c of d.home; let ci = index"
-                      [class.sel]="activeCardId===c.id" (click)="selectItemCard(c.id)">{{ c.name || ('Card ' + (ci+1)) }}</button>
-            </div>
-            <p class="note">Editing the result page for <b>{{ activeCardLabel }}</b>. Cards with no own products fall back to the common result page.</p>
-          </ng-container>
         </ng-container>
-      </ng-container>
-
-      <ng-container *ngIf="resultNeedsMap">
-        <div class="sec"><span>Result map image</span></div>
-        <div class="erow">
-          <div class="thumb wide" [style.background-image]="curResult.mapImage ? 'url('+curResult.mapImage+')' : null" (click)="pickMap()">{{ curResult.mapImage ? '' : '📷 Upload map' }}</div>
-          <button class="del" *ngIf="curResult.mapImage" (click)="clearMap()">✕</button>
-        </div>
-        <p class="note">Template <b>{{ d.themeTokens.resultTemplate }}</b> shows a store map.</p>
-
-        <!-- Tap-to-place marker: pick a product, then tap the map to set its mapX/mapY -->
-        <ng-container *ngIf="curResult.mapImage && curResult.products.length">
-          <div class="sec"><span>Marker placement</span></div>
-          <p class="note">Select a product, then tap the map where it lives — the LCD shows the dot there.</p>
-          <div class="seg fit-seg marker-seg">
-            <button class="mini" *ngFor="let p of curResult.products; let i = index"
-                    [class.sel]="markerIdx===i" (click)="markerIdx=i">{{ p.name || ('Product ' + (i+1)) }}</button>
-          </div>
-          <div class="map-zoombar">
-            <button class="mini" (click)="zoomMapOut()" [disabled]="mapZoom<=1" title="Zoom out">−</button>
-            <span class="map-zoomval">{{ (mapZoom * 100) | number:'1.0-0' }}%</span>
-            <button class="mini" (click)="zoomMapIn()" [disabled]="mapZoom>=3" title="Zoom in">+</button>
-          </div>
-          <div class="map-zoomwrap">
-            <div class="map-place" #mapBox (click)="placeMarker($event, mapBox)"
-                 [style.transform]="'scale('+mapZoom+')'" [style.transformOrigin]="'top left'"
-                 [style.background-image]="'url('+curResult.mapImage+')'">
-              <ng-container *ngFor="let p of curResult.products; let i = index">
-                <span class="map-dot" *ngIf="mapDotsEnabled && p.mapX != null && p.mapY != null"
-                      [class.sel]="markerIdx===i"
-                      [style.left.%]="p.mapX" [style.top.%]="p.mapY"
-                      [style.background]="mapRoute?.color || d.themeTokens.result.pathColor"></span>
-              </ng-container>
-            </div>
-          </div>
-
-          <div class="sec"><span>Map dots</span></div>
-          <p class="note"><b>Dot</b> lets you place product dots on the map. <b>None</b> hides dots and disables map placement.</p>
-          <div class="seg fit-seg">
-            <button class="mini" [class.sel]="mapDotsEnabled" (click)="setRouteKind('dot')">Dot</button>
-            <button class="mini" [class.sel]="mapRoute?.kind==='none'" (click)="setRouteKind('none')">None</button>
-          </div>
-          <app-color-picker *ngIf="mapDotsEnabled" label="Marker color"
-            [allowTransparent]="false"
-            [value]="mapRoute?.color || d.themeTokens.result.pathColor"
-            (valueChange)="setRouteColor($event)"></app-color-picker>
-          <p class="note" *ngIf="mapDotsEnabled">Marker color comes from the THEME (Result colors step) — override it per content below.</p>
-        </ng-container>
-      </ng-container>
-
-      <ng-container *ngIf="resultNeedsPromo">
-        <div class="sec"><span>{{ d.themeTokens.resultTemplate === 'shelf' ? 'Side category image (left panel)' : 'Promo / selection panel image' }}</span></div>
-        <div class="erow">
-          <div class="thumb wide" [style.background-image]="curResult.promoImage ? 'url('+curResult.promoImage+')' : null" (click)="pickPromo()">{{ curResult.promoImage ? '' : (d.themeTokens.resultTemplate === 'shelf' ? '📷 Upload side category image' : '📷 Upload promo or QR panel') }}</div>
-          <button class="del" *ngIf="curResult.promoImage" (click)="clearPromo()">✕</button>
-        </div>
-        <p class="note" *ngIf="d.themeTokens.resultTemplate === 'shelf'">Shown as the dark side panel on the left of the product shelf.</p>
-        <p class="note" *ngIf="d.themeTokens.resultTemplate !== 'shelf'">Use this for wine/pet promotion panels, QR-code panels, or branded result artwork.</p>
       </ng-container>
 
       <!-- Individual result pages: per end-item product lists (drill-tree themes;
-           skip-intermediate themes use the Per-item result pages control above) -->
+           skip-intermediate themes use the Per-item result pages control above) —
+           repeating/unbounded list per leaf: collapsed-row + bottom-sheet. The
+           leaf-level Map locator (tap-to-place) stays inline, unchanged. -->
       <ng-container *ngIf="d.appMode !== 'category' && resultMode==='individual' && !skipsIntermediate">
         <div class="sec"><span>Individual result pages ({{ resultLeaves.length }})</span></div>
         <p class="note">Each end item gets its own products. Items left empty fall back to the shared list at the bottom.</p>
-        <div class="pcard" *ngFor="let leaf of resultLeaves">
-          <div class="sec"><span>{{ leaf.label }}</span><button class="mini" (click)="addLeafProduct(leaf.node)">+ Add</button></div>
-          <ng-container *ngFor="let p of (leaf.node.products || []).slice().reverse(); let pi = index">
-            <div class="erow">
-              <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
-              <input *ngIf="!p.fromApi" class="inp" [(ngModel)]="p.name" placeholder="Product name" />
-          <input *ngIf="p.fromApi" class="inp locked" [value]="p.name" readonly title="From API — edit text case below" />
-              <button class="del" (click)="removeLeafProduct(leaf.node, (leaf.node.products || []).length - 1 - pi)">✕</button>
-            </div>
-            <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
-              <span class="fit-lbl">Fit</span>
-              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf($any(p))===f" (click)="setFit($any(p), f)">{{ f | titlecase }}</button>
-              <button class="mini danger" (click)="clearImage($any(p))" title="Remove image">✕ Image</button>
-            </div>
-            <div class="prow">
-              <input class="inp" [(ngModel)]="p.price" placeholder="Price" />
-              <input class="inp" [(ngModel)]="p.aisle" placeholder="Aisle / Zone" />
-              <input class="inp" [(ngModel)]="p.shelf" placeholder="Shelf" />
-            </div>
-            <div class="prow" *ngIf="resultNeedsMap">
-              <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapX" placeholder="Map X % (0–100)" />
-              <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapY" placeholder="Map Y % (0–100)" />
-            </div>
-          </ng-container>
+        <ng-container *ngFor="let leaf of resultLeaves">
+          <div class="sec sub"><span>{{ leaf.label }}</span><button class="mini" (click)="addLeafProduct(leaf.node)">+ Add</button></div>
+          <div class="result-products-list">
+            <nt-collapsed-item-row *ngFor="let row of leafProductsReversed(leaf.node); let pi = index"
+              [thumbnail]="resultNeedsImage ? (row.product.image || null) : null"
+              [name]="row.product.name || 'Untitled product'"
+              [badge]="leafProductBadge(row.product)"
+              [canMoveUp]="false" [canMoveDown]="false"
+              (rowClick)="openLeafProductEditor(leaf.node, row.idx)"
+              (delete)="removeLeafProduct(leaf.node, row.idx)"></nt-collapsed-item-row>
+          </div>
           <ng-container *ngIf="resultNeedsMap && d.result.mapImage && (leaf.node.products?.length || 0)">
             <div class="sec sub"><span>Map locator</span></div>
             <p class="note">Select a product, then tap the shared map to place its marker.</p>
@@ -699,124 +763,153 @@
             </div>
           </ng-container>
           <p class="note" *ngIf="!(leaf.node.products && leaf.node.products.length)">No own products — uses the shared list below.</p>
+        </ng-container>
+      </ng-container>
+
+      <!-- Result products (common/shared list) — repeating/unbounded list:
+           collapsed-row + bottom-sheet pattern. The bottom sheet holds the FULL
+           original per-product editor, including the finder-detail nested
+           Specs / Fitments add-remove lists, unchanged. -->
+      <ng-container *ngIf="d.appMode !== 'category'">
+        <div class="sec"><span>{{ perItemActive ? ('Products — ' + activeCardLabel) : (resultMode==='individual' && !skipsIntermediate) ? 'Shared / fallback products' : 'Result products' }} ({{ curResult.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>
+        <div class="result-products-list">
+          <nt-collapsed-item-row *ngFor="let row of resultProductsReversed; let i = index"
+            [thumbnail]="resultNeedsImage ? (row.product.image || null) : null"
+            [name]="row.product.name || 'Untitled product'"
+            [badge]="resultProductBadge(row.product)"
+            [canMoveUp]="i !== 0"
+            [canMoveDown]="i !== resultProductsReversed.length - 1"
+            (rowClick)="openResultProductEditor(row.idx)"
+            (moveUp)="moveProduct(row.idx, 1)"
+            (moveDown)="moveProduct(row.idx, -1)"
+            (delete)="removeProduct(row.idx)"></nt-collapsed-item-row>
         </div>
       </ng-container>
 
-      <ng-container *ngIf="d.appMode !== 'category'">
-      <div class="sec"><span>{{ perItemActive ? ('Products — ' + activeCardLabel) : (resultMode==='individual' && !skipsIntermediate) ? 'Shared / fallback products' : 'Result products' }} ({{ curResult.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>
-      <div class="pcard" *ngFor="let p of curResult.products.slice().reverse(); let i = index">
-        <div class="erow">
-          <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>
-          <input *ngIf="!p.fromApi" class="inp" [(ngModel)]="p.name" placeholder="Product name" />
-          <input *ngIf="p.fromApi" class="inp locked" [value]="p.name" readonly title="From API — edit text case below" />
-          <button class="del" (click)="moveProduct(curResult.products.length - 1 - i, 1)" [disabled]="i === 0" title="Move up">↑</button>
-              <button class="del" (click)="moveProduct(curResult.products.length - 1 - i, -1)" [disabled]="i === curResult.products.length - 1" title="Move down">↓</button>
-              <button class="del" (click)="removeProduct(curResult.products.length - 1 - i)">✕</button>
-        </div>
-        <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
-          <span class="fit-lbl">Fit</span>
-          <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(p)===f" (click)="setFit(p, f)">{{ f | titlecase }}</button>
-          <button class="mini danger" (click)="clearImage(p)" title="Remove image">✕ Image</button>
-        </div>
-        <div class="prow">
-          <input class="inp" [(ngModel)]="p.price" placeholder="Price" />
-          <input class="inp" [(ngModel)]="p.aisle" placeholder="Aisle / Zone" />
-          <input class="inp" [(ngModel)]="p.shelf" placeholder="Shelf" />
-        </div>
-        <!-- Per-product map marker position (only when a map-based result template is selected) -->
-        <div class="prow" *ngIf="resultNeedsMap">
-          <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapX" placeholder="Map X % (0–100)" />
-          <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapY" placeholder="Map Y % (0–100)" />
-        </div>
-        <input class="inp" *ngIf="d.appMode === 'prototype-esl'"
-          [ngModel]="eslId(p.id)" (ngModelChange)="setEslId(p.id, $event)"
-          [placeholder]="(d.eslBlinkBy || 'article') === 'article' ? 'Article ID' : 'Label ID'" />
-
-        <!-- promo-map-rank: zone label shown in the ranked list -->
-        <input class="inp" *ngIf="isPromoRank" [(ngModel)]="p.zone" placeholder="Zone (e.g. Beverage)" />
-
-        <!-- finder-detail: description, sale, attribute grid, fitments -->
-        <ng-container *ngIf="isFinder">
-          <input class="inp" [(ngModel)]="p.description" placeholder="Description (right detail panel)" />
-          <div class="prow">
-            <input class="inp" [(ngModel)]="p.salePrice" placeholder="Sale price" />
-            <label class="chk"><input type="checkbox" [(ngModel)]="p.onSale" /> On sale</label>
-          </div>
-          <div class="sec sub"><span>Attributes</span><button class="mini" (click)="addSpec(p)">+ Attr</button></div>
-          <div class="prow" *ngFor="let s of p.specs; let si = index">
-            <input class="inp" [(ngModel)]="s.label" placeholder="Label (e.g. Color)" />
-            <input class="inp" [(ngModel)]="s.value" placeholder="Value (e.g. Black)" />
-            <button class="del" (click)="removeSpec(p, si)">✕</button>
-          </div>
-          <div class="sec sub"><span>Fitments — each is a Find It target</span><button class="mini" (click)="addFitment(p)">+ Fitment</button></div>
-          <div class="pcard" *ngFor="let f of p.fitments; let fi = index">
+      <!-- Hierarchy & matched products FULL editor (category mode) — bottom sheet.
+           Reuses the exact original per-product markup (locked name, Fit,
+           field-gated price/zone/shelf/articleId inputs). -->
+      <ion-modal class="nt-sheet-modal hier-product-editor-modal" [isOpen]="hierProductModalOpen" (didDismiss)="closeHierProductEditor()">
+        <ng-template>
+          <div class="nt-sheet" *ngIf="hierProductModalItem as p">
+            <div class="nt-sheet-grab"></div>
+            <div class="sec"><span>Edit matched product</span><button class="del" (click)="closeHierProductEditor()">✕</button></div>
             <div class="erow">
-              <div class="thumb" [style.background-image]="f.image ? 'url('+f.image+')' : null" (click)="pickFitImage(f)">{{ f.image ? '' : '📷' }}</div>
-              <input class="inp" [(ngModel)]="f.label" placeholder="Label (e.g. Driver Side)" />
-              <button class="del" (click)="removeFitment(p, fi)">✕</button>
+              <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
+              <input class="inp locked" [value]="p.name" readonly title="Article name (from API — locked)" />
+            </div>
+            <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
+              <span class="fit-lbl">Fit</span>
+              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf($any(p))===f" (click)="setFit($any(p), f)">{{ f | titlecase }}</button>
+              <button class="mini danger" (click)="clearImage($any(p))" title="Remove image">✕ Image</button>
             </div>
             <div class="prow">
-              <input class="inp" [(ngModel)]="f.name" placeholder="Sub-name (e.g. 26 inch)" />
-              <input class="inp" [(ngModel)]="f.price" placeholder="Price" />
-              <input class="inp" [(ngModel)]="f.salePrice" placeholder="Sale price" />
+              <input class="inp" *ngIf="resultFieldOn('price')" [(ngModel)]="p.price" (ngModelChange)="syncResultProducts()" placeholder="Price" />
+              <input class="inp" *ngIf="resultFieldOn('zone')" [(ngModel)]="p.aisle" (ngModelChange)="syncResultProducts()" placeholder="Zone / Aisle" />
+              <input class="inp" *ngIf="resultFieldOn('shelf')" [(ngModel)]="p.shelf" (ngModelChange)="syncResultProducts()" placeholder="Shelf" />
             </div>
-            <input class="inp" *ngIf="d.appMode === 'prototype-esl'" [(ngModel)]="f.articleId" placeholder="Article ID (LED blink target)" />
+            <input class="inp" *ngIf="resultFieldOn('articleId')" [(ngModel)]="p.articleId" (ngModelChange)="syncResultProducts()" placeholder="Article ID" />
           </div>
-        </ng-container>
-      </div>
-      </ng-container>
+        </ng-template>
+      </ion-modal>
 
-      <ng-container *ngIf="d.appMode === 'prototype-esl'">
-        <div class="sec"><span>ESL blink by</span></div>
-        <app-select-field placeholder="Blink by" [options]="eslByOpts"
-          [value]="d.eslBlinkBy || 'article'" (valueChange)="setEslBy($any($event))"></app-select-field>
-
-        <div class="sec"><span>LED colour</span></div>
-        <app-select-field placeholder="LED colour" [options]="ledColorOpts"
-          [value]="d.ledColour || 'Red'" (valueChange)="setLedColour($any($event))"></app-select-field>
-        <div class="sec"><span>Blink duration</span></div>
-        <app-select-field placeholder="Blink duration" [options]="ledDurationOpts"
-          [value]="d.ledDuration || '10s'" (valueChange)="setLedDuration($any($event))"></app-select-field>
-      </ng-container>
-
-      <!-- promo-map-rank: per-content text/data (theme keeps only styling) -->
-      <ng-container *ngIf="isPromoRank">
-        <div class="sec"><span>Promotion header &amp; map</span></div>
-        <input class="inp" placeholder="Floor labels (comma e.g. 3F,2F,1F)" [ngModel]="tplFloorsCsv" (ngModelChange)="tplFloorsCsv=$event" />
-        <input class="inp" placeholder="'You are here' label" [(ngModel)]="td.youAreHereLabel" />
-        <input class="inp" type="number" min="0" max="36000" placeholder="Timer seconds (e.g. 1553)" [ngModel]="td.timerSeconds" (ngModelChange)="setTplTimer($event)" />
-        <p class="note">Categories → sub-categories → products come from your Home cards &amp; their children/products. The ranked list shows the picked sub-item's products (LED blinks those).</p>
-      </ng-container>
-
-      <!-- finder-detail: per-content text/data. The breadcrumb chips are the
-           result screen's "Finder steps" — inherited from the Intermediate
-           step's Finder steps when the theme uses finder-select there, else
-           edited here with the same per-drill-level UI. -->
-      <ng-container *ngIf="isFinder">
-        <ng-container *ngIf="isFinderSelect">
-          <div class="sec"><span>Finder steps (inherited)</span></div>
-          <p class="note">The result breadcrumb chips inherit your Finder steps — edit them on the Intermediate step.</p>
-          <div class="erow" *ngFor="let i of finderStepIndices; trackBy: trackByIndex">
-            <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
-            <span class="inp" style="opacity:.6;pointer-events:none">{{ finderStepLabel(i) }}</span>
+      <!-- Individual result page product FULL editor (drill-tree leaves) —
+           bottom sheet. Reuses the exact original per-product markup. -->
+      <ion-modal class="nt-sheet-modal leaf-product-editor-modal" [isOpen]="leafProductModalOpen" (didDismiss)="closeLeafProductEditor()">
+        <ng-template>
+          <div class="nt-sheet" *ngIf="leafProductModalItem as p">
+            <div class="nt-sheet-grab"></div>
+            <div class="sec"><span>Edit product</span><button class="del" (click)="closeLeafProductEditor()">✕</button></div>
+            <div class="erow">
+              <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
+              <input *ngIf="!p.fromApi" class="inp" [(ngModel)]="p.name" placeholder="Product name" />
+              <input *ngIf="p.fromApi" class="inp locked" [value]="p.name" readonly title="From API — edit text case below" />
+            </div>
+            <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
+              <span class="fit-lbl">Fit</span>
+              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf($any(p))===f" (click)="setFit($any(p), f)">{{ f | titlecase }}</button>
+              <button class="mini danger" (click)="clearImage($any(p))" title="Remove image">✕ Image</button>
+            </div>
+            <div class="prow">
+              <input class="inp" [(ngModel)]="p.price" placeholder="Price" />
+              <input class="inp" [(ngModel)]="p.aisle" placeholder="Aisle / Zone" />
+              <input class="inp" [(ngModel)]="p.shelf" placeholder="Shelf" />
+            </div>
+            <div class="prow" *ngIf="resultNeedsMap">
+              <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapX" placeholder="Map X % (0–100)" />
+              <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapY" placeholder="Map Y % (0–100)" />
+            </div>
           </div>
-        </ng-container>
-        <ng-container *ngIf="!isFinderSelect">
-          <div class="sec"><span>Finder steps ({{ crumbStepCount }})</span></div>
-          <p class="note">One breadcrumb label per drill level — the count follows your Category depth. Edit any label, or leave it to use the default.</p>
-          <div class="erow" *ngFor="let i of crumbStepIndices; trackBy: trackByIndex">
-            <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
-            <input class="inp" [ngModel]="crumbValue(i)" (ngModelChange)="setCrumb(i, $event)" [placeholder]="'Category ' + (i + 1)" />
+        </ng-template>
+      </ion-modal>
+
+      <!-- Result products (common/shared) FULL editor — bottom sheet. Reuses the
+           exact original per-product markup, including ESL id / promo-map-rank
+           zone / finder-detail description+sale+Specs+Fitments add-remove lists,
+           all unchanged. -->
+      <ion-modal class="nt-sheet-modal result-product-editor-modal" [isOpen]="resultProductModalOpen" (didDismiss)="closeResultProductEditor()">
+        <ng-template>
+          <div class="nt-sheet" *ngIf="resultProductModalItem as p">
+            <div class="nt-sheet-grab"></div>
+            <div class="sec"><span>Edit product</span><button class="del" (click)="closeResultProductEditor()">✕</button></div>
+            <div class="erow">
+              <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>
+              <input *ngIf="!p.fromApi" class="inp" [(ngModel)]="p.name" placeholder="Product name" />
+              <input *ngIf="p.fromApi" class="inp locked" [value]="p.name" readonly title="From API — edit text case below" />
+            </div>
+            <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
+              <span class="fit-lbl">Fit</span>
+              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(p)===f" (click)="setFit(p, f)">{{ f | titlecase }}</button>
+              <button class="mini danger" (click)="clearImage(p)" title="Remove image">✕ Image</button>
+            </div>
+            <div class="prow">
+              <input class="inp" [(ngModel)]="p.price" placeholder="Price" />
+              <input class="inp" [(ngModel)]="p.aisle" placeholder="Aisle / Zone" />
+              <input class="inp" [(ngModel)]="p.shelf" placeholder="Shelf" />
+            </div>
+            <!-- Per-product map marker position (only when a map-based result template is selected) -->
+            <div class="prow" *ngIf="resultNeedsMap">
+              <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapX" placeholder="Map X % (0–100)" />
+              <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapY" placeholder="Map Y % (0–100)" />
+            </div>
+            <input class="inp" *ngIf="d.appMode === 'prototype-esl'"
+              [ngModel]="eslId(p.id)" (ngModelChange)="setEslId(p.id, $event)"
+              [placeholder]="(d.eslBlinkBy || 'article') === 'article' ? 'Article ID' : 'Label ID'" />
+
+            <!-- promo-map-rank: zone label shown in the ranked list -->
+            <input class="inp" *ngIf="isPromoRank" [(ngModel)]="p.zone" placeholder="Zone (e.g. Beverage)" />
+
+            <!-- finder-detail: description, sale, attribute grid, fitments -->
+            <ng-container *ngIf="isFinder">
+              <input class="inp" [(ngModel)]="p.description" placeholder="Description (right detail panel)" />
+              <div class="prow">
+                <input class="inp" [(ngModel)]="p.salePrice" placeholder="Sale price" />
+                <label class="chk"><input type="checkbox" [(ngModel)]="p.onSale" /> On sale</label>
+              </div>
+              <div class="sec sub"><span>Attributes</span><button class="mini" (click)="addSpec(p)">+ Attr</button></div>
+              <div class="prow" *ngFor="let s of p.specs; let si = index">
+                <input class="inp" [(ngModel)]="s.label" placeholder="Label (e.g. Color)" />
+                <input class="inp" [(ngModel)]="s.value" placeholder="Value (e.g. Black)" />
+                <button class="del" (click)="removeSpec(p, si)">✕</button>
+              </div>
+              <div class="sec sub"><span>Fitments — each is a Find It target</span><button class="mini" (click)="addFitment(p)">+ Fitment</button></div>
+              <div class="pcard" *ngFor="let f of p.fitments; let fi = index">
+                <div class="erow">
+                  <div class="thumb" [style.background-image]="f.image ? 'url('+f.image+')' : null" (click)="pickFitImage(f)">{{ f.image ? '' : '📷' }}</div>
+                  <input class="inp" [(ngModel)]="f.label" placeholder="Label (e.g. Driver Side)" />
+                  <button class="del" (click)="removeFitment(p, fi)">✕</button>
+                </div>
+                <div class="prow">
+                  <input class="inp" [(ngModel)]="f.name" placeholder="Sub-name (e.g. 26 inch)" />
+                  <input class="inp" [(ngModel)]="f.price" placeholder="Price" />
+                  <input class="inp" [(ngModel)]="f.salePrice" placeholder="Sale price" />
+                </div>
+                <input class="inp" *ngIf="d.appMode === 'prototype-esl'" [(ngModel)]="f.articleId" placeholder="Article ID (LED blink target)" />
+              </div>
+            </ng-container>
           </div>
-        </ng-container>
-        <div class="sec"><span>Hero Title</span></div>
-        <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Hero title (default: content name)" />
-        <div class="sec"><span>Finder labels</span></div>
-        <div class="prow">
-          <input class="inp" placeholder="Find It label" [(ngModel)]="td.findItLabel" />
-          <input class="inp" placeholder="Find All label" [(ngModel)]="td.findAllLabel" />
-        </div>
-      </ng-container>
+        </ng-template>
+      </ion-modal>
 
     </div>
 
