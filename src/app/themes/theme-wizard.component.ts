@@ -1688,15 +1688,169 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     if (key === 'resColors') { this.resultSynced = false; this.syncResultFromHome(); }
   }
 
-  // ===== Editor Deck (phase 3a) — Colors & Type steps =====
+  // ===== Editor Deck (phase 3a/3b) — Home, Colors & Type steps =====
   // View-only UI state (active category chip / value pill, sheet open flags).
   // Every option below reads/writes the exact same `t.*` properties and calls
   // the exact same methods as the original vertical form — only the presentation
   // (chips → value pills → single editor card, plus an "All settings" sheet) is
-  // restructured. See UI-REDESIGN-INVENTORY.md Step 2 / Step 3 for the full list.
+  // restructured. See UI-REDESIGN-INVENTORY.md Step 1 / Step 2 / Step 3 for the full list.
 
   private capitalize(s: string): string { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
   private pct(v: number): string { return Math.round(v * 100) + '%'; }
+
+  // ----- Home step (phase 3b) -----
+  // Same mutually-exclusive branches as the original template: the Finder-select
+  // arrangement replaces Card size/gap/alignment + Card content/shape + Text
+  // position with its own fs*-prefixed controls, while Card surface and the
+  // "Card gap" slider are literally the same bound property (t.cardSurface /
+  // t.cardGapNum via setCardGap) in both branches — represented as ONE option
+  // here since only one branch is ever visible at a time.
+  homeActiveChip = 0;
+  homeActivePill = 0;
+  homeSettingsOpen = false;
+
+  private get homeArrangementOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    out.push({ key: 'homeLayout', icon: 'grid-outline', label: 'Arrangement', value: this.layoutLabels[this.t.homeLayout] || this.t.homeLayout });
+
+    if (this.scrollMatters && !this.isHeroStart && this.scrollModesVisible.length > 1) {
+      const lbl = this.scrollModesVisible.find((m) => m.id === this.effectiveScrollMode)?.label || this.effectiveScrollMode;
+      out.push({ key: 'scrollMode', icon: 'swap-horizontal-outline', label: 'Overflow scrolling', value: lbl });
+    }
+
+    if (this.columnsMatter) {
+      out.push({ key: 'columns', icon: 'apps-outline', label: this.itemCountMatters ? 'Items' : 'Columns', value: `${this.effectiveColumns}` });
+    }
+
+    if (this.t.homeLayout === 'finder-select') {
+      const showPrompt = this.t.intermediate.fsShowPrompt !== false;
+      out.push({ key: 'fsShowPrompt', icon: 'eye-outline', label: 'Title visibility', value: showPrompt ? 'Show title' : 'Hide title' });
+      if (showPrompt) {
+        out.push({ key: 'fsPromptPos', icon: 'reorder-three-outline', label: 'Title alignment', value: this.capitalize(this.t.intermediate.fsPromptPos || 'center') });
+      }
+      out.push({ key: 'intItemSize', icon: 'resize-outline', label: 'Item size', value: this.pct(this.intItemSizeValue) });
+      out.push({ key: 'cardGap', icon: 'contract-outline', label: 'Card gap', value: `${this.cardGapValue}px` });
+    } else if (!this.isHeroStart) {
+      if (this.sizeMatters) {
+        out.push({ key: 'cardSize', icon: 'expand-outline', label: 'Card size', value: this.pct(this.cardSizeValue) });
+      }
+      if (this.gapMatters) {
+        out.push({ key: 'cardGap', icon: 'contract-outline', label: 'Card gap', value: `${this.cardGapValue}px` });
+      }
+      if (this.alignMatters) {
+        out.push({ key: 'cardAlign', icon: 'reorder-four-outline', label: 'Card alignment', value: this.capitalize(this.t.cardAlign || 'center') });
+      }
+    }
+    return out;
+  }
+
+  private get homeCardStyleOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.homeLayout === 'finder-select') {
+      const fsContent = this.t.intermediate.fsCardContent || 'text-only';
+      out.push({ key: 'fsCardContent', icon: 'albums-outline', label: 'Card content', value: this.fsCardContents.find((c) => c.id === fsContent)?.label || fsContent });
+      if (fsContent !== 'text-only' && fsContent !== 'image-only') {
+        const shape = this.t.intermediate.fsCardShape || 'rect';
+        out.push({ key: 'fsCardShape', icon: 'square-outline', label: 'Card shape', value: this.cardShapes.find((s) => s.id === shape)?.label || shape });
+      }
+      out.push({ key: 'cardSurface', icon: 'layers-outline', label: 'Card surface', value: this.cardSurfaces.find((s) => s.id === (this.t.cardSurface || 'flat'))?.label || 'Flat' });
+    } else if (!this.isHeroStart) {
+      out.push({ key: 'cardContent', icon: 'albums-outline', label: 'Card content', value: this.cardContentsFor.find((c) => c.id === this.t.cardContent)?.label || this.t.cardContent });
+      if (!this.isImageStrip && this.t.cardContent !== 'image-only') {
+        out.push({ key: 'cardShape', icon: 'square-outline', label: 'Card shape', value: this.availableCardShapes.find((s) => s.id === this.t.cardShape)?.label || this.t.cardShape });
+      }
+      out.push({ key: 'cardSurface', icon: 'layers-outline', label: 'Card surface', value: this.cardSurfaces.find((s) => s.id === (this.t.cardSurface || 'flat'))?.label || 'Flat' });
+    }
+    return out;
+  }
+
+  private get homeCardTextOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.homeLayout === 'finder-select') {
+      if (this.finderTextPositionMatters) {
+        const v = this.t.intermediate.fsTextPos || 'center';
+        out.push({ key: 'fsTextPos', icon: 'text-outline', label: 'Text vertical position', value: this.fsTextVPositions.find((p) => p.id === v)?.label || v });
+      }
+      const fsContent = this.t.intermediate.fsCardContent || 'text-only';
+      if (fsContent !== 'image-only' && this.finderTextAlignMatters) {
+        const v = this.t.intermediate.fsTextAlign || 'center';
+        out.push({ key: 'fsTextAlign', icon: 'reorder-three-outline', label: 'Text horizontal alignment', value: this.cardAligns.find((a) => a.id === v)?.label || v });
+      }
+    } else if (this.showTextPos) {
+      out.push({ key: 'cardTextPos', icon: 'text-outline', label: 'Text vertical position', value: this.textPositionsFor.find((p) => p.id === this.t.cardTextPos)?.label || this.t.cardTextPos });
+      if (this.t.cardContent !== 'icon-text') {
+        const v = this.t.cardTextAlign || 'center';
+        out.push({ key: 'cardTextAlign', icon: 'reorder-three-outline', label: 'Text horizontal alignment', value: this.cardAligns.find((a) => a.id === v)?.label || v });
+      }
+      if (this.overlayRelevant) {
+        out.push({ key: 'cardOverlay', icon: 'contrast-outline', label: 'Text Overlay', value: this.homeOverlayStyles.find((s) => s.id === this.cardOverlayEff)?.label || this.cardOverlayEff });
+        if (this.cardOverlayEff !== 'none' && (this.t.cardTextPos || 'overlay-bottom') === 'overlay-bottom') {
+          out.push({ key: 'cardOverlayShape', icon: 'square-outline', label: 'Overlay shape', value: this.overlayShapes.find((s) => s.id === this.cardOverlayShapeEff)?.label || this.cardOverlayShapeEff });
+        }
+        if (this.cardOverlayEff !== 'none') {
+          out.push({ key: 'overlayOpacity', icon: 'contrast-outline', label: 'Overlay opacity', value: `${this.overlayOpacity}%` });
+        }
+      }
+      out.push({ key: 'cardTextShadow', icon: 'moon-outline', label: 'Text shadow', value: this.t.cardTextShadow === true ? 'On' : 'Off' });
+    }
+    return out;
+  }
+
+  private get homeHeaderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.homeLayout !== 'finder-select') {
+      out.push({ key: 'headerBar', icon: 'menu-outline', label: 'Header bar', value: this.t.showHeader ? 'Show' : 'Hide' });
+      if (this.t.showHeader) {
+        out.push({ key: 'headerLayout', icon: 'options-outline', label: 'Header layout', value: this.isCustomHeader ? 'Custom (independent)' : 'Preset combos' });
+        if (!this.isCustomHeader) {
+          const v = this.t.headerStyle || 'logo-only';
+          out.push({ key: 'headerStyle', icon: 'albums-outline', label: 'Header style', value: this.headerStyles.find((h) => h.id === v)?.label || v });
+        } else {
+          out.push({ key: 'logoPos', icon: 'flag-outline', label: 'Logo position', value: this.headerItemPositions.find((p) => p.id === (this.t.logoPos || 'left'))?.label || 'Left' });
+          out.push({ key: 'titlePos', icon: 'text-outline', label: 'Title position', value: this.headerItemPositions.find((p) => p.id === (this.t.titlePos || 'center'))?.label || 'Center' });
+          out.push({ key: 'captionPos', icon: 'chatbubble-outline', label: 'Caption position', value: this.headerItemPositions.find((p) => p.id === (this.t.captionPos || 'center'))?.label || 'Center' });
+        }
+      }
+    }
+    out.push({ key: 'includeIntermediate', icon: 'layers-outline', label: 'Intermediate page', value: this.t.includeIntermediate ? 'Include' : 'Skip → Result' });
+    return out;
+  }
+
+  get homeCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'arrangement', icon: 'grid-outline', label: 'Arrangement', options: this.homeArrangementOptions },
+      { key: 'cardStyle', icon: 'square-outline', label: 'Card style', options: this.homeCardStyleOptions },
+      { key: 'cardText', icon: 'text-outline', label: 'Card content & text', options: this.homeCardTextOptions },
+      { key: 'header', icon: 'menu-outline', label: 'Header', options: this.homeHeaderOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get homeActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.homeCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.homeActiveChip, cats.length - 1)];
+  }
+  get homeChipsInput(): NtDeckChip[] { return this.homeCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get homePillsInput(): NtValuePill[] {
+    return (this.homeActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get homeActiveOption(): DeckOption | undefined {
+    const opts = this.homeActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.homeActivePill, opts.length - 1)];
+  }
+  get homeActivePillKey(): string { return this.homeActiveOption?.key || ''; }
+  get homeActivePillLabel(): string { return (this.homeActiveOption?.label || '').toUpperCase(); }
+  get homeSettingsGroups(): NtSettingsGroup[] {
+    return this.homeCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onHomeChipChange(i: number): void { this.homeActiveChip = i; this.homeActivePill = 0; }
+  onHomeRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.homeActiveChip = sel.groupIndex;
+    this.homeActivePill = sel.rowIndex;
+  }
 
   // ----- Colors step -----
   colorsActiveChip = 0;

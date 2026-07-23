@@ -86,39 +86,53 @@ Source files inventoried (full read, all lines):
 
 ### Step 1 — Home (`home`, step-title "Home design")
 
-- [ ] Arrangement → tile-group (6 states: Columns/Fullscreen/Image strips/Promo categories/Bento grid/Finder select) → `t.homeLayout` via `pickLayout(o)`
-- [ ] Overflow scrolling → segment (2 states: Horizontal/Vertical, vertical currently filtered — see note 2) → `t.scrollMode` via `setHomeScroll(m.id)`, read `effectiveScrollMode`
-- [ ] Columns / Items → number-stepper (−/number-input/+; label switches "Items"/"Columns") → `t.columns` via `stepColumns(delta)` / `setColumns(v)`, read `effectiveColumns`
-- [ ] Finder Select · Title visibility → segment (Show title/Hide title) → `t.intermediate.fsShowPrompt`
-- [ ] Finder Select · Title alignment → segment (3 states: left/center/right) → `t.intermediate.fsPromptPos`
-- [ ] Finder Select · Card content → segment (`fsCardContents` options) → `t.intermediate.fsCardContent` via `pickFsContent(c.id)`
-- [ ] Finder Select · Card shape → tile-group (`cardShapes`, conditional) → `t.intermediate.fsCardShape` via `setFsCardShape(s.id)`
-- [ ] Finder Select · Card surface → segment (`cardSurfaces`, 5 states) → `t.cardSurface`
-- [ ] Finder Select · Text vertical position → segment (`fsTextVPositions`) → `t.intermediate.fsTextPos`
-- [ ] Finder Select · Text horizontal alignment → segment (`cardAligns`, 3 states) → `t.intermediate.fsTextAlign`
-- [ ] Finder Select · Item size → slider (0.7–`intItemSizeMax`) → `t.intermediate.itemSizeScale` via `setIntItemSize(v)`
-- [ ] Finder Select · Card gap → slider (0–`cardGapMax`) → via `setCardGap(v)`, read `cardGapValue`
-- [ ] Card size → slider (0.8–`cardSizeMax`, conditional `sizeMatters`, hidden on finder-select/hero-start) → `t.cardSizeScale` via `setCardSize(v)`
-- [ ] Card gap → slider (0–`cardGapMax`, conditional `gapMatters`) → `t.cardGapNum` via `setCardGap(v)`
-- [ ] Card alignment → align-grid (3 buttons: left/center/right, conditional `alignMatters`) → `t.cardAlign`
-- [ ] Card content → tile-group (`cardContentsFor`) → `t.cardContent` via `pickContent(c.id)`
-- [ ] Card shape → tile-group (`availableCardShapes`, conditional not image-strip/not image-only) → `t.cardShape` via `pickShape(s.id)`
-- [ ] Card surface → segment (`cardSurfaces`, 5 states) → `t.cardSurface`
-- [ ] Text vertical position → segment (`textPositionsFor`, conditional `showTextPos`, hidden on finder-select) → `t.cardTextPos`
-- [ ] Text horizontal alignment → segment (`cardAligns`, conditional content≠icon-text) → `t.cardTextAlign`
-- [ ] Text Overlay → segment (`homeOverlayStyles`, conditional `overlayRelevant`) → via `setCardOverlay(s.id)`, read `cardOverlayEff`
-- [ ] Overlay shape → segment (`overlayShapes`, conditional) → via `setCardOverlayShape(s.id)`, read `cardOverlayShapeEff`
-- [ ] Overlay opacity → slider (0–100 step 5, conditional; SHARED with Intermediate step, see note 5) → via `setOverlayOpacity(v)`, read `overlayOpacity`
-- [ ] Text shadow → segment (On/Off) → `t.cardTextShadow`
-- [ ] Header bar → segment (Show/Hide, hidden on finder-select) → `t.showHeader`
-- [ ] Header layout → segment (Preset combos/Custom, conditional `t.showHeader`) → `t.headerLayout`
-- [ ] Header style → segment (`headerStyles`, 5 states, conditional `!isCustomHeader`) → `t.headerStyle`
-- [ ] Logo position (custom header) → segment (`headerItemPositions`, conditional `isCustomHeader`) → `t.logoPos`
-- [ ] Title position (custom header) → segment (`headerItemPositions`) → `t.titlePos`
-- [ ] Caption position (custom header) → segment (`headerItemPositions`) → `t.captionPos`
-- [ ] Intermediate page → segment (Include/Skip → Result) → `t.includeIntermediate`
+**Migrated to the Editor Deck pattern (phase 3b) — chips: Arrangement / Card style / Card content & text /
+Header. Arrangement and Card style / Card content & text each contain TWO mutually-exclusive branches (the
+Finder-select arrangement's own fs*-prefixed controls vs the generic Card size/gap/alignment + Card
+content/shape/text controls) exactly as the original template's `*ngIf="t.homeLayout==='finder-select'"` /
+`*ngIf="!isHeroStart && t.homeLayout!=='finder-select'"` guards — only one branch's options ever populate the
+category at once, driven by `homeArrangementOptions` / `homeCardStyleOptions` / `homeCardTextOptions` getters
+that mirror every original conditional 1:1. "Card surface" and "Card gap" are literally the same bound
+property (`t.cardSurface`, `t.cardGapNum` via `setCardGap()`) in both the Finder-select and generic branches,
+so they collapse to ONE pill each (both original rows point at the same deck location below). All 30 rows also
+appear (grouped identically) in the `nt-settings-sheet` opened via the step's "All settings" button, with their
+live current value — selecting a sheet row jumps the deck to that chip + pill.**
 
-**Step 1 total: 30 controls**
+- [x] Arrangement → tile-group (6 states: Columns/Fullscreen/Image strips/Promo categories/Bento grid/Finder select) → `t.homeLayout` via `pickLayout(o)` — deck: Home ▸ Arrangement chip ▸ "Arrangement" pill
+- [x] Overflow scrolling → segment (2 states: Horizontal/Vertical, vertical currently filtered — see note 2) → `t.scrollMode` via `setHomeScroll(m.id)`, read `effectiveScrollMode` — deck: Home ▸ Arrangement chip ▸ "Overflow scrolling" pill
+- [x] Columns / Items → number-stepper (−/number-input/+; label switches "Items"/"Columns") → `t.columns` via `stepColumns(delta)` / `setColumns(v)`, read `effectiveColumns` — deck: Home ▸ Arrangement chip ▸ "Items"/"Columns" pill
+- [x] Finder Select · Title visibility → segment (Show title/Hide title) → `t.intermediate.fsShowPrompt` — deck: Home ▸ Arrangement chip ▸ "Title visibility" pill
+- [x] Finder Select · Title alignment → segment (3 states: left/center/right) → `t.intermediate.fsPromptPos` — deck: Home ▸ Arrangement chip ▸ "Title alignment" pill
+- [x] Finder Select · Card content → segment (`fsCardContents` options) → `t.intermediate.fsCardContent` via `pickFsContent(c.id)` — deck: Home ▸ Card style chip ▸ "Card content" pill
+- [x] Finder Select · Card shape → tile-group (`cardShapes`, conditional) → `t.intermediate.fsCardShape` via `setFsCardShape(s.id)` — deck: Home ▸ Card style chip ▸ "Card shape" pill
+- [x] Finder Select · Card surface → segment (`cardSurfaces`, 5 states) → `t.cardSurface` — deck: Home ▸ Card style chip ▸ "Card surface" pill (same pill as the generic Card surface row below)
+- [x] Finder Select · Text vertical position → segment (`fsTextVPositions`) → `t.intermediate.fsTextPos` — deck: Home ▸ Card content & text chip ▸ "Text vertical position" pill
+- [x] Finder Select · Text horizontal alignment → segment (`cardAligns`, 3 states) → `t.intermediate.fsTextAlign` — deck: Home ▸ Card content & text chip ▸ "Text horizontal alignment" pill
+- [x] Finder Select · Item size → slider (0.7–`intItemSizeMax`) → `t.intermediate.itemSizeScale` via `setIntItemSize(v)` — deck: Home ▸ Arrangement chip ▸ "Item size" pill
+- [x] Finder Select · Card gap → slider (0–`cardGapMax`) → via `setCardGap(v)`, read `cardGapValue` — deck: Home ▸ Arrangement chip ▸ "Card gap" pill (same pill as the generic Card gap row below)
+- [x] Card size → slider (0.8–`cardSizeMax`, conditional `sizeMatters`, hidden on finder-select/hero-start) → `t.cardSizeScale` via `setCardSize(v)` — deck: Home ▸ Arrangement chip ▸ "Card size" pill
+- [x] Card gap → slider (0–`cardGapMax`, conditional `gapMatters`) → `t.cardGapNum` via `setCardGap(v)` — deck: Home ▸ Arrangement chip ▸ "Card gap" pill
+- [x] Card alignment → align-grid (3 buttons: left/center/right, conditional `alignMatters`) → `t.cardAlign` — deck: Home ▸ Arrangement chip ▸ "Card alignment" pill
+- [x] Card content → tile-group (`cardContentsFor`) → `t.cardContent` via `pickContent(c.id)` — deck: Home ▸ Card style chip ▸ "Card content" pill
+- [x] Card shape → tile-group (`availableCardShapes`, conditional not image-strip/not image-only) → `t.cardShape` via `pickShape(s.id)` — deck: Home ▸ Card style chip ▸ "Card shape" pill
+- [x] Card surface → segment (`cardSurfaces`, 5 states) → `t.cardSurface` — deck: Home ▸ Card style chip ▸ "Card surface" pill
+- [x] Text vertical position → segment (`textPositionsFor`, conditional `showTextPos`, hidden on finder-select) → `t.cardTextPos` — deck: Home ▸ Card content & text chip ▸ "Text vertical position" pill
+- [x] Text horizontal alignment → segment (`cardAligns`, conditional content≠icon-text) → `t.cardTextAlign` — deck: Home ▸ Card content & text chip ▸ "Text horizontal alignment" pill
+- [x] Text Overlay → segment (`homeOverlayStyles`, conditional `overlayRelevant`) → via `setCardOverlay(s.id)`, read `cardOverlayEff` — deck: Home ▸ Card content & text chip ▸ "Text Overlay" pill
+- [x] Overlay shape → segment (`overlayShapes`, conditional) → via `setCardOverlayShape(s.id)`, read `cardOverlayShapeEff` — deck: Home ▸ Card content & text chip ▸ "Overlay shape" pill
+- [x] Overlay opacity → slider (0–100 step 5, conditional; SHARED with Intermediate step, see note 5) → via `setOverlayOpacity(v)`, read `overlayOpacity` — deck: Home ▸ Card content & text chip ▸ "Overlay opacity" pill
+- [x] Text shadow → segment (On/Off) → `t.cardTextShadow` — deck: Home ▸ Card content & text chip ▸ "Text shadow" pill
+- [x] Header bar → segment (Show/Hide, hidden on finder-select) → `t.showHeader` — deck: Home ▸ Header chip ▸ "Header bar" pill
+- [x] Header layout → segment (Preset combos/Custom, conditional `t.showHeader`) → `t.headerLayout` — deck: Home ▸ Header chip ▸ "Header layout" pill
+- [x] Header style → segment (`headerStyles`, 5 states, conditional `!isCustomHeader`) → `t.headerStyle` — deck: Home ▸ Header chip ▸ "Header style" pill
+- [x] Logo position (custom header) → segment (`headerItemPositions`, conditional `isCustomHeader`) → `t.logoPos` — deck: Home ▸ Header chip ▸ "Logo position" pill
+- [x] Title position (custom header) → segment (`headerItemPositions`) → `t.titlePos` — deck: Home ▸ Header chip ▸ "Title position" pill
+- [x] Caption position (custom header) → segment (`headerItemPositions`) → `t.captionPos` — deck: Home ▸ Header chip ▸ "Caption position" pill
+- [x] Intermediate page → segment (Include/Skip → Result) → `t.includeIntermediate` — deck: Home ▸ Header chip ▸ "Intermediate page" pill
+
+**Step 1 total: 30 controls (29 distinct deck pills — "Card gap" merges 2 inventory rows into 1 pill since
+both are the same `t.cardGapNum`/`setCardGap()` binding in mutually-exclusive branches) — all migrated, all
+reachable via deck + All-settings sheet.**
 
 ### Step 2 — Colors (`colors`, step-title "Colors & branding")
 
