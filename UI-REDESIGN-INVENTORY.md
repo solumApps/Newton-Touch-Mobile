@@ -429,24 +429,50 @@ original template's conditional).**
 
 ### Step A — Home (`home`, step-title "Home page")
 
-- [ ] Header visibility indicator (chip, read-only reflecting `d.themeTokens.showHeader`) — not editable here (edited in theme wizard)
-- [ ] Logo image → image-upload (thumb tap, conditional `showLogo`) → `d.header.logo` via `pickLogo()` / `clearLogo()`
-- [ ] Logo size → slider (50–250%) → `headerLogoScalePct` via `setHeaderLogoScale(v)`
-- [ ] Title → text input (conditional `needsHeaderTitle`) → `d.header.title` via `setHeader('title', $event)`
-- [ ] Caption → text input (conditional `needsHeaderCaption`) → `d.header.caption` via `setHeader('caption', $event)`
-- [ ] Promo eyebrow label (promo-categories layout) → text input → `td.promoFeatured`
-- [ ] Promo message (promo-categories layout) → text input → `td.promoCopy`
-- [ ] Category API fetch → button (conditional `appMode==='category'`) → `fetch()`
-- [ ] Hierarchy fields source → select-field (`fieldSourceOpts`) → `d.fieldSource` via `setFieldSource(v)`
-- [ ] Category depth → segment (L0 only / L0+L1 / +L2 / +L3, conditional on `maxCategoryDepth`) → `categoryLevelCount` via `setCategoryLevelCount(n)`
-- [ ] L0 category value selection → repeating-list-item (checkbox per API value) → `catSel[0]` via `toggleCat(0, v, $event)`
-- [ ] "Use N selected → build pages" → button → `applySelection()`
-- [ ] Category text case → segment (`articleCaseOpts`) → `d.articleCase` via `setArticleCase(c.id)`
-- [ ] Intermediate pages mode (non-category) → segment (Common — one shared page / Individual — per card) → `drillMode` via `setDrillMode(mode)`
-- [ ] Category depth (prototype individual mode) → segment (L0+L1/+L2/+L3) → `protoLevelCount` via `setProtoLevelCount(n)`
-- [ ] Home cards → repeating-list-item (unbounded, "+ Add" conditional not category mode) → `d.home[]` via `addCard()` / `removeCard(i)` / `moveHomeCard(i, dir)`
-  - sub-fields per card: thumbnail/image-upload (`pickImage(c)`), name text input (`c.name`, locked+readonly if `c.fromApi`), price text input (`c.price`), unit text input (`c.unit`), image Fit segment (`fitOpts`, `setFit(c,f)`), clear-image button (`clearImage(c)`), subtree badge (read-only, conditional `drillMode==='individual'`)
-- [ ] Result pages mode (non-category, applies to next step) → segment (Common — one result page / Individual — per item) → `resultMode` via `setResultMode(mode)`
+**Migrated (this phase) — deck-style settings use the SAME chip → value-pill → editor-card →
+All-settings-sheet pattern as theme-wizard, reusing the exact same `nt-deck-chips` /
+`nt-value-pill-row` / `nt-editor-card` / `nt-settings-sheet` components. Chips: Header / Promo
+(only when `isPromoCategories`) / Category (only when `appMode==='category'`) / Pages (only when
+`appMode!=='category'` and an intermediate page exists) — each filtered out entirely (no chip) when
+empty, mirroring theme-wizard's category-filtering pattern. "Use N selected → build pages" is kept as
+an action button inside the "L0 selection" pill's editor-card (not its own pill/sheet row), matching
+the precedent set by the Animations step's "▶ Preview" buttons. The repeating **Home cards** list uses
+the collapsed-row + bottom-sheet pattern instead (see below), per UI-REDESIGN-PROMPT.md §5 — it is
+NOT part of the deck.**
+
+**Structural correction found during migration:** the inventory's row 18 below ("Result pages mode")
+does not actually live in the Home step's template body — in `content-builder.component.html` it is
+inside the `*ngSwitchCase="'inter'"` block (Intermediate step, rendered as a "Result pages (next
+step)" section at the bottom of that step), not `*ngSwitchCase="'home'"`. `setResultMode`/`resultMode`
+have zero references inside the Home step's markup. Since this phase converts ONLY the Home step, this
+control is left as-is (unconverted, still plain markup) — it belongs to the Intermediate step
+conversion, out of scope here. Not checked off below; flagged so it isn't lost when Intermediate is
+converted next.
+
+- [x] Header visibility indicator (chip, read-only reflecting `d.themeTokens.showHeader`) — not editable here (edited in theme wizard) — deck: Home ▸ Header chip ▸ "Header visibility" pill (read-only editor-card, no controls)
+- [x] Logo image → image-upload (thumb tap, conditional `showLogo`) → `d.header.logo` via `pickLogo()` / `clearLogo()` — deck: Home ▸ Header chip ▸ "Logo image" pill
+- [x] Logo size → slider (50–250%) → `headerLogoScalePct` via `setHeaderLogoScale(v)` — deck: Home ▸ Header chip ▸ "Logo size" pill
+- [x] Title → text input (conditional `needsHeaderTitle`) → `d.header.title` via `setHeader('title', $event)` — deck: Home ▸ Header chip ▸ "Title" pill
+- [x] Caption → text input (conditional `needsHeaderCaption`) → `d.header.caption` via `setHeader('caption', $event)` — deck: Home ▸ Header chip ▸ "Caption" pill
+- [x] Promo eyebrow label (promo-categories layout) → text input → `td.promoFeatured` — deck: Home ▸ Promo chip ▸ "Promo eyebrow label" pill
+- [x] Promo message (promo-categories layout) → text input → `td.promoCopy` — deck: Home ▸ Promo chip ▸ "Promo message" pill
+- [x] Category API fetch → button (conditional `appMode==='category'`) → `fetch()` — deck: Home ▸ Category chip ▸ "Category API" pill
+- [x] Hierarchy fields source → select-field (`fieldSourceOpts`) → `d.fieldSource` via `setFieldSource(v)` — deck: Home ▸ Category chip ▸ "Hierarchy fields" pill
+- [x] Category depth → segment (L0 only / L0+L1 / +L2 / +L3, conditional on `maxCategoryDepth`) → `categoryLevelCount` via `setCategoryLevelCount(n)` — deck: Home ▸ Category chip ▸ "Category depth" pill
+- [x] L0 category value selection → repeating-list-item (checkbox per API value) → `catSel[0]` via `toggleCat(0, v, $event)` — deck: Home ▸ Category chip ▸ "L0 selection" pill
+- [x] "Use N selected → build pages" → button → `applySelection()` — deck: Home ▸ Category chip ▸ "L0 selection" pill (action button rendered in the same editor-card, not its own pill — see note above)
+- [x] Category text case → segment (`articleCaseOpts`) → `d.articleCase` via `setArticleCase(c.id)` — deck: Home ▸ Category chip ▸ "Category text case" pill
+- [x] Intermediate pages mode (non-category) → segment (Common — one shared page / Individual — per card) → `drillMode` via `setDrillMode(mode)` — deck: Home ▸ Pages chip ▸ "Intermediate pages mode" pill
+- [x] Category depth (prototype individual mode) → segment (L0+L1/+L2/+L3) → `protoLevelCount` via `setProtoLevelCount(n)` — deck: Home ▸ Pages chip ▸ "Category depth" pill
+- [x] Home cards → repeating-list-item (unbounded, "+ Add" conditional not category mode) → `d.home[]` via `addCard()` / `removeCard(i)` / `moveHomeCard(i, dir)` — collapsed-row + sheet: each card renders as one `nt-collapsed-item-row` (thumbnail, name, summary badge, reorder ↑/↓ + delete wired directly to `moveHomeCard()`/`removeCard()` from the row); tapping the row opens an `ion-modal` bottom sheet (`.home-card-editor-modal`) with the full original per-card editor markup
+  - sub-fields per card: thumbnail/image-upload (`pickImage(c)`), name text input (`c.name`, locked+readonly if `c.fromApi`), price text input (`c.price`), unit text input (`c.unit`), image Fit segment (`fitOpts`, `setFit(c,f)`), clear-image button (`clearImage(c)`), subtree badge (read-only, conditional `drillMode==='individual'`) — all sub-fields moved verbatim into the bottom-sheet editor; row's summary badge shows Fit + "has own page"/"shared page" (`homeCardBadge()`)
+- [ ] Result pages mode (non-category, applies to next step) → segment (Common — one result page / Individual — per item) → `resultMode` via `setResultMode(mode)` — **NOT in Home step** (lives in the Intermediate step's template body, see structural note above); left unconverted, out of scope for this phase
+
+**Step A total: 17 controls migrated to the Home step's Editor Deck + collapsed-row/sheet (all reachable
+via deck + All-settings sheet, or via the Home cards collapsed rows + bottom sheet), plus 2
+repeating-list-item templates (L0 category checkboxes — inside the "L0 selection" pill; Home cards —
+collapsed-row + sheet, 7 sub-fields). 1 row ("Result pages mode") was found to actually belong to the
+Intermediate step and is correctly left unconverted here — see structural note above.**
 
 **Step A total: 18 named controls + 2 repeating-list-item templates (L0 category checkboxes, Home cards — the
 latter with 7 sub-fields per item)**

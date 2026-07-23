@@ -324,3 +324,31 @@ table.sum td:first-child {
 
 /* Category mode: API-sourced names are read-only (case transform only). */
 .inp.locked { background: var(--nt-surface-2, #f3f3ef); color: var(--nt-text-2, #6b6b66); cursor: not-allowed; }
+
+/* ===== Editor Deck (Home step) =====
+   Chips → value pills → single editor card is rendered by the shared nt-*
+   components (src/app/shared/ui); these rules only cover the content-builder-
+   local step header row, matching theme-wizard's identical row exactly. */
+.step-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0 4px; }
+.step-title-row .step-title { margin: 0; }
+.all-settings-btn {
+  display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto;
+  padding: 7px 13px; border-radius: var(--nt-r-full);
+  border: 1.5px solid var(--nt-border); background: var(--nt-card); color: var(--nt-brand-ink);
+  font-family: inherit; font-size: 12px; font-weight: 800; white-space: nowrap; cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.all-settings-btn ion-icon { font-size: 15px; }
+.all-settings-btn:hover { background: var(--nt-tint); }
+.all-settings-btn:focus-visible { outline: 3px solid rgba(255,205,0,.55); outline-offset: 2px; }
+
+/* Home cards — collapsed-row + bottom-sheet pattern (repeating list, NOT part
+   of the deck above, per UI-REDESIGN-PROMPT.md §5). */
+.home-cards-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+
+/* Home card full editor — bottom sheet (shares .nt-sheet-modal / .nt-sheet
+   chrome from global.scss); constrain height so long editors scroll inside
+   the sheet instead of growing past the viewport. */
+ion-modal.home-card-editor-modal .nt-sheet { max-height: 86vh; overflow-y: auto; }
+ion-modal.home-card-editor-modal .sec { margin-top: 4px; }

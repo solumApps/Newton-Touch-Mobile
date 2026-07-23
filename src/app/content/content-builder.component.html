@@ -51,60 +51,86 @@
 
     <!-- ============ HOME ============ -->
     <div *ngSwitchCase="'home'">
-      <h2 class="step-title">Home page</h2>
+      <div class="step-title-row">
+        <h2 class="step-title">Home page</h2>
+        <button type="button" class="all-settings-btn" (click)="homeSettingsOpen = true">
+          <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
+        </button>
+      </div>
 
-      <!-- HEADER — conditional on showHeader; style drives which fields appear -->
-      <div class="sec"><span>Header</span><span class="chip" [class.on]="d.themeTokens.showHeader">{{ d.themeTokens.showHeader ? 'Visible' : 'Hidden' }}</span></div>
-      <ng-container *ngIf="d.themeTokens.showHeader">
-        <p class="note">Style: <b>{{ headerStyleLabel }}</b></p>
-        <!-- Logo upload (shown for logo-only and logo+title+caption) -->
-        <ng-container *ngIf="showLogo">
-          <div class="erow">
-            <div class="thumb" [style.background-image]="d.header?.logo ? 'url('+d.header!.logo+')' : null" (click)="pickLogo()">{{ d.header?.logo ? '' : '📷' }}</div>
-            <span class="inp" style="opacity:.6;pointer-events:none">Logo image (optional — defaults to SOLUM)</span>
-            <button class="del" *ngIf="d.header?.logo" (click)="clearLogo()">✕</button>
-          </div>
-          <div class="logo-size-row">
-            <span class="ls-lbl">Logo size</span>
-            <input type="range" min="50" max="250" step="5" [value]="headerLogoScalePct" (input)="setHeaderLogoScale($any($event.target).value)" />
-            <span class="ls-val">{{ headerLogoScalePct }}%</span>
-          </div>
-        </ng-container>
-        <!-- Title (shown for title-only, title+caption, logo+title+caption) -->
-        <div class="erow" *ngIf="needsHeaderTitle">
-          <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Title (default: content name)" />
-        </div>
-        <!-- Caption (shown for title+caption, logo+title+caption) -->
-        <div class="erow" *ngIf="needsHeaderCaption">
-          <input class="inp" [ngModel]="d.header?.caption || ''" (ngModelChange)="setHeader('caption', $event)" placeholder="Caption / subtitle (default: Welcome)" />
-        </div>
-      </ng-container>
-      <p class="note" *ngIf="!d.themeTokens.showHeader">Header is hidden in this theme. Change it in the theme wizard.</p>
+      <nt-deck-chips [chips]="homeChipsInput" [activeIndex]="homeActiveChip" (activeIndexChange)="onHomeChipChange($event)"></nt-deck-chips>
+      <nt-value-pill-row [pills]="homePillsInput" [activeIndex]="homeActivePill" (activeIndexChange)="homeActivePill = $event"></nt-value-pill-row>
 
-      <!-- promo-categories: editable eyebrow label + promo message -->
-      <ng-container *ngIf="isPromoCategories">
-        <div class="sec"><span>Promo message</span></div>
-        <input class="inp" [ngModel]="td.promoFeatured" (ngModelChange)="td.promoFeatured=$event" placeholder="Eyebrow label (e.g. Featured)" />
-        <input class="inp" [ngModel]="td.promoCopy" (ngModelChange)="td.promoCopy=$event" placeholder="Promo message (e.g. Find the right product faster)" />
-      </ng-container>
+      <nt-editor-card [sectionLabel]="homeActivePillLabel">
+        <ng-container [ngSwitch]="homeActivePillKey">
 
-      <!-- CATEGORY: API fetch + selection -->
-      <ng-container *ngIf="d.appMode === 'category'">
-        <div class="sec">
-          <span>Category API</span>
-          <button class="mini" (click)="fetch()">{{ apiProducts.length ? 'Re-fetch' : 'Fetch products' }}</button>
-        </div>
-        <p class="note" *ngIf="!apiProducts.length && !fetchError && !fetching">Pull products from the server (name, price, IDs come from API · images are uploaded).</p>
-        <p class="note err" *ngIf="fetchError">{{ fetchError }}</p>
-        <div *ngIf="fetching">
-          <div class="skel skel-row" *ngFor="let s of [1,2,3,4,5]"></div>
-        </div>
-        <ng-container *ngIf="apiProducts.length">
-          <app-select-field label="Hierarchy fields" placeholder="Choose field source"
-            [options]="fieldSourceOpts" [value]="d.fieldSource || 'category'" (valueChange)="setFieldSource($any($event))"></app-select-field>
+          <!-- HEADER — read-only indicator; edited in the theme wizard -->
+          <ng-container *ngSwitchCase="'headerVisibility'">
+            <p class="note">Header is currently <b>{{ d.themeTokens.showHeader ? 'visible' : 'hidden' }}</b> for this theme<ng-container *ngIf="d.themeTokens.showHeader"> — style: <b>{{ headerStyleLabel }}</b></ng-container>.</p>
+            <p class="note" *ngIf="!d.themeTokens.showHeader">Header is hidden in this theme. Change it in the theme wizard.</p>
+          </ng-container>
+
+          <!-- Logo upload (shown for logo-only and logo+title+caption) -->
+          <ng-container *ngSwitchCase="'logoImage'">
+            <div class="erow">
+              <div class="thumb" [style.background-image]="d.header?.logo ? 'url('+d.header!.logo+')' : null" (click)="pickLogo()">{{ d.header?.logo ? '' : '📷' }}</div>
+              <span class="inp" style="opacity:.6;pointer-events:none">Logo image (optional — defaults to SOLUM)</span>
+              <button class="del" *ngIf="d.header?.logo" (click)="clearLogo()">✕</button>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'logoSize'">
+            <div class="logo-size-row">
+              <span class="ls-lbl">Logo size</span>
+              <input type="range" min="50" max="250" step="5" [value]="headerLogoScalePct" (input)="setHeaderLogoScale($any($event.target).value)" />
+              <span class="ls-val">{{ headerLogoScalePct }}%</span>
+            </div>
+          </ng-container>
+
+          <!-- Title (shown for title-only, title+caption, logo+title+caption) -->
+          <ng-container *ngSwitchCase="'headerTitle'">
+            <div class="erow">
+              <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Title (default: content name)" />
+            </div>
+          </ng-container>
+
+          <!-- Caption (shown for title+caption, logo+title+caption) -->
+          <ng-container *ngSwitchCase="'headerCaption'">
+            <div class="erow">
+              <input class="inp" [ngModel]="d.header?.caption || ''" (ngModelChange)="setHeader('caption', $event)" placeholder="Caption / subtitle (default: Welcome)" />
+            </div>
+          </ng-container>
+
+          <!-- promo-categories: editable eyebrow label + promo message -->
+          <ng-container *ngSwitchCase="'promoEyebrow'">
+            <input class="inp" [ngModel]="td.promoFeatured" (ngModelChange)="td.promoFeatured=$event" placeholder="Eyebrow label (e.g. Featured)" />
+          </ng-container>
+          <ng-container *ngSwitchCase="'promoMessage'">
+            <input class="inp" [ngModel]="td.promoCopy" (ngModelChange)="td.promoCopy=$event" placeholder="Promo message (e.g. Find the right product faster)" />
+          </ng-container>
+
+          <!-- CATEGORY: API fetch -->
+          <ng-container *ngSwitchCase="'categoryApi'">
+            <div class="sec">
+              <span>Category API</span>
+              <button class="mini" (click)="fetch()">{{ apiProducts.length ? 'Re-fetch' : 'Fetch products' }}</button>
+            </div>
+            <p class="note" *ngIf="!apiProducts.length && !fetchError && !fetching">Pull products from the server (name, price, IDs come from API · images are uploaded).</p>
+            <p class="note err" *ngIf="fetchError">{{ fetchError }}</p>
+            <div *ngIf="fetching">
+              <div class="skel skel-row" *ngFor="let s of [1,2,3,4,5]"></div>
+            </div>
+            <p class="note" *ngIf="apiProducts.length">Data has up to <b>L{{ maxCategoryDepth }}</b> ({{ catLabel(maxCategoryDepth) }}).</p>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'fieldSource'">
+            <app-select-field label="Hierarchy fields" placeholder="Choose field source"
+              [options]="fieldSourceOpts" [value]="d.fieldSource || 'category'" (valueChange)="setFieldSource($any($event))"></app-select-field>
+          </ng-container>
+
           <!-- Category depth: how many intermediate sub-levels to drill. Hidden when
                the theme has NO intermediate page — L0 maps straight to Result. -->
-          <ng-container *ngIf="d.themeTokens.includeIntermediate !== false">
+          <ng-container *ngSwitchCase="'categoryDepth'">
             <div class="sec"><span>Category depth</span></div>
             <div class="seg fit-seg">
               <button class="mini" [class.sel]="categoryLevelCount===0" (click)="setCategoryLevelCount(0)">L0 only</button>
@@ -112,85 +138,116 @@
               <button class="mini" *ngIf="maxCategoryDepth>=2" [class.sel]="categoryLevelCount===2" (click)="setCategoryLevelCount(2)">+L2</button>
               <button class="mini" *ngIf="maxCategoryDepth>=3" [class.sel]="categoryLevelCount===3" (click)="setCategoryLevelCount(3)">+L3</button>
             </div>
+            <p class="note" *ngIf="d.themeTokens.includeIntermediate === false">This theme has no intermediate page — every product under the selected L0 category shows on the Result page.</p>
           </ng-container>
-          <p class="note" *ngIf="d.themeTokens.includeIntermediate === false">This theme has no intermediate page — every product under the selected L0 category shows on the Result page.</p>
-          <p class="note" *ngIf="apiProducts.length">Data has up to <b>L{{ maxCategoryDepth }}</b> ({{ catLabel(maxCategoryDepth) }}).</p>
-          <!-- L0 values (category1 / etc0) — unique, deduped. Pick which to build. -->
-          <div class="sec"><span>L0 — {{ catLabel(0) }}</span></div>
-          <label class="pick" *ngFor="let v of catValues(0)">
-            <input type="checkbox" [checked]="catSel[0].has(v)" (change)="toggleCat(0, v, $event)" />
-            <span class="pn">{{ v }}<span class="pm">({{ catCount(0, v) }})</span></span>
-          </label>
-          <button class="btn-o" (click)="applySelection()">Use {{ catSel[0].size }} selected → build pages</button>
+
+          <!-- L0 values (category1 / etc0) — unique, deduped. Pick which to build.
+               "Use N selected → build pages" is kept as an action button inside
+               this same pill's editor (not its own pill), matching the Animations
+               step's Preview-button precedent. -->
+          <ng-container *ngSwitchCase="'l0Selection'">
+            <div class="sec"><span>L0 — {{ catLabel(0) }}</span></div>
+            <label class="pick" *ngFor="let v of catValues(0)">
+              <input type="checkbox" [checked]="catSel[0].has(v)" (change)="toggleCat(0, v, $event)" />
+              <span class="pn">{{ v }}<span class="pm">({{ catCount(0, v) }})</span></span>
+            </label>
+            <button class="btn-o" (click)="applySelection()">Use {{ catSel[0].size }} selected → build pages</button>
+          </ng-container>
+
           <!-- Category VALUES come from the API and are locked; only their text
                case can be changed (applied live to every locked value). -->
-          <div class="sec"><span>Category text case</span></div>
-          <p class="note">API category values are read-only — pick how they're displayed.</p>
-          <div class="seg fit-seg">
-            <button class="mini" *ngFor="let c of articleCaseOpts" [class.sel]="(d.articleCase||'asis')===c.id" (click)="setArticleCase(c.id)">{{ c.label }}</button>
-          </div>
-        </ng-container>
-      </ng-container>
+          <ng-container *ngSwitchCase="'categoryTextCase'">
+            <p class="note">API category values are read-only — pick how they're displayed.</p>
+            <div class="seg fit-seg">
+              <button class="mini" *ngFor="let c of articleCaseOpts" [class.sel]="(d.articleCase||'asis')===c.id" (click)="setArticleCase(c.id)">{{ c.label }}</button>
+            </div>
+          </ng-container>
 
-      <!-- Drill-down mode: shared vs per-card. Hidden for Category mode (the
-           hierarchy is built automatically from the API levels). -->
-      <ng-container *ngIf="d.appMode !== 'category' && d.themeTokens.includeIntermediate !== false">
-        <div class="sec"><span>Intermediate pages</span></div>
-        <div class="seg fit-seg">
-          <button class="mini" [class.sel]="drillMode==='common'" (click)="setDrillMode('common')">Common — one shared page</button>
-          <button class="mini" [class.sel]="drillMode==='individual'" (click)="setDrillMode('individual')">Individual — per card</button>
-        </div>
-        <p class="note">{{ drillMode==='common'
-          ? 'Every home card opens the SAME intermediate page — fill it once on the Intermediate step.'
-          : 'Each home card opens its OWN intermediate page — build each level on the Intermediate steps.' }}</p>
-        <!-- Drill-down depth: mirrors Category mode's "Category depth" — one
-             Intermediate step per level (home cards are L0). -->
-        <ng-container *ngIf="drillMode==='individual'">
-          <div class="sec"><span>Category depth</span></div>
-          <div class="seg fit-seg">
-            <button class="mini" [class.sel]="protoLevelCount===1" (click)="setProtoLevelCount(1)">L0+L1</button>
-            <button class="mini" [class.sel]="protoLevelCount===2" (click)="setProtoLevelCount(2)">+L2</button>
-            <button class="mini" [class.sel]="protoLevelCount===3" (click)="setProtoLevelCount(3)">+L3</button>
-          </div>
-          <p class="note">Home cards are <b>L0</b>. Each extra level adds its own Intermediate step (L1–L{{ protoLevelCount }}).</p>
-        </ng-container>
-      </ng-container>
+          <!-- Drill-down mode: shared vs per-card. Hidden for Category mode (the
+               hierarchy is built automatically from the API levels). -->
+          <ng-container *ngSwitchCase="'drillMode'">
+            <div class="seg fit-seg">
+              <button class="mini" [class.sel]="drillMode==='common'" (click)="setDrillMode('common')">Common — one shared page</button>
+              <button class="mini" [class.sel]="drillMode==='individual'" (click)="setDrillMode('individual')">Individual — per card</button>
+            </div>
+            <p class="note">{{ drillMode==='common'
+              ? 'Every home card opens the SAME intermediate page — fill it once on the Intermediate step.'
+              : 'Each home card opens its OWN intermediate page — build each level on the Intermediate steps.' }}</p>
+          </ng-container>
 
-      <!-- HOME CARDS -->
+          <!-- Drill-down depth: mirrors Category mode's "Category depth" — one
+               Intermediate step per level (home cards are L0). -->
+          <ng-container *ngSwitchCase="'protoDepth'">
+            <div class="seg fit-seg">
+              <button class="mini" [class.sel]="protoLevelCount===1" (click)="setProtoLevelCount(1)">L0+L1</button>
+              <button class="mini" [class.sel]="protoLevelCount===2" (click)="setProtoLevelCount(2)">+L2</button>
+              <button class="mini" [class.sel]="protoLevelCount===3" (click)="setProtoLevelCount(3)">+L3</button>
+            </div>
+            <p class="note">Home cards are <b>L0</b>. Each extra level adds its own Intermediate step (L1–L{{ protoLevelCount }}).</p>
+          </ng-container>
+
+        </ng-container>
+      </nt-editor-card>
+
+      <nt-settings-sheet [groups]="homeSettingsGroups" [(isOpen)]="homeSettingsOpen" title="All settings · Home" (rowSelected)="onHomeRowSelected($event)"></nt-settings-sheet>
+
+      <!-- HOME CARDS — repeating/unbounded list: collapsed-row + bottom-sheet
+           pattern (UI-REDESIGN-PROMPT.md §5), NOT part of the deck above. -->
       <div class="sec">
         <span>Home cards ({{ d.home.length }}<ng-container *ngIf="maxHomeItems"> / {{ maxHomeItems }}</ng-container>)</span>
         <button class="mini" *ngIf="d.appMode !== 'category'" (click)="addCard()" [disabled]="atHomeCap">+ Add</button>
       </div>
       <p class="note" *ngIf="atHomeCap">This featured theme is designed for up to <b>{{ maxHomeItems }}</b> home items — remove one to add another.</p>
-      <div class="pcard" *ngFor="let c of d.home.slice().reverse(); let i = index">
-        <div class="erow">
-          <div class="thumb" *ngIf="needsImage" [style.background-image]="c.image ? 'url('+c.image+')' : null" (click)="pickImage(c)">{{ c.image ? '' : '📷' }}</div>
-          <input *ngIf="!c.fromApi" class="inp" [(ngModel)]="c.name" placeholder="Card name" />
-          <input *ngIf="c.fromApi" class="inp locked" [value]="c.name" readonly title="From API — edit text case below" />
-          <button class="del" (click)="moveHomeCard(d.home.length - 1 - i, 1)" [disabled]="i === 0" title="Move up">↑</button>
-          <button class="del" (click)="moveHomeCard(d.home.length - 1 - i, -1)" [disabled]="i === d.home.length - 1" title="Move down">↓</button>
-          <button class="del" (click)="removeCard(d.home.length - 1 - i)">✕</button>
-        </div>
-        <div class="seg fit-seg" *ngIf="needsImage && c.image">
-          <span class="fit-lbl">Fit</span>
-          <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(c)===f" (click)="setFit(c, f)">{{ f | titlecase }}</button>
-          <button class="mini danger" (click)="clearImage(c)" title="Remove image">✕ Image</button>
-        </div>
-        <div class="prow">
-          <input class="inp" [(ngModel)]="c.price" placeholder="Price (optional)" />
-          <input class="inp" [(ngModel)]="c.unit" placeholder="Unit (optional)" />
-        </div>
-        <div class="subtree-flag" *ngIf="d.themeTokens.includeIntermediate !== false && drillMode==='individual'">
-          <span class="badge" [class.on]="hasCustomSubtree(c)">{{ hasCustomSubtree(c) ? '● Has its own page' : '○ Fill on Intermediate step' }}</span>
-        </div>
+
+      <div class="home-cards-list">
+        <nt-collapsed-item-row *ngFor="let row of homeCardsReversed; let i = index"
+          [thumbnail]="needsImage ? (row.card.image || null) : null"
+          [name]="row.card.name || 'Untitled card'"
+          [badge]="homeCardBadge(row.card)"
+          [canMoveUp]="i !== 0"
+          [canMoveDown]="i !== homeCardsReversed.length - 1"
+          (rowClick)="openHomeCardEditor(row.idx)"
+          (moveUp)="moveHomeCard(row.idx, 1)"
+          (moveDown)="moveHomeCard(row.idx, -1)"
+          (delete)="removeCard(row.idx)"></nt-collapsed-item-row>
       </div>
-      <p class="note" *ngIf="needsImage && !uploadIsIcon">This theme's cards show an image — tap 📷 to upload one per card.</p>
-      <p class="note" *ngIf="uploadIsIcon">This theme's cards show an icon + text — tap 📷 to upload an icon per card.</p>
+
+      <p class="note" *ngIf="needsImage && !uploadIsIcon">This theme's cards show an image — tap a card to upload one.</p>
+      <p class="note" *ngIf="uploadIsIcon">This theme's cards show an icon + text — tap a card to upload an icon.</p>
       <p class="note" *ngIf="d.themeTokens.includeIntermediate !== false">
         <ng-container *ngIf="d.appMode==='category'">Drill-down: sub-levels are built automatically from the API (max 4 levels — matches API <b>category1–4</b> / <b>etc0–3</b>).</ng-container>
         <ng-container *ngIf="d.appMode!=='category' && drillMode==='individual'">Drill-down: add each level's cards on the Intermediate L1–L{{ protoLevelCount }} steps.</ng-container>
         <ng-container *ngIf="d.appMode!=='category' && drillMode!=='individual'">Fill the shared page on the Intermediate step.</ng-container>
       </p>
+
+      <!-- Home card FULL editor — bottom sheet, opened by tapping a collapsed row.
+           Reuses the exact original per-card markup/bindings (image, name, Fit,
+           price/unit, subtree badge). Reorder + delete stay on the row itself. -->
+      <ion-modal class="nt-sheet-modal home-card-editor-modal" [isOpen]="homeCardModalOpen" (didDismiss)="closeHomeCardEditor()">
+        <ng-template>
+          <div class="nt-sheet" *ngIf="homeCardModalCard as c">
+            <div class="nt-sheet-grab"></div>
+            <div class="sec"><span>Edit home card</span><button class="del" (click)="closeHomeCardEditor()">✕</button></div>
+            <div class="erow">
+              <div class="thumb" *ngIf="needsImage" [style.background-image]="c.image ? 'url('+c.image+')' : null" (click)="pickImage(c)">{{ c.image ? '' : '📷' }}</div>
+              <input *ngIf="!c.fromApi" class="inp" [(ngModel)]="c.name" placeholder="Card name" />
+              <input *ngIf="c.fromApi" class="inp locked" [value]="c.name" readonly title="From API — edit text case below" />
+            </div>
+            <div class="seg fit-seg" *ngIf="needsImage && c.image">
+              <span class="fit-lbl">Fit</span>
+              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(c)===f" (click)="setFit(c, f)">{{ f | titlecase }}</button>
+              <button class="mini danger" (click)="clearImage(c)" title="Remove image">✕ Image</button>
+            </div>
+            <div class="prow">
+              <input class="inp" [(ngModel)]="c.price" placeholder="Price (optional)" />
+              <input class="inp" [(ngModel)]="c.unit" placeholder="Unit (optional)" />
+            </div>
+            <div class="subtree-flag" *ngIf="d.themeTokens.includeIntermediate !== false && drillMode==='individual'">
+              <span class="badge" [class.on]="hasCustomSubtree(c)">{{ hasCustomSubtree(c) ? '● Has its own page' : '○ Fill on Intermediate step' }}</span>
+            </div>
+          </div>
+        </ng-template>
+      </ion-modal>
     </div>
 
     <!-- ============ INTERMEDIATE ============ -->
