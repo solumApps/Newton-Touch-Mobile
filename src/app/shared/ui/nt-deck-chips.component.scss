@@ -21,14 +21,14 @@
   background: var(--nt-card);
   color: var(--nt-text-2);
   font-family: inherit;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
   transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
   -webkit-tap-highlight-color: transparent;
 }
-.nt-deck-chip ion-icon { font-size: 16px; }
+.nt-deck-chip ion-icon { font-size: 14px; }
 
 .nt-deck-chip:hover:not(.active) { background: var(--nt-surface); }
 
