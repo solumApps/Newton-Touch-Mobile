@@ -182,36 +182,57 @@ one value pill in its category; opening the pill renders the exact same control 
 
 ### Step 4 — Intermediate design (`intStyle`, step-title "Intermediate design")
 
-- [ ] Layout style → tile-group (`intStyles`: columns/card-strip/fullscreen/brand-rail/finder-select) → `t.intermediateStyle` via `pickInterStyle(o)`
-- [ ] Columns / Visible cards → number-stepper (conditional `intColumnsMatters`) → `t.intermediate.columns`(-like field) via `stepIntColumns(delta)` / `setIntColumns(v)`
-- [ ] Overflow scrolling → segment (Vertical/Horizontal) **[HIDDEN — `intScrollMatters && !hideVerticalScroll`, see note 2]** → via `setInterScroll(mode)`, read `effectiveInterScrollMode`
-- [ ] Message position (brand-rail) → segment (Left/Right) → `t.intermediate.brandRailMessagePos`
-- [ ] Message alignment (brand-rail) → segment (`brandRailValigns`, 3 states) → `t.intermediate.brandRailMessageAlign`
-- [ ] Finder Select · Title visibility → segment → `t.intermediate.fsShowPrompt`
-- [ ] Finder Select · Title alignment → segment (3 states) → `t.intermediate.fsPromptPos`
-- [ ] Finder Select · Back visibility → segment (Show back/Hide back) → `t.intermediate.fsShowBack`
-- [ ] Finder Select · Card gap → slider (0–20) → via `setIntCardGap(v)`, read `intCardGapValue`
-- [ ] Finder Select · Card content → segment (`fsCardContents`) → `t.intermediate.fsCardContent` via `pickFsContent(c.id)`
-- [ ] Finder Select · Card shape → tile-group (`cardShapes`, conditional) → `t.intermediate.fsCardShape` via `setFsCardShape(s.id)`
-- [ ] Finder Select · Text vertical position → segment (`fsTextVPositions`, conditional) → `t.intermediate.fsTextPos`
-- [ ] Finder Select · Text horizontal alignment → segment (`cardAligns`, conditional) → `t.intermediate.fsTextAlign`
-- [ ] Carousel scrolling (fullscreen only) → segment (Horizontal/Vertical carousel) **[HIDDEN — `!hideVerticalScroll`, see note 2]** → via `setInterScroll(mode)`
-- [ ] Item size → slider (0.7–`intItemSizeMax`, conditional not drill-stair/card-strip) → `t.intermediate.itemSize`/itemSizeScale via `setIntItemSize(v)`
-- [ ] Card gap → slider (0–20, conditional not finder-select/drill-stair/card-strip) → `t.intermediate.cardGapNum` via `setIntCardGap(v)`
-- [ ] Card content → segment (`interContentsFor`, conditional `intContentMatters`) → `t.intermediate.content` via `pickInterContent(c.id)`
-- [ ] Card shape → tile-group (`interShapesFor`, conditional `intShapeMatters`) → `t.intermediate.cardShape` via `setInterShape(s.id)`
-- [ ] Text vertical position → segment (`interTextPositionsFor`, conditional `intTextPosMatters`) → `t.intermediate.textPos`
-- [ ] Text horizontal alignment → segment (`cardAligns`, conditional `interTextAlignMatters`) → `t.intermediate.textAlign`
-- [ ] Text Overlay → segment (`interOverlayStyles`, conditional `interOverlayRelevant`) → via `setInterOverlay(s.id)`, read `interOverlayEff`
-- [ ] Overlay shape → segment (`overlayShapes`, conditional) → via `setInterOverlayShape(s.id)`, read `interOverlayShapeEff`
-- [ ] Overlay opacity → slider (0–100 step 5, conditional; SHARED with Home step, see note 5) → via `setOverlayOpacity(v)`, read `overlayOpacity`
-- [ ] Text shadow → segment (On/Off, conditional content≠image-only) → `t.intermediate.textShadow`
-- [ ] Card alignment → align-grid (up to 6 buttons: left/center/right + top/middle/bottom, conditional `intAlignMatters`) → `t.intermediate.align` / `t.intermediate.valign`
-- [ ] Card surface → segment (`cardSurfaces`, conditional not drill-stair; SHARED with Home step) → `t.cardSurface`
-- [ ] Header bar → segment (Show/Hide, conditional not finder-select) → `t.intermediate.showHeader`
-- [ ] Header tracklist → segment (Show/Hide, conditional `showHeader`) → `t.intermediate.showTracklist`
+**Migrated to the Editor Deck pattern (phase 3c) — chips: Arrangement / Card style / Card content &
+text / Header, mirroring Home step's category naming exactly. As with Home, the Finder-select branch
+and the generic branch are mutually exclusive on `t.intermediateStyle`, driven by `intArrangementOptions`
+/ `intCardStyleOptions` / `intCardTextOptions` / `intHeaderOptions` getters that mirror every original
+`*ngIf` 1:1. "Card gap" merges the Finder-select and generic Card-gap rows into ONE pill (both bind to
+`t.intermediate.gapNum` via `setIntCardGap()`/`intCardGapValue`, mutually exclusive by style — same
+merge pattern as Home's Card gap/Card surface). "Overflow scrolling" and "Carousel scrolling" merge
+into ONE `interScroll` key (both call `setInterScroll()`, mutually exclusive by style) that is
+**never pushed into the options array while `hideVerticalScroll === true`** — the getter uses the
+exact same `&& !hideVerticalScroll` guard as the original template, so the option/pill/settings-row
+never renders, and the underlying markup (both original mutually-exclusive branches) is preserved
+verbatim inside the (unreachable) `interScroll` editor-card case for when the flag is ever flipped.
+"Card surface" is the same `t.cardSurface` property bound on the Home step. All 28 inventory rows
+(26 distinct deck pills — the 2 merges above) appear (grouped identically) in the `nt-settings-sheet`
+opened via the step's "All settings" button, with their live current value — selecting a sheet row
+jumps the deck to that chip + pill. The 2 hidden rows are NOT surfaced as pills or settings-sheet rows,
+per the inventory note 2 requirement.**
 
-**Step 4 total: 28 controls (2 currently hidden by `hideVerticalScroll`)**
+- [x] Layout style → tile-group (`intStyles`: columns/card-strip/fullscreen/brand-rail/finder-select) → `t.intermediateStyle` via `pickInterStyle(o)` — deck: Intermediate design ▸ Arrangement chip ▸ "Layout style" pill
+- [x] Columns / Visible cards → number-stepper (conditional `intColumnsMatters`) → `t.intermediate.columns`(-like field) via `stepIntColumns(delta)` / `setIntColumns(v)` — deck: Intermediate design ▸ Arrangement chip ▸ "Columns"/"Visible cards" pill
+- [x] Overflow scrolling → segment (Vertical/Horizontal) **[HIDDEN — `intScrollMatters && !hideVerticalScroll`, see note 2]** → via `setInterScroll(mode)`, read `effectiveInterScrollMode` — deck: Intermediate design ▸ Arrangement chip ▸ "Overflow scrolling" pill (merged with Carousel scrolling into `interScroll`; never surfaced while `hideVerticalScroll===true`)
+- [x] Message position (brand-rail) → segment (Left/Right) → `t.intermediate.brandRailMessagePos` — deck: Intermediate design ▸ Arrangement chip ▸ "Message position" pill
+- [x] Message alignment (brand-rail) → segment (`brandRailValigns`, 3 states) → `t.intermediate.brandRailMessageAlign` — deck: Intermediate design ▸ Arrangement chip ▸ "Message alignment" pill
+- [x] Finder Select · Title visibility → segment → `t.intermediate.fsShowPrompt` — deck: Intermediate design ▸ Arrangement chip ▸ "Title visibility" pill
+- [x] Finder Select · Title alignment → segment (3 states) → `t.intermediate.fsPromptPos` — deck: Intermediate design ▸ Arrangement chip ▸ "Title alignment" pill
+- [x] Finder Select · Back visibility → segment (Show back/Hide back) → `t.intermediate.fsShowBack` — deck: Intermediate design ▸ Arrangement chip ▸ "Back visibility" pill
+- [x] Finder Select · Card gap → slider (0–20) → via `setIntCardGap(v)`, read `intCardGapValue` — deck: Intermediate design ▸ Arrangement chip ▸ "Card gap" pill (same pill as the generic Card gap row below)
+- [x] Finder Select · Card content → segment (`fsCardContents`) → `t.intermediate.fsCardContent` via `pickFsContent(c.id)` — deck: Intermediate design ▸ Card style chip ▸ "Card content" pill
+- [x] Finder Select · Card shape → tile-group (`cardShapes`, conditional) → `t.intermediate.fsCardShape` via `setFsCardShape(s.id)` — deck: Intermediate design ▸ Card style chip ▸ "Card shape" pill
+- [x] Finder Select · Text vertical position → segment (`fsTextVPositions`, conditional) → `t.intermediate.fsTextPos` — deck: Intermediate design ▸ Card content & text chip ▸ "Text vertical position" pill
+- [x] Finder Select · Text horizontal alignment → segment (`cardAligns`, conditional) → `t.intermediate.fsTextAlign` — deck: Intermediate design ▸ Card content & text chip ▸ "Text horizontal alignment" pill
+- [x] Carousel scrolling (fullscreen only) → segment (Horizontal/Vertical carousel) **[HIDDEN — `!hideVerticalScroll`, see note 2]** → via `setInterScroll(mode)` — deck: Intermediate design ▸ Arrangement chip ▸ "Overflow scrolling" pill (merged, same `interScroll` key; never surfaced while `hideVerticalScroll===true`)
+- [x] Item size → slider (0.7–`intItemSizeMax`, conditional not drill-stair/card-strip) → `t.intermediate.itemSize`/itemSizeScale via `setIntItemSize(v)` — deck: Intermediate design ▸ Arrangement chip ▸ "Item size" pill
+- [x] Card gap → slider (0–20, conditional not finder-select/drill-stair/card-strip) → `t.intermediate.cardGapNum` via `setIntCardGap(v)` — deck: Intermediate design ▸ Arrangement chip ▸ "Card gap" pill
+- [x] Card content → segment (`interContentsFor`, conditional `intContentMatters`) → `t.intermediate.content` via `pickInterContent(c.id)` — deck: Intermediate design ▸ Card style chip ▸ "Card content" pill
+- [x] Card shape → tile-group (`interShapesFor`, conditional `intShapeMatters`) → `t.intermediate.cardShape` via `setInterShape(s.id)` — deck: Intermediate design ▸ Card style chip ▸ "Card shape" pill
+- [x] Text vertical position → segment (`interTextPositionsFor`, conditional `intTextPosMatters`) → `t.intermediate.textPos` — deck: Intermediate design ▸ Card content & text chip ▸ "Text vertical position" pill
+- [x] Text horizontal alignment → segment (`cardAligns`, conditional `interTextAlignMatters`) → `t.intermediate.textAlign` — deck: Intermediate design ▸ Card content & text chip ▸ "Text horizontal alignment" pill
+- [x] Text Overlay → segment (`interOverlayStyles`, conditional `interOverlayRelevant`) → via `setInterOverlay(s.id)`, read `interOverlayEff` — deck: Intermediate design ▸ Card content & text chip ▸ "Text Overlay" pill
+- [x] Overlay shape → segment (`overlayShapes`, conditional) → via `setInterOverlayShape(s.id)`, read `interOverlayShapeEff` — deck: Intermediate design ▸ Card content & text chip ▸ "Overlay shape" pill
+- [x] Overlay opacity → slider (0–100 step 5, conditional; SHARED with Home step, see note 5) → via `setOverlayOpacity(v)`, read `overlayOpacity` — deck: Intermediate design ▸ Card content & text chip ▸ "Overlay opacity" pill
+- [x] Text shadow → segment (On/Off, conditional content≠image-only) → `t.intermediate.textShadow` — deck: Intermediate design ▸ Card content & text chip ▸ "Text shadow" pill
+- [x] Card alignment → align-grid (up to 6 buttons: left/center/right + top/middle/bottom, conditional `intAlignMatters`) → `t.intermediate.align` / `t.intermediate.valign` — deck: Intermediate design ▸ Arrangement chip ▸ "Card alignment" pill
+- [x] Card surface → segment (`cardSurfaces`, conditional not drill-stair; SHARED with Home step) → `t.cardSurface` — deck: Intermediate design ▸ Card style chip ▸ "Card surface" pill
+- [x] Header bar → segment (Show/Hide, conditional not finder-select) → `t.intermediate.showHeader` — deck: Intermediate design ▸ Header chip ▸ "Header bar" pill
+- [x] Header tracklist → segment (Show/Hide, conditional `showHeader`) → `t.intermediate.showTracklist` — deck: Intermediate design ▸ Header chip ▸ "Header tracklist" pill
+
+**Step 4 total: 28 controls (26 distinct deck pills — "Card gap" and "Overflow scrolling"/"Carousel
+scrolling" each merge 2 inventory rows into 1 pill, mirroring Home's merge pattern) — all migrated,
+all reachable via deck + All-settings sheet, except the 2 rows hidden by `hideVerticalScroll` which
+remain templated-but-unreachable exactly as before.**
 
 ### Step 5 — Intermediate colors (`intColors`, step-title "Intermediate colors")
 

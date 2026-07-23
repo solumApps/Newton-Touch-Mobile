@@ -2022,6 +2022,178 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     this.typeActivePill = sel.rowIndex;
   }
 
+  // ----- Intermediate design step (phase 3c) -----
+  // Same pattern as Home (phase 3b): chips Arrangement / Card style / Card content & text /
+  // Header. "Card gap" merges the Finder-select and generic branches into ONE pill — both bind
+  // to the same t.intermediate.gapNum / setIntCardGap() control and are mutually exclusive by
+  // t.intermediateStyle, exactly like Home's Card gap/Card surface merge. "Overflow scrolling"
+  // and "Carousel scrolling" merge into one 'interScroll' key (both call setInterScroll(),
+  // mutually exclusive by style) but stay permanently unreachable while hideVerticalScroll ===
+  // true (see inventory note 2) — the option is never pushed into the array below, so it never
+  // becomes a chip/pill or a settings-sheet row, exactly mirroring the original template's
+  // `*ngIf="... && !hideVerticalScroll"` guards.
+  intActiveChip = 0;
+  intActivePill = 0;
+  intSettingsOpen = false;
+
+  private get intArrangementOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    out.push({ key: 'intermediateStyle', icon: 'grid-outline', label: 'Layout style', value: this.intStyleLabel(this.t.intermediateStyle) });
+
+    if (this.intColumnsMatters) {
+      out.push({ key: 'intColumns', icon: 'apps-outline', label: this.t.intermediateStyle === 'card-strip' ? 'Visible cards' : 'Columns', value: `${this.intColumnsValue}` });
+    }
+
+    // [HIDDEN — hideVerticalScroll, see inventory note 2] — never surfaced while the flag is true.
+    if (!this.hideVerticalScroll && (this.intScrollMatters || this.t.intermediateStyle === 'fullscreen')) {
+      const isCarousel = this.t.intermediateStyle === 'fullscreen';
+      out.push({ key: 'interScroll', icon: 'swap-horizontal-outline', label: isCarousel ? 'Carousel scrolling' : 'Overflow scrolling', value: this.capitalize(this.effectiveInterScrollMode) });
+    }
+
+    if (this.t.intermediateStyle === 'brand-rail') {
+      out.push({ key: 'brandRailMessagePos', icon: 'reorder-three-outline', label: 'Message position', value: this.capitalize(this.t.intermediate.brandRailMessagePos || 'right') });
+      const va = this.t.intermediate.brandRailMessageAlign || 'center';
+      out.push({ key: 'brandRailMessageAlign', icon: 'reorder-four-outline', label: 'Message alignment', value: this.brandRailValigns.find((v) => v.id === va)?.label || va });
+    }
+
+    if (this.t.intermediateStyle === 'finder-select') {
+      const showPrompt = this.t.intermediate.fsShowPrompt !== false;
+      out.push({ key: 'fsShowPrompt', icon: 'eye-outline', label: 'Title visibility', value: showPrompt ? 'Show title' : 'Hide title' });
+      if (showPrompt) {
+        out.push({ key: 'fsPromptPos', icon: 'reorder-three-outline', label: 'Title alignment', value: this.capitalize(this.t.intermediate.fsPromptPos || 'center') });
+      }
+      const showBack = this.t.intermediate.fsShowBack !== false;
+      out.push({ key: 'fsShowBack', icon: 'arrow-back-outline', label: 'Back visibility', value: showBack ? 'Show back' : 'Hide back' });
+    }
+
+    if (this.t.intermediateStyle !== 'drill-stair' && this.t.intermediateStyle !== 'card-strip') {
+      out.push({ key: 'intItemSize', icon: 'resize-outline', label: 'Item size', value: this.pct(this.intItemSizeValue) });
+    }
+
+    // Card gap: same t.intermediate.gapNum / setIntCardGap() control in both the
+    // finder-select and generic branches (mutually exclusive) — ONE pill, mirrors Home.
+    if (this.t.intermediateStyle !== 'drill-stair' && this.t.intermediateStyle !== 'card-strip') {
+      out.push({ key: 'intCardGap', icon: 'contract-outline', label: 'Card gap', value: `${this.intCardGapValue}px` });
+    }
+
+    if (this.intAlignMatters) {
+      const align = this.capitalize(this.t.intermediate.align || 'center');
+      const value = this.t.intermediateStyle !== 'columns' ? `${align} · ${this.capitalize(this.t.intermediate.valign || 'middle')}` : align;
+      out.push({ key: 'intAlign', icon: 'reorder-four-outline', label: 'Card alignment', value });
+    }
+
+    return out;
+  }
+
+  private get intCardStyleOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.intermediateStyle === 'finder-select') {
+      const fsContent = this.t.intermediate.fsCardContent || 'text-only';
+      out.push({ key: 'fsCardContent', icon: 'albums-outline', label: 'Card content', value: this.fsCardContents.find((c) => c.id === fsContent)?.label || fsContent });
+      if (fsContent !== 'text-only' && fsContent !== 'image-only') {
+        const shape = this.t.intermediate.fsCardShape || 'rect';
+        out.push({ key: 'fsCardShape', icon: 'square-outline', label: 'Card shape', value: this.cardShapes.find((s) => s.id === shape)?.label || shape });
+      }
+    } else {
+      if (this.intContentMatters) {
+        const v = this.t.intermediate.content || 'image-text';
+        out.push({ key: 'interContent', icon: 'albums-outline', label: 'Card content', value: this.interContentsFor.find((c) => c.id === v)?.label || v });
+      }
+      if (this.intShapeMatters && this.t.intermediate.content !== 'image-only') {
+        const v = this.t.intermediate.cardShape || 'rect';
+        out.push({ key: 'interShape', icon: 'square-outline', label: 'Card shape', value: this.interShapesFor.find((s) => s.id === v)?.label || v });
+      }
+    }
+    if (this.t.intermediateStyle !== 'drill-stair') {
+      out.push({ key: 'cardSurface', icon: 'layers-outline', label: 'Card surface', value: this.cardSurfaces.find((s) => s.id === (this.t.cardSurface || 'flat'))?.label || 'Flat' });
+    }
+    return out;
+  }
+
+  private get intCardTextOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.intermediateStyle === 'finder-select') {
+      if (this.finderTextPositionMatters) {
+        const v = this.t.intermediate.fsTextPos || 'center';
+        out.push({ key: 'fsTextPos', icon: 'text-outline', label: 'Text vertical position', value: this.fsTextVPositions.find((p) => p.id === v)?.label || v });
+      }
+      const fsContent = this.t.intermediate.fsCardContent || 'text-only';
+      if (fsContent !== 'image-only' && this.finderTextAlignMatters) {
+        const v = this.t.intermediate.fsTextAlign || 'center';
+        out.push({ key: 'fsTextAlign', icon: 'reorder-three-outline', label: 'Text horizontal alignment', value: this.cardAligns.find((a) => a.id === v)?.label || v });
+      }
+    } else {
+      if (this.intTextPosMatters && (this.t.intermediate.content || 'image-text') !== 'image-only') {
+        const v = this.t.intermediate.textPos || 'overlay-bottom';
+        out.push({ key: 'interTextPos', icon: 'text-outline', label: 'Text vertical position', value: this.interTextPositionsFor.find((p) => p.id === v)?.label || v });
+      }
+      if (this.interTextAlignMatters) {
+        const v = this.t.intermediate.textAlign || 'center';
+        out.push({ key: 'interTextAlign', icon: 'reorder-three-outline', label: 'Text horizontal alignment', value: this.cardAligns.find((a) => a.id === v)?.label || v });
+      }
+      if (this.interOverlayRelevant) {
+        out.push({ key: 'interOverlay', icon: 'contrast-outline', label: 'Text Overlay', value: this.interOverlayStyles.find((s) => s.id === this.interOverlayEff)?.label || this.interOverlayEff });
+        if (this.interOverlayEff !== 'none' && (this.t.intermediate.textPos || 'overlay-bottom') === 'overlay-bottom') {
+          out.push({ key: 'interOverlayShape', icon: 'square-outline', label: 'Overlay shape', value: this.overlayShapes.find((s) => s.id === this.interOverlayShapeEff)?.label || this.interOverlayShapeEff });
+        }
+        if (this.interOverlayEff !== 'none') {
+          out.push({ key: 'overlayOpacity', icon: 'contrast-outline', label: 'Overlay opacity', value: `${this.overlayOpacity}%` });
+        }
+      }
+    }
+    if ((this.t.intermediate.content || 'image-text') !== 'image-only') {
+      out.push({ key: 'interTextShadow', icon: 'moon-outline', label: 'Text shadow', value: this.t.intermediate.textShadow === true ? 'On' : 'Off' });
+    }
+    return out;
+  }
+
+  private get intHeaderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.intermediateStyle !== 'finder-select') {
+      out.push({ key: 'interHeaderBar', icon: 'menu-outline', label: 'Header bar', value: this.t.intermediate.showHeader ? 'Show' : 'Hide' });
+      if (this.t.intermediate.showHeader) {
+        out.push({ key: 'interHeaderTracklist', icon: 'list-outline', label: 'Header tracklist', value: this.t.intermediate.showTracklist !== false ? 'Show' : 'Hide' });
+      }
+    }
+    return out;
+  }
+
+  get intCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'arrangement', icon: 'grid-outline', label: 'Arrangement', options: this.intArrangementOptions },
+      { key: 'cardStyle', icon: 'square-outline', label: 'Card style', options: this.intCardStyleOptions },
+      { key: 'cardText', icon: 'text-outline', label: 'Card content & text', options: this.intCardTextOptions },
+      { key: 'header', icon: 'menu-outline', label: 'Header', options: this.intHeaderOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get intActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.intCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.intActiveChip, cats.length - 1)];
+  }
+  get intChipsInput(): NtDeckChip[] { return this.intCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get intPillsInput(): NtValuePill[] {
+    return (this.intActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get intActiveOption(): DeckOption | undefined {
+    const opts = this.intActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.intActivePill, opts.length - 1)];
+  }
+  get intActivePillKey(): string { return this.intActiveOption?.key || ''; }
+  get intActivePillLabel(): string { return (this.intActiveOption?.label || '').toUpperCase(); }
+  get intSettingsGroups(): NtSettingsGroup[] {
+    return this.intCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onIntChipChange(i: number): void { this.intActiveChip = i; this.intActivePill = 0; }
+  onIntRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.intActiveChip = sel.groupIndex;
+    this.intActivePill = sel.rowIndex;
+  }
+
   async cancel(): Promise<void> {
     // Unsaved edits → confirm before throwing them away.
     if (this.baseline && this.snapshot() !== this.baseline) {
