@@ -258,12 +258,13 @@
     <div *ngSwitchCase="'inter'">
       <div class="step-title-row">
         <h2 class="step-title">Intermediate page</h2>
-        <button type="button" class="all-settings-btn" (click)="interSettingsOpen = true">
+        <button type="button" class="all-settings-btn" *ngIf="interCategories.length" (click)="interSettingsOpen = true">
           <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
         </button>
       </div>
       <p class="note">Style: <b>{{ d.themeTokens.intermediateStyle }}</b><span *ngIf="intermediateNeedsImage"> — this style shows an image per item.</span></p>
 
+      <ng-container *ngIf="interCategories.length">
       <nt-deck-chips [chips]="interChipsInput" [activeIndex]="interActiveChip" (activeIndexChange)="onInterChipChange($event)"></nt-deck-chips>
       <nt-value-pill-row [pills]="interPillsInput" [activeIndex]="interActivePill" (activeIndexChange)="interActivePill = $event"></nt-value-pill-row>
 
@@ -367,6 +368,7 @@
       </nt-editor-card>
 
       <nt-settings-sheet [groups]="interSettingsGroups" [(isOpen)]="interSettingsOpen" title="All settings · Intermediate" (rowSelected)="onInterRowSelected($event)"></nt-settings-sheet>
+      </ng-container>
 
       <p class="note" *ngIf="isFinderSelect && interLevel <= 1">The selection cards for each level are the sub-items you add per card below (each card → its children → … → products).</p>
 
@@ -523,11 +525,12 @@
     <div *ngSwitchCase="'result'">
       <div class="step-title-row">
         <h2 class="step-title">Result page</h2>
-        <button type="button" class="all-settings-btn" (click)="resultSettingsOpen = true">
+        <button type="button" class="all-settings-btn" *ngIf="resultCategories.length" (click)="resultSettingsOpen = true">
           <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
         </button>
       </div>
 
+      <ng-container *ngIf="resultCategories.length">
       <nt-deck-chips [chips]="resultChipsInput" [activeIndex]="resultActiveChip" (activeIndexChange)="onResultChipChange($event)"></nt-deck-chips>
       <nt-value-pill-row [pills]="resultPillsInput" [activeIndex]="resultActivePill" (activeIndexChange)="resultActivePill = $event"></nt-value-pill-row>
 
@@ -698,6 +701,7 @@
       </nt-editor-card>
 
       <nt-settings-sheet [groups]="resultSettingsGroups" [(isOpen)]="resultSettingsOpen" title="All settings · Result" (rowSelected)="onResultRowSelected($event)"></nt-settings-sheet>
+      </ng-container>
 
       <!-- CATEGORY: Hierarchy & matched products — repeating/unbounded list,
            grouped by leaf: collapsed-row + bottom-sheet pattern (UI-REDESIGN-
