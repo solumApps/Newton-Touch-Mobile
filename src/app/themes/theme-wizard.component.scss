@@ -991,9 +991,49 @@
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 .inp:focus { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
-table.sum { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 14px; background: var(--nt-card); border: 1px solid var(--nt-border); border-radius: var(--nt-r); overflow: hidden; display: table; }
-table.sum td { padding: 10px 12px; border-top: 1px solid var(--nt-border); }
-table.sum td:first-child { color: var(--nt-muted); width: 46%; }
+/* Review step summary — restyled to match the nt-settings-sheet "All settings"
+   row style (icon + label + value) for visual consistency with the rest of
+   the redesigned wizard, while remaining a plain read-only summary (no tap
+   interaction, no chevrons — there is nothing to edit here). */
+.review-summary { margin-top: 14px; background: var(--nt-card); border: 1px solid var(--nt-border); border-radius: var(--nt-r); padding: 4px 12px; }
+.review-summary .grouplabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--nt-muted);
+  margin: 16px 0 4px;
+}
+.review-summary .grouplabel:first-child { margin-top: 10px; }
+.review-summary .row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 2px;
+  border-bottom: 1px solid var(--nt-border);
+}
+.review-summary .row:last-child { border-bottom: none; }
+.review-summary .row .ic { font-size: 16px; color: var(--nt-muted); width: 18px; flex-shrink: 0; text-align: center; }
+.review-summary .row .lbl {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--nt-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.review-summary .row .val {
+  flex-shrink: 0;
+  max-width: 54%;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nt-brand-ink);
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 
 .nav {
   display: flex; gap: 10px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));

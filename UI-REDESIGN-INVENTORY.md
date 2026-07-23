@@ -412,13 +412,16 @@ original template's conditional).**
 
 ### Step 10 — Review (`review`, step-title "Review & save")
 
-- [ ] Theme name → text input (required, validated) → `name` via `[(ngModel)]` + `onNameInput()`
-- [ ] Summary table → read-only rows (Home layout, Scrolling, Card, Card style, Header, Intermediate, Result,
+- [x] Theme name → text input (required, validated) → `name` via `[(ngModel)]` + `onNameInput()` — unchanged plain input, untouched per spec
+- [x] Summary table → read-only rows (Home layout, Scrolling, Card, Card style, Header, Intermediate, Result,
       Nav buttons, Typography, Animation, Loader, Screensaver overlay) → derived display only, no direct
-      binding to edit — spec requires restyling rows to match the "All settings" sheet row style but keeping
-      the read-only summary-table behavior (12 summary rows, not independently editable controls)
+      binding to edit — restyled from plain `<table class="sum">` rows to `nt-settings-sheet`-style rows
+      (icon + label + value, `.review-summary` wrapper reusing the sheet's row visual language) grouped by
+      category (Layout, Header, Intermediate, Result, Navigation, Type, Animations & loader, Screensaver);
+      all 12 summary rows preserved with identical computed expressions, no chips/pills/editor-card/All-settings
+      sheet added (nothing to edit on this step, per spec)
 
-**Step 10 total: 1 editable control (Theme name) + 12 read-only summary rows (restyle only, per spec)**
+**Step 10 total: 1 editable control (Theme name) + 12 read-only summary rows — all 13 migrated/restyled**
 
 ---
 

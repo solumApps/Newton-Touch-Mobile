@@ -1385,20 +1385,83 @@
         <div class="fld"><label>Theme name <span class="required">*</span></label>
           <input class="inp" [class.err]="nameError" [(ngModel)]="name" (ngModelChange)="onNameInput()" placeholder="e.g. Holiday Dark" />
           <p class="field-error" *ngIf="nameError">{{ nameError }}</p></div>
-          <table class="sum">
-            <tr><td>Home layout</td><td>{{ t.homeLayout }}{{ columnsMatter ? (' · ' + effectiveColumns + (itemCountMatters ? ' items' : ' col') + (t.columns !== undefined ? '' : ' (auto)')) : '' }}</td></tr>
-            <tr><td>Scrolling</td><td>{{ t.scrollMode || 'auto' }}</td></tr>
-            <tr><td>Card</td><td>{{ t.cardShape }} · {{ t.cardContent }} · {{ t.cardSize }} · {{ t.cardTextPos }}</td></tr>
-            <tr><td>Card style</td><td>{{ t.cardSurface || 'flat' }} · gap {{ t.cardGap || 'normal' }} · align {{ t.cardAlign || 'center' }}</td></tr>
-            <tr><td>Header</td><td>{{ t.showHeader ? ((t.headerLayout==='custom' ? 'custom' : (t.headerStyle || 'logo-only')) + (t.transparentHeader ? ' · transparent' : '')) : 'Hidden' }}</td></tr>
-            <tr><td>Intermediate</td><td>{{ t.includeIntermediate ? (t.intermediateStyle + ' · ' + (t.intermediate.itemSize || 'medium') + ' · ' + (t.intermediate.cardShape || 'rect') + ' · ' + (t.intermediate.content || 'image-text')) : 'Skipped (Home → Result)' }}</td></tr>
-            <tr><td>Result</td><td>{{ t.resultTemplate }} · {{ t.result.content || 'image-text' }}{{ t.result.cardShape ? ' · ' + t.result.cardShape : '' }}{{ t.result.textPos ? ' · ' + t.result.textPos : '' }}</td></tr>
-            <tr><td>Nav buttons</td><td>{{ t.navStyle || 'floating' }} · {{ t.nav?.split ? ('back ' + (t.nav?.backPosition || 'bottom-left') + ' / home ' + (t.nav?.homePosition || 'bottom-right')) : (t.nav?.position || 'bottom-left') }}</td></tr>
-            <tr><td>Typography</td><td>{{ t.typography.fontFamily.split(',')[0] }} · {{ t.typography.textScale }} · {{ t.typography.textFit }}</td></tr>
-            <tr><td>Animation</td><td>{{ t.animation.transition }} · {{ t.animation.speed }}</td></tr>
-            <tr><td>Loader</td><td>{{ t.loader.style }}</td></tr>
-            <tr><td>Screensaver overlay</td><td>{{ t.saverOverlay?.showContent !== false ? (t.saverOverlay?.position || 'center') : 'Hidden' }}</td></tr>
-          </table>
+          <div class="review-summary">
+            <div class="grouplabel">Layout</div>
+            <div class="row">
+              <ion-icon class="ic" name="grid-outline" aria-hidden="true"></ion-icon>
+              <span class="lbl">Home layout</span>
+              <span class="val">{{ t.homeLayout }}{{ columnsMatter ? (' · ' + effectiveColumns + (itemCountMatters ? ' items' : ' col') + (t.columns !== undefined ? '' : ' (auto)')) : '' }}</span>
+            </div>
+            <div class="row">
+              <ion-icon class="ic" name="swap-horizontal-outline" aria-hidden="true"></ion-icon>
+              <span class="lbl">Scrolling</span>
+              <span class="val">{{ t.scrollMode || 'auto' }}</span>
+            </div>
+            <div class="row">
+              <ion-icon class="ic" name="square-outline" aria-hidden="true"></ion-icon>
+              <span class="lbl">Card</span>
+              <span class="val">{{ t.cardShape }} · {{ t.cardContent }} · {{ t.cardSize }} · {{ t.cardTextPos }}</span>
+            </div>
+            <div class="row">
+              <ion-icon class="ic" name="layers-outline" aria-hidden="true"></ion-icon>
+              <span class="lbl">Card style</span>
+              <span class="val">{{ t.cardSurface || 'flat' }} · gap {{ t.cardGap || 'normal' }} · align {{ t.cardAlign || 'center' }}</span>
+            </div>
+
+            <div class="grouplabel">Header</div>
+            <div class="row">
+              <ion-icon class="ic" name="menu-outline" aria-hidden="true"></ion-icon>
+              <span class="lbl">Header</span>
+              <span class="val">{{ t.showHeader ? ((t.headerLayout==='custom' ? 'custom' : (t.headerStyle || 'logo-only')) + (t.transparentHeader ? ' · transparent' : '')) : 'Hidden' }}</span>
+            </div>
+
+            <div class="grouplabel">Intermediate</div>
+            <div class="row">
+              <ion-icon class="ic" name="layers-outline" aria-hidden="true"></ion-icon>
+              <span class="lbl">Intermediate</span>
+              <span class="val">{{ t.includeIntermediate ? (t.intermediateStyle + ' · ' + (t.intermediate.itemSize || 'medium') + ' · ' + (t.intermediate.cardShape || 'rect') + ' · ' + (t.intermediate.content || 'image-text')) : 'Skipped (Home → Result)' }}</span>
+            </div>
+
+            <div class="grouplabel">Result</div>
+            <div class="row">
+              <ion-icon class="ic" name="albums-outline" aria-hidden="true"></ion-icon>
+              <span class="lbl">Result</span>
+              <span class="val">{{ t.resultTemplate }} · {{ t.result.content || 'image-text' }}{{ t.result.cardShape ? ' · ' + t.result.cardShape : '' }}{{ t.result.textPos ? ' · ' + t.result.textPos : '' }}</span>
+            </div>
+
+            <div class="grouplabel">Navigation</div>
+            <div class="row">
+              <ion-icon class="ic" name="navigate-outline" aria-hidden="true"></ion-icon>
+              <span class="lbl">Nav buttons</span>
+              <span class="val">{{ t.navStyle || 'floating' }} · {{ t.nav?.split ? ('back ' + (t.nav?.backPosition || 'bottom-left') + ' / home ' + (t.nav?.homePosition || 'bottom-right')) : (t.nav?.position || 'bottom-left') }}</span>
+            </div>
+
+            <div class="grouplabel">Type</div>
+            <div class="row">
+              <ion-icon class="ic" name="text-outline" aria-hidden="true"></ion-icon>
+              <span class="lbl">Typography</span>
+              <span class="val">{{ t.typography.fontFamily.split(',')[0] }} · {{ t.typography.textScale }} · {{ t.typography.textFit }}</span>
+            </div>
+
+            <div class="grouplabel">Animations &amp; loader</div>
+            <div class="row">
+              <ion-icon class="ic" name="swap-horizontal-outline" aria-hidden="true"></ion-icon>
+              <span class="lbl">Animation</span>
+              <span class="val">{{ t.animation.transition }} · {{ t.animation.speed }}</span>
+            </div>
+            <div class="row">
+              <ion-icon class="ic" name="sync-outline" aria-hidden="true"></ion-icon>
+              <span class="lbl">Loader</span>
+              <span class="val">{{ t.loader.style }}</span>
+            </div>
+
+            <div class="grouplabel">Screensaver</div>
+            <div class="row">
+              <ion-icon class="ic" name="eye-outline" aria-hidden="true"></ion-icon>
+              <span class="lbl">Screensaver overlay</span>
+              <span class="val">{{ t.saverOverlay?.showContent !== false ? (t.saverOverlay?.position || 'center') : 'Hidden' }}</span>
+            </div>
+          </div>
       </div>
     </ng-container>
 
