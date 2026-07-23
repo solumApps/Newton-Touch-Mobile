@@ -285,17 +285,30 @@ swatch where applicable — selecting a sheet row jumps the deck to that chip + 
 
 ### Step 6 — Result template (`resTemplate`, step-title "Result template")
 
-- [ ] Template → tile-group (`resultTemplates`: map-list/filter-list/promo-list/product-focus/shelf/finder-detail — 6 selectable; `promo-map-rank` is a 7th legacy value with no tile, see Structural note 3) → `t.resultTemplate` via `pickResultTemplate(o)`
-- [ ] Promotion panel toggles (promo-map-rank only) → segment/multi-toggle (Timer/Bell/Ranks/Sort tabs/Zone — 5 independent toggles in one row) → `t.result.showTimer` / `showBell` / `showRanks` / `showSortTabs` / `showZone`
-- [ ] Sort tabs (finder-detail only) → multi-select segment (`finderSortOpts`: Recommend/Alphabetical/Low Price/On Sale) → `t.result.sortTabs` via `toggleSortTab(id)`
-- [ ] Options · SALE badge (finder-detail only) → toggle → `t.result.showSaleBadge`
-- [ ] Filter position (map-filter-list only) → segment (`filterPositions`) → `t.result.filterPos`
-- [ ] Card content → segment (`resultContents`: Image+Text/Text only, conditional `resCardContentMatters`) → `t.result.content`
-- [ ] Card shape → tile-group (Default + `resShapesFor`, conditional `resShapeMatters` and content=image-text) → `t.result.cardShape`
-- [ ] Text position → segment (`cardTextPositions`, conditional `resTextPosMatters` and content=image-text) → `t.result.textPos`
-- [ ] Overflow scrolling → segment (`scrollModes`, conditional `resOverflowMatters`) → `t.result.scrollMode` (read via `effectiveResultScrollMode`)
+**Migrated to the Editor Deck pattern (phase 3e) — chips: Template / Promotion (promo-map-rank
+only) / Sorting & filters (finder-detail's Sort tabs + SALE badge, map-filter-list's Filter
+position) / Card layout (Card content / Card shape / Text position / Overflow scrolling).
+Category names taken from the step's `.step-title.sm` labels per the redesign prompt. The two
+multi-toggle rows (Promotion panel's 5 toggles, finder-detail's Sort tabs multi-select) each stay
+ONE pill/settings-sheet row — matching this table's own "counted as 1 row" guidance — with the
+pill/sheet value summarizing which sub-options are currently on (e.g. "Timer, Ranks, Zone" /
+"All hidden"); the editor-card still renders every sub-toggle for that one pill, unchanged. All 9
+rows also appear in the `nt-settings-sheet` opened via the step's "All settings" button, with
+their live current value — selecting a sheet row jumps the deck to that chip + pill. `promo-map-
+rank` remains reachable only for themes that already have that legacy value; no new tile was
+added to the Template picker (Structural note 3 preserved).**
 
-**Step 6 total: 9 controls (2 of which are multi-toggle rows containing 5 and 4 sub-toggles respectively — counted as 1 row each per spec's guidance on multi-state controls, with sub-state counts noted)**
+- [x] Template → tile-group (`resultTemplates`: map-list/filter-list/promo-list/product-focus/shelf/finder-detail — 6 selectable; `promo-map-rank` is a 7th legacy value with no tile, see Structural note 3) → `t.resultTemplate` via `pickResultTemplate(o)` — deck: Result template ▸ Template chip ▸ "Template" pill
+- [x] Promotion panel toggles (promo-map-rank only) → segment/multi-toggle (Timer/Bell/Ranks/Sort tabs/Zone — 5 independent toggles in one row) → `t.result.showTimer` / `showBell` / `showRanks` / `showSortTabs` / `showZone` — deck: Result template ▸ Promotion chip ▸ "Promotion panel" pill
+- [x] Sort tabs (finder-detail only) → multi-select segment (`finderSortOpts`: Recommend/Alphabetical/Low Price/On Sale) → `t.result.sortTabs` via `toggleSortTab(id)` — deck: Result template ▸ Sorting & filters chip ▸ "Sort tabs" pill
+- [x] Options · SALE badge (finder-detail only) → toggle → `t.result.showSaleBadge` — deck: Result template ▸ Sorting & filters chip ▸ "SALE badge" pill
+- [x] Filter position (map-filter-list only) → segment (`filterPositions`) → `t.result.filterPos` — deck: Result template ▸ Sorting & filters chip ▸ "Filter position" pill
+- [x] Card content → segment (`resultContents`: Image+Text/Text only, conditional `resCardContentMatters`) → `t.result.content` — deck: Result template ▸ Card layout chip ▸ "Card content" pill
+- [x] Card shape → tile-group (Default + `resShapesFor`, conditional `resShapeMatters` and content=image-text) → `t.result.cardShape` — deck: Result template ▸ Card layout chip ▸ "Card shape" pill
+- [x] Text position → segment (`cardTextPositions`, conditional `resTextPosMatters` and content=image-text) → `t.result.textPos` — deck: Result template ▸ Card layout chip ▸ "Text position" pill
+- [x] Overflow scrolling → segment (`scrollModes`, conditional `resOverflowMatters`) → `t.result.scrollMode` (read via `effectiveResultScrollMode`) — deck: Result template ▸ Card layout chip ▸ "Overflow scrolling" pill
+
+**Step 6 total: 9 controls (2 of which are multi-toggle rows containing 5 and 4 sub-toggles respectively — counted as 1 row each per spec's guidance on multi-state controls, with sub-state counts noted) — all 9 migrated, all reachable via deck + All-settings sheet.**
 
 ### Step 7 — Result colors (`resColors`, step-title "Result colors")
 

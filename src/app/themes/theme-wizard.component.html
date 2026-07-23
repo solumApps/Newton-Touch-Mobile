@@ -1084,72 +1084,85 @@
       </div>
 
       <div *ngSwitchCase="'resTemplate'">
-        <div class="step-title">Result template</div>
-        <div class="tiles"><button class="tile" *ngFor="let o of resultTemplates" [class.sel]="t.resultTemplate===o" (click)="pickResultTemplate(o)">{{ tplLabel(o) }}</button></div>
+        <div class="step-title-row">
+          <div class="step-title">Result template</div>
+          <button type="button" class="all-settings-btn" (click)="resTemplateSettingsOpen = true">
+            <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
+          </button>
+        </div>
 
-        <!-- promo-map-rank: per-section customisation -->
-        <ng-container *ngIf="t.resultTemplate==='promo-map-rank'">
-          <div class="step-title sm">Promotion panel</div>
-          <div class="seg">
-            <button class="tile" [class.sel]="t.result.showTimer" (click)="t.result.showTimer=!t.result.showTimer">Timer</button>
-            <button class="tile" [class.sel]="t.result.showBell" (click)="t.result.showBell=!t.result.showBell">Bell</button>
-            <button class="tile" [class.sel]="t.result.showRanks!==false" (click)="t.result.showRanks=!(t.result.showRanks!==false)">Ranks</button>
-            <button class="tile" [class.sel]="t.result.showSortTabs!==false" (click)="t.result.showSortTabs=!(t.result.showSortTabs!==false)">Sort tabs</button>
-            <button class="tile" [class.sel]="t.result.showZone!==false" (click)="t.result.showZone=!(t.result.showZone!==false)">Zone</button>
-          </div>
-          <p class="hint">Timer value, floor labels and the "you are here" label are entered in Content creation.</p>
-        </ng-container>
+        <nt-deck-chips [chips]="resTemplateChipsInput" [activeIndex]="resTemplateActiveChip" (activeIndexChange)="onResTemplateChipChange($event)"></nt-deck-chips>
+        <nt-value-pill-row [pills]="resTemplatePillsInput" [activeIndex]="resTemplateActivePill" (activeIndexChange)="resTemplateActivePill = $event"></nt-value-pill-row>
 
-        <!-- finder-detail: per-section customisation -->
-        <ng-container *ngIf="t.resultTemplate==='finder-detail'">
-          <div class="step-title sm">Sort tabs</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let s of finderSortOpts" [class.sel]="hasSortTab(s.id)" (click)="toggleSortTab(s.id)">{{ s.label }}</button>
-          </div>
-          <div class="step-title sm">Options</div>
-          <div class="seg">
-            <button class="tile" [class.sel]="t.result.showSaleBadge!==false" (click)="t.result.showSaleBadge=!(t.result.showSaleBadge!==false)">SALE badge</button>
-          </div>
-          <p class="hint">Breadcrumb labels and Find It / Find All button text are entered in Content creation.</p>
-        </ng-container>
+        <nt-editor-card [sectionLabel]="resTemplateActivePillLabel">
+          <ng-container [ngSwitch]="resTemplateActivePillKey">
 
-        <ng-container *ngIf="t.resultTemplate==='map-filter-list'">
-          <div class="step-title sm">Filter position</div>
-          <p class="hint">Where the Popular / A–Z filter bar sits relative to the list.</p>
-          <div class="seg">
-            <button class="tile" *ngFor="let p of filterPositions" [class.sel]="(t.result.filterPos||'center')===p.id" (click)="t.result.filterPos=p.id">{{ p.label }}</button>
-          </div>
-        </ng-container>
+            <ng-container *ngSwitchCase="'resTemplatePick'">
+              <div class="tiles"><button class="tile" *ngFor="let o of resultTemplates" [class.sel]="t.resultTemplate===o" (click)="pickResultTemplate(o)">{{ tplLabel(o) }}</button></div>
+            </ng-container>
 
-        <ng-container *ngIf="resCardContentMatters">
-          <div class="step-title sm">Card content</div>
-          <p class="hint">Whether product cards show their image.</p>
-          <div class="seg"><button class="tile" *ngFor="let c of resultContents" [class.sel]="(t.result.content||'image-text')===c.id" (click)="t.result.content=c.id">{{ c.label }}</button></div>
-        </ng-container>
+            <!-- promo-map-rank: per-section customisation -->
+            <ng-container *ngSwitchCase="'resPromoToggles'">
+              <div class="seg">
+                <button class="tile" [class.sel]="t.result.showTimer" (click)="t.result.showTimer=!t.result.showTimer">Timer</button>
+                <button class="tile" [class.sel]="t.result.showBell" (click)="t.result.showBell=!t.result.showBell">Bell</button>
+                <button class="tile" [class.sel]="t.result.showRanks!==false" (click)="t.result.showRanks=!(t.result.showRanks!==false)">Ranks</button>
+                <button class="tile" [class.sel]="t.result.showSortTabs!==false" (click)="t.result.showSortTabs=!(t.result.showSortTabs!==false)">Sort tabs</button>
+                <button class="tile" [class.sel]="t.result.showZone!==false" (click)="t.result.showZone=!(t.result.showZone!==false)">Zone</button>
+              </div>
+              <p class="hint">Timer value, floor labels and the "you are here" label are entered in Content creation.</p>
+            </ng-container>
 
-        <ng-container *ngIf="resShapeMatters && (t.result.content||'image-text')==='image-text'">
-          <div class="step-title sm">Card shape</div>
-          <p class="hint">Shape of the product cards / images. Default keeps the template's own look.</p>
-          <div class="tiles">
-            <button class="tile" [class.sel]="!t.result.cardShape" (click)="t.result.cardShape=undefined">Default</button>
-            <button class="tile" *ngFor="let s of resShapesFor" [class.sel]="t.result.cardShape===s.id" (click)="t.result.cardShape=s.id">{{ s.label }}</button>
-          </div>
-        </ng-container>
+            <!-- finder-detail: per-section customisation -->
+            <ng-container *ngSwitchCase="'resSortTabs'">
+              <div class="seg">
+                <button class="tile" *ngFor="let s of finderSortOpts" [class.sel]="hasSortTab(s.id)" (click)="toggleSortTab(s.id)">{{ s.label }}</button>
+              </div>
+            </ng-container>
 
-        <ng-container *ngIf="resTextPosMatters && (t.result.content||'image-text')==='image-text'">
-          <div class="step-title sm">Text position</div>
-          <p class="hint">Overlay places product info on top of the image.</p>
-          <div class="seg"><button class="tile" *ngFor="let p of cardTextPositions" [class.sel]="(t.result.textPos||'below')===p.id" (click)="t.result.textPos=p.id">{{ p.label }}</button></div>
-        </ng-container>
+            <ng-container *ngSwitchCase="'resSaleBadge'">
+              <div class="seg">
+                <button class="tile" [class.sel]="t.result.showSaleBadge!==false" (click)="t.result.showSaleBadge=!(t.result.showSaleBadge!==false)">SALE badge</button>
+              </div>
+              <p class="hint">Breadcrumb labels and Find It / Find All button text are entered in Content creation.</p>
+            </ng-container>
 
-        <ng-container *ngIf="resOverflowMatters">
-          <div class="step-title sm">Overflow scrolling</div>
-          <p class="hint">How the product list scrolls when items don't fit. Auto uses the template's natural direction.</p>
-          <div class="seg">
-            <button class="tile" *ngFor="let m of scrollModes" [class.sel]="effectiveResultScrollMode===m.id" (click)="t.result.scrollMode=m.id">{{ m.label }}</button>
-          </div>
-        </ng-container>
+            <ng-container *ngSwitchCase="'resFilterPos'">
+              <p class="hint">Where the Popular / A–Z filter bar sits relative to the list.</p>
+              <div class="seg">
+                <button class="tile" *ngFor="let p of filterPositions" [class.sel]="(t.result.filterPos||'center')===p.id" (click)="t.result.filterPos=p.id">{{ p.label }}</button>
+              </div>
+            </ng-container>
 
+            <ng-container *ngSwitchCase="'resContent'">
+              <p class="hint">Whether product cards show their image.</p>
+              <div class="seg"><button class="tile" *ngFor="let c of resultContents" [class.sel]="(t.result.content||'image-text')===c.id" (click)="t.result.content=c.id">{{ c.label }}</button></div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'resCardShape'">
+              <p class="hint">Shape of the product cards / images. Default keeps the template's own look.</p>
+              <div class="tiles">
+                <button class="tile" [class.sel]="!t.result.cardShape" (click)="t.result.cardShape=undefined">Default</button>
+                <button class="tile" *ngFor="let s of resShapesFor" [class.sel]="t.result.cardShape===s.id" (click)="t.result.cardShape=s.id">{{ s.label }}</button>
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'resTextPos'">
+              <p class="hint">Overlay places product info on top of the image.</p>
+              <div class="seg"><button class="tile" *ngFor="let p of cardTextPositions" [class.sel]="(t.result.textPos||'below')===p.id" (click)="t.result.textPos=p.id">{{ p.label }}</button></div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'resScrollMode'">
+              <p class="hint">How the product list scrolls when items don't fit. Auto uses the template's natural direction.</p>
+              <div class="seg">
+                <button class="tile" *ngFor="let m of scrollModes" [class.sel]="effectiveResultScrollMode===m.id" (click)="t.result.scrollMode=m.id">{{ m.label }}</button>
+              </div>
+            </ng-container>
+
+          </ng-container>
+        </nt-editor-card>
+
+        <nt-settings-sheet [groups]="resTemplateSettingsGroups" [(isOpen)]="resTemplateSettingsOpen" title="All settings · Result template" (rowSelected)="onResTemplateRowSelected($event)"></nt-settings-sheet>
       </div>
 
       <div *ngSwitchCase="'resColors'">

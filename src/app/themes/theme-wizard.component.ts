@@ -2468,6 +2468,115 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     this.resColorsActivePill = sel.rowIndex;
   }
 
+  // ----- Result template step (phase 3e) -----
+  // Chips: Template / Promotion (promo-map-rank only) / Sorting & filters (finder-detail's Sort
+  // tabs + SALE badge, map-filter-list's Filter position) / Card layout (Card content / shape /
+  // text position / Overflow scrolling). Category names taken from the step's `.step-title.sm`
+  // labels per the redesign prompt. The two multi-toggle rows (Promotion panel's 5 toggles,
+  // finder-detail's Sort tabs multi-select) each stay ONE pill/settings-sheet row — same as the
+  // original inventory's "counted as 1 row" guidance — with a value summarizing which sub-options
+  // are currently on; the editor-card still renders all sub-toggles for that one pill.
+  resTemplateActiveChip = 0;
+  resTemplateActivePill = 0;
+  resTemplateSettingsOpen = false;
+
+  /** Summarizes the 5 promo-map-rank panel toggles for the pill/sheet-row face. */
+  get resPromoToggleSummary(): string {
+    const items: { label: string; on: boolean }[] = [
+      { label: 'Timer', on: !!this.t.result.showTimer },
+      { label: 'Bell', on: !!this.t.result.showBell },
+      { label: 'Ranks', on: this.t.result.showRanks !== false },
+      { label: 'Sort tabs', on: this.t.result.showSortTabs !== false },
+      { label: 'Zone', on: this.t.result.showZone !== false },
+    ];
+    const on = items.filter((i) => i.on).map((i) => i.label);
+    return on.length ? on.join(', ') : 'All hidden';
+  }
+
+  /** Summarizes the finder-detail sort-tab multi-select for the pill/sheet-row face. */
+  get resSortTabsSummary(): string {
+    const on = this.finderSortOpts.filter((s) => this.hasSortTab(s.id)).map((s) => s.label);
+    return on.length ? on.join(', ') : 'None';
+  }
+
+  private get resTemplatePickOptions(): DeckOption[] {
+    return [{ key: 'resTemplatePick', icon: 'grid-outline', label: 'Template', value: this.tplLabel(this.t.resultTemplate) }];
+  }
+
+  private get resPromotionOptions(): DeckOption[] {
+    if (this.t.resultTemplate !== 'promo-map-rank') return [];
+    return [{ key: 'resPromoToggles', icon: 'megaphone-outline', label: 'Promotion panel', value: this.resPromoToggleSummary }];
+  }
+
+  private get resSortingFilterOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.resultTemplate === 'finder-detail') {
+      out.push({ key: 'resSortTabs', icon: 'swap-vertical-outline', label: 'Sort tabs', value: this.resSortTabsSummary });
+      out.push({ key: 'resSaleBadge', icon: 'pricetag-outline', label: 'SALE badge', value: this.t.result.showSaleBadge !== false ? 'On' : 'Off' });
+    }
+    if (this.t.resultTemplate === 'map-filter-list') {
+      const pos = this.t.result.filterPos || 'center';
+      out.push({ key: 'resFilterPos', icon: 'funnel-outline', label: 'Filter position', value: this.filterPositions.find((p) => p.id === pos)?.label || this.capitalize(pos) });
+    }
+    return out;
+  }
+
+  private get resCardLayoutOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.resCardContentMatters) {
+      const v = this.t.result.content || 'image-text';
+      out.push({ key: 'resContent', icon: 'albums-outline', label: 'Card content', value: this.resultContents.find((c) => c.id === v)?.label || v });
+    }
+    if (this.resShapeMatters && (this.t.result.content || 'image-text') === 'image-text') {
+      const v = this.t.result.cardShape;
+      out.push({ key: 'resCardShape', icon: 'square-outline', label: 'Card shape', value: v ? (this.resShapesFor.find((s) => s.id === v)?.label || v) : 'Default' });
+    }
+    if (this.resTextPosMatters && (this.t.result.content || 'image-text') === 'image-text') {
+      const v = this.t.result.textPos || 'below';
+      out.push({ key: 'resTextPos', icon: 'text-outline', label: 'Text position', value: this.cardTextPositions.find((p) => p.id === v)?.label || v });
+    }
+    if (this.resOverflowMatters) {
+      out.push({ key: 'resScrollMode', icon: 'swap-horizontal-outline', label: 'Overflow scrolling', value: this.capitalize(this.effectiveResultScrollMode) });
+    }
+    return out;
+  }
+
+  get resTemplateCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'template', icon: 'grid-outline', label: 'Template', options: this.resTemplatePickOptions },
+      { key: 'promotion', icon: 'megaphone-outline', label: 'Promotion', options: this.resPromotionOptions },
+      { key: 'sortingFilters', icon: 'funnel-outline', label: 'Sorting & filters', options: this.resSortingFilterOptions },
+      { key: 'cardLayout', icon: 'square-outline', label: 'Card layout', options: this.resCardLayoutOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get resTemplateActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.resTemplateCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.resTemplateActiveChip, cats.length - 1)];
+  }
+  get resTemplateChipsInput(): NtDeckChip[] { return this.resTemplateCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get resTemplatePillsInput(): NtValuePill[] {
+    return (this.resTemplateActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get resTemplateActiveOption(): DeckOption | undefined {
+    const opts = this.resTemplateActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.resTemplateActivePill, opts.length - 1)];
+  }
+  get resTemplateActivePillKey(): string { return this.resTemplateActiveOption?.key || ''; }
+  get resTemplateActivePillLabel(): string { return (this.resTemplateActiveOption?.label || '').toUpperCase(); }
+  get resTemplateSettingsGroups(): NtSettingsGroup[] {
+    return this.resTemplateCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onResTemplateChipChange(i: number): void { this.resTemplateActiveChip = i; this.resTemplateActivePill = 0; }
+  onResTemplateRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.resTemplateActiveChip = sel.groupIndex;
+    this.resTemplateActivePill = sel.rowIndex;
+  }
+
   async cancel(): Promise<void> {
     // Unsaved edits → confirm before throwing them away.
     if (this.baseline && this.snapshot() !== this.baseline) {
