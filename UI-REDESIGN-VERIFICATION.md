@@ -130,3 +130,36 @@ independently-verified completeness record. Before merging, the one meaningful g
 click-through — pull the branch, run `ng serve`, and walk through at least one full theme creation
 and one content creation from empty draft through Save, checking that each converted step's deck,
 pills, and sheets show and edit the right values and that the live preview still reacts correctly.
+
+## Addendum — bug found via live click-through, now fixed (commit `25db4e9`)
+
+The user ran `ng serve` and did exactly the live click-through this report recommended, and caught a
+real bug: most category-chip icons rendered blank across theme-wizard and content-builder (a few,
+like "Accent & logo" and "Text case", showed correctly).
+
+**Root cause:** this app uses Ionic's standalone `IonIcon` (`@ionic/angular/standalone`), which
+requires each icon name to be explicitly registered via `addIcons()` from `'ionicons'` — unlike the
+classic Ionic module, unregistered names render nothing. The pre-existing codebase already follows
+this pattern consistently (`app.component.ts`, `themes.page.ts`, etc. each call `addIcons()` for the
+icons their own template uses). The ~70 new icon names introduced by the Editor Deck redesign
+(chip icons, pill/settings-sheet icons, `nt-collapsed-item-row`'s reorder/chevron/trash icons) were
+never registered anywhere. The handful that did render were names that happened to already be
+registered by some *other*, pre-existing part of the app for an unrelated feature.
+
+**Why this wasn't caught by the build or the prior verification passes:** `[name]="row.icon"` and
+`name="chevron-forward-outline"` are plain string bindings — Angular's AOT template compiler has no
+way to statically know whether a given string has been registered with the global icon registry, so
+`ng build` succeeds regardless. This is a pure runtime concern. The "Residual risks" section above
+explicitly flagged that no live interactive click-through had been performed in this sandbox as the
+one unverified gap — this bug is exactly the class of issue that check would have (and, once the user
+ran it, did) catch. It doesn't invalidate the rest of this report (data bindings, scope, inventory
+completeness are all statically verifiable and were verified); it confirms the one caveat that
+wasn't.
+
+**Fix:** added `addIcons()` registration for every icon name used, in the same file that uses it,
+matching the app's existing per-file convention — `theme-wizard.component.ts` (41 names),
+`content-builder.component.ts` (36 names), and `nt-collapsed-item-row.component.ts` (6 names,
+registered at module scope since that component has no constructor). Every name was cross-checked
+against the actual installed `node_modules/ionicons/dist/svg` file list (not guessed), and a script
+confirmed zero icon names remain unregistered in either file. `ng build --configuration development`
+still passes with zero new errors after the fix. Diff scope for this fix: exactly the 3 files above.
