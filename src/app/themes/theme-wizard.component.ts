@@ -826,8 +826,24 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     if (this.t.intermediateStyle === 'brand-rail' || this.t.intermediateStyle === 'card-strip') return 'horizontal';
     return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'horizontal' ? 'horizontal' : 'vertical';
   }
+  get resultTextOnlyVertical(): boolean {
+    return (this.t.result.content || 'image-text') === 'text-only'
+      && ['map-list', 'filter-list'].includes(this.t.resultTemplate);
+  }
   get effectiveResultScrollMode(): 'vertical' | 'horizontal' {
+    if (this.resultTextOnlyVertical) return 'vertical';
     return this.t.result.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
+  }
+  get availableResultScrollModes(): { id: ScrollMode; label: string }[] {
+    return this.resultTextOnlyVertical
+      ? this.scrollModes.filter((mode) => mode.id === 'vertical')
+      : this.scrollModes;
+  }
+  setResultContent(content: 'image-text' | 'text-only'): void {
+    this.t.result.content = content;
+    if (content === 'text-only' && ['map-list', 'filter-list'].includes(this.t.resultTemplate)) {
+      this.t.result.scrollMode = 'vertical';
+    }
   }
   /** Set Home scroll + coerce alignment to a safe, non-clipping default. */
   setHomeScroll(m: ScrollMode): void {

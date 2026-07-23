@@ -973,6 +973,9 @@ export class ContentPreviewStripComponent implements AfterViewInit, OnDestroy {
     return (this.theme?.intermediate?.scrollMode || this.theme?.scrollMode) === 'vertical' ? 'vertical' : 'horizontal';
   }
   get resultScrollMode(): 'vertical' | 'horizontal' {
+    if (this.theme?.result?.content === 'text-only' && ['map-list', 'filter-list'].includes(this.resTpl)) {
+      return 'vertical';
+    }
     return this.theme?.result?.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
   }
   get interVisibleColumns(): number {

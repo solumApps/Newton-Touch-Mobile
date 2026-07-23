@@ -1136,7 +1136,7 @@
 
             <ng-container *ngSwitchCase="'resContent'">
               <p class="hint">Whether product cards show their image.</p>
-              <div class="seg"><button class="tile" *ngFor="let c of resultContents" [class.sel]="(t.result.content||'image-text')===c.id" (click)="t.result.content=c.id">{{ c.label }}</button></div>
+              <div class="seg"><button class="tile" *ngFor="let c of resultContents" [class.sel]="(t.result.content||'image-text')===c.id" (click)="setResultContent(c.id)">{{ c.label }}</button></div>
             </ng-container>
 
             <ng-container *ngSwitchCase="'resCardShape'">
@@ -1153,9 +1153,10 @@
             </ng-container>
 
             <ng-container *ngSwitchCase="'resScrollMode'">
-              <p class="hint">How the product list scrolls when items don't fit. Auto uses the template's natural direction.</p>
+              <p class="hint" *ngIf="!resultTextOnlyVertical">How the product list scrolls when items don't fit. Auto uses the template's natural direction.</p>
+              <p class="hint" *ngIf="resultTextOnlyVertical">Text-only Map List and Filter List content scrolls vertically.</p>
               <div class="seg">
-                <button class="tile" *ngFor="let m of scrollModes" [class.sel]="effectiveResultScrollMode===m.id" (click)="t.result.scrollMode=m.id">{{ m.label }}</button>
+                <button class="tile" *ngFor="let m of availableResultScrollModes" [class.sel]="effectiveResultScrollMode===m.id" (click)="t.result.scrollMode=m.id">{{ m.label }}</button>
               </div>
             </ng-container>
 
