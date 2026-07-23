@@ -163,3 +163,45 @@ registered at module scope since that component has no constructor). Every name 
 against the actual installed `node_modules/ionicons/dist/svg` file list (not guessed), and a script
 confirmed zero icon names remain unregistered in either file. `ng build --configuration development`
 still passes with zero new errors after the fix. Diff scope for this fix: exactly the 3 files above.
+
+## Addendum 2 — live click-through on localhost:8101, second bug found and fixed (commit `709ead2`)
+
+Per the user's follow-up ("Its running on http://localhost:8101/ Can you verify it and fix if any
+issues?"), a full live click-through was run via the Claude in Chrome MCP against the user's own
+`ng serve` instance — the exact gap the first verification pass had flagged as unverified.
+
+**Theme wizard — all 10 steps clicked through, no issues found.** Home, Colors, Type, Intermediate
+design, Intermediate colors, Result template, Result colors, Animations & loader, Screensaver, Review
+all showed correct chip icons, live pill values, and working editor cards. The shared nav-buttons
+state was re-confirmed live: setting "Back · Icon color" on the Intermediate-colors step showed the
+identical value on the Result-colors step, matching the architectural finding from the inventory
+phase.
+
+**Content builder — bug found on the Result step.** Using the "Supermarket2 – Sample" content
+(`appMode: 'prototype'`), the Result step showed an empty rounded chip-row box and a completely
+empty "All settings" sheet. Root cause: `resultCategories` legitimately evaluates to `[]` for this
+content (verified against `git show 4bb196b:...` that the *original* pre-redesign code rendered
+nothing in this exact data state too — same `appMode` gating existed before), but the new Editor
+Deck markup rendered the chip-row/pill-row/editor-card wrapper and the "All settings" button
+unconditionally regardless of whether there was anything to show inside them.
+
+Auditing the sibling steps for the same class of bug found the Intermediate step shares the risk
+(`interCategories` can also be `[]` for un-leveled prototype content with no brand-rail/finder/pages
+options), while Home and Screensaver were confirmed structurally safe — both always push at least
+one unconditional option (`headerVisibility` on Home, three timing options on Screensaver), so their
+category lists can never be empty.
+
+**Fix:** wrapped the chip-row/pill-row/editor-card/settings-sheet block and the "All settings" button
+in `*ngIf="resultCategories.length"` (Result) and `*ngIf="interCategories.length"` (Intermediate) —
+one file, `content-builder.component.html`, 6 insertions / 2 deletions. Re-verified live after the
+fix: the Result step now goes straight from the "Result page" heading to the product list with no
+empty box, matching original behavior exactly. Screensaver (media list + Timing/Behavior editor) and
+Review (restyled summary rows) were also walked through live and confirmed correct.
+`ng build --configuration development`: zero new errors.
+
+**Not re-verified in this pass:** a `category`-mode or `prototype-esl`-mode sample's Result/
+Intermediate steps were not live-clicked to confirm the positive case (categories non-empty still
+renders) — the app's environment-selector screen interrupted that check and was not something to
+click through. This is low-risk: the `*ngIf` guard reads the exact same getter that already produces
+the chip/pill data, so if categories are non-empty the guard is a no-op by construction. Recommend a
+quick manual check on one category-mode sample before merging, as the final confirmation.
