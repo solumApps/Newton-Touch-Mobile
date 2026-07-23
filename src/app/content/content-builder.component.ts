@@ -2236,6 +2236,79 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     return !!s && typeof s === 'string' && s.startsWith('data:video');
   }
 
+  // ----- Screensaver step — Editor Deck (Timing/Behavior chips) — view-only UI
+  // state, same pattern as Home/Intermediate/Result. Every option below
+  // reads/writes the exact same `d.screensaver.*` properties as the original
+  // vertical form — only the presentation is restructured. -----
+  saverActiveChip = 0;
+  saverActivePill = 0;
+  saverSettingsOpen = false;
+
+  private get saverTimingOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const d = this.draft;
+    if (!d) return out;
+    out.push({ key: 'secondsPerSlide', icon: 'time-outline', label: 'Seconds / slide', value: `${d.screensaver.secondsPerSlide || 5}s` });
+    out.push({ key: 'idleTimeout', icon: 'hourglass-outline', label: 'Idle timeout', value: `${d.screensaver.idleTimeoutSec || 30}s` });
+    out.push({ key: 'ctaText', icon: 'chatbubble-outline', label: 'CTA text', value: d.screensaver.ctaText || 'Default' });
+    return out;
+  }
+  private get saverBehaviorOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const d = this.draft;
+    if (!d) return out;
+    out.push({ key: 'loop', icon: 'repeat-outline', label: 'Loop', value: d.screensaver.loop ? 'On' : 'Off' });
+    out.push({ key: 'shuffle', icon: 'shuffle-outline', label: 'Shuffle', value: d.screensaver.shuffle ? 'On' : 'Off' });
+    return out;
+  }
+  get saverCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'timing', icon: 'time-outline', label: 'Timing', options: this.saverTimingOptions },
+      { key: 'behavior', icon: 'toggle-outline', label: 'Behavior', options: this.saverBehaviorOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get saverActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.saverCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.saverActiveChip, cats.length - 1)];
+  }
+  get saverChipsInput(): NtDeckChip[] { return this.saverCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get saverPillsInput(): NtValuePill[] {
+    return (this.saverActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get saverActiveOption(): DeckOption | undefined {
+    const opts = this.saverActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.saverActivePill, opts.length - 1)];
+  }
+  get saverActivePillKey(): string { return this.saverActiveOption?.key || ''; }
+  get saverActivePillLabel(): string { return (this.saverActiveOption?.label || '').toUpperCase(); }
+  get saverSettingsGroups(): NtSettingsGroup[] {
+    return this.saverCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onSaverChipChange(i: number): void { this.saverActiveChip = i; this.saverActivePill = 0; }
+  onSaverRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.saverActiveChip = sel.groupIndex;
+    this.saverActivePill = sel.rowIndex;
+  }
+
+  // ----- Screensaver media — collapsed-row + bottom-sheet (UI-REDESIGN-PROMPT.md
+  // §5). Each media item has no editable fields beyond a larger preview + delete,
+  // so the sheet is a preview/delete view rather than a full form — still the
+  // same pattern (collapsed row on the step, full detail in a modal). No reorder
+  // method exists for media (the original had none either), so both move
+  // affordances stay disabled. -----
+  saverMediaModalOpen = false;
+  saverMediaModalIndex: number | null = null;
+  openSaverMediaPreview(i: number): void { this.saverMediaModalIndex = i; this.saverMediaModalOpen = true; }
+  closeSaverMediaPreview(): void { this.saverMediaModalOpen = false; this.saverMediaModalIndex = null; }
+  get saverMediaModalItem(): string | undefined {
+    return this.saverMediaModalIndex != null ? this.draft?.screensaver.media?.[this.saverMediaModalIndex] : undefined;
+  }
+
   eslId(productId: string): string {
     const link = this.draft!.eslLinks?.find((l) => l.productId === productId);
     return (this.draft!.eslBlinkBy === 'label' ? link?.labelId : link?.articleId) ?? '';

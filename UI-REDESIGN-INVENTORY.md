@@ -469,7 +469,7 @@ off as "Result pages mode".
 - [x] Category depth (prototype individual mode) → segment (L0+L1/+L2/+L3) → `protoLevelCount` via `setProtoLevelCount(n)` — deck: Home ▸ Pages chip ▸ "Category depth" pill
 - [x] Home cards → repeating-list-item (unbounded, "+ Add" conditional not category mode) → `d.home[]` via `addCard()` / `removeCard(i)` / `moveHomeCard(i, dir)` — collapsed-row + sheet: each card renders as one `nt-collapsed-item-row` (thumbnail, name, summary badge, reorder ↑/↓ + delete wired directly to `moveHomeCard()`/`removeCard()` from the row); tapping the row opens an `ion-modal` bottom sheet (`.home-card-editor-modal`) with the full original per-card editor markup
   - sub-fields per card: thumbnail/image-upload (`pickImage(c)`), name text input (`c.name`, locked+readonly if `c.fromApi`), price text input (`c.price`), unit text input (`c.unit`), image Fit segment (`fitOpts`, `setFit(c,f)`), clear-image button (`clearImage(c)`), subtree badge (read-only, conditional `drillMode==='individual'`) — all sub-fields moved verbatim into the bottom-sheet editor; row's summary badge shows Fit + "has own page"/"shared page" (`homeCardBadge()`)
-- [ ] Result pages mode (non-category, applies to next step) → segment (Common — one result page / Individual — per item) → `resultMode` via `setResultMode(mode)` — **NOT in Home step** (lives in the Intermediate step's template body, see structural note above); left unconverted, out of scope for this phase
+- [x] ~~Result pages mode~~ — **struck through, not a real Home-step row**: confirmed this control actually lives in the Intermediate step's template body, not Home (`resultMode`/`setResultMode()` have zero references in the Home ngSwitchCase). The genuine entry is checked off in **PART 2 Step B** ("Result pages mode ... checked off HERE"). Kept here only as a cross-reference so this line isn't mistaken for a missed control during a completeness scan.
 
 **Step A total: 17 controls migrated to the Home step's Editor Deck + collapsed-row/sheet (all reachable
 via deck + All-settings sheet, or via the Home cards collapsed rows + bottom sheet), plus 2
@@ -601,26 +601,32 @@ image/price/sale-price/article-id fields) — relocated into its bottom sheet wi
 
 ### Step D — Screensaver (`saver`, step-title "Screensaver")
 
-- [ ] Media → repeating-list-item ("+ Media" via `addSaverMedia()`) → `d.screensaver.media[]` via `removeSaverMedia(i)` (supports image thumb or video thumb, auto-detected via `isVideoDataUrl(m)`)
-- [ ] Seconds / slide → number input (min 2) → `d.screensaver.secondsPerSlide`
-- [ ] Idle timeout (s) → number input (min 10) → `d.screensaver.idleTimeoutSec`
-- [ ] CTA text → text input → `d.screensaver.ctaText`
-- [ ] Loop → toggle → `d.screensaver.loop`
-- [ ] Shuffle → toggle → `d.screensaver.shuffle`
+- [x] Media → repeating-list-item ("+ Media" via `addSaverMedia()`) → `d.screensaver.media[]` via `removeSaverMedia(i)` (supports image thumb or video thumb, auto-detected via `isVideoDataUrl(m)`) — collapsed-row + sheet: each item renders as one `nt-collapsed-item-row` (thumbnail or "Video" badge, no reorder since no move method existed originally, delete wired directly from the row); tapping the row opens an `ion-modal` preview sheet (`.saver-media-preview-modal`) with a larger image/video preview and a "Remove media" button (no other editable fields exist per item, so the sheet is preview+delete rather than a full form — same collapsed-row pattern, proportionate content)
+- [x] Seconds / slide → number input (min 2) → `d.screensaver.secondsPerSlide` — deck: Screensaver ▸ Timing chip ▸ "Seconds / slide" pill
+- [x] Idle timeout (s) → number input (min 10) → `d.screensaver.idleTimeoutSec` — deck: Screensaver ▸ Timing chip ▸ "Idle timeout" pill
+- [x] CTA text → text input → `d.screensaver.ctaText` — deck: Screensaver ▸ Timing chip ▸ "CTA text" pill
+- [x] Loop → toggle → `d.screensaver.loop` — deck: Screensaver ▸ Behavior chip ▸ "Loop" pill
+- [x] Shuffle → toggle → `d.screensaver.shuffle` — deck: Screensaver ▸ Behavior chip ▸ "Shuffle" pill
 
-**Step D total: 5 named controls + 1 repeating-list-item template (screensaver media)**
+**Step D total: 5 named controls (all migrated to Editor Deck, 2 chips: Timing/Behavior) + 1 repeating-list-item
+template (screensaver media, migrated to collapsed-row + preview sheet). All 5 deck pills also appear in the
+`nt-settings-sheet` opened via the step's new "All settings" button.**
 
 ### Step E — Review (`review`, step-title "Review & Deploy")
 
-- [ ] Review page slider → swipeable read-only preview carousel (all pages) → `reviewPages`, scroll position via `onReviewScroll` / `scrollReviewTo`
-- [ ] Summary table → read-only rows (Theme, Mode, Home cards, Intermediate items, Result products, Screensaver media) — 6 rows, not independently editable
+- [x] Review page slider → swipeable read-only preview carousel (all pages) → `reviewPages`, scroll position via `onReviewScroll` / `scrollReviewTo` — left untouched, not part of the restyle
+- [x] Summary table → read-only rows (Theme, Mode, Home cards, Intermediate items, Result products, Screensaver media) — 6 rows, not independently editable — restyled from `<table class="sum">` to `.review-summary .row` (icon + label + value), same visual treatment as theme-wizard's Review step; all 6 rows preserved with identical bound expressions, grouped under one "Overview" label
 
-**Step E total: 0 editable controls, 1 interactive read-only carousel + 6 read-only summary rows (restyle
-only, per spec's Review-step guidance)**
+**Step E total: 0 editable controls, 1 interactive read-only carousel (untouched) + 6 read-only summary rows
+(restyled to settings-sheet row style, per spec's Review-step guidance — no chips/pills/editor-card, nothing
+to edit here).**
 
 Additional footer-level elements (not step-scoped, present on every content-builder step):
-- [ ] Save & Deploy validation modal → read-only list of errors/warnings + "Deploy anyway" button (conditional
-      no blocking errors) → `validationOpen`, `valErrors`, `valWarnings`, `valBlocked`, `deployAnyway()`
+- [x] Save & Deploy validation modal → read-only list of errors/warnings + "Deploy anyway" button (conditional
+      no blocking errors) → `validationOpen`, `valErrors`, `valWarnings`, `valBlocked`, `deployAnyway()` —
+      **out of scope, left unchanged**: this is a footer-level modal shared across every step, not a step's
+      option list — it's already presented as a modal (no long-scroll concern) and isn't part of the
+      Editor Deck redesign's target surface per UI-REDESIGN-PROMPT.md's "Files in scope" section
 
 ---
 

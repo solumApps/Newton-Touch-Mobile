@@ -915,26 +915,82 @@
 
     <!-- ============ SCREENSAVER ============ -->
     <div *ngSwitchCase="'saver'">
-      <h2 class="step-title">Screensaver</h2>
+      <div class="step-title-row">
+        <h2 class="step-title">Screensaver</h2>
+        <button type="button" class="all-settings-btn" (click)="saverSettingsOpen = true">
+          <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
+        </button>
+      </div>
       <p class="note">Mode: <b>{{ d.screensaver.mode }}</b> (set in theme).</p>
+
+      <!-- Media — collapsed-row + bottom-sheet preview (UI-REDESIGN-PROMPT.md §5),
+           NOT part of the deck above. No reorder method exists (original had none). -->
       <div class="sec"><span>Media ({{ d.screensaver.media.length || 0 }})</span><button class="mini" (click)="addSaverMedia()">+ Media</button></div>
-      <div class="erow" *ngFor="let m of d.screensaver.media; let i = index">
-        <ng-container *ngIf="isVideoDataUrl(m); else imgThumb">
-          <video class="thumb" [src]="m" muted playsinline></video>
+      <div class="saver-media-list">
+        <nt-collapsed-item-row *ngFor="let m of d.screensaver.media; let i = index"
+          [thumbnail]="isVideoDataUrl(m) ? null : m"
+          [name]="'Media #' + (i+1)"
+          [badge]="isVideoDataUrl(m) ? 'Video' : 'Image'"
+          [canMoveUp]="false"
+          [canMoveDown]="false"
+          (rowClick)="openSaverMediaPreview(i)"
+          (delete)="removeSaverMedia(i)"></nt-collapsed-item-row>
+      </div>
+
+      <nt-deck-chips [chips]="saverChipsInput" [activeIndex]="saverActiveChip" (activeIndexChange)="onSaverChipChange($event)"></nt-deck-chips>
+      <nt-value-pill-row [pills]="saverPillsInput" [activeIndex]="saverActivePill" (activeIndexChange)="saverActivePill = $event"></nt-value-pill-row>
+
+      <nt-editor-card [sectionLabel]="saverActivePillLabel">
+        <ng-container [ngSwitch]="saverActivePillKey">
+
+          <ng-container *ngSwitchCase="'secondsPerSlide'">
+            <div class="prow">
+              <input class="inp" type="number" min="2" [(ngModel)]="d.screensaver.secondsPerSlide" placeholder="Seconds / slide" />
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'idleTimeout'">
+            <div class="prow">
+              <input class="inp" type="number" min="10" [(ngModel)]="d.screensaver.idleTimeoutSec" placeholder="Idle (s)" />
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'ctaText'">
+            <input class="inp" [(ngModel)]="d.screensaver.ctaText" placeholder="CTA text (e.g. Touch to begin)" />
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'loop'">
+            <div class="seg">
+              <button class="mini" [class.sel]="d.screensaver.loop" (click)="d.screensaver.loop=!d.screensaver.loop">Loop {{ d.screensaver.loop ? '✓' : '' }}</button>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'shuffle'">
+            <div class="seg">
+              <button class="mini" [class.sel]="d.screensaver.shuffle" (click)="d.screensaver.shuffle=!d.screensaver.shuffle">Shuffle {{ d.screensaver.shuffle ? '✓' : '' }}</button>
+            </div>
+          </ng-container>
+
         </ng-container>
-        <ng-template #imgThumb><div class="thumb" [style.background-image]="'url('+m+')'"></div></ng-template>
-        <span class="inp" style="display:flex;align-items:center;opacity:.7">#{{ i+1 }}</span>
-        <button class="del" (click)="removeSaverMedia(i)">✕</button>
-      </div>
-      <div class="prow">
-        <input class="inp" type="number" min="2" [(ngModel)]="d.screensaver.secondsPerSlide" placeholder="Seconds / slide" />
-        <input class="inp" type="number" min="10" [(ngModel)]="d.screensaver.idleTimeoutSec" placeholder="Idle (s)" />
-      </div>
-      <input class="inp" [(ngModel)]="d.screensaver.ctaText" placeholder="CTA text (e.g. Touch to begin)" />
-      <div class="seg" style="margin-top:8px">
-        <button class="mini" [class.sel]="d.screensaver.loop" (click)="d.screensaver.loop=!d.screensaver.loop">Loop {{ d.screensaver.loop ? '✓' : '' }}</button>
-        <button class="mini" [class.sel]="d.screensaver.shuffle" (click)="d.screensaver.shuffle=!d.screensaver.shuffle">Shuffle {{ d.screensaver.shuffle ? '✓' : '' }}</button>
-      </div>
+      </nt-editor-card>
+
+      <nt-settings-sheet [groups]="saverSettingsGroups" [(isOpen)]="saverSettingsOpen" title="All settings · Screensaver" (rowSelected)="onSaverRowSelected($event)"></nt-settings-sheet>
+
+      <!-- Media preview sheet — larger image/video preview + remove, opened by
+           tapping a collapsed media row. -->
+      <ion-modal class="nt-sheet-modal saver-media-preview-modal" [isOpen]="saverMediaModalOpen" (didDismiss)="closeSaverMediaPreview()">
+        <ng-template>
+          <div class="nt-sheet" *ngIf="saverMediaModalItem as m">
+            <div class="nt-sheet-grab"></div>
+            <div class="sec"><span>Media #{{ (saverMediaModalIndex || 0) + 1 }}</span><button class="del" (click)="closeSaverMediaPreview()">✕</button></div>
+            <ng-container *ngIf="isVideoDataUrl(m); else imgPreview">
+              <video class="saver-media-preview" [src]="m" muted playsinline controls></video>
+            </ng-container>
+            <ng-template #imgPreview><div class="saver-media-preview" [style.background-image]="'url('+m+')'"></div></ng-template>
+            <button class="btn-o danger" (click)="removeSaverMedia(saverMediaModalIndex!); closeSaverMediaPreview()">✕ Remove media</button>
+          </div>
+        </ng-template>
+      </ion-modal>
     </div>
 
     <!-- ============ REVIEW — paginated page slider with real data ============ -->
@@ -964,14 +1020,39 @@
                 [class.on]="ri === reviewSlideIdx" (click)="scrollReviewTo(revSlider, ri)"></button>
       </div>
 
-      <table class="sum">
-        <tr><td>Theme</td><td>{{ d.themeName }}</td></tr>
-        <tr><td>Mode</td><td>{{ modeLabel }}</td></tr>
-        <tr><td>Home cards</td><td>{{ d.home.length }}</td></tr>
-        <tr *ngIf="d.themeTokens.includeIntermediate !== false"><td>Intermediate items</td><td>{{ d.intermediate.length || 'per-card children' }}</td></tr>
-        <tr><td>Result products</td><td>{{ d.result.products.length }}</td></tr>
-        <tr><td>Screensaver media</td><td>{{ d.screensaver.media.length || 0 }}</td></tr>
-      </table>
+      <div class="review-summary">
+        <div class="grouplabel">Overview</div>
+        <div class="row">
+          <ion-icon class="ic" name="pricetag-outline" aria-hidden="true"></ion-icon>
+          <span class="lbl">Theme</span>
+          <span class="val">{{ d.themeName }}</span>
+        </div>
+        <div class="row">
+          <ion-icon class="ic" name="apps-outline" aria-hidden="true"></ion-icon>
+          <span class="lbl">Mode</span>
+          <span class="val">{{ modeLabel }}</span>
+        </div>
+        <div class="row">
+          <ion-icon class="ic" name="grid-outline" aria-hidden="true"></ion-icon>
+          <span class="lbl">Home cards</span>
+          <span class="val">{{ d.home.length }}</span>
+        </div>
+        <div class="row" *ngIf="d.themeTokens.includeIntermediate !== false">
+          <ion-icon class="ic" name="layers-outline" aria-hidden="true"></ion-icon>
+          <span class="lbl">Intermediate items</span>
+          <span class="val">{{ d.intermediate.length || 'per-card children' }}</span>
+        </div>
+        <div class="row">
+          <ion-icon class="ic" name="albums-outline" aria-hidden="true"></ion-icon>
+          <span class="lbl">Result products</span>
+          <span class="val">{{ d.result.products.length }}</span>
+        </div>
+        <div class="row">
+          <ion-icon class="ic" name="images-outline" aria-hidden="true"></ion-icon>
+          <span class="lbl">Screensaver media</span>
+          <span class="val">{{ d.screensaver.media.length || 0 }}</span>
+        </div>
+      </div>
       <p class="note">Swipe the preview to check each page with your real content. Tap Save &amp; Deploy when ready.</p>
     </div>
   </ng-container>
