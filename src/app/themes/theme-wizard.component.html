@@ -253,6 +253,109 @@
       </div>
     </ng-template>
 
+    <!-- ===== Shared "Navigation buttons" editor sub-piece (phase 3d) =====
+         11 of these 15 controls (colors, mode, labels, size, icons, nav-bar style) bind to the
+         SAME shared `t.nav` object used by BOTH Intermediate-colors and Result-colors steps — this
+         ONE template is instantiated identically from both steps' ngSwitchDefault case (see below),
+         so editing from either step edits the same live object (existing behavior, preserved
+         exactly — not split into two independent copies). Only the last 4 cases
+         (navSplit/navPosition/navBackPosition/navHomePosition) are genuinely per-page state, read via
+         the `page` context var ('intermediate' | 'result') through the existing navSplitFor() /
+         navPositionFor() / navBackPositionFor() / navHomePositionFor() / setNav*() methods. -->
+    <ng-template #navEditorTpl let-key="key" let-page="page">
+      <ng-container [ngSwitch]="key">
+
+        <ng-container *ngSwitchCase="'navBackColor'">
+          <app-color-picker label="Back · Icon color" [value]="t.nav?.backColor || '#FFFFFF'" [allowReset]="true" (reset)="resetNavColor('backColor')" (valueChange)="t.nav!.backColor=$event"></app-color-picker>
+        </ng-container>
+        <ng-container *ngSwitchCase="'navBackBg'">
+          <app-color-picker label="Back · Background" [value]="t.nav?.backBg || '#0f172a'" [allowReset]="true" (reset)="resetNavColor('backBg')" (valueChange)="t.nav!.backBg=$event"></app-color-picker>
+        </ng-container>
+        <ng-container *ngSwitchCase="'navHomeColor'">
+          <app-color-picker label="Home · Icon color" [value]="t.nav?.homeColor || '#FFFFFF'" [allowReset]="true" (reset)="resetNavColor('homeColor')" (valueChange)="t.nav!.homeColor=$event"></app-color-picker>
+        </ng-container>
+        <ng-container *ngSwitchCase="'navHomeBg'">
+          <app-color-picker label="Home · Background" [value]="t.nav?.homeBg || '#0f172a'" [allowReset]="true" (reset)="resetNavColor('homeBg')" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'navMode'">
+          <p class="hint">Shared by the Back and Home buttons on both the Intermediate and Result pages.</p>
+          <div class="seg">
+            <button class="tile" *ngFor="let m of navModes" [class.sel]="(t.nav?.mode||'icon')===m.id" (click)="t.nav!.mode=m.id">{{ m.label }}</button>
+          </div>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'navBackLabel'">
+          <div class="fld"><label>Back label</label>
+            <input class="inp" [value]="t.nav?.backLabel || 'Back'" (input)="t.nav!.backLabel=$any($event.target).value" placeholder="Back" /></div>
+        </ng-container>
+        <ng-container *ngSwitchCase="'navHomeLabel'">
+          <div class="fld"><label>Home label</label>
+            <input class="inp" [value]="t.nav?.homeLabel || 'Home'" (input)="t.nav!.homeLabel=$any($event.target).value" placeholder="Home" /></div>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'navSize'">
+          <div class="seg">
+            <button class="tile" *ngFor="let s of navSizes" [class.sel]="(t.nav?.size||'normal')===s.id" (click)="t.nav!.size=s.id">{{ s.label }}</button>
+          </div>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'navBackIcon'">
+          <div class="seg icon-seg">
+            <button class="tile" [class.sel]="!t.nav?.backIcon" (click)="t.nav!.backIcon=undefined">Default</button>
+            <button class="tile icon-tile" *ngFor="let ic of backNavIconIds" [class.sel]="t.nav?.backIcon===ic" (click)="t.nav!.backIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
+            <button class="tile" [class.sel]="isCustomNavIcon(t.nav?.backIcon)" (click)="pickNavIcon('back')">Upload…</button>
+          </div>
+          <div class="media-row" *ngIf="isCustomNavIcon(t.nav?.backIcon)">
+            <img class="icon-custom-preview" [src]="t.nav?.backIcon" alt="Custom back icon" />
+            <button class="btn-o media-clear" (click)="t.nav!.backIcon=undefined">Clear</button>
+          </div>
+        </ng-container>
+        <ng-container *ngSwitchCase="'navHomeIcon'">
+          <div class="seg icon-seg">
+            <button class="tile" [class.sel]="!t.nav?.homeIcon" (click)="t.nav!.homeIcon=undefined">Default</button>
+            <button class="tile icon-tile" *ngFor="let ic of homeNavIconIds" [class.sel]="t.nav?.homeIcon===ic" (click)="t.nav!.homeIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
+            <button class="tile" [class.sel]="isCustomNavIcon(t.nav?.homeIcon)" (click)="pickNavIcon('home')">Upload…</button>
+          </div>
+          <div class="media-row" *ngIf="isCustomNavIcon(t.nav?.homeIcon)">
+            <img class="icon-custom-preview" [src]="t.nav?.homeIcon" alt="Custom home icon" />
+            <button class="btn-o media-clear" (click)="t.nav!.homeIcon=undefined">Clear</button>
+          </div>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'navBarStyle'">
+          <div class="seg">
+            <button class="tile" *ngFor="let s of navStyles" [class.sel]="(t.navStyle||'floating')===s.id" (click)="t.navStyle=s.id">{{ s.label }}</button>
+          </div>
+        </ng-container>
+
+        <!-- Per-page (independent) — the only 4 controls NOT shared between the two steps. -->
+        <ng-container *ngSwitchCase="'navSplit'">
+          <p class="hint">Independent per page — this only affects {{ page }}.</p>
+          <div class="seg">
+            <button class="tile" [class.sel]="!navSplitFor(page)" (click)="setNavSplit(page, false)">Grouped together</button>
+            <button class="tile" [class.sel]="navSplitFor(page)" (click)="setNavSplit(page, true)">Separate (independent)</button>
+          </div>
+        </ng-container>
+        <ng-container *ngSwitchCase="'navPosition'">
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="navPositionFor(page)===p.id" (click)="setNavPosition(page, p.id)">{{ p.label }}</button>
+          </div>
+        </ng-container>
+        <ng-container *ngSwitchCase="'navBackPosition'">
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navPositionsFor(page, 'back')" [class.sel]="navBackPositionFor(page)===p.id" (click)="setNavBackPosition(page, p.id)">{{ p.label }}</button>
+          </div>
+        </ng-container>
+        <ng-container *ngSwitchCase="'navHomePosition'">
+          <div class="seg">
+            <button class="tile" *ngFor="let p of navPositionsFor(page, 'home')" [class.sel]="navHomePositionFor(page)===p.id" (click)="setNavHomePosition(page, p.id)">{{ p.label }}</button>
+          </div>
+        </ng-container>
+
+      </ng-container>
+    </ng-template>
+
     <!-- top single preview (with one-shot transition+loader demo on the anim step) -->
     <ng-container *ngIf="step.key !== 'review'; else reviewSlider">
       <div class="sticky-preview">
@@ -895,112 +998,89 @@
       </div>
 
       <div *ngSwitchCase="'intColors'">
-        <div class="step-title">Intermediate colors</div>
+        <div class="step-title-row">
+          <div class="step-title">Intermediate colors</div>
+          <button type="button" class="all-settings-btn" (click)="intColorsSettingsOpen = true">
+            <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
+          </button>
+        </div>
         <div class="inherited-hint">
           <span>&#9432;</span> Colors pre-filled from your Home page — adjust below if needed.
         </div>
-        <app-color-picker *ngIf="t.intermediate.showHeader" label="Header background" [value]="t.intermediate.headerColor" (valueChange)="t.intermediate.headerColor=$event"></app-color-picker>
-        <app-color-picker *ngIf="t.intermediate.showHeader" label="Header text color" [value]="t.intermediate.headerTextColor || '#FFFFFF'" (valueChange)="t.intermediate.headerTextColor=$event"></app-color-picker>
-        <app-color-picker label="Page background" [value]="t.intermediate.backgroundImage && t.intermediateStyle === 'finder-select' ? 'transparent' : t.intermediate.background" (valueChange)="t.intermediate.background=$event" [presets]="bgPresets"></app-color-picker>
-        <p class="hint">Header colors start from Home values, then you can customize them for Intermediate.</p>
-        <p class="hint">Page background starts from Home, then you can customize it for Intermediate.</p>
-        <div class="media-row">
-          <button class="btn-o media-btn" (click)="pickBackground('inter')">{{ t.intermediate.backgroundImage ? 'Replace intermediate background image' : 'Upload intermediate background image' }}</button>
-          <button class="btn-o media-clear" *ngIf="t.intermediate.backgroundImage" (click)="clearBackground('inter')">Clear</button>
-        </div>
-        <p class="hint" *ngIf="t.intermediate.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
-        <ng-container *ngIf="t.intermediate.backgroundImage">
-          <div class="step-title sm">Background framing</div>
-          <p class="hint">Pan and zoom to choose which part of the image shows.</p>
-          <div class="slider-row"><span class="slider-lbl">Pan X</span><input type="range" class="nt-slider" min="0" max="100" step="1" [value]="t.intermediate.bgImageX ?? 50" (input)="t.intermediate.bgImageX=+$any($event.target).value" aria-label="Intermediate background pan X" /><span class="slider-val">{{ t.intermediate.bgImageX ?? 50 }}%</span></div>
-          <div class="slider-row"><span class="slider-lbl">Pan Y</span><input type="range" class="nt-slider" min="0" max="100" step="1" [value]="t.intermediate.bgImageY ?? 50" (input)="t.intermediate.bgImageY=+$any($event.target).value" aria-label="Intermediate background pan Y" /><span class="slider-val">{{ t.intermediate.bgImageY ?? 50 }}%</span></div>
-          <div class="slider-row"><span class="slider-lbl">Zoom</span><input type="range" class="nt-slider" min="100" max="300" step="5" [value]="t.intermediate.bgImageZoom ?? 100" (input)="t.intermediate.bgImageZoom=+$any($event.target).value" aria-label="Intermediate background zoom" /><span class="slider-val">{{ t.intermediate.bgImageZoom ?? 100 }}%</span></div>
-        </ng-container>
-        <app-color-picker *ngIf="showInterCardBackgroundColor" label="Row / card background" [value]="t.intermediate.cardBackground" (valueChange)="t.intermediate.cardBackground=$event" [presets]="intCardPresets"></app-color-picker>
-        <app-color-picker *ngIf="showInterCardTextColor" label="Card text" [value]="t.intermediate.cardText" (valueChange)="t.intermediate.cardText=$event" [presets]="textPresets"></app-color-picker>
-        <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
-        <app-color-picker *ngIf="t.intermediateStyle==='finder-select'" label="Text overlay" hint="background behind overlaid finder card text" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
-        <app-color-picker *ngIf="t.intermediateStyle==='brand-rail'" label="Message background" hint="blur panel behind the headline" [value]="t.intermediate.brandRailMessageBgColor || 'rgba(0,0,0,0.35)'" (valueChange)="t.intermediate.brandRailMessageBgColor=$event"></app-color-picker>
-        <app-color-picker *ngIf="t.intermediateStyle==='brand-rail'" label="Message text color" [value]="t.intermediate.brandRailMessageTextColor || '#ffffff'" (valueChange)="t.intermediate.brandRailMessageTextColor=$event"></app-color-picker>
-        <p class="hint" *ngIf="t.intermediateStyle==='brand-rail'">The message wording is set per-content in Content creation (defaults to "Which one will you choose?").</p>
-        <app-color-picker label="Accent / active" [value]="t.intermediate.accent" (valueChange)="t.intermediate.accent=$event"></app-color-picker>
-        <ng-container *ngIf="t.intermediateStyle !== 'finder-select'">
-        <div class="step-title sm">Navigation buttons</div>
-        <p class="hint">Style the Back and Home buttons. Set a position to “Hidden” to hide that button.</p>
-        <div class="nav-btn-row">
-          <div class="nav-btn-grp">
-            <span class="nav-btn-lbl">&#8249; Back</span>
-            <app-color-picker label="Icon color" [value]="t.nav?.backColor || '#FFFFFF'" [allowReset]="true" (reset)="resetNavColor('backColor')" (valueChange)="t.nav!.backColor=$event"></app-color-picker>
-            <app-color-picker label="Background" [value]="t.nav?.backBg || '#0f172a'" [allowReset]="true" (reset)="resetNavColor('backBg')" (valueChange)="t.nav!.backBg=$event"></app-color-picker>
-          </div>
-          <div class="nav-btn-grp">
-            <span class="nav-btn-lbl">&#8962; Home</span>
-            <app-color-picker label="Icon color" [value]="t.nav?.homeColor || '#FFFFFF'" [allowReset]="true" (reset)="resetNavColor('homeColor')" (valueChange)="t.nav!.homeColor=$event"></app-color-picker>
-            <app-color-picker label="Background" [value]="t.nav?.homeBg || '#0f172a'" [allowReset]="true" (reset)="resetNavColor('homeBg')" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
-          </div>
-        </div>
-        <div class="step-title sm">Button style</div>
-        <div class="seg">
-          <button class="tile" *ngFor="let m of navModes" [class.sel]="(t.nav?.mode||'icon')===m.id" (click)="t.nav!.mode=m.id">{{ m.label }}</button>
-        </div>
-        <ng-container *ngIf="(t.nav?.mode||'icon') !== 'icon'">
-          <div class="fld"><label>Back label</label>
-            <input class="inp" [value]="t.nav?.backLabel || 'Back'" (input)="t.nav!.backLabel=$any($event.target).value" placeholder="Back" /></div>
-          <div class="fld"><label>Home label</label>
-            <input class="inp" [value]="t.nav?.homeLabel || 'Home'" (input)="t.nav!.homeLabel=$any($event.target).value" placeholder="Home" /></div>
-        </ng-container>
-        <div class="step-title sm">Button size</div>
-        <div class="seg">
-          <button class="tile" *ngFor="let s of navSizes" [class.sel]="(t.nav?.size||'normal')===s.id" (click)="t.nav!.size=s.id">{{ s.label }}</button>
-        </div>
-        <ng-container *ngIf="(t.nav?.mode||'icon') !== 'text'">
-          <div class="step-title sm">&#8249; Back icon</div>
-          <div class="seg icon-seg">
-            <button class="tile" [class.sel]="!t.nav?.backIcon" (click)="t.nav!.backIcon=undefined">Default</button>
-            <button class="tile icon-tile" *ngFor="let ic of backNavIconIds" [class.sel]="t.nav?.backIcon===ic" (click)="t.nav!.backIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
-            <button class="tile" [class.sel]="isCustomNavIcon(t.nav?.backIcon)" (click)="pickNavIcon('back')">Upload…</button>
-          </div>
-          <div class="media-row" *ngIf="isCustomNavIcon(t.nav?.backIcon)">
-            <img class="icon-custom-preview" [src]="t.nav?.backIcon" alt="Custom back icon" />
-            <button class="btn-o media-clear" (click)="t.nav!.backIcon=undefined">Clear</button>
-          </div>
-          <div class="step-title sm">&#8962; Home icon</div>
-          <div class="seg icon-seg">
-            <button class="tile" [class.sel]="!t.nav?.homeIcon" (click)="t.nav!.homeIcon=undefined">Default</button>
-            <button class="tile icon-tile" *ngFor="let ic of homeNavIconIds" [class.sel]="t.nav?.homeIcon===ic" (click)="t.nav!.homeIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
-            <button class="tile" [class.sel]="isCustomNavIcon(t.nav?.homeIcon)" (click)="pickNavIcon('home')">Upload…</button>
-          </div>
-          <div class="media-row" *ngIf="isCustomNavIcon(t.nav?.homeIcon)">
-            <img class="icon-custom-preview" [src]="t.nav?.homeIcon" alt="Custom home icon" />
-            <button class="btn-o media-clear" (click)="t.nav!.homeIcon=undefined">Clear</button>
-          </div>
-        </ng-container>
-        <div class="step-title sm">Nav bar style</div>
-        <div class="seg">
-          <button class="tile" *ngFor="let s of navStyles" [class.sel]="(t.navStyle||'floating')===s.id" (click)="t.navStyle=s.id">{{ s.label }}</button>
-        </div>
-        <div class="step-title sm">Button layout</div>
-        <div class="seg">
-          <button class="tile" [class.sel]="!navSplitFor('intermediate')" (click)="setNavSplit('intermediate', false)">Grouped together</button>
-          <button class="tile" [class.sel]="navSplitFor('intermediate')" (click)="setNavSplit('intermediate', true)">Separate (independent)</button>
-        </div>
-        <ng-container *ngIf="!navSplitFor('intermediate')">
-          <div class="step-title sm">Button position</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="navPositionFor('intermediate')===p.id" (click)="setNavPosition('intermediate', p.id)">{{ p.label }}</button>
-          </div>
-        </ng-container>
-        <ng-container *ngIf="navSplitFor('intermediate')">
-          <div class="step-title sm">&#8249; Back position</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let p of navPositionsFor('intermediate', 'back')" [class.sel]="navBackPositionFor('intermediate')===p.id" (click)="setNavBackPosition('intermediate', p.id)">{{ p.label }}</button>
-          </div>
-          <div class="step-title sm">&#8962; Home position</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let p of navPositionsFor('intermediate', 'home')" [class.sel]="navHomePositionFor('intermediate')===p.id" (click)="setNavHomePosition('intermediate', p.id)">{{ p.label }}</button>
-          </div>
-        </ng-container>
-        </ng-container>
+
+        <nt-deck-chips [chips]="intColorsChipsInput" [activeIndex]="intColorsActiveChip" (activeIndexChange)="onIntColorsChipChange($event)"></nt-deck-chips>
+        <nt-value-pill-row [pills]="intColorsPillsInput" [activeIndex]="intColorsActivePill" (activeIndexChange)="intColorsActivePill = $event"></nt-value-pill-row>
+
+        <nt-editor-card [sectionLabel]="intColorsActivePillLabel">
+          <ng-container [ngSwitch]="intColorsActivePillKey">
+
+            <ng-container *ngSwitchCase="'interHeaderColor'">
+              <app-color-picker label="Header background" [value]="t.intermediate.headerColor" (valueChange)="t.intermediate.headerColor=$event"></app-color-picker>
+              <p class="hint">Starts from Home values, then you can customize it for Intermediate.</p>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'interHeaderTextColor'">
+              <app-color-picker label="Header text color" [value]="t.intermediate.headerTextColor || '#FFFFFF'" (valueChange)="t.intermediate.headerTextColor=$event"></app-color-picker>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'interBackground'">
+              <app-color-picker label="Page background" [value]="t.intermediate.backgroundImage && t.intermediateStyle === 'finder-select' ? 'transparent' : t.intermediate.background" (valueChange)="t.intermediate.background=$event" [presets]="bgPresets"></app-color-picker>
+              <p class="hint">Starts from Home, then you can customize it for Intermediate.</p>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'interBackgroundImage'">
+              <div class="media-row">
+                <button class="btn-o media-btn" (click)="pickBackground('inter')">{{ t.intermediate.backgroundImage ? 'Replace intermediate background image' : 'Upload intermediate background image' }}</button>
+                <button class="btn-o media-clear" *ngIf="t.intermediate.backgroundImage" (click)="clearBackground('inter')">Clear</button>
+              </div>
+              <p class="hint" *ngIf="t.intermediate.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'interBgImageX'">
+              <p class="hint">Pan and zoom to choose which part of the image shows.</p>
+              <div class="slider-row"><span class="slider-lbl">Pan X</span><input type="range" class="nt-slider" min="0" max="100" step="1" [value]="t.intermediate.bgImageX ?? 50" (input)="t.intermediate.bgImageX=+$any($event.target).value" aria-label="Intermediate background pan X" /><span class="slider-val">{{ t.intermediate.bgImageX ?? 50 }}%</span></div>
+            </ng-container>
+            <ng-container *ngSwitchCase="'interBgImageY'">
+              <div class="slider-row"><span class="slider-lbl">Pan Y</span><input type="range" class="nt-slider" min="0" max="100" step="1" [value]="t.intermediate.bgImageY ?? 50" (input)="t.intermediate.bgImageY=+$any($event.target).value" aria-label="Intermediate background pan Y" /><span class="slider-val">{{ t.intermediate.bgImageY ?? 50 }}%</span></div>
+            </ng-container>
+            <ng-container *ngSwitchCase="'interBgImageZoom'">
+              <div class="slider-row"><span class="slider-lbl">Zoom</span><input type="range" class="nt-slider" min="100" max="300" step="5" [value]="t.intermediate.bgImageZoom ?? 100" (input)="t.intermediate.bgImageZoom=+$any($event.target).value" aria-label="Intermediate background zoom" /><span class="slider-val">{{ t.intermediate.bgImageZoom ?? 100 }}%</span></div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'interCardBackground'">
+              <app-color-picker label="Row / card background" [value]="t.intermediate.cardBackground" (valueChange)="t.intermediate.cardBackground=$event" [presets]="intCardPresets"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'interCardText'">
+              <app-color-picker label="Card text" [value]="t.intermediate.cardText" (valueChange)="t.intermediate.cardText=$event" [presets]="textPresets"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'interHeroColor'">
+              <app-color-picker label="Hero panel" [value]="t.intermediate.heroColor || '#172033'" (valueChange)="t.intermediate.heroColor=$event" [presets]="heroPanelPresets"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'interOverlayColor'">
+              <app-color-picker label="Text overlay" hint="background behind overlaid finder card text" [value]="t.overlayColor || 'rgba(0,0,0,0.6)'" (valueChange)="t.overlayColor=$event" [presets]="overlayPresets"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'brandRailMessageBgColor'">
+              <app-color-picker label="Message background" hint="blur panel behind the headline" [value]="t.intermediate.brandRailMessageBgColor || 'rgba(0,0,0,0.35)'" (valueChange)="t.intermediate.brandRailMessageBgColor=$event"></app-color-picker>
+              <p class="hint">The message wording is set per-content in Content creation (defaults to "Which one will you choose?").</p>
+            </ng-container>
+            <ng-container *ngSwitchCase="'brandRailMessageTextColor'">
+              <app-color-picker label="Message text color" [value]="t.intermediate.brandRailMessageTextColor || '#ffffff'" (valueChange)="t.intermediate.brandRailMessageTextColor=$event"></app-color-picker>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'interAccent'">
+              <app-color-picker label="Accent / active" [value]="t.intermediate.accent" (valueChange)="t.intermediate.accent=$event"></app-color-picker>
+            </ng-container>
+
+            <!-- Navigation buttons — shared t.nav state, same template used by the Result colors step. -->
+            <ng-container *ngSwitchDefault>
+              <p class="hint" *ngIf="intColorsActivePillKey">Set a position to “Hidden” to hide that button.</p>
+              <ng-container *ngTemplateOutlet="navEditorTpl; context: { key: intColorsActivePillKey, page: 'intermediate' }"></ng-container>
+            </ng-container>
+
+          </ng-container>
+        </nt-editor-card>
+
+        <nt-settings-sheet [groups]="intColorsSettingsGroups" [(isOpen)]="intColorsSettingsOpen" title="All settings · Intermediate colors" (rowSelected)="onIntColorsRowSelected($event)"></nt-settings-sheet>
       </div>
 
       <div *ngSwitchCase="'resTemplate'">
@@ -1073,125 +1153,108 @@
       </div>
 
       <div *ngSwitchCase="'resColors'">
-        <div class="step-title">Result colors</div>
+        <div class="step-title-row">
+          <div class="step-title">Result colors</div>
+          <button type="button" class="all-settings-btn" (click)="resColorsSettingsOpen = true">
+            <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
+          </button>
+        </div>
         <div class="inherited-hint">
           <span>&#9432;</span> Colors pre-filled from your Home page — adjust below if needed.
         </div>
-        <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='finder-detail'" label="Header" [value]="t.result.headerColor" [transparentValue]="resultTransparentHeaderColor" (valueChange)="t.result.headerColor=$event"></app-color-picker>
-        <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank' && !t.result.backgroundImage" label="Page background" [value]="t.result.background" (valueChange)="t.result.background=$event" [presets]="bgPresets"></app-color-picker>
-        <div class="media-row" *ngIf="t.resultTemplate!=='promo-map-rank'">
-          <button class="btn-o media-btn" (click)="pickBackground('result')">{{ t.result.backgroundImage ? 'Replace result background image' : 'Upload result background image' }}</button>
-          <button class="btn-o media-clear" *ngIf="t.result.backgroundImage" (click)="clearBackground('result')">Clear</button>
-        </div>
-        <p class="hint" *ngIf="t.result.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
-        <app-color-picker *ngIf="t.resultTemplate!=='finder-detail' && t.resultTemplate!=='hero-product'" label="Product card background" [value]="t.result.cardBackground" (valueChange)="t.result.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
-        <app-color-picker *ngIf="t.resultTemplate!=='hero-product' && t.resultTemplate!=='finder-detail'" label="Card text" [value]="t.result.cardText" (valueChange)="t.result.cardText=$event" [presets]="textPresets"></app-color-picker>
-        <app-color-picker *ngIf="t.resultTemplate==='map-list'" label="Popular button text" [value]="t.result.popularText || t.result.cardText" (valueChange)="t.result.popularText=$event" [presets]="textPresets"></app-color-picker>
-        <app-color-picker *ngIf="t.resultTemplate!=='promo-map-rank' && t.resultTemplate!=='hero-product'" label="Accent / highlight" [value]="t.result.accent" (valueChange)="t.result.accent=$event"></app-color-picker>
-        <ng-container *ngIf="t.resultTemplate==='finder-detail'">
-          <app-color-picker label="Find button" [value]="t.result.findColor || '#2f006d'" (valueChange)="t.result.findColor=$event"></app-color-picker>
-          <app-color-picker label="List background" [value]="t.result.listBg || '#ffffff'" (valueChange)="t.result.listBg=$event"></app-color-picker>
-          <app-color-picker label="Product / detail card" [value]="t.result.cardBg || '#ffffff'" (valueChange)="t.result.cardBg=$event"></app-color-picker>
-          <app-color-picker label="Card text" [value]="t.result.cardTextColor || '#0F172A'" (valueChange)="t.result.cardTextColor=$event"></app-color-picker>
-        </ng-container>
-        <ng-container *ngIf="t.resultTemplate==='promo-map-rank'">
-          <app-color-picker label="Promo panel" [value]="t.result.panelColor || '#001973'" (valueChange)="t.result.panelColor=$event"></app-color-picker>
-          <app-color-picker label="Category rail" [value]="t.result.railBg || 'transparent'" (valueChange)="t.result.railBg=$event"></app-color-picker>
-          <app-color-picker label="Sub-category panel" [value]="t.result.subPanelColor || '#0f172a'" (valueChange)="t.result.subPanelColor=$event"></app-color-picker>
-          <app-color-picker label="Sub-category text" [value]="t.result.secondaryTextColor || '#ffffff'" (valueChange)="t.result.secondaryTextColor=$event"></app-color-picker>
-          <app-color-picker label="Map pin" [value]="t.result.pinColor || '#7f77dd'" (valueChange)="t.result.pinColor=$event"></app-color-picker>
-          <app-color-picker label="Location dots" [value]="t.result.dotColor || '#e24b4a'" (valueChange)="t.result.dotColor=$event"></app-color-picker>
-          <app-color-picker label="Map area" [value]="t.result.mapBg || '#ffffff'" (valueChange)="t.result.mapBg=$event"></app-color-picker>
-        </ng-container>
-        <ng-container *ngIf="t.resultTemplate!=='finder-detail'">
-          <div class="step-title sm">Header bar</div>
-          <div class="seg">
-            <button class="tile" [class.sel]="t.result.showHeader" (click)="t.result.showHeader=true">Show</button>
-            <button class="tile" [class.sel]="!t.result.showHeader" (click)="t.result.showHeader=false">Hide</button>
-          </div>
-          <ng-container *ngIf="t.result.showHeader">
-            <div class="step-title sm">Header tracklist</div>
-            <div class="seg">
-              <button class="tile" [class.sel]="t.result.showTracklist!==false" (click)="t.result.showTracklist=true">Show</button>
-              <button class="tile" [class.sel]="t.result.showTracklist===false" (click)="t.result.showTracklist=false">Hide</button>
-            </div>
+
+        <nt-deck-chips [chips]="resColorsChipsInput" [activeIndex]="resColorsActiveChip" (activeIndexChange)="onResColorsChipChange($event)"></nt-deck-chips>
+        <nt-value-pill-row [pills]="resColorsPillsInput" [activeIndex]="resColorsActivePill" (activeIndexChange)="resColorsActivePill = $event"></nt-value-pill-row>
+
+        <nt-editor-card [sectionLabel]="resColorsActivePillLabel">
+          <ng-container [ngSwitch]="resColorsActivePillKey">
+
+            <ng-container *ngSwitchCase="'resHeaderColor'">
+              <app-color-picker label="Header" [value]="t.result.headerColor" [transparentValue]="resultTransparentHeaderColor" (valueChange)="t.result.headerColor=$event"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'resHeaderBar'">
+              <div class="seg">
+                <button class="tile" [class.sel]="t.result.showHeader" (click)="t.result.showHeader=true">Show</button>
+                <button class="tile" [class.sel]="!t.result.showHeader" (click)="t.result.showHeader=false">Hide</button>
+              </div>
+            </ng-container>
+            <ng-container *ngSwitchCase="'resHeaderTracklist'">
+              <div class="seg">
+                <button class="tile" [class.sel]="t.result.showTracklist!==false" (click)="t.result.showTracklist=true">Show</button>
+                <button class="tile" [class.sel]="t.result.showTracklist===false" (click)="t.result.showTracklist=false">Hide</button>
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'resBackground'">
+              <app-color-picker label="Page background" [value]="t.result.background" (valueChange)="t.result.background=$event" [presets]="bgPresets"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'resBackgroundImage'">
+              <div class="media-row">
+                <button class="btn-o media-btn" (click)="pickBackground('result')">{{ t.result.backgroundImage ? 'Replace result background image' : 'Upload result background image' }}</button>
+                <button class="btn-o media-clear" *ngIf="t.result.backgroundImage" (click)="clearBackground('result')">Clear</button>
+              </div>
+              <p class="hint" *ngIf="t.result.backgroundImage">A background image is in use — the background colour is disabled. Clear the image to choose a colour instead.</p>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'resCardBackground'">
+              <app-color-picker label="Product card background" [value]="t.result.cardBackground" (valueChange)="t.result.cardBackground=$event" [presets]="cardPresets"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'resCardText'">
+              <app-color-picker label="Card text" [value]="t.result.cardText" (valueChange)="t.result.cardText=$event" [presets]="textPresets"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'resPopularText'">
+              <app-color-picker label="Popular button text" [value]="t.result.popularText || t.result.cardText" (valueChange)="t.result.popularText=$event" [presets]="textPresets"></app-color-picker>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'resFindColor'">
+              <app-color-picker label="Find button" [value]="t.result.findColor || '#2f006d'" (valueChange)="t.result.findColor=$event"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'resListBg'">
+              <app-color-picker label="List background" [value]="t.result.listBg || '#ffffff'" (valueChange)="t.result.listBg=$event"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'resCardBg'">
+              <app-color-picker label="Product / detail card" [value]="t.result.cardBg || '#ffffff'" (valueChange)="t.result.cardBg=$event"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'resCardTextColor'">
+              <app-color-picker label="Card text" [value]="t.result.cardTextColor || '#0F172A'" (valueChange)="t.result.cardTextColor=$event"></app-color-picker>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'resPanelColor'">
+              <app-color-picker label="Promo panel" [value]="t.result.panelColor || '#001973'" (valueChange)="t.result.panelColor=$event"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'resRailBg'">
+              <app-color-picker label="Category rail" [value]="t.result.railBg || 'transparent'" (valueChange)="t.result.railBg=$event"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'resSubPanelColor'">
+              <app-color-picker label="Sub-category panel" [value]="t.result.subPanelColor || '#0f172a'" (valueChange)="t.result.subPanelColor=$event"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'resSecondaryTextColor'">
+              <app-color-picker label="Sub-category text" [value]="t.result.secondaryTextColor || '#ffffff'" (valueChange)="t.result.secondaryTextColor=$event"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'resPinColor'">
+              <app-color-picker label="Map pin" [value]="t.result.pinColor || '#7f77dd'" (valueChange)="t.result.pinColor=$event"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'resDotColor'">
+              <app-color-picker label="Location dots" [value]="t.result.dotColor || '#e24b4a'" (valueChange)="t.result.dotColor=$event"></app-color-picker>
+            </ng-container>
+            <ng-container *ngSwitchCase="'resMapBg'">
+              <app-color-picker label="Map area" [value]="t.result.mapBg || '#ffffff'" (valueChange)="t.result.mapBg=$event"></app-color-picker>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'resAccent'">
+              <app-color-picker label="Accent / highlight" [value]="t.result.accent" (valueChange)="t.result.accent=$event"></app-color-picker>
+            </ng-container>
+
+            <!-- Navigation buttons — shared t.nav state, same template used by the Intermediate colors step. -->
+            <ng-container *ngSwitchDefault>
+              <p class="hint" *ngIf="resColorsActivePillKey">Set a position to “Hidden” to hide that button.</p>
+              <ng-container *ngTemplateOutlet="navEditorTpl; context: { key: resColorsActivePillKey, page: 'result' }"></ng-container>
+            </ng-container>
+
           </ng-container>
-        </ng-container>
-        <div class="step-title sm">Navigation buttons</div>
-        <p class="hint">Style the Back and Home buttons. Set a position to “Hidden” to hide that button.</p>
-        <div class="nav-btn-row">
-          <div class="nav-btn-grp">
-            <span class="nav-btn-lbl">&#8249; Back</span>
-            <app-color-picker label="Icon color" [value]="t.nav?.backColor || '#FFFFFF'" [allowReset]="true" (reset)="resetNavColor('backColor')" (valueChange)="t.nav!.backColor=$event"></app-color-picker>
-            <app-color-picker label="Background" [value]="t.nav?.backBg || '#0f172a'" [allowReset]="true" (reset)="resetNavColor('backBg')" (valueChange)="t.nav!.backBg=$event"></app-color-picker>
-          </div>
-          <div class="nav-btn-grp">
-            <span class="nav-btn-lbl">&#8962; Home</span>
-            <app-color-picker label="Icon color" [value]="t.nav?.homeColor || '#FFFFFF'" [allowReset]="true" (reset)="resetNavColor('homeColor')" (valueChange)="t.nav!.homeColor=$event"></app-color-picker>
-            <app-color-picker label="Background" [value]="t.nav?.homeBg || '#0f172a'" [allowReset]="true" (reset)="resetNavColor('homeBg')" (valueChange)="t.nav!.homeBg=$event"></app-color-picker>
-          </div>
-        </div>
-        <div class="step-title sm">Button style</div>
-        <div class="seg">
-          <button class="tile" *ngFor="let m of navModes" [class.sel]="(t.nav?.mode||'icon')===m.id" (click)="t.nav!.mode=m.id">{{ m.label }}</button>
-        </div>
-        <ng-container *ngIf="(t.nav?.mode||'icon') !== 'icon'">
-          <div class="fld"><label>Back label</label>
-            <input class="inp" [value]="t.nav?.backLabel || 'Back'" (input)="t.nav!.backLabel=$any($event.target).value" placeholder="Back" /></div>
-          <div class="fld"><label>Home label</label>
-            <input class="inp" [value]="t.nav?.homeLabel || 'Home'" (input)="t.nav!.homeLabel=$any($event.target).value" placeholder="Home" /></div>
-        </ng-container>
-        <div class="step-title sm">Button size</div>
-        <div class="seg">
-          <button class="tile" *ngFor="let s of navSizes" [class.sel]="(t.nav?.size||'normal')===s.id" (click)="t.nav!.size=s.id">{{ s.label }}</button>
-        </div>
-        <ng-container *ngIf="(t.nav?.mode||'icon') !== 'text'">
-          <div class="step-title sm">&#8249; Back icon</div>
-          <div class="seg icon-seg">
-            <button class="tile" [class.sel]="!t.nav?.backIcon" (click)="t.nav!.backIcon=undefined">Default</button>
-            <button class="tile icon-tile" *ngFor="let ic of backNavIconIds" [class.sel]="t.nav?.backIcon===ic" (click)="t.nav!.backIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
-            <button class="tile" [class.sel]="isCustomNavIcon(t.nav?.backIcon)" (click)="pickNavIcon('back')">Upload…</button>
-          </div>
-          <div class="media-row" *ngIf="isCustomNavIcon(t.nav?.backIcon)">
-            <img class="icon-custom-preview" [src]="t.nav?.backIcon" alt="Custom back icon" />
-            <button class="btn-o media-clear" (click)="t.nav!.backIcon=undefined">Clear</button>
-          </div>
-          <div class="step-title sm">&#8962; Home icon</div>
-          <div class="seg icon-seg">
-            <button class="tile" [class.sel]="!t.nav?.homeIcon" (click)="t.nav!.homeIcon=undefined">Default</button>
-            <button class="tile icon-tile" *ngFor="let ic of homeNavIconIds" [class.sel]="t.nav?.homeIcon===ic" (click)="t.nav!.homeIcon=ic" [attr.aria-label]="ic"><span [innerHTML]="iconSvg(ic)"></span></button>
-            <button class="tile" [class.sel]="isCustomNavIcon(t.nav?.homeIcon)" (click)="pickNavIcon('home')">Upload…</button>
-          </div>
-          <div class="media-row" *ngIf="isCustomNavIcon(t.nav?.homeIcon)">
-            <img class="icon-custom-preview" [src]="t.nav?.homeIcon" alt="Custom home icon" />
-            <button class="btn-o media-clear" (click)="t.nav!.homeIcon=undefined">Clear</button>
-          </div>
-        </ng-container>
-        <div class="step-title sm">Nav bar style</div>
-        <div class="seg">
-          <button class="tile" *ngFor="let s of navStyles" [class.sel]="(t.navStyle||'floating')===s.id" (click)="t.navStyle=s.id">{{ s.label }}</button>
-        </div>
-        <div class="step-title sm">Button layout</div>
-        <div class="seg">
-          <button class="tile" [class.sel]="!navSplitFor('result')" (click)="setNavSplit('result', false)">Grouped together</button>
-          <button class="tile" [class.sel]="navSplitFor('result')" (click)="setNavSplit('result', true)">Separate (independent)</button>
-        </div>
-        <ng-container *ngIf="!navSplitFor('result')">
-          <div class="step-title sm">Button position</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let p of navButtonPositions" [class.sel]="navPositionFor('result')===p.id" (click)="setNavPosition('result', p.id)">{{ p.label }}</button>
-          </div>
-        </ng-container>
-        <ng-container *ngIf="navSplitFor('result')">
-          <div class="step-title sm">&#8249; Back position</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let p of navPositionsFor('result', 'back')" [class.sel]="navBackPositionFor('result')===p.id" (click)="setNavBackPosition('result', p.id)">{{ p.label }}</button>
-          </div>
-          <div class="step-title sm">&#8962; Home position</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let p of navPositionsFor('result', 'home')" [class.sel]="navHomePositionFor('result')===p.id" (click)="setNavHomePosition('result', p.id)">{{ p.label }}</button>
-          </div>
-        </ng-container>
+        </nt-editor-card>
+
+        <nt-settings-sheet [groups]="resColorsSettingsGroups" [(isOpen)]="resColorsSettingsOpen" title="All settings · Result colors" (rowSelected)="onResColorsRowSelected($event)"></nt-settings-sheet>
       </div>
 
       <div *ngSwitchCase="'anim'">

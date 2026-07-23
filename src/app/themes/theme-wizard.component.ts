@@ -2194,6 +2194,280 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     this.intActivePill = sel.rowIndex;
   }
 
+  // ----- Navigation buttons — SHARED `t.nav` state used by BOTH Intermediate-colors and
+  // Result-colors steps (phase 3d). Per UI-REDESIGN-INVENTORY.md note 1: 11 of the 15 controls
+  // bind to the same t.nav / t.navStyle fields regardless of which step they're edited from —
+  // editing "Back icon color" on Intermediate-colors changes the exact same value shown on
+  // Result-colors, and that must keep being true. Only 4 controls (layout/split, position, back
+  // position, home position) are genuinely per-page via navSplitFor()/navPositionFor()/
+  // navBackPositionFor()/navHomePositionFor() (already page-scoped helpers, unchanged above).
+  // ONE options-builder (navOptions) + ONE template (#navEditorTpl in the .html) are used
+  // identically by both steps so there is only ever one code path writing to t.nav. -----
+  private get navSharedOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const backColor = this.t.nav?.backColor || '#FFFFFF';
+    out.push({ key: 'navBackColor', icon: 'color-palette-outline', label: 'Back · Icon color', value: backColor, swatch: backColor });
+    const backBg = this.t.nav?.backBg || '#0f172a';
+    out.push({ key: 'navBackBg', icon: 'square-outline', label: 'Back · Background', value: backBg, swatch: backBg });
+    const homeColor = this.t.nav?.homeColor || '#FFFFFF';
+    out.push({ key: 'navHomeColor', icon: 'color-palette-outline', label: 'Home · Icon color', value: homeColor, swatch: homeColor });
+    const homeBg = this.t.nav?.homeBg || '#0f172a';
+    out.push({ key: 'navHomeBg', icon: 'square-outline', label: 'Home · Background', value: homeBg, swatch: homeBg });
+
+    const mode = this.t.nav?.mode || 'icon';
+    out.push({ key: 'navMode', icon: 'options-outline', label: 'Button style', value: this.navModes.find((m) => m.id === mode)?.label || mode });
+    if (mode !== 'icon') {
+      out.push({ key: 'navBackLabel', icon: 'text-outline', label: 'Back label', value: this.t.nav?.backLabel || 'Back' });
+      out.push({ key: 'navHomeLabel', icon: 'text-outline', label: 'Home label', value: this.t.nav?.homeLabel || 'Home' });
+    }
+    const size = this.t.nav?.size || 'normal';
+    out.push({ key: 'navSize', icon: 'resize-outline', label: 'Button size', value: this.navSizes.find((s) => s.id === size)?.label || size });
+    if (mode !== 'text') {
+      out.push({ key: 'navBackIcon', icon: 'arrow-back-outline', label: 'Back icon', value: this.t.nav?.backIcon ? (this.isCustomNavIcon(this.t.nav.backIcon) ? 'Custom upload' : this.t.nav.backIcon) : 'Default' });
+      out.push({ key: 'navHomeIcon', icon: 'home-outline', label: 'Home icon', value: this.t.nav?.homeIcon ? (this.isCustomNavIcon(this.t.nav.homeIcon) ? 'Custom upload' : this.t.nav.homeIcon) : 'Default' });
+    }
+    const barStyle = this.t.navStyle || 'floating';
+    out.push({ key: 'navBarStyle', icon: 'layers-outline', label: 'Nav bar style', value: this.navStyles.find((s) => s.id === barStyle)?.label || barStyle });
+    return out;
+  }
+
+  /** The 4 genuinely per-page controls — independent state via t.intermediate.nav* / t.result.nav*. */
+  private navPageOptions(page: 'intermediate' | 'result'): DeckOption[] {
+    const out: DeckOption[] = [];
+    const split = this.navSplitFor(page);
+    out.push({ key: 'navSplit', icon: 'swap-horizontal-outline', label: 'Button layout', value: split ? 'Separate (independent)' : 'Grouped together' });
+    if (!split) {
+      const pos = this.navPositionFor(page);
+      out.push({ key: 'navPosition', icon: 'locate-outline', label: 'Button position', value: this.navButtonPositions.find((p) => p.id === pos)?.label || pos });
+    } else {
+      const backPos = this.navBackPositionFor(page);
+      out.push({ key: 'navBackPosition', icon: 'locate-outline', label: 'Back position', value: this.navPositionsFor(page, 'back').find((p) => p.id === backPos)?.label || backPos });
+      const homePos = this.navHomePositionFor(page);
+      out.push({ key: 'navHomePosition', icon: 'locate-outline', label: 'Home position', value: this.navPositionsFor(page, 'home').find((p) => p.id === homePos)?.label || homePos });
+    }
+    return out;
+  }
+
+  /** Full 15-row Navigation buttons category for a given step's page — the 11 t.nav-backed
+   *  options are byte-for-byte identical whichever page calls this (same getter, same object). */
+  navOptions(page: 'intermediate' | 'result'): DeckOption[] {
+    return [...this.navSharedOptions, ...this.navPageOptions(page)];
+  }
+
+  // ----- Intermediate colors step -----
+  intColorsActiveChip = 0;
+  intColorsActivePill = 0;
+  intColorsSettingsOpen = false;
+
+  private get intColorsHeaderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.intermediate.showHeader) {
+      out.push({ key: 'interHeaderColor', icon: 'color-palette-outline', label: 'Header background', value: this.t.intermediate.headerColor, swatch: this.t.intermediate.headerColor });
+      const htc = this.t.intermediate.headerTextColor || '#FFFFFF';
+      out.push({ key: 'interHeaderTextColor', icon: 'text-outline', label: 'Header text color', value: htc, swatch: htc });
+    }
+    return out;
+  }
+
+  private get intColorsBackgroundOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const v = this.t.intermediate.backgroundImage && this.t.intermediateStyle === 'finder-select' ? 'transparent' : this.t.intermediate.background;
+    out.push({ key: 'interBackground', icon: 'image-outline', label: 'Page background', value: v, swatch: v !== 'transparent' ? v : undefined });
+    out.push({ key: 'interBackgroundImage', icon: 'cloud-upload-outline', label: 'Background image', value: this.t.intermediate.backgroundImage ? 'Image set' : 'None' });
+    if (this.t.intermediate.backgroundImage) {
+      out.push({ key: 'interBgImageX', icon: 'resize-outline', label: 'Pan X', value: `${this.t.intermediate.bgImageX ?? 50}%` });
+      out.push({ key: 'interBgImageY', icon: 'resize-outline', label: 'Pan Y', value: `${this.t.intermediate.bgImageY ?? 50}%` });
+      out.push({ key: 'interBgImageZoom', icon: 'expand-outline', label: 'Zoom', value: `${this.t.intermediate.bgImageZoom ?? 100}%` });
+    }
+    return out;
+  }
+
+  private get intColorsCardOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.showInterCardBackgroundColor) out.push({ key: 'interCardBackground', icon: 'square-outline', label: 'Row / card background', value: this.t.intermediate.cardBackground, swatch: this.t.intermediate.cardBackground });
+    if (this.showInterCardTextColor) out.push({ key: 'interCardText', icon: 'text-outline', label: 'Card text', value: this.t.intermediate.cardText, swatch: this.t.intermediate.cardText });
+    if (this.t.intermediateStyle === 'finder-select') {
+      const hero = this.t.intermediate.heroColor || '#172033';
+      out.push({ key: 'interHeroColor', icon: 'albums-outline', label: 'Hero panel', value: hero, swatch: hero });
+      const ov = this.t.overlayColor || 'rgba(0,0,0,0.6)';
+      out.push({ key: 'interOverlayColor', icon: 'contrast-outline', label: 'Text overlay', value: ov, swatch: ov });
+    }
+    if (this.t.intermediateStyle === 'brand-rail') {
+      const bg = this.t.intermediate.brandRailMessageBgColor || 'rgba(0,0,0,0.35)';
+      out.push({ key: 'brandRailMessageBgColor', icon: 'chatbox-outline', label: 'Message background', value: bg, swatch: bg });
+      const txt = this.t.intermediate.brandRailMessageTextColor || '#ffffff';
+      out.push({ key: 'brandRailMessageTextColor', icon: 'text-outline', label: 'Message text color', value: txt, swatch: txt });
+    }
+    return out;
+  }
+
+  private get intColorsAccentOptions(): DeckOption[] {
+    return [{ key: 'interAccent', icon: 'color-palette-outline', label: 'Accent / active', value: this.t.intermediate.accent, swatch: this.t.intermediate.accent }];
+  }
+
+  get intColorsCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'header', icon: 'menu-outline', label: 'Header', options: this.intColorsHeaderOptions },
+      { key: 'background', icon: 'image-outline', label: 'Background', options: this.intColorsBackgroundOptions },
+      { key: 'cards', icon: 'albums-outline', label: 'Cards', options: this.intColorsCardOptions },
+      { key: 'accent', icon: 'color-palette-outline', label: 'Accent', options: this.intColorsAccentOptions },
+      // Whole nav block is conditional on `t.intermediateStyle !== 'finder-select'` — identical to the original template's guard.
+      { key: 'nav', icon: 'navigate-outline', label: 'Navigation', options: this.t.intermediateStyle !== 'finder-select' ? this.navOptions('intermediate') : [] },
+    ].filter((c) => c.options.length > 0);
+  }
+  get intColorsActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.intColorsCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.intColorsActiveChip, cats.length - 1)];
+  }
+  get intColorsChipsInput(): NtDeckChip[] { return this.intColorsCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get intColorsPillsInput(): NtValuePill[] {
+    return (this.intColorsActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get intColorsActiveOption(): DeckOption | undefined {
+    const opts = this.intColorsActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.intColorsActivePill, opts.length - 1)];
+  }
+  get intColorsActivePillKey(): string { return this.intColorsActiveOption?.key || ''; }
+  get intColorsActivePillLabel(): string { return (this.intColorsActiveOption?.label || '').toUpperCase(); }
+  get intColorsSettingsGroups(): NtSettingsGroup[] {
+    return this.intColorsCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onIntColorsChipChange(i: number): void { this.intColorsActiveChip = i; this.intColorsActivePill = 0; }
+  onIntColorsRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.intColorsActiveChip = sel.groupIndex;
+    this.intColorsActivePill = sel.rowIndex;
+  }
+
+  // ----- Result colors step -----
+  resColorsActiveChip = 0;
+  resColorsActivePill = 0;
+  resColorsSettingsOpen = false;
+
+  private get resColorsHeaderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.resultTemplate !== 'promo-map-rank' && this.t.resultTemplate !== 'finder-detail') {
+      out.push({ key: 'resHeaderColor', icon: 'color-palette-outline', label: 'Header', value: this.t.result.headerColor, swatch: this.t.result.headerColor !== this.resultTransparentHeaderColor ? this.t.result.headerColor : undefined });
+    }
+    if (this.t.resultTemplate !== 'finder-detail') {
+      out.push({ key: 'resHeaderBar', icon: 'menu-outline', label: 'Header bar', value: this.t.result.showHeader ? 'Show' : 'Hide' });
+      if (this.t.result.showHeader) {
+        out.push({ key: 'resHeaderTracklist', icon: 'list-outline', label: 'Header tracklist', value: this.t.result.showTracklist !== false ? 'Show' : 'Hide' });
+      }
+    }
+    return out;
+  }
+
+  private get resColorsBackgroundOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.resultTemplate !== 'promo-map-rank') {
+      if (!this.t.result.backgroundImage) {
+        out.push({ key: 'resBackground', icon: 'image-outline', label: 'Page background', value: this.t.result.background, swatch: this.t.result.background });
+      }
+      out.push({ key: 'resBackgroundImage', icon: 'cloud-upload-outline', label: 'Background image', value: this.t.result.backgroundImage ? 'Image set' : 'None' });
+    }
+    return out;
+  }
+
+  private get resColorsCardOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.resultTemplate !== 'finder-detail' && this.t.resultTemplate !== 'hero-product') {
+      out.push({ key: 'resCardBackground', icon: 'square-outline', label: 'Product card background', value: this.t.result.cardBackground, swatch: this.t.result.cardBackground });
+    }
+    if (this.t.resultTemplate !== 'hero-product' && this.t.resultTemplate !== 'finder-detail') {
+      out.push({ key: 'resCardText', icon: 'text-outline', label: 'Card text', value: this.t.result.cardText, swatch: this.t.result.cardText });
+    }
+    if (this.t.resultTemplate === 'map-list') {
+      const v = this.t.result.popularText || this.t.result.cardText;
+      out.push({ key: 'resPopularText', icon: 'star-outline', label: 'Popular button text', value: v, swatch: v });
+    }
+    return out;
+  }
+
+  private get resColorsTemplateOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.resultTemplate === 'finder-detail') {
+      const find = this.t.result.findColor || '#2f006d';
+      out.push({ key: 'resFindColor', icon: 'search-outline', label: 'Find button', value: find, swatch: find });
+      const listBg = this.t.result.listBg || '#ffffff';
+      out.push({ key: 'resListBg', icon: 'list-outline', label: 'List background', value: listBg, swatch: listBg });
+      const cardBg = this.t.result.cardBg || '#ffffff';
+      out.push({ key: 'resCardBg', icon: 'square-outline', label: 'Product / detail card', value: cardBg, swatch: cardBg });
+      const cardTextColor = this.t.result.cardTextColor || '#0F172A';
+      out.push({ key: 'resCardTextColor', icon: 'text-outline', label: 'Card text', value: cardTextColor, swatch: cardTextColor });
+    }
+    // promo-map-rank is a legacy value with no selectable tile in the picker (see inventory note 3)
+    // — still fully editable here for any theme that already has it saved.
+    if (this.t.resultTemplate === 'promo-map-rank') {
+      const panel = this.t.result.panelColor || '#001973';
+      out.push({ key: 'resPanelColor', icon: 'albums-outline', label: 'Promo panel', value: panel, swatch: panel });
+      const rail = this.t.result.railBg || 'transparent';
+      out.push({ key: 'resRailBg', icon: 'reorder-three-outline', label: 'Category rail', value: rail, swatch: rail !== 'transparent' ? rail : undefined });
+      const subPanel = this.t.result.subPanelColor || '#0f172a';
+      out.push({ key: 'resSubPanelColor', icon: 'square-outline', label: 'Sub-category panel', value: subPanel, swatch: subPanel });
+      const secText = this.t.result.secondaryTextColor || '#ffffff';
+      out.push({ key: 'resSecondaryTextColor', icon: 'text-outline', label: 'Sub-category text', value: secText, swatch: secText });
+      const pin = this.t.result.pinColor || '#7f77dd';
+      out.push({ key: 'resPinColor', icon: 'location-outline', label: 'Map pin', value: pin, swatch: pin });
+      const dot = this.t.result.dotColor || '#e24b4a';
+      out.push({ key: 'resDotColor', icon: 'ellipse-outline', label: 'Location dots', value: dot, swatch: dot });
+      const mapBg = this.t.result.mapBg || '#ffffff';
+      out.push({ key: 'resMapBg', icon: 'map-outline', label: 'Map area', value: mapBg, swatch: mapBg });
+    }
+    return out;
+  }
+
+  private get resColorsAccentOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.resultTemplate !== 'promo-map-rank' && this.t.resultTemplate !== 'hero-product') {
+      out.push({ key: 'resAccent', icon: 'color-palette-outline', label: 'Accent / highlight', value: this.t.result.accent, swatch: this.t.result.accent });
+    }
+    return out;
+  }
+
+  get resColorsCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'header', icon: 'menu-outline', label: 'Header', options: this.resColorsHeaderOptions },
+      { key: 'background', icon: 'image-outline', label: 'Background', options: this.resColorsBackgroundOptions },
+      { key: 'cards', icon: 'albums-outline', label: 'Cards', options: this.resColorsCardOptions },
+      { key: 'template', icon: 'options-outline', label: 'Template', options: this.resColorsTemplateOptions },
+      { key: 'accent', icon: 'color-palette-outline', label: 'Accent', options: this.resColorsAccentOptions },
+      // Navigation block is unconditional on this step (unlike Intermediate colors) — same as the original template.
+      { key: 'nav', icon: 'navigate-outline', label: 'Navigation', options: this.navOptions('result') },
+    ].filter((c) => c.options.length > 0);
+  }
+  get resColorsActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.resColorsCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.resColorsActiveChip, cats.length - 1)];
+  }
+  get resColorsChipsInput(): NtDeckChip[] { return this.resColorsCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get resColorsPillsInput(): NtValuePill[] {
+    return (this.resColorsActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get resColorsActiveOption(): DeckOption | undefined {
+    const opts = this.resColorsActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.resColorsActivePill, opts.length - 1)];
+  }
+  get resColorsActivePillKey(): string { return this.resColorsActiveOption?.key || ''; }
+  get resColorsActivePillLabel(): string { return (this.resColorsActiveOption?.label || '').toUpperCase(); }
+  get resColorsSettingsGroups(): NtSettingsGroup[] {
+    return this.resColorsCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onResColorsChipChange(i: number): void { this.resColorsActiveChip = i; this.resColorsActivePill = 0; }
+  onResColorsRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.resColorsActiveChip = sel.groupIndex;
+    this.resColorsActivePill = sel.rowIndex;
+  }
+
   async cancel(): Promise<void> {
     // Unsaved edits → confirm before throwing them away.
     if (this.baseline && this.snapshot() !== this.baseline) {

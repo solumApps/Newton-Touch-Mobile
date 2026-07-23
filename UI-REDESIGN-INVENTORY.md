@@ -236,41 +236,52 @@ remain templated-but-unreachable exactly as before.**
 
 ### Step 5 — Intermediate colors (`intColors`, step-title "Intermediate colors")
 
-- [ ] Header background → color-picker (conditional `t.intermediate.showHeader`) → `t.intermediate.headerColor`
-- [ ] Header text color → color-picker (conditional) → `t.intermediate.headerTextColor`
-- [ ] Page background → color-picker (presets `bgPresets`) → `t.intermediate.background`
-- [ ] Upload/Replace intermediate background image → image-upload button → `pickBackground('inter')`
-- [ ] Clear intermediate background image → button (conditional) → `clearBackground('inter')`
-- [ ] Background framing · Pan X → slider (0–100, conditional) → `t.intermediate.bgImageX`
-- [ ] Background framing · Pan Y → slider (0–100) → `t.intermediate.bgImageY`
-- [ ] Background framing · Zoom → slider (100–300) → `t.intermediate.bgImageZoom`
-- [ ] Row / card background → color-picker (presets `intCardPresets`, conditional `showInterCardBackgroundColor`) → `t.intermediate.cardBackground`
-- [ ] Card text → color-picker (presets `textPresets`, conditional `showInterCardTextColor`) → `t.intermediate.cardText`
-- [ ] Hero panel → color-picker (presets `heroPanelPresets`, conditional finder-select) → `t.intermediate.heroColor`
-- [ ] Text overlay → color-picker (presets `overlayPresets`, conditional finder-select; note: binds to `t.overlayColor`, the Home-step field, not a dedicated intermediate field) → `t.overlayColor`
-- [ ] Message background (brand-rail) → color-picker → `t.intermediate.brandRailMessageBgColor`
-- [ ] Message text color (brand-rail) → color-picker → `t.intermediate.brandRailMessageTextColor`
-- [ ] Accent / active → color-picker → `t.intermediate.accent`
+**Migrated to the Editor Deck pattern (phase 3d) — chips: Header / Background / Cards / Accent /
+Navigation. Each control is one value pill in its category; opening the pill renders the exact same
+control markup/bindings inside `nt-editor-card`. The Navigation category's 11 shared-state rows are
+rendered via ONE shared `ng-template #navEditorTpl` (in `theme-wizard.component.html`) driven by ONE
+shared `navOptions(page)` getter (in `.ts`) — instantiated here with `page: 'intermediate'`, and
+identically from the Result-colors step with `page: 'result'` — so both steps read/write the exact
+same `t.nav` / `t.navStyle` object, never two independent copies (see Structural note 1, and the
+shared block's comment header in both files). All 30 rows also appear (grouped identically) in the
+`nt-settings-sheet` opened via the step's "All settings" button, with their live current value +
+swatch where applicable — selecting a sheet row jumps the deck to that chip + pill.**
+
+- [x] Header background → color-picker (conditional `t.intermediate.showHeader`) → `t.intermediate.headerColor` — deck: Intermediate colors ▸ Header chip ▸ "Header background" pill
+- [x] Header text color → color-picker (conditional) → `t.intermediate.headerTextColor` — deck: Intermediate colors ▸ Header chip ▸ "Header text color" pill
+- [x] Page background → color-picker (presets `bgPresets`) → `t.intermediate.background` — deck: Intermediate colors ▸ Background chip ▸ "Page background" pill
+- [x] Upload/Replace intermediate background image → image-upload button → `pickBackground('inter')` — deck: Intermediate colors ▸ Background chip ▸ "Background image" pill (shared editor with Clear button, matches original `.media-row` grouping)
+- [x] Clear intermediate background image → button (conditional) → `clearBackground('inter')` — deck: Intermediate colors ▸ Background chip ▸ "Background image" pill (same editor as Upload)
+- [x] Background framing · Pan X → slider (0–100, conditional) → `t.intermediate.bgImageX` — deck: Intermediate colors ▸ Background chip ▸ "Pan X" pill
+- [x] Background framing · Pan Y → slider (0–100) → `t.intermediate.bgImageY` — deck: Intermediate colors ▸ Background chip ▸ "Pan Y" pill
+- [x] Background framing · Zoom → slider (100–300) → `t.intermediate.bgImageZoom` — deck: Intermediate colors ▸ Background chip ▸ "Zoom" pill
+- [x] Row / card background → color-picker (presets `intCardPresets`, conditional `showInterCardBackgroundColor`) → `t.intermediate.cardBackground` — deck: Intermediate colors ▸ Cards chip ▸ "Row / card background" pill
+- [x] Card text → color-picker (presets `textPresets`, conditional `showInterCardTextColor`) → `t.intermediate.cardText` — deck: Intermediate colors ▸ Cards chip ▸ "Card text" pill
+- [x] Hero panel → color-picker (presets `heroPanelPresets`, conditional finder-select) → `t.intermediate.heroColor` — deck: Intermediate colors ▸ Cards chip ▸ "Hero panel" pill
+- [x] Text overlay → color-picker (presets `overlayPresets`, conditional finder-select; note: binds to `t.overlayColor`, the Home-step field, not a dedicated intermediate field) → `t.overlayColor` — deck: Intermediate colors ▸ Cards chip ▸ "Text overlay" pill
+- [x] Message background (brand-rail) → color-picker → `t.intermediate.brandRailMessageBgColor` — deck: Intermediate colors ▸ Cards chip ▸ "Message background" pill
+- [x] Message text color (brand-rail) → color-picker → `t.intermediate.brandRailMessageTextColor` — deck: Intermediate colors ▸ Cards chip ▸ "Message text color" pill
+- [x] Accent / active → color-picker → `t.intermediate.accent` — deck: Intermediate colors ▸ Accent chip ▸ "Accent / active" pill
 
 **Navigation buttons block (conditional `t.intermediateStyle !== 'finder-select'`) — see Structural note 1:**
 
-- [ ] Back · Icon color → color-picker (allowReset, `resetNavColor('backColor')`) → `t.nav.backColor` **[SHARED with Result-colors step]**
-- [ ] Back · Background → color-picker (allowReset, `resetNavColor('backBg')`) → `t.nav.backBg` **[SHARED]**
-- [ ] Home · Icon color → color-picker (allowReset, `resetNavColor('homeColor')`) → `t.nav.homeColor` **[SHARED]**
-- [ ] Home · Background → color-picker (allowReset, `resetNavColor('homeBg')`) → `t.nav.homeBg` **[SHARED]**
-- [ ] Button style → segment (`navModes`) → `t.nav.mode` **[SHARED]**
-- [ ] Back label → text input (conditional `mode !== 'icon'`) → `t.nav.backLabel` **[SHARED]**
-- [ ] Home label → text input (conditional) → `t.nav.homeLabel` **[SHARED]**
-- [ ] Button size → segment (`navSizes`) → `t.nav.size` **[SHARED]**
-- [ ] Back icon → icon-tile-group (`backNavIconIds` + Default + Upload, conditional `mode !== 'text'`) → `t.nav.backIcon` via `pickNavIcon('back')` **[SHARED]**
-- [ ] Home icon → icon-tile-group (`homeNavIconIds` + Default + Upload) → `t.nav.homeIcon` via `pickNavIcon('home')` **[SHARED]**
-- [ ] Nav bar style → segment (`navStyles`: Floating/Hidden) → `t.navStyle` **[SHARED]**
-- [ ] Button layout → segment (Grouped together/Separate) → `t.intermediate.navSplit` via `setNavSplit('intermediate', bool)` **[INDEPENDENT]**
-- [ ] Button position → segment (`navButtonPositions`, 8 states, conditional `!split`) → `t.intermediate.navPosition` via `setNavPosition('intermediate', p.id)` **[INDEPENDENT]**
-- [ ] Back position → segment (`navPositionsFor`, conditional `split`) → `t.intermediate.navBackPosition` via `setNavBackPosition('intermediate', p.id)` **[INDEPENDENT]**
-- [ ] Home position → segment (conditional `split`) → `t.intermediate.navHomePosition` via `setNavHomePosition('intermediate', p.id)` **[INDEPENDENT]**
+- [x] Back · Icon color → color-picker (allowReset, `resetNavColor('backColor')`) → `t.nav.backColor` **[SHARED with Result-colors step]** — deck: Intermediate colors ▸ Navigation chip ▸ "Back · Icon color" pill (shared `#navEditorTpl` / `navOptions()`)
+- [x] Back · Background → color-picker (allowReset, `resetNavColor('backBg')`) → `t.nav.backBg` **[SHARED]** — deck: Intermediate colors ▸ Navigation chip ▸ "Back · Background" pill
+- [x] Home · Icon color → color-picker (allowReset, `resetNavColor('homeColor')`) → `t.nav.homeColor` **[SHARED]** — deck: Intermediate colors ▸ Navigation chip ▸ "Home · Icon color" pill
+- [x] Home · Background → color-picker (allowReset, `resetNavColor('homeBg')`) → `t.nav.homeBg` **[SHARED]** — deck: Intermediate colors ▸ Navigation chip ▸ "Home · Background" pill
+- [x] Button style → segment (`navModes`) → `t.nav.mode` **[SHARED]** — deck: Intermediate colors ▸ Navigation chip ▸ "Button style" pill
+- [x] Back label → text input (conditional `mode !== 'icon'`) → `t.nav.backLabel` **[SHARED]** — deck: Intermediate colors ▸ Navigation chip ▸ "Back label" pill
+- [x] Home label → text input (conditional) → `t.nav.homeLabel` **[SHARED]** — deck: Intermediate colors ▸ Navigation chip ▸ "Home label" pill
+- [x] Button size → segment (`navSizes`) → `t.nav.size` **[SHARED]** — deck: Intermediate colors ▸ Navigation chip ▸ "Button size" pill
+- [x] Back icon → icon-tile-group (`backNavIconIds` + Default + Upload, conditional `mode !== 'text'`) → `t.nav.backIcon` via `pickNavIcon('back')` **[SHARED]** — deck: Intermediate colors ▸ Navigation chip ▸ "Back icon" pill
+- [x] Home icon → icon-tile-group (`homeNavIconIds` + Default + Upload) → `t.nav.homeIcon` via `pickNavIcon('home')` **[SHARED]** — deck: Intermediate colors ▸ Navigation chip ▸ "Home icon" pill
+- [x] Nav bar style → segment (`navStyles`: Floating/Hidden) → `t.navStyle` **[SHARED]** — deck: Intermediate colors ▸ Navigation chip ▸ "Nav bar style" pill
+- [x] Button layout → segment (Grouped together/Separate) → `t.intermediate.navSplit` via `setNavSplit('intermediate', bool)` **[INDEPENDENT]** — deck: Intermediate colors ▸ Navigation chip ▸ "Button layout" pill (page-scoped via shared template's `page` context = `'intermediate'`)
+- [x] Button position → segment (`navButtonPositions`, 8 states, conditional `!split`) → `t.intermediate.navPosition` via `setNavPosition('intermediate', p.id)` **[INDEPENDENT]** — deck: Intermediate colors ▸ Navigation chip ▸ "Button position" pill
+- [x] Back position → segment (`navPositionsFor`, conditional `split`) → `t.intermediate.navBackPosition` via `setNavBackPosition('intermediate', p.id)` **[INDEPENDENT]** — deck: Intermediate colors ▸ Navigation chip ▸ "Back position" pill
+- [x] Home position → segment (conditional `split`) → `t.intermediate.navHomePosition` via `setNavHomePosition('intermediate', p.id)` **[INDEPENDENT]** — deck: Intermediate colors ▸ Navigation chip ▸ "Home position" pill
 
-**Step 5 total: 30 controls (15 base + 15 nav-block, of which 11 nav-block controls are SHARED state with Result-colors and 4 are independent)**
+**Step 5 total: 30 controls (15 base + 15 nav-block, of which 11 nav-block controls are SHARED state with Result-colors and 4 are independent) — all 30 migrated, all reachable via deck + All-settings sheet, shared nav state verified against the same `t.nav` object as Step 7 (not a duplicated copy).**
 
 ### Step 6 — Result template (`resTemplate`, step-title "Result template")
 
@@ -288,47 +299,58 @@ remain templated-but-unreachable exactly as before.**
 
 ### Step 7 — Result colors (`resColors`, step-title "Result colors")
 
-- [ ] Header → color-picker (transparentValue support, conditional not promo-map-rank/finder-detail) → `t.result.headerColor`
-- [ ] Page background → color-picker (presets `bgPresets`, conditional not promo-map-rank, no bg image) → `t.result.background`
-- [ ] Upload/Replace result background image → image-upload button (conditional not promo-map-rank) → `pickBackground('result')`
-- [ ] Clear result background image → button (conditional) → `clearBackground('result')`
-- [ ] Product card background → color-picker (presets `cardPresets`, conditional not finder-detail/hero-product) → `t.result.cardBackground`
-- [ ] Card text → color-picker (presets `textPresets`, conditional not hero-product/finder-detail) → `t.result.cardText`
-- [ ] Popular button text (map-list only) → color-picker (presets `textPresets`) → `t.result.popularText`
-- [ ] Accent / highlight → color-picker (conditional not promo-map-rank/hero-product) → `t.result.accent`
-- [ ] Find button (finder-detail only) → color-picker → `t.result.findColor`
-- [ ] List background (finder-detail only) → color-picker → `t.result.listBg`
-- [ ] Product / detail card (finder-detail only) → color-picker → `t.result.cardBg`
-- [ ] Card text (finder-detail only) → color-picker → `t.result.cardTextColor`
-- [ ] Promo panel (promo-map-rank only) → color-picker → `t.result.panelColor`
-- [ ] Category rail (promo-map-rank only) → color-picker → `t.result.railBg`
-- [ ] Sub-category panel (promo-map-rank only) → color-picker → `t.result.subPanelColor`
-- [ ] Sub-category text (promo-map-rank only) → color-picker → `t.result.secondaryTextColor`
-- [ ] Map pin (promo-map-rank only) → color-picker → `t.result.pinColor`
-- [ ] Location dots (promo-map-rank only) → color-picker → `t.result.dotColor`
-- [ ] Map area (promo-map-rank only) → color-picker → `t.result.mapBg`
-- [ ] Header bar → segment (Show/Hide, conditional not finder-detail) → `t.result.showHeader`
-- [ ] Header tracklist → segment (Show/Hide, conditional `showHeader`) → `t.result.showTracklist`
+**Migrated to the Editor Deck pattern (phase 3d), in the same pass as Step 5 since they share nav
+state — chips: Header / Background / Cards / Template / Accent / Navigation. "Template" holds the
+finder-detail-only and promo-map-rank-only color rows (mutually exclusive by `t.resultTemplate`,
+never both populated at once — the `promo-map-rank` rows stay reachable here for any theme that
+already has that legacy value saved, per Structural note 3, with no new selectable tile added
+anywhere). The Navigation category is the SAME shared `#navEditorTpl` / `navOptions(page)` pairing
+used by Step 5, called here with `page: 'result'` — same `t.nav` / `t.navStyle` object, not a
+duplicated copy (see Step 5's note and Structural note 1). All 35 rows also appear (grouped
+identically) in the `nt-settings-sheet` opened via the step's "All settings" button, with their live
+current value + swatch where applicable — selecting a sheet row jumps the deck to that chip + pill.**
+
+- [x] Header → color-picker (transparentValue support, conditional not promo-map-rank/finder-detail) → `t.result.headerColor` — deck: Result colors ▸ Header chip ▸ "Header" pill
+- [x] Page background → color-picker (presets `bgPresets`, conditional not promo-map-rank, no bg image) → `t.result.background` — deck: Result colors ▸ Background chip ▸ "Page background" pill
+- [x] Upload/Replace result background image → image-upload button (conditional not promo-map-rank) → `pickBackground('result')` — deck: Result colors ▸ Background chip ▸ "Background image" pill (shared editor with Clear button, matches original `.media-row` grouping)
+- [x] Clear result background image → button (conditional) → `clearBackground('result')` — deck: Result colors ▸ Background chip ▸ "Background image" pill (same editor as Upload)
+- [x] Product card background → color-picker (presets `cardPresets`, conditional not finder-detail/hero-product) → `t.result.cardBackground` — deck: Result colors ▸ Cards chip ▸ "Product card background" pill
+- [x] Card text → color-picker (presets `textPresets`, conditional not hero-product/finder-detail) → `t.result.cardText` — deck: Result colors ▸ Cards chip ▸ "Card text" pill
+- [x] Popular button text (map-list only) → color-picker (presets `textPresets`) → `t.result.popularText` — deck: Result colors ▸ Cards chip ▸ "Popular button text" pill
+- [x] Accent / highlight → color-picker (conditional not promo-map-rank/hero-product) → `t.result.accent` — deck: Result colors ▸ Accent chip ▸ "Accent / highlight" pill
+- [x] Find button (finder-detail only) → color-picker → `t.result.findColor` — deck: Result colors ▸ Template chip ▸ "Find button" pill
+- [x] List background (finder-detail only) → color-picker → `t.result.listBg` — deck: Result colors ▸ Template chip ▸ "List background" pill
+- [x] Product / detail card (finder-detail only) → color-picker → `t.result.cardBg` — deck: Result colors ▸ Template chip ▸ "Product / detail card" pill
+- [x] Card text (finder-detail only) → color-picker → `t.result.cardTextColor` — deck: Result colors ▸ Template chip ▸ "Card text" pill (distinct key `resCardTextColor` from the general "Card text" pill above — mutually exclusive by `resultTemplate`, never shown together)
+- [x] Promo panel (promo-map-rank only) → color-picker → `t.result.panelColor` — deck: Result colors ▸ Template chip ▸ "Promo panel" pill
+- [x] Category rail (promo-map-rank only) → color-picker → `t.result.railBg` — deck: Result colors ▸ Template chip ▸ "Category rail" pill
+- [x] Sub-category panel (promo-map-rank only) → color-picker → `t.result.subPanelColor` — deck: Result colors ▸ Template chip ▸ "Sub-category panel" pill
+- [x] Sub-category text (promo-map-rank only) → color-picker → `t.result.secondaryTextColor` — deck: Result colors ▸ Template chip ▸ "Sub-category text" pill
+- [x] Map pin (promo-map-rank only) → color-picker → `t.result.pinColor` — deck: Result colors ▸ Template chip ▸ "Map pin" pill
+- [x] Location dots (promo-map-rank only) → color-picker → `t.result.dotColor` — deck: Result colors ▸ Template chip ▸ "Location dots" pill
+- [x] Map area (promo-map-rank only) → color-picker → `t.result.mapBg` — deck: Result colors ▸ Template chip ▸ "Map area" pill
+- [x] Header bar → segment (Show/Hide, conditional not finder-detail) → `t.result.showHeader` — deck: Result colors ▸ Header chip ▸ "Header bar" pill
+- [x] Header tracklist → segment (Show/Hide, conditional `showHeader`) → `t.result.showTracklist` — deck: Result colors ▸ Header chip ▸ "Header tracklist" pill
 
 **Navigation buttons block (unconditional on this step) — same shared/independent split as Step 5, see Structural note 1:**
 
-- [ ] Back · Icon color → color-picker → `t.nav.backColor` **[SHARED with Intermediate-colors step]**
-- [ ] Back · Background → color-picker → `t.nav.backBg` **[SHARED]**
-- [ ] Home · Icon color → color-picker → `t.nav.homeColor` **[SHARED]**
-- [ ] Home · Background → color-picker → `t.nav.homeBg` **[SHARED]**
-- [ ] Button style → segment (`navModes`) → `t.nav.mode` **[SHARED]**
-- [ ] Back label → text input (conditional) → `t.nav.backLabel` **[SHARED]**
-- [ ] Home label → text input (conditional) → `t.nav.homeLabel` **[SHARED]**
-- [ ] Button size → segment (`navSizes`) → `t.nav.size` **[SHARED]**
-- [ ] Back icon → icon-tile-group → `t.nav.backIcon` via `pickNavIcon('back')` **[SHARED]**
-- [ ] Home icon → icon-tile-group → `t.nav.homeIcon` via `pickNavIcon('home')` **[SHARED]**
-- [ ] Nav bar style → segment (`navStyles`) → `t.navStyle` **[SHARED]**
-- [ ] Button layout → segment → `t.result.navSplit` via `setNavSplit('result', bool)` **[INDEPENDENT]**
-- [ ] Button position → segment (conditional `!split`) → `t.result.navPosition` via `setNavPosition('result', p.id)` **[INDEPENDENT]**
-- [ ] Back position → segment (conditional `split`) → `t.result.navBackPosition` via `setNavBackPosition('result', p.id)` **[INDEPENDENT]**
-- [ ] Home position → segment (conditional `split`) → `t.result.navHomePosition` via `setNavHomePosition('result', p.id)` **[INDEPENDENT]**
+- [x] Back · Icon color → color-picker → `t.nav.backColor` **[SHARED with Intermediate-colors step]** — deck: Result colors ▸ Navigation chip ▸ "Back · Icon color" pill (shared `#navEditorTpl` / `navOptions()`)
+- [x] Back · Background → color-picker → `t.nav.backBg` **[SHARED]** — deck: Result colors ▸ Navigation chip ▸ "Back · Background" pill
+- [x] Home · Icon color → color-picker → `t.nav.homeColor` **[SHARED]** — deck: Result colors ▸ Navigation chip ▸ "Home · Icon color" pill
+- [x] Home · Background → color-picker → `t.nav.homeBg` **[SHARED]** — deck: Result colors ▸ Navigation chip ▸ "Home · Background" pill
+- [x] Button style → segment (`navModes`) → `t.nav.mode` **[SHARED]** — deck: Result colors ▸ Navigation chip ▸ "Button style" pill
+- [x] Back label → text input (conditional) → `t.nav.backLabel` **[SHARED]** — deck: Result colors ▸ Navigation chip ▸ "Back label" pill
+- [x] Home label → text input (conditional) → `t.nav.homeLabel` **[SHARED]** — deck: Result colors ▸ Navigation chip ▸ "Home label" pill
+- [x] Button size → segment (`navSizes`) → `t.nav.size` **[SHARED]** — deck: Result colors ▸ Navigation chip ▸ "Button size" pill
+- [x] Back icon → icon-tile-group → `t.nav.backIcon` via `pickNavIcon('back')` **[SHARED]** — deck: Result colors ▸ Navigation chip ▸ "Back icon" pill
+- [x] Home icon → icon-tile-group → `t.nav.homeIcon` via `pickNavIcon('home')` **[SHARED]** — deck: Result colors ▸ Navigation chip ▸ "Home icon" pill
+- [x] Nav bar style → segment (`navStyles`) → `t.navStyle` **[SHARED]** — deck: Result colors ▸ Navigation chip ▸ "Nav bar style" pill
+- [x] Button layout → segment → `t.result.navSplit` via `setNavSplit('result', bool)` **[INDEPENDENT]** — deck: Result colors ▸ Navigation chip ▸ "Button layout" pill (page-scoped via shared template's `page` context = `'result'`)
+- [x] Button position → segment (conditional `!split`) → `t.result.navPosition` via `setNavPosition('result', p.id)` **[INDEPENDENT]** — deck: Result colors ▸ Navigation chip ▸ "Button position" pill
+- [x] Back position → segment (conditional `split`) → `t.result.navBackPosition` via `setNavBackPosition('result', p.id)` **[INDEPENDENT]** — deck: Result colors ▸ Navigation chip ▸ "Back position" pill
+- [x] Home position → segment (conditional `split`) → `t.result.navHomePosition` via `setNavHomePosition('result', p.id)` **[INDEPENDENT]** — deck: Result colors ▸ Navigation chip ▸ "Home position" pill
 
-**Step 7 total: 35 controls (21 base color/header rows + 15 nav-block, minus 1 dup — 20 base + 15 nav = 35; nav-block shared/independent split identical to Step 5)**
+**Step 7 total: 35 controls (21 base color/header rows + 15 nav-block, minus 1 dup — 20 base + 15 nav = 35; nav-block shared/independent split identical to Step 5) — all 35 migrated, all reachable via deck + All-settings sheet, shared nav state verified against the same `t.nav` object as Step 5 (not a duplicated copy). `promo-map-rank`'s 7 color pickers remain reachable only for themes that already have that legacy value; no new tile was added.**
 
 ### Step 8 — Animations & loader (`anim`, step-title "Animations & loader")
 
