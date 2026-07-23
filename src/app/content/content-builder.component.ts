@@ -12,6 +12,15 @@ import { SelectFieldComponent, SelectOption } from '../shared/select-field.compo
 import { ColorPickerComponent } from '../shared/color-picker.component';
 import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
 import type { ResultProduct, CardItem, ImageFit, ResultContent, ThemeTokens, FieldSource } from '@contract/layout';
+import { addIcons } from 'ionicons';
+import {
+  addOutline, albumsOutline, appsOutline, bulbOutline, chatboxOutline, chatbubbleOutline, checkboxOutline,
+  cloudDownloadOutline, compassOutline, ellipseOutline, eyeOutline, gitBranchOutline, gitNetworkOutline,
+  gridOutline, hourglassOutline, imageOutline, imagesOutline, layersOutline, listOutline, locateOutline,
+  locationOutline, mapOutline, megaphoneOutline, menuOutline, optionsOutline, pricetagOutline,
+  pricetagsOutline, removeOutline, repeatOutline, resizeOutline, shuffleOutline, swapVerticalOutline,
+  textOutline, timeOutline, timerOutline, toggleOutline,
+} from 'ionicons/icons';
 import {
   NtDeckChipsComponent, NtDeckChip,
   NtValuePillRowComponent, NtValuePill,
@@ -1412,7 +1421,19 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     return this.resultProductModalIndex != null ? this.curResult.products[this.resultProductModalIndex] : undefined;
   }
 
-  constructor(private content: ContentService, private themes: ThemeService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private alertController: AlertController) {}
+  constructor(private content: ContentService, private themes: ThemeService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private alertController: AlertController) {
+    // Editor Deck redesign: register every icon name used by this component's
+    // chip/pill/editor-card/settings-sheet option lists (same reasoning as
+    // theme-wizard.component.ts's constructor — see comment there).
+    addIcons({
+      addOutline, albumsOutline, appsOutline, bulbOutline, chatboxOutline, chatbubbleOutline, checkboxOutline,
+      cloudDownloadOutline, compassOutline, ellipseOutline, eyeOutline, gitBranchOutline, gitNetworkOutline,
+      gridOutline, hourglassOutline, imageOutline, imagesOutline, layersOutline, listOutline, locateOutline,
+      locationOutline, mapOutline, megaphoneOutline, menuOutline, optionsOutline, pricetagOutline,
+      pricetagsOutline, removeOutline, repeatOutline, resizeOutline, shuffleOutline, swapVerticalOutline,
+      textOutline, timeOutline, timerOutline, toggleOutline,
+    });
+  }
 
   async pickImage(item: CardItem | ResultProduct): Promise<void> {
     const dataUrl = await this.picker.pick();

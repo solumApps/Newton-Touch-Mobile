@@ -1,6 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonIcon } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { chevronDownOutline, chevronForwardOutline, chevronUpOutline, imageOutline, reorderTwoOutline, trashOutline } from 'ionicons/icons';
+
+addIcons({ chevronDownOutline, chevronForwardOutline, chevronUpOutline, imageOutline, reorderTwoOutline, trashOutline });
 
 /**
  * Collapsed row for repeating/unbounded list items (home cards, intermediate

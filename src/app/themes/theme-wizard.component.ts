@@ -13,6 +13,16 @@ import { Subscription } from 'rxjs';
 import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, CardOverlayStyle, OverlayShape, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, TextCase, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, NavButtonMode, NavButtonSize, SaverOverlayPosition, ScrollMode, ScreensaverMode } from '@contract/layout';
 import { MIN_COLUMNS, MAX_COLUMNS, columnsForLayout, coerceColumns, NAV_ICONS, navIconKind } from '@contract/layout';
 import { ThemeCustomColorService } from '../services/theme-custom-color.service';
+import { addIcons } from 'ionicons';
+import {
+  albumsOutline, appsOutline, arrowBackOutline, chatboxOutline, chatbubbleOutline, cloudUploadOutline,
+  colorPaletteOutline, contractOutline, contrastOutline, ellipseOutline, expandOutline, eyeOutline,
+  flagOutline, funnelOutline, gridOutline, homeOutline, imageOutline, imagesOutline, layersOutline,
+  listOutline, locateOutline, locationOutline, mapOutline, megaphoneOutline, menuOutline, moonOutline,
+  moveOutline, navigateOutline, optionsOutline, pricetagOutline, reorderFourOutline, reorderThreeOutline,
+  resizeOutline, searchOutline, speedometerOutline, squareOutline, starOutline, swapHorizontalOutline,
+  swapVerticalOutline, syncOutline, textOutline,
+} from 'ionicons/icons';
 import {
   NtDeckChipsComponent, NtDeckChip,
   NtValuePillRowComponent, NtValuePill,
@@ -1175,7 +1185,21 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     return `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'%3E%3Crect width='160' height='100' fill='${fill}'/%3E%3Cpolygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/%3E%3C/svg%3E")`;
   }
 
-  constructor(private themes: ThemeService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private sanitizer: DomSanitizer, private customColors: ThemeCustomColorService, private alertController: AlertController) {}
+  constructor(private themes: ThemeService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private sanitizer: DomSanitizer, private customColors: ThemeCustomColorService, private alertController: AlertController) {
+    // Editor Deck redesign: register every icon name used by this component's
+    // chip/pill/editor-card/settings-sheet option lists. Ionic's standalone
+    // IonIcon requires explicit addIcons() registration per name — unregistered
+    // names render blank (this is why some icons were missing before this fix).
+    addIcons({
+      albumsOutline, appsOutline, arrowBackOutline, chatboxOutline, chatbubbleOutline, cloudUploadOutline,
+      colorPaletteOutline, contractOutline, contrastOutline, ellipseOutline, expandOutline, eyeOutline,
+      flagOutline, funnelOutline, gridOutline, homeOutline, imageOutline, imagesOutline, layersOutline,
+      listOutline, locateOutline, locationOutline, mapOutline, megaphoneOutline, menuOutline, moonOutline,
+      moveOutline, navigateOutline, optionsOutline, pricetagOutline, reorderFourOutline, reorderThreeOutline,
+      resizeOutline, searchOutline, speedometerOutline, squareOutline, starOutline, swapHorizontalOutline,
+      swapVerticalOutline, syncOutline, textOutline,
+    });
+  }
 
   async ngOnInit(): Promise<void> { await this.init(); }
   ngOnDestroy(): void {
