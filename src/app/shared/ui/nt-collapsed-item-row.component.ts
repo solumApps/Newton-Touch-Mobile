@@ -37,7 +37,7 @@ import { IonIcon } from '@ionic/angular/standalone';
         <button type="button" class="ibtn" title="Move down" [disabled]="!canMoveDown" (click)="moveDown.emit()">
           <ion-icon name="chevron-down-outline" aria-hidden="true"></ion-icon>
         </button>
-        <button type="button" class="ibtn danger" title="Delete" (click)="delete.emit()">
+        <button type="button" class="ibtn danger" *ngIf="canDelete" title="Delete" (click)="delete.emit()">
           <ion-icon name="trash-outline" aria-hidden="true"></ion-icon>
         </button>
       </span>
@@ -51,6 +51,10 @@ export class NtCollapsedItemRowComponent {
   @Input() badge = '';
   @Input() canMoveUp = true;
   @Input() canMoveDown = true;
+  /** Hide the delete action for read-only/locked lists (e.g. API-derived
+   *  category cards, which have no remove concept). Defaults to true so every
+   *  existing caller (Home cards, etc.) is unaffected. */
+  @Input() canDelete = true;
 
   @Output() rowClick = new EventEmitter<void>();
   @Output() moveUp = new EventEmitter<void>();

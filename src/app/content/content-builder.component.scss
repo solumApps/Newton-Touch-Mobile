@@ -352,3 +352,15 @@ table.sum td:first-child {
    the sheet instead of growing past the viewport. */
 ion-modal.home-card-editor-modal .nt-sheet { max-height: 86vh; overflow-y: auto; }
 ion-modal.home-card-editor-modal .sec { margin-top: 4px; }
+
+/* Intermediate step — collapsed-row + bottom-sheet pattern (repeating lists,
+   NOT part of the deck above, per UI-REDESIGN-PROMPT.md §5): category L{n}
+   cards, prototype-leveled L{n} cards, common-mode intermediate items. */
+.inter-cards-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+
+ion-modal.inter-card-editor-modal .nt-sheet,
+ion-modal.proto-card-editor-modal .nt-sheet,
+ion-modal.inter-item-editor-modal .nt-sheet { max-height: 86vh; overflow-y: auto; }
+ion-modal.inter-card-editor-modal .sec,
+ion-modal.proto-card-editor-modal .sec,
+ion-modal.inter-item-editor-modal .sec { margin-top: 4px; }

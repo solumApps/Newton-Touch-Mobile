@@ -449,6 +449,9 @@ control is left as-is (unconverted, still plain markup) — it belongs to the In
 conversion, out of scope here. Not checked off below; flagged so it isn't lost when Intermediate is
 converted next.
 
+**Update (Intermediate-step phase):** confirmed and migrated — see Step B below, where it is checked
+off as "Result pages mode".
+
 - [x] Header visibility indicator (chip, read-only reflecting `d.themeTokens.showHeader`) — not editable here (edited in theme wizard) — deck: Home ▸ Header chip ▸ "Header visibility" pill (read-only editor-card, no controls)
 - [x] Logo image → image-upload (thumb tap, conditional `showLogo`) → `d.header.logo` via `pickLogo()` / `clearLogo()` — deck: Home ▸ Header chip ▸ "Logo image" pill
 - [x] Logo size → slider (50–250%) → `headerLogoScalePct` via `setHeaderLogoScale(v)` — deck: Home ▸ Header chip ▸ "Logo size" pill
@@ -479,29 +482,54 @@ latter with 7 sub-fields per item)**
 
 ### Step B — Intermediate (`inter`/`inter1`/`inter2`/`inter3`, step-title "Intermediate page")
 
-*Reused template across up to 4 step instances per Structural note 6 — level-scoped via `interLevel`/`activeL0/L1/L2` or `protoL0Id/L1Id/L2Id`. Listed once; deck must replicate the same per-level scoping.*
+*Reused template across up to 4 step instances per Structural note 6 — level-scoped via `interLevel`/`activeL0/L1/L2` or `protoL0Id/L1Id/L2Id`. Listed once; deck replicates the same per-level scoping (chip/pill option getters read `interLevel`/`d.appMode` live, same as the original `*ngIf`s — verified against all 4 step instances).*
 
-- [ ] Home Fields (L0) selector (category mode) → segment (repeating per API value) → `activeL0` via `setActiveL0(v)`
-- [ ] L1 options selector (category mode, `interLevel>=2`) → segment → `activeL1` via `setActiveL1(v)`
-- [ ] L2 options selector (category mode, `interLevel>=3`) → segment → `activeL2` via `setActiveL2(v)`
-- [ ] Intermediate L{n} Cards (category mode) → repeating-list-item (read-only names from API + editable fields) → `interCardsList` — sub-fields: image-upload (`pickImage`), Fit segment, price input, unit input
-- [ ] Brand rail message (per drill level) → text input (conditional `isBrandRail`) → `brandRailMsgForStep` via `setBrandRailMsg($event)`
-- [ ] Finder steps labels (finder-select, first level only) → repeating-list-item text inputs (one per drill level) → via `finderStepValue(i)` / `setFinderStep(i, $event)`
-- [ ] Hero Title (finder-select) → text input → `d.header.title` via `setHeader('title', $event)`
-- [ ] Prompt (finder-select) → text input → `td.promptText`
-- [ ] Fast lookup index mode (finder-select) → segment (A–Z/Number) → `td.indexMode`
-- [ ] Fast lookup · Min (finder-select, number mode) → number input → `td.indexNumberMin`
-- [ ] Fast lookup · Max (finder-select, number mode) → number input → `td.indexNumberMax`
-- [ ] Fast lookup · Interval (finder-select, number mode) → number input → `td.indexNumberInterval`
-- [ ] Home Fields (L0) selector (prototype leveled mode) → segment → `protoL0Id` via `setProtoL0(id)`
-- [ ] L1 options selector (prototype leveled, `interLevel>=2`) → segment → `protoL1Id` via `setProtoL1(id)`
-- [ ] L2 options selector (prototype leveled, `interLevel>=3`) → segment → `protoL2Id` via `setProtoL2(id)`
-- [ ] Intermediate L{n} cards (prototype leveled) → repeating-list-item ("+ Add" via `addProtoCard()`, reorder/remove via `moveProtoCard`/`removeProtoCard`) → `protoCards` — sub-fields: image-upload, name input, Fit segment, price input, unit input
-  - nested: Own result products (leaf nodes only, promo-map-rank) → repeating-list-item → `it.node.products[]` via `addLeafProduct(it.node)` / `removeLeafProduct` — sub-fields: image-upload, name input
-- [ ] Intermediate items (common/shared mode, non-category) → repeating-list-item ("+ Add" via `addIntermediate()`) → `d.intermediate[]` via `moveIntermediate(i,dir)` / `removeIntermediate(i)` — sub-fields: image-upload, name input (locked if `fromApi`), Fit segment
+**Migrated — deck-style settings use the SAME chip → value-pill → editor-card →
+All-settings-sheet pattern as the Home step and theme-wizard, reusing the exact
+same `nt-deck-chips` / `nt-value-pill-row` / `nt-editor-card` / `nt-settings-sheet`
+components. Chips: Category (Home Fields/L1/L2 selectors — shared pill keys
+`homeFields`/`l1Options`/`l2Options` across category mode and prototype-leveled
+mode since the two are mutually exclusive by `appMode`) / Brand rail (only when
+`isBrandRail`) / Finder (only when `isFinderSelect && interLevel<=1`) / Pages
+(only when `appMode!=='category'`) — each filtered out entirely (no chip) when
+empty, mirroring the Home step's category-filtering pattern. The repeating
+**Intermediate L{n} Cards** (category mode, read-only/locked — no reorder or
+delete control existed originally, so `[canMoveUp]="false" [canMoveDown]="false"
+[canDelete]="false"` on the row; `nt-collapsed-item-row` gained a new optional
+`canDelete` input, default `true`, for this — zero behavior change to every
+other caller), **Intermediate L{n} cards** (prototype leveled) and **Intermediate
+items** (common/shared mode) lists use the collapsed-row + bottom-sheet pattern
+instead (see below), per UI-REDESIGN-PROMPT.md §5 — NOT part of the deck.**
 
-**Step B total: 16 named controls + 4 repeating-list-item templates (L{n} category cards, finder-select
-labels, prototype leveled cards with a nested products sub-list, common intermediate items)**
+- [x] Home Fields (L0) selector (category mode) → segment (repeating per API value) → `activeL0` via `setActiveL0(v)` — deck: Intermediate ▸ Category chip ▸ "Home Fields" pill
+- [x] L1 options selector (category mode, `interLevel>=2`) → segment → `activeL1` via `setActiveL1(v)` — deck: Intermediate ▸ Category chip ▸ "{{ catLabel(1) }} options" pill
+- [x] L2 options selector (category mode, `interLevel>=3`) → segment → `activeL2` via `setActiveL2(v)` — deck: Intermediate ▸ Category chip ▸ "{{ catLabel(2) }} options" pill
+- [x] Intermediate L{n} Cards (category mode) → repeating-list-item (read-only names from API + editable fields) → `interCardsList` — sub-fields: image-upload (`pickImage`), Fit segment, price input, unit input — collapsed-row + sheet: each card renders as one `nt-collapsed-item-row` (thumbnail, locked API label, Fit summary badge, no reorder/delete — matches original); tapping the row opens an `ion-modal` bottom sheet (`.inter-card-editor-modal`) with the full original per-card editor markup
+- [x] Brand rail message (per drill level) → text input (conditional `isBrandRail`) → `brandRailMsgForStep` via `setBrandRailMsg($event)` — deck: Intermediate ▸ Brand rail chip ▸ "Brand rail message (L{{ brStepLevel }})" pill
+- [x] Finder steps labels (finder-select, first level only) → repeating-list-item text inputs (one per drill level) → via `finderStepValue(i)` / `setFinderStep(i, $event)` — deck: Intermediate ▸ Finder chip ▸ "Finder steps" pill (editor-card holds all N inputs — bounded/fixed count, not an unbounded add/remove list, so it stays a single pill rather than collapsed rows)
+- [x] Hero Title (finder-select) → text input → `d.header.title` via `setHeader('title', $event)` — deck: Intermediate ▸ Finder chip ▸ "Hero Title" pill
+- [x] Prompt (finder-select) → text input → `td.promptText` — deck: Intermediate ▸ Finder chip ▸ "Prompt" pill
+- [x] Fast lookup index mode (finder-select) → segment (A–Z/Number) → `td.indexMode` — deck: Intermediate ▸ Finder chip ▸ "Fast lookup index" pill
+- [x] Fast lookup · Min (finder-select, number mode) → number input → `td.indexNumberMin` — deck: Intermediate ▸ Finder chip ▸ "Fast lookup · Min" pill
+- [x] Fast lookup · Max (finder-select, number mode) → number input → `td.indexNumberMax` — deck: Intermediate ▸ Finder chip ▸ "Fast lookup · Max" pill
+- [x] Fast lookup · Interval (finder-select, number mode) → number input → `td.indexNumberInterval` — deck: Intermediate ▸ Finder chip ▸ "Fast lookup · Interval" pill
+- [x] Home Fields (L0) selector (prototype leveled mode) → segment → `protoL0Id` via `setProtoL0(id)` — deck: Intermediate ▸ Category chip ▸ "Home Fields" pill (same pill key as category mode — mutually exclusive by `appMode`)
+- [x] L1 options selector (prototype leveled, `interLevel>=2`) → segment → `protoL1Id` via `setProtoL1(id)` — deck: Intermediate ▸ Category chip ▸ "L1 options" pill
+- [x] L2 options selector (prototype leveled, `interLevel>=3`) → segment → `protoL2Id` via `setProtoL2(id)` — deck: Intermediate ▸ Category chip ▸ "L2 options" pill
+- [x] Intermediate L{n} cards (prototype leveled) → repeating-list-item ("+ Add" via `addProtoCard()`, reorder/remove via `moveProtoCard`/`removeProtoCard`) → `protoCards` — sub-fields: image-upload, name input, Fit segment, price input, unit input — collapsed-row + sheet: each card renders as one `nt-collapsed-item-row` (thumbnail, name, Fit + own-product-count summary badge, reorder ↑/↓ + delete wired directly to `moveProtoCard()`/`removeProtoCard()` from the row); tapping the row opens an `ion-modal` bottom sheet (`.proto-card-editor-modal`) with the full original per-card editor markup
+  - nested: Own result products (leaf nodes only, promo-map-rank) → repeating-list-item → `it.node.products[]` via `addLeafProduct(it.node)` / `removeLeafProduct` — sub-fields: image-upload, name input — kept as the original simple inline list INSIDE the proto-card bottom sheet (not further collapsed — a small nested leaf-products list, consistent with how Result step's Specs/Fitments nested lists also stay inline inside their parent editor)
+- [x] Intermediate items (common/shared mode, non-category) → repeating-list-item ("+ Add" via `addIntermediate()`) → `d.intermediate[]` via `moveIntermediate(i,dir)` / `removeIntermediate(i)` — sub-fields: image-upload, name input (locked if `fromApi`), Fit segment — collapsed-row + sheet: each item renders as one `nt-collapsed-item-row` (thumbnail, name, Fit summary badge, reorder ↑/↓ + delete wired directly to `moveIntermediate()`/`removeIntermediate()` from the row, same reversed-display-index convention as Home step's Home Cards); tapping the row opens an `ion-modal` bottom sheet (`.inter-item-editor-modal`) with the full original per-item editor markup
+- [x] Result pages mode (non-category, applies to next step) → segment (Common — one result page / Individual — per item) → `resultMode` via `setResultMode(mode)` — **confirmed to belong to the Intermediate step's template body** (per the structural note flagged during the Home-step phase) — deck: Intermediate ▸ Pages chip ▸ "Result pages mode" pill — checked off HERE
+
+**Step B total: 17 named controls migrated to the Intermediate step's Editor Deck
++ collapsed-row/sheet (all reachable via deck + All-settings sheet, or via the 3
+repeating-list collapsed rows + bottom sheets), plus 3 repeating-list-item
+templates (Intermediate L{n} Cards — category mode, read-only, 4 sub-fields;
+Intermediate L{n} cards — prototype leveled, 4 sub-fields + a nested own-products
+sub-list; Intermediate items — common mode, 3 sub-fields). "Finder steps labels"
+is a bounded/fixed-count (1–4) input set, not an unbounded add/remove list, so it
+stays inside the deck as a single pill rather than becoming a 4th collapsed-row
+list — see note above.**
 
 ### Step C — Result (`result`, step-title "Result page")
 
@@ -569,17 +597,43 @@ Additional footer-level elements (not step-scoped, present on every content-buil
 Renders one level of a `CardItem` tree; recurses into itself for `card.children`. Unbounded depth, capped by
 `maxDepth` input from the parent step (e.g. Category mode caps at 4).
 
-- [ ] Sub-item name → text input (per child, repeating) → `child.name` via `[(ngModel)]`
-- [ ] Sub-item image → image-upload (thumb, conditional `needsImage`) → `child.image` via `pickImage(child)`
-- [ ] Sub-item image Fit → segment (`fitOpts`: cover/contain/fill, conditional image present) → `child.imageFit` via `setFit(child, f)`
-- [ ] Move sub-item up → button (disabled at top) → `moveNode(i, -1)`
-- [ ] Move sub-item down → button (disabled at bottom) → `moveNode(i, 1)`
-- [ ] Remove sub-item → button → `remove(i)`
-- [ ] Own result products (leaf nodes only, conditional `allowProducts`) → repeating-list-item → `child.products[]` via `addProduct(child)` / `removeProduct(child, i)` / `moveProduct(child, i, dir)` — sub-fields: image-upload, name input, price input, aisle input
-- [ ] Add sub-item → button (disabled at `maxDepth`, label shows max when disabled) → `add()`
+**Migrated — template-only change, same recursive structure/inputs/outputs
+(`[card]`, `[depth]`, `[maxDepth]`, `[needsImage]`, `[allowProducts]`, no
+outputs — unchanged) and the same underlying `CardItem` tree model / add-remove
+logic (all methods — `add`, `moveNode`, `remove`, `pickImage`, `addProduct`,
+`removeProduct`, `moveProduct`, `fitOf`, `setFit` — byte-identical). Per
+UI-REDESIGN-PROMPT.md §5's `card-tree-editor` nesting note: each level's
+children now render as `nt-collapsed-item-row`s (thumbnail, name, a
+sub-item-count/own-product-count summary badge, chevron); expanding is per-row
+via new component-local view-only state (`expandedIds: Set<string>`,
+`isExpanded()`/`toggleExpand()` — one instance per recursion level, so each
+level tracks its own children's expand state independently, does not touch the
+`CardItem` model). Only the expanded node's full editor (name input, image,
+Fit, own result products) is visible, and — nested inside that same expanded
+block — the recursive `<app-card-tree-editor>` call for that node's own
+children (so a whole collapsed branch renders as nothing but its row until
+expanded, unbounded depth still works identically). The always-visible "+ Add
+sub-item" button at the bottom of each level (adds to `card.children`, i.e. the
+current level's own list) is unaffected by any child's expand state, matching
+its original behavior. NOTE: `card-tree-editor.component.ts` is not currently
+wired into any parent template (`content-builder.component.html` uses its own
+`protoCards`/`addProtoCard()` flat-list implementation for prototype-leveled
+drill-down instead) — confirmed via a repo-wide search; it is converted per
+these instructions regardless of current wiring, with zero risk to the live app.
 
-**card-tree-editor total: 7 named controls + 1 nested repeating-list-item template (per-leaf result products,
-4 sub-fields), recursing into itself once per child (unbounded depth)**
+- [x] Sub-item name → text input (per child, repeating) → `child.name` via `[(ngModel)]` — moved into the expanded row's inline editor (still `[(ngModel)]="child.name"`)
+- [x] Sub-item image → image-upload (thumb, conditional `needsImage`) → `child.image` via `pickImage(child)` — moved into the expanded row's inline editor
+- [x] Sub-item image Fit → segment (`fitOpts`: cover/contain/fill, conditional image present) → `child.imageFit` via `setFit(child, f)` — moved into the expanded row's inline editor
+- [x] Move sub-item up → button (disabled at top) → `moveNode(i, -1)` — now the collapsed row's built-in reorder-up icon button (`nt-collapsed-item-row`'s `(moveUp)`)
+- [x] Move sub-item down → button (disabled at bottom) → `moveNode(i, 1)` — now the collapsed row's built-in reorder-down icon button (`(moveDown)`)
+- [x] Remove sub-item → button → `remove(i)` — now the collapsed row's built-in delete icon button (`(delete)`)
+- [x] Own result products (leaf nodes only, conditional `allowProducts`) → repeating-list-item → `child.products[]` via `addProduct(child)` / `removeProduct(child, i)` / `moveProduct(child, i, dir)` — sub-fields: image-upload, name input, price input, aisle input — kept as the original simple inline list INSIDE the expanded row's editor (small nested leaf-products list, not further collapsed — same precedent as the Intermediate step's nested own-products list)
+- [x] Add sub-item → button (disabled at `maxDepth`, label shows max when disabled) → `add()` — unchanged position (bottom of each level's list), always visible regardless of any child's expand state
+
+**card-tree-editor total: 7 named controls migrated to collapsed-row (name/image/Fit/own-products moved into
+the per-row expanded editor; move/remove moved onto the collapsed row itself) + 1 nested repeating-list-item
+template (per-leaf result products, 4 sub-fields, kept inline inside the expanded editor), recursing into
+itself once per EXPANDED child only (unbounded depth; collapsed children render nothing but their row).**
 
 ---
 

@@ -360,6 +360,12 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
       if (this.step?.key === 'result') this.syncResultProducts();
     }
     if (this.protoLeveled && this.interLevel > 0) this.refreshProto();
+    // View-only deck state: the Intermediate step's chip/pill options depend on
+    // `interLevel` (different per inter/inter1/inter2/inter3 instance), so reset
+    // to the first chip/pill whenever the step changes — same as switching chips
+    // manually via onInterChipChange().
+    this.interActiveChip = 0;
+    this.interActivePill = 0;
     setTimeout(() => {
       void this.contentViewport?.scrollToTop(0);
       const host = this.builderSteps?.nativeElement;
@@ -1034,6 +1040,181 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
   closeHomeCardEditor(): void { this.homeCardModalOpen = false; this.homeCardModalIndex = null; }
   get homeCardModalCard(): CardItem | undefined {
     return this.homeCardModalIndex != null ? this.draft?.home[this.homeCardModalIndex] : undefined;
+  }
+
+  // ===== Editor Deck (Intermediate step) — view-only UI state (active category
+  // chip / value pill, sheet + card-sheet open flags). Every option below
+  // reads/writes the exact same properties/methods as the original vertical
+  // form — only the presentation is restructured. Reused across all 4 step
+  // instances (inter/inter1/inter2/inter3): the chip/pill option lists below
+  // recompute from `interLevel`/`stepCase` on every access (same mechanism the
+  // original template used), so no extra per-level state is needed. Repeating
+  // lists (Intermediate L{n} Cards, prototype leveled cards, common-mode
+  // Intermediate items) use the separate collapsed-row + bottom-sheet pattern
+  // (not the deck) per UI-REDESIGN-PROMPT.md §5.
+  // See UI-REDESIGN-INVENTORY.md PART 2 Step B for the full control list.
+  interActiveChip = 0;
+  interActivePill = 0;
+  interSettingsOpen = false;
+
+  /** Home Fields (L0) / L1 / L2 selectors — shared pill keys across category
+   *  mode (raw API values) and prototype-leveled mode (home-card ids), which
+   *  are mutually exclusive by `appMode`, so a single option set is safe. */
+  private get interLevelsOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const d = this.draft;
+    if (!d) return out;
+    if (d.appMode === 'category') {
+      if (!this.l0SegList.length) return out;
+      out.push({ key: 'homeFields', icon: 'grid-outline', label: 'Home Fields', value: this.activeL0 || '—' });
+      if (this.interLevel >= 2) {
+        out.push({ key: 'l1Options', icon: 'layers-outline', label: `${this.catLabel(1)} options`, value: this.activeL1 === 'all' ? 'All' : this.activeL1 });
+      }
+      if (this.interLevel >= 3) {
+        out.push({ key: 'l2Options', icon: 'layers-outline', label: `${this.catLabel(2)} options`, value: this.activeL2 === 'all' ? 'All' : this.activeL2 });
+      }
+    } else if (this.protoLeveled && this.interLevel > 0) {
+      if (!this.protoL0Segs.length) return out;
+      out.push({ key: 'homeFields', icon: 'grid-outline', label: 'Home Fields', value: this.protoL0Segs.find((s) => s.id === this.protoL0Id)?.label || '—' });
+      if (this.interLevel >= 2) {
+        out.push({ key: 'l1Options', icon: 'layers-outline', label: 'L1 options', value: this.protoL1Segs.find((s) => s.id === this.protoL1Id)?.label || '—' });
+      }
+      if (this.interLevel >= 3) {
+        out.push({ key: 'l2Options', icon: 'layers-outline', label: 'L2 options', value: this.protoL2Segs.find((s) => s.id === this.protoL2Id)?.label || '—' });
+      }
+    }
+    return out;
+  }
+
+  private get interBrandRailOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.isBrandRail) return out;
+    out.push({ key: 'brandRailMsg', icon: 'chatbox-outline', label: `Brand rail message (L${this.brStepLevel})`, value: this.brandRailMsgForStep || 'Inherits' });
+    return out;
+  }
+
+  private get interFinderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.isFinderSelect || this.interLevel > 1) return out;
+    out.push({ key: 'finderSteps', icon: 'list-outline', label: 'Finder steps', value: `${this.finderStepCount} label${this.finderStepCount === 1 ? '' : 's'}` });
+    out.push({ key: 'heroTitleFinder', icon: 'text-outline', label: 'Hero Title', value: this.draft?.header?.title || 'Default (content name)' });
+    out.push({ key: 'promptFinder', icon: 'chatbubble-outline', label: 'Prompt', value: this.td.promptText || 'Default' });
+    out.push({ key: 'indexMode', icon: 'swap-vertical-outline', label: 'Fast lookup index', value: (this.td.indexMode || 'alpha') === 'alpha' ? 'A–Z' : 'Number' });
+    if (this.td.indexMode === 'number') {
+      out.push({ key: 'indexMin', icon: 'remove-outline', label: 'Fast lookup · Min', value: String(this.td.indexNumberMin ?? 0) });
+      out.push({ key: 'indexMax', icon: 'add-outline', label: 'Fast lookup · Max', value: String(this.td.indexNumberMax ?? 100) });
+      out.push({ key: 'indexInterval', icon: 'repeat-outline', label: 'Fast lookup · Interval', value: String(this.td.indexNumberInterval ?? 10) });
+    }
+    return out;
+  }
+
+  private get interPagesOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const d = this.draft;
+    if (!d || d.appMode === 'category') return out;
+    out.push({ key: 'resultPagesMode', icon: 'git-network-outline', label: 'Result pages mode', value: this.resultMode === 'common' ? 'Common — one result page' : 'Individual — per item' });
+    return out;
+  }
+
+  get interCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'levels', icon: 'grid-outline', label: 'Category', options: this.interLevelsOptions },
+      { key: 'brandrail', icon: 'megaphone-outline', label: 'Brand rail', options: this.interBrandRailOptions },
+      { key: 'finder', icon: 'compass-outline', label: 'Finder', options: this.interFinderOptions },
+      { key: 'pages', icon: 'git-network-outline', label: 'Pages', options: this.interPagesOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get interActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.interCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.interActiveChip, cats.length - 1)];
+  }
+  get interChipsInput(): NtDeckChip[] { return this.interCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get interPillsInput(): NtValuePill[] {
+    return (this.interActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get interActiveOption(): DeckOption | undefined {
+    const opts = this.interActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.interActivePill, opts.length - 1)];
+  }
+  get interActivePillKey(): string { return this.interActiveOption?.key || ''; }
+  get interActivePillLabel(): string { return (this.interActiveOption?.label || '').toUpperCase(); }
+  get interSettingsGroups(): NtSettingsGroup[] {
+    return this.interCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onInterChipChange(i: number): void { this.interActiveChip = i; this.interActivePill = 0; }
+  onInterRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.interActiveChip = sel.groupIndex;
+    this.interActivePill = sel.rowIndex;
+  }
+
+  // ----- Intermediate L{n} Cards (category mode) — collapsed-row + bottom-sheet
+  // (UI-REDESIGN-PROMPT.md §5). Read-only names from the API — no reorder/delete
+  // on the row (matches the original markup, which had none). -----
+  interCardModalOpen = false;
+  interCardModalIndex: number | null = null;
+  /** Small summary badge for a category L{n}-card row — just the image Fit
+   *  (there is no subtree/name concept here; the value is locked from the API). */
+  interCardBadge(node: CardItem): string {
+    if (!(this.intermediateNeedsImage && node.image)) return '';
+    const fit = this.fitOf(node);
+    return fit.charAt(0).toUpperCase() + fit.slice(1);
+  }
+  openInterCardEditor(idx: number): void { this.interCardModalIndex = idx; this.interCardModalOpen = true; }
+  closeInterCardEditor(): void { this.interCardModalOpen = false; this.interCardModalIndex = null; }
+  get interCardModalItem(): { node: CardItem; label: string } | undefined {
+    return this.interCardModalIndex != null ? this.interCardsList[this.interCardModalIndex] : undefined;
+  }
+
+  // ----- Intermediate L{n} cards (prototype leveled mode) — collapsed-row +
+  // bottom-sheet. Reorder/delete stay on the row (moveProtoCard/removeProtoCard,
+  // same as before). -----
+  protoCardModalOpen = false;
+  protoCardModalIndex: number | null = null;
+  /** Small summary badge for a prototype-leveled card row — Fit, plus own
+   *  result-product count for promo-map-rank leaves. */
+  protoCardBadge(node: CardItem): string {
+    const parts: string[] = [];
+    if (this.intermediateNeedsImage && node.image) {
+      const fit = this.fitOf(node);
+      parts.push(fit.charAt(0).toUpperCase() + fit.slice(1));
+    }
+    if (this.interAllowProducts && !(node.children && node.children.length)) {
+      const n = (node.products || []).length;
+      if (n) parts.push(`${n} product${n === 1 ? '' : 's'}`);
+    }
+    return parts.join(' · ');
+  }
+  openProtoCardEditor(idx: number): void { this.protoCardModalIndex = idx; this.protoCardModalOpen = true; }
+  closeProtoCardEditor(): void { this.protoCardModalOpen = false; this.protoCardModalIndex = null; }
+  get protoCardModalItem(): { node: CardItem; parent: CardItem } | undefined {
+    return this.protoCardModalIndex != null ? this.protoCards[this.protoCardModalIndex] : undefined;
+  }
+
+  // ----- Intermediate items (common/shared mode) — collapsed-row + bottom-sheet,
+  // same pattern as Home step's Home Cards (newest-first display; `idx` is the
+  // REAL index into `draft.intermediate[]` so reorder/delete call the exact same
+  // `moveIntermediate()` / `removeIntermediate()` methods with the exact same
+  // indices the old template computed via `d.intermediate.length - 1 - i`). -----
+  interItemModalOpen = false;
+  interItemModalIndex: number | null = null;
+  get intermediateItemsReversed(): { item: CardItem; idx: number }[] {
+    const arr = this.draft?.intermediate || [];
+    return arr.map((item, idx) => ({ item, idx })).slice().reverse();
+  }
+  interItemBadge(it: CardItem): string {
+    if (!(this.intermediateNeedsImage && it.image)) return '';
+    const fit = this.fitOf(it);
+    return fit.charAt(0).toUpperCase() + fit.slice(1);
+  }
+  openInterItemEditor(idx: number): void { this.interItemModalIndex = idx; this.interItemModalOpen = true; }
+  closeInterItemEditor(): void { this.interItemModalOpen = false; this.interItemModalIndex = null; }
+  get interItemModalItem(): CardItem | undefined {
+    return this.interItemModalIndex != null ? this.draft?.intermediate[this.interItemModalIndex] : undefined;
   }
 
   constructor(private content: ContentService, private themes: ThemeService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private alertController: AlertController) {}
