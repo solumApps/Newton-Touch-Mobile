@@ -964,6 +964,9 @@
 .hint { font-size: 12px; line-height: 1.5; color: var(--nt-muted); margin-top: 8px; }
 .media-row { display: flex; gap: 8px; margin: 8px 0 12px; }
 .media-row .media-btn { flex: 1; }
+/* Contains the floated .replay "▶ Preview" action button (Animations step) so it doesn't
+   collapse the row / overlap the tile-group rendered right after it in the editor-card. */
+.editor-actions { overflow: hidden; margin-bottom: 10px; }
 .slider-row { display: flex; align-items: center; gap: 12px; margin: 4px 0 12px; }
 .slider-row .nt-slider { flex: 1; accent-color: var(--nt-brand-ink); height: 28px; }
 .slider-row .slider-val { min-width: 48px; text-align: right; font-weight: 800; font-size: 13px; color: var(--nt-brand-ink); }

@@ -1271,57 +1271,113 @@
       </div>
 
       <div *ngSwitchCase="'anim'">
-        <div class="step-title">Animations &amp; loader</div>
-        <div class="step-title sm">Page transition <button class="replay" (click)="replayTransition()">▶ Preview</button></div>
-        <div class="seg"><button class="tile" *ngFor="let o of transitions" [class.sel]="t.animation.transition===o" (click)="t.animation.transition=o; replayTransition()">{{ o }}</button></div>
-        <div class="step-title sm">Speed</div>
-        <div class="seg"><button class="tile" *ngFor="let o of speeds" [class.sel]="t.animation.speed===o" (click)="t.animation.speed=o; replayTransition()">{{ o }}</button></div>
-        <div class="step-title sm">Loader style <button class="replay" (click)="replayLoader()">▶ Preview</button></div>
-        <div class="tiles ldr-tiles">
-          <button class="tile ldr-tile" *ngFor="let o of loaders" [class.sel]="t.loader.style===o" (click)="t.loader.style=o; replayLoader()">
-            <span class="ldr ldr-{{o}}" [style.--ldr]="t.loader.color"></span>
-            <span class="ldr-lbl">{{ o }}</span>
+        <div class="step-title-row">
+          <div class="step-title">Animations &amp; loader</div>
+          <button type="button" class="all-settings-btn" (click)="animSettingsOpen = true">
+            <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
           </button>
         </div>
-        <app-color-picker label="Loader color" [value]="t.loader.color" (valueChange)="t.loader.color=$event; replayLoader()"></app-color-picker>
+
+        <nt-deck-chips [chips]="animChipsInput" [activeIndex]="animActiveChip" (activeIndexChange)="onAnimChipChange($event)"></nt-deck-chips>
+        <nt-value-pill-row [pills]="animPillsInput" [activeIndex]="animActivePill" (activeIndexChange)="animActivePill = $event"></nt-value-pill-row>
+
+        <nt-editor-card [sectionLabel]="animActivePillLabel">
+          <ng-container [ngSwitch]="animActivePillKey">
+
+            <ng-container *ngSwitchCase="'transitionPick'">
+              <div class="editor-actions"><button class="replay" (click)="replayTransition()">▶ Preview</button></div>
+              <div class="tiles"><button class="tile" *ngFor="let o of transitions" [class.sel]="t.animation.transition===o" (click)="t.animation.transition=o; replayTransition()">{{ o }}</button></div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'speed'">
+              <div class="seg"><button class="tile" *ngFor="let o of speeds" [class.sel]="t.animation.speed===o" (click)="t.animation.speed=o; replayTransition()">{{ o }}</button></div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'loaderStyle'">
+              <div class="editor-actions"><button class="replay" (click)="replayLoader()">▶ Preview</button></div>
+              <div class="tiles ldr-tiles">
+                <button class="tile ldr-tile" *ngFor="let o of loaders" [class.sel]="t.loader.style===o" (click)="t.loader.style=o; replayLoader()">
+                  <span class="ldr ldr-{{o}}" [style.--ldr]="t.loader.color"></span>
+                  <span class="ldr-lbl">{{ o }}</span>
+                </button>
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'loaderColor'">
+              <app-color-picker label="Loader color" [value]="t.loader.color" (valueChange)="t.loader.color=$event; replayLoader()"></app-color-picker>
+            </ng-container>
+
+          </ng-container>
+        </nt-editor-card>
+
+        <nt-settings-sheet [groups]="animSettingsGroups" [(isOpen)]="animSettingsOpen" title="All settings · Animations & loader" (rowSelected)="onAnimRowSelected($event)"></nt-settings-sheet>
       </div>
 
       <div *ngSwitchCase="'saver'">
-        <div class="step-title">Screensaver</div>
-        <p class="hint">Screensaver media is attached later in Content. The theme just notes the intended mode.</p>
-        <div class="seg"><button class="tile" *ngFor="let o of saverModes" [class.sel]="saverMode===o" (click)="saverMode=o">{{ o }}</button></div>
-
-        <div class="step-title sm">Overlay content</div>
-        <p class="hint">Show a title + CTA block over the screensaver media.</p>
-        <div class="seg">
-          <button class="tile" [class.sel]="t.saverOverlay?.showContent !== false" (click)="t.saverOverlay!.showContent=true">Show</button>
-          <button class="tile" [class.sel]="t.saverOverlay?.showContent === false" (click)="t.saverOverlay!.showContent=false">Hide</button>
+        <div class="step-title-row">
+          <div class="step-title">Screensaver</div>
+          <button type="button" class="all-settings-btn" (click)="saverSettingsOpen = true">
+            <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
+          </button>
         </div>
+        <p class="hint">Screensaver media is attached later in Content. The theme just notes the intended mode.</p>
 
-        <ng-container *ngIf="t.saverOverlay?.showContent !== false">
-          <div class="step-title sm">Overlay text</div>
-          <div class="fld">
-            <label>Title</label>
-                 <input class="inp" [value]="t.saverOverlay?.title ?? ''"
-                   (focus)="(t.saverOverlay?.title ?? '') === 'Newton Touch' ? (t.saverOverlay!.title = '') : null"
-                   (input)="t.saverOverlay!.title=$any($event.target).value"
-                   placeholder="Newton Touch" />
-          </div>
-          <div class="fld">
-            <label>Subtitle / CTA</label>
-                 <input class="inp" [value]="t.saverOverlay?.subtitle ?? ''"
-                   (focus)="(t.saverOverlay?.subtitle ?? '') === 'Touch screen to begin' ? (t.saverOverlay!.subtitle = '') : null"
-                   (input)="t.saverOverlay!.subtitle=$any($event.target).value"
-                   placeholder="Touch screen to begin" />
-          </div>
-          <app-color-picker label="Text color" [value]="t.saverOverlay?.textColor || '#FFFFFF'" (valueChange)="t.saverOverlay!.textColor=$event"></app-color-picker>
-          <app-color-picker label="Box background" hint="transparent = no box" [value]="t.saverOverlay?.bgColor || 'transparent'" (valueChange)="t.saverOverlay!.bgColor=$event" [presets]="overlayPresets"></app-color-picker>
+        <nt-deck-chips [chips]="saverChipsInput" [activeIndex]="saverActiveChip" (activeIndexChange)="onSaverChipChange($event)"></nt-deck-chips>
+        <nt-value-pill-row [pills]="saverPillsInput" [activeIndex]="saverActivePill" (activeIndexChange)="saverActivePill = $event"></nt-value-pill-row>
 
-          <div class="step-title sm">Overlay position</div>
-          <div class="seg">
-            <button class="tile" *ngFor="let p of saverPositions" [class.sel]="(t.saverOverlay?.position||'center')===p.id" (click)="t.saverOverlay!.position=p.id">{{ p.label }}</button>
-          </div>
-        </ng-container>
+        <nt-editor-card [sectionLabel]="saverActivePillLabel">
+          <ng-container [ngSwitch]="saverActivePillKey">
+
+            <ng-container *ngSwitchCase="'saverMode'">
+              <div class="seg"><button class="tile" *ngFor="let o of saverModes" [class.sel]="saverMode===o" (click)="saverMode=o">{{ o }}</button></div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'saverOverlayContent'">
+              <p class="hint">Show a title + CTA block over the screensaver media.</p>
+              <div class="seg">
+                <button class="tile" [class.sel]="t.saverOverlay?.showContent !== false" (click)="t.saverOverlay!.showContent=true">Show</button>
+                <button class="tile" [class.sel]="t.saverOverlay?.showContent === false" (click)="t.saverOverlay!.showContent=false">Hide</button>
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'saverTitle'">
+              <div class="fld">
+                <label>Title</label>
+                     <input class="inp" [value]="t.saverOverlay?.title ?? ''"
+                       (focus)="(t.saverOverlay?.title ?? '') === 'Newton Touch' ? (t.saverOverlay!.title = '') : null"
+                       (input)="t.saverOverlay!.title=$any($event.target).value"
+                       placeholder="Newton Touch" />
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'saverSubtitle'">
+              <div class="fld">
+                <label>Subtitle / CTA</label>
+                     <input class="inp" [value]="t.saverOverlay?.subtitle ?? ''"
+                       (focus)="(t.saverOverlay?.subtitle ?? '') === 'Touch screen to begin' ? (t.saverOverlay!.subtitle = '') : null"
+                       (input)="t.saverOverlay!.subtitle=$any($event.target).value"
+                       placeholder="Touch screen to begin" />
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'saverTextColor'">
+              <app-color-picker label="Text color" [value]="t.saverOverlay?.textColor || '#FFFFFF'" (valueChange)="t.saverOverlay!.textColor=$event"></app-color-picker>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'saverBoxBg'">
+              <app-color-picker label="Box background" hint="transparent = no box" [value]="t.saverOverlay?.bgColor || 'transparent'" (valueChange)="t.saverOverlay!.bgColor=$event" [presets]="overlayPresets"></app-color-picker>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'saverPosition'">
+              <div class="seg">
+                <button class="tile" *ngFor="let p of saverPositions" [class.sel]="(t.saverOverlay?.position||'center')===p.id" (click)="t.saverOverlay!.position=p.id">{{ p.label }}</button>
+              </div>
+            </ng-container>
+
+          </ng-container>
+        </nt-editor-card>
+
+        <nt-settings-sheet [groups]="saverSettingsGroups" [(isOpen)]="saverSettingsOpen" title="All settings · Screensaver" (rowSelected)="onSaverRowSelected($event)"></nt-settings-sheet>
       </div>
 
       <div *ngSwitchCase="'review'">

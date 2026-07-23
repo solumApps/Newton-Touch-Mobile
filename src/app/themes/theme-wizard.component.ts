@@ -2577,6 +2577,145 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     this.resTemplateActivePill = sel.rowIndex;
   }
 
+  // ----- Animations & loader step (phase 3f) -----
+  // Chips: Transition (Page transition + Speed) / Loader (Loader style + Loader color) — the
+  // step's two `.step-title.sm` groupings. The "▶ Preview" replay buttons are action buttons
+  // rendered inside the relevant editor-card (Page transition / Loader style) alongside their
+  // tile-group, not pills of their own — they replay the same demo the original inline buttons
+  // triggered (`replayTransition()` / `replayLoader()`), unchanged.
+  animActiveChip = 0;
+  animActivePill = 0;
+  animSettingsOpen = false;
+
+  transitionLabels: Partial<Record<TransitionType, string>> = {
+    'fade-slide': 'Fade + slide', 'scale-up': 'Scale up', 'slide-left': 'Slide left', 'shimmer': 'Shimmer', 'none': 'None',
+  };
+  transitionLabel(s: TransitionType): string { return this.transitionLabels[s] || s; }
+  loaderLabels: Partial<Record<LoaderStyle, string>> = {
+    'spinner': 'Spinner', 'dot-pulse': 'Dot pulse', 'progress': 'Progress bar', 'logo': 'Logo', 'skeleton': 'Skeleton',
+  };
+  loaderLabel(s: LoaderStyle): string { return this.loaderLabels[s] || s; }
+
+  private get animTransitionOptions(): DeckOption[] {
+    return [
+      { key: 'transitionPick', icon: 'swap-horizontal-outline', label: 'Page transition', value: this.transitionLabel(this.t.animation.transition) },
+      { key: 'speed', icon: 'speedometer-outline', label: 'Speed', value: this.capitalize(this.t.animation.speed) },
+    ];
+  }
+  private get animLoaderOptions(): DeckOption[] {
+    return [
+      { key: 'loaderStyle', icon: 'sync-outline', label: 'Loader style', value: this.loaderLabel(this.t.loader.style) },
+      { key: 'loaderColor', icon: 'color-palette-outline', label: 'Loader color', value: this.t.loader.color, swatch: this.t.loader.color },
+    ];
+  }
+  get animCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'transition', icon: 'swap-horizontal-outline', label: 'Transition', options: this.animTransitionOptions },
+      { key: 'loader', icon: 'sync-outline', label: 'Loader', options: this.animLoaderOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get animActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.animCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.animActiveChip, cats.length - 1)];
+  }
+  get animChipsInput(): NtDeckChip[] { return this.animCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get animPillsInput(): NtValuePill[] {
+    return (this.animActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get animActiveOption(): DeckOption | undefined {
+    const opts = this.animActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.animActivePill, opts.length - 1)];
+  }
+  get animActivePillKey(): string { return this.animActiveOption?.key || ''; }
+  get animActivePillLabel(): string { return (this.animActiveOption?.label || '').toUpperCase(); }
+  get animSettingsGroups(): NtSettingsGroup[] {
+    return this.animCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onAnimChipChange(i: number): void { this.animActiveChip = i; this.animActivePill = 0; }
+  onAnimRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.animActiveChip = sel.groupIndex;
+    this.animActivePill = sel.rowIndex;
+  }
+
+  // ----- Screensaver step (phase 3f) -----
+  // Chips: Mode (Screensaver mode — no step-title.sm of its own, kept as its own chip since it's
+  // semantically distinct from the overlay-styling controls) / Overlay content (Show/Hide toggle)
+  // / Overlay text (Title, Subtitle, Text color, Box background — all fall under the step's
+  // "Overlay text" sm heading, nothing new before "Overlay position") / Position (Overlay
+  // position). The three overlay-related chips return no options (and so disappear, matching the
+  // original *ngIf on the whole block) whenever `t.saverOverlay.showContent === false`.
+  saverActiveChip = 0;
+  saverActivePill = 0;
+  saverSettingsOpen = false;
+
+  saverModeLabels: Partial<Record<ScreensaverMode, string>> = {
+    'slideshow': 'Slideshow', 'single-image': 'Single image', 'video': 'Video',
+  };
+  saverModeLabel(s: ScreensaverMode): string { return this.saverModeLabels[s] || s; }
+
+  private get saverModeOptions(): DeckOption[] {
+    return [{ key: 'saverMode', icon: 'images-outline', label: 'Screensaver mode', value: this.saverModeLabel(this.saverMode) }];
+  }
+  private get saverOverlayContentOptions(): DeckOption[] {
+    return [{ key: 'saverOverlayContent', icon: 'eye-outline', label: 'Overlay content', value: this.t.saverOverlay?.showContent !== false ? 'Show' : 'Hide' }];
+  }
+  private get saverTextOptions(): DeckOption[] {
+    if (this.t.saverOverlay?.showContent === false) return [];
+    const textColor = this.t.saverOverlay?.textColor || '#FFFFFF';
+    const bg = this.t.saverOverlay?.bgColor || 'transparent';
+    return [
+      { key: 'saverTitle', icon: 'text-outline', label: 'Title', value: this.t.saverOverlay?.title || 'Newton Touch' },
+      { key: 'saverSubtitle', icon: 'chatbubble-outline', label: 'Subtitle / CTA', value: this.t.saverOverlay?.subtitle || 'Touch screen to begin' },
+      { key: 'saverTextColor', icon: 'color-palette-outline', label: 'Text color', value: textColor, swatch: textColor },
+      { key: 'saverBoxBg', icon: 'square-outline', label: 'Box background', value: bg, swatch: bg !== 'transparent' ? bg : undefined },
+    ];
+  }
+  private get saverPositionOptions(): DeckOption[] {
+    if (this.t.saverOverlay?.showContent === false) return [];
+    const pos = this.t.saverOverlay?.position || 'center';
+    return [{ key: 'saverPosition', icon: 'move-outline', label: 'Overlay position', value: this.saverPositions.find((p) => p.id === pos)?.label || this.capitalize(pos) }];
+  }
+  get saverCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'mode', icon: 'images-outline', label: 'Mode', options: this.saverModeOptions },
+      { key: 'overlayContent', icon: 'eye-outline', label: 'Overlay content', options: this.saverOverlayContentOptions },
+      { key: 'overlayText', icon: 'text-outline', label: 'Overlay text', options: this.saverTextOptions },
+      { key: 'position', icon: 'move-outline', label: 'Position', options: this.saverPositionOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get saverActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.saverCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.saverActiveChip, cats.length - 1)];
+  }
+  get saverChipsInput(): NtDeckChip[] { return this.saverCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get saverPillsInput(): NtValuePill[] {
+    return (this.saverActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get saverActiveOption(): DeckOption | undefined {
+    const opts = this.saverActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.saverActivePill, opts.length - 1)];
+  }
+  get saverActivePillKey(): string { return this.saverActiveOption?.key || ''; }
+  get saverActivePillLabel(): string { return (this.saverActiveOption?.label || '').toUpperCase(); }
+  get saverSettingsGroups(): NtSettingsGroup[] {
+    return this.saverCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onSaverChipChange(i: number): void { this.saverActiveChip = i; this.saverActivePill = 0; }
+  onSaverRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.saverActiveChip = sel.groupIndex;
+    this.saverActivePill = sel.rowIndex;
+  }
+
   async cancel(): Promise<void> {
     // Unsaved edits → confirm before throwing them away.
     if (this.baseline && this.snapshot() !== this.baseline) {

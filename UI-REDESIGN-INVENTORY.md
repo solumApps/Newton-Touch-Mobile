@@ -367,24 +367,48 @@ current value + swatch where applicable — selecting a sheet row jumps the deck
 
 ### Step 8 — Animations & loader (`anim`, step-title "Animations & loader")
 
-- [ ] Page transition → tile-group (`transitions`: fade-slide/scale-up/slide-left/shimmer/none) + inline "▶ Preview" replay button → `t.animation.transition` (triggers `replayTransition()`)
-- [ ] Speed → segment (`speeds`: slow/normal/fast) → `t.animation.speed` (triggers `replayTransition()`)
-- [ ] Loader style → tile-group with live mini-preview per tile (`loaders`: spinner/dot-pulse/progress/logo/skeleton) + inline "▶ Preview" replay button → `t.loader.style` (triggers `replayLoader()`)
-- [ ] Loader color → color-picker → `t.loader.color` (triggers `replayLoader()`)
+**Migrated to the Editor Deck pattern (phase 3f) — chips: Transition (Page transition + Speed) /
+Loader (Loader style + Loader color), taken directly from the step's two original `.step-title.sm`
+groupings. The two inline "▶ Preview" replay buttons (`replayTransition()` on the Page transition
+tile-group + speed change, `replayLoader()` on the Loader style tile-group + color change) are kept
+as action buttons rendered inside their pill's editor-card (a small `.editor-actions` row above the
+tile-group), per the redesign prompt's explicit note that these are actions, not values — they are
+NOT pills and do not appear as their own All-settings-sheet rows. All 4 rows also appear (grouped
+identically) in the `nt-settings-sheet` opened via the step's "All settings" button, with their live
+current value + swatch (loader color) — selecting a sheet row jumps the deck to that chip + pill.**
 
-**Step 8 total: 4 controls**
+- [x] Page transition → tile-group (`transitions`: fade-slide/scale-up/slide-left/shimmer/none) + inline "▶ Preview" replay button → `t.animation.transition` (triggers `replayTransition()`) — deck: Animations & loader ▸ Transition chip ▸ "Page transition" pill (Preview button rendered in the same editor-card, not a pill)
+- [x] Speed → segment (`speeds`: slow/normal/fast) → `t.animation.speed` (triggers `replayTransition()`) — deck: Animations & loader ▸ Transition chip ▸ "Speed" pill
+- [x] Loader style → tile-group with live mini-preview per tile (`loaders`: spinner/dot-pulse/progress/logo/skeleton) + inline "▶ Preview" replay button → `t.loader.style` (triggers `replayLoader()`) — deck: Animations & loader ▸ Loader chip ▸ "Loader style" pill (Preview button rendered in the same editor-card, not a pill)
+- [x] Loader color → color-picker → `t.loader.color` (triggers `replayLoader()`) — deck: Animations & loader ▸ Loader chip ▸ "Loader color" pill
+
+**Step 8 total: 4 controls — all 4 migrated, all reachable via deck + All-settings sheet.**
 
 ### Step 9 — Screensaver (`saver`, step-title "Screensaver")
 
-- [ ] Screensaver mode → segment (`saverModes`: slideshow/single-image/video) → `saverMode` (component field, not `t.*`)
-- [ ] Overlay content → segment (Show/Hide) → `t.saverOverlay.showContent`
-- [ ] Overlay text · Title → text input (conditional `showContent !== false`; special focus-to-clear-placeholder behavior) → `t.saverOverlay.title`
-- [ ] Overlay text · Subtitle / CTA → text input (same focus-clear behavior) → `t.saverOverlay.subtitle`
-- [ ] Text color → color-picker → `t.saverOverlay.textColor`
-- [ ] Box background → color-picker (presets `overlayPresets`) → `t.saverOverlay.bgColor`
-- [ ] Overlay position → segment (`saverPositions`: center/bottom/top/bottom-left/bottom-right) → `t.saverOverlay.position`
+**Migrated to the Editor Deck pattern (phase 3f) — chips: Mode (Screensaver mode, which has no
+`.step-title.sm` of its own in the original template — kept as its own chip since it's semantically
+distinct from the overlay-styling controls, same reasoning as the prompt's "sensible categories"
+guidance) / Overlay content (Show/Hide toggle) / Overlay text (Title, Subtitle, Text color, Box
+background — all fall under the step's single "Overlay text" sm heading, matching the original
+template's grouping) / Position (Overlay position). The three overlay-related chips return zero
+options (and so disappear entirely from both the chip row and the settings sheet) whenever
+`t.saverOverlay.showContent === false`, exactly matching the original `*ngIf="t.saverOverlay?.
+showContent !== false"` wrapper around that whole block. All rows also appear (grouped identically)
+in the `nt-settings-sheet` opened via the step's "All settings" button, with their live current
+value + swatch where applicable — selecting a sheet row jumps the deck to that chip + pill.**
 
-**Step 9 total: 7 controls**
+- [x] Screensaver mode → segment (`saverModes`: slideshow/single-image/video) → `saverMode` (component field, not `t.*`) — deck: Screensaver ▸ Mode chip ▸ "Screensaver mode" pill
+- [x] Overlay content → segment (Show/Hide) → `t.saverOverlay.showContent` — deck: Screensaver ▸ Overlay content chip ▸ "Overlay content" pill
+- [x] Overlay text · Title → text input (conditional `showContent !== false`; special focus-to-clear-placeholder behavior) → `t.saverOverlay.title` — deck: Screensaver ▸ Overlay text chip ▸ "Title" pill
+- [x] Overlay text · Subtitle / CTA → text input (same focus-clear behavior) → `t.saverOverlay.subtitle` — deck: Screensaver ▸ Overlay text chip ▸ "Subtitle / CTA" pill
+- [x] Text color → color-picker → `t.saverOverlay.textColor` — deck: Screensaver ▸ Overlay text chip ▸ "Text color" pill
+- [x] Box background → color-picker (presets `overlayPresets`) → `t.saverOverlay.bgColor` — deck: Screensaver ▸ Overlay text chip ▸ "Box background" pill
+- [x] Overlay position → segment (`saverPositions`: center/bottom/top/bottom-left/bottom-right) → `t.saverOverlay.position` — deck: Screensaver ▸ Position chip ▸ "Overlay position" pill
+
+**Step 9 total: 7 controls — all 7 migrated, all reachable via deck + All-settings sheet (4 overlay
+rows correctly disappear from both deck and sheet when Overlay content is set to Hide, matching the
+original template's conditional).**
 
 ### Step 10 — Review (`review`, step-title "Review & save")
 
