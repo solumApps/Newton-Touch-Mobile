@@ -790,8 +790,8 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     // finder-select has its own fs-card horizontal-align control — the generic
     // one must NOT also appear (avoids the duplicate Text H-align section).
     if (this.t.intermediateStyle === 'finder-select') return false;
-    // brand-rail: only text-only cards expose horizontal alignment.
-    if (this.t.intermediateStyle === 'brand-rail') return c === 'text-only';
+    // Brand rail owns centered label alignment for every content mode.
+    if (this.t.intermediateStyle === 'brand-rail') return false;
     return c !== 'image-only';
   }
   /** brand-rail is a single horizontal row — only horizontal scroll allowed. */
@@ -847,6 +847,9 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   }
   setResultContent(content: 'image-text' | 'text-only'): void {
     this.t.result.content = content;
+    if (this.t.resultTemplate === 'shelf' && content === 'text-only') {
+      this.t.result.cardShape = 'rect';
+    }
     if (content === 'text-only' && ['map-list', 'filter-list'].includes(this.t.resultTemplate)) {
       this.t.result.scrollMode = 'vertical';
     }
@@ -898,6 +901,9 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   pickResultTemplate(o: ResultTemplate): void {
     const changed = this.t.resultTemplate !== o;
     this.t.resultTemplate = o;
+    if (o === 'shelf' && (this.t.result.content || 'image-text') === 'text-only') {
+      this.t.result.cardShape = 'rect';
+    }
     if (!changed) return;
     if (o === 'card-grid' && (this.t.result.cardShape === 'circle' || this.t.result.cardShape === 'hexagon')) {
       this.t.result.cardShape = undefined;
