@@ -2423,6 +2423,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
 
   private get resColorsBackgroundOptions(): DeckOption[] {
     const out: DeckOption[] = [];
+    if (this.t.resultTemplate === 'finder-detail') return out;
     if (this.t.resultTemplate !== 'promo-map-rank') {
       if (!this.t.result.backgroundImage) {
         out.push({ key: 'resBackground', icon: 'image-outline', label: 'Page background', value: this.t.result.background, swatch: this.t.result.background });
@@ -2454,10 +2455,6 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
       out.push({ key: 'resFindColor', icon: 'search-outline', label: 'Find button', value: find, swatch: find });
       const listBg = this.t.result.listBg || '#ffffff';
       out.push({ key: 'resListBg', icon: 'list-outline', label: 'List background', value: listBg, swatch: listBg });
-      const cardBg = this.t.result.cardBg || '#ffffff';
-      out.push({ key: 'resCardBg', icon: 'square-outline', label: 'Product / detail card', value: cardBg, swatch: cardBg });
-      const cardTextColor = this.t.result.cardTextColor || '#0F172A';
-      out.push({ key: 'resCardTextColor', icon: 'text-outline', label: 'Card text', value: cardTextColor, swatch: cardTextColor });
     }
     // promo-map-rank is a legacy value with no selectable tile in the picker (see inventory note 3)
     // — still fully editable here for any theme that already has it saved.
@@ -2496,7 +2493,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
       { key: 'template', icon: 'options-outline', label: 'Template', options: this.resColorsTemplateOptions },
       { key: 'accent', icon: 'color-palette-outline', label: 'Accent', options: this.resColorsAccentOptions },
       // Navigation block is unconditional on this step (unlike Intermediate colors) — same as the original template.
-      { key: 'nav', icon: 'navigate-outline', label: 'Navigation', options: this.navOptions('result') },
+      { key: 'nav', icon: 'navigate-outline', label: 'Navigation', options: this.t.resultTemplate === 'finder-detail' ? [] : this.navOptions('result') },
     ].filter((c) => c.options.length > 0);
   }
   get resColorsActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {

@@ -217,7 +217,7 @@
             </div>
           </div>
         </div>
-        <ng-container *ngIf="page !== 'home' && page !== 'saver' && !(page === 'inter' && t.intermediateStyle === 'finder-select')">
+        <ng-container *ngIf="page !== 'home' && page !== 'saver' && !(page === 'inter' && t.intermediateStyle === 'finder-select') && !(page === 'result' && t.resultTemplate === 'finder-detail')">
           <!-- Grouped: both buttons together (hidden when grouped position is Hidden) -->
           <div class="mock-nav" *ngIf="!t.nav?.split && (t.nav?.position || 'bottom-left') !== 'hidden'" [ngClass]="'nav-pos-'+(t.nav?.position || 'bottom-left')">
             <span class="mock-btn" [style.color]="t.nav?.backColor || '#fff'" [style.background]="t.nav?.backBg || '#0f172a'">&#8249;</span>
