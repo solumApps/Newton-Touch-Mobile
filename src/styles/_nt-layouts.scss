@@ -3231,6 +3231,40 @@
   transform: none !important;
 }
 
+/* Promo Text only follows the same explicit Top / Center / Bottom positioning
+   model as Icon + Text. Keeping the label positioned inside the full-card meta
+   also makes circle and hexagon shapes honour the control without clipping. */
+.nt-home .layout-promo-categories .promo-rail .card.content-text-only .meta {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block;
+  width: auto;
+  padding: 0;
+  transform: none !important;
+}
+
+.nt-home .layout-promo-categories .promo-rail .card.content-text-only .name {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  display: block;
+  text-align: center;
+}
+
+.nt-home .layout-promo-categories .promo-rail .card.content-text-only.pos-overlay-top .name {
+  top: 9%;
+}
+
+.nt-home .layout-promo-categories .promo-rail .card.content-text-only.pos-center .name {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.nt-home .layout-promo-categories .promo-rail .card.content-text-only.pos-overlay-bottom .name {
+  top: auto;
+  bottom: 9%;
+}
+
 /* surface treatment matches other layouts on these contents */
 .nt-home.surface-glass .layout-promo-categories .promo-rail .card.content-text-only,
 .nt-home.surface-glass .layout-promo-categories .promo-rail .card.content-icon-text,

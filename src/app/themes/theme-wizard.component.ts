@@ -211,6 +211,9 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
         this.t.cardTextPos = center ? center.id : opts[0].id;
       }
     }
+    if (this.t.homeLayout === 'promo-categories' && c === 'image-text') {
+      this.t.cardTextPos = 'overlay-bottom';
+    }
   }
   pickInterContent(c: CardContent): void {
     this.t.intermediate.content = c;
@@ -285,6 +288,9 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   pickLayout(l: HomeLayout): void {
     const wasFinderSelect = this.t.homeLayout === 'finder-select';
     this.t.homeLayout = l;
+    if (l === 'promo-categories' && this.t.cardContent === 'image-text') {
+      this.t.cardTextPos = 'overlay-bottom';
+    }
     // #2 full-bleed fullscreen must use an inner text position.
     if (l === 'fullscreen') this.coerceHomeInnerTextPos();
     if (this.columnLayouts.includes(l)) {
@@ -1817,8 +1823,15 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
         out.push({ key: 'fsTextAlign', icon: 'reorder-three-outline', label: 'Text horizontal alignment', value: this.cardAligns.find((a) => a.id === v)?.label || v });
       }
     } else if (this.showTextPos) {
-      out.push({ key: 'cardTextPos', icon: 'text-outline', label: 'Text vertical position', value: this.textPositionsFor.find((p) => p.id === this.t.cardTextPos)?.label || this.t.cardTextPos });
-      if (this.t.cardContent !== 'icon-text') {
+      const hidePromoImageTextPosition =
+        this.t.homeLayout === 'promo-categories' && this.t.cardContent === 'image-text';
+      const hidePromoTextAlign =
+        this.t.homeLayout === 'promo-categories' &&
+        (this.t.cardContent === 'image-text' || this.t.cardContent === 'text-only');
+      if (!hidePromoImageTextPosition) {
+        out.push({ key: 'cardTextPos', icon: 'text-outline', label: 'Text vertical position', value: this.textPositionsFor.find((p) => p.id === this.t.cardTextPos)?.label || this.t.cardTextPos });
+      }
+      if (this.t.cardContent !== 'icon-text' && !hidePromoTextAlign) {
         const v = this.t.cardTextAlign || 'center';
         out.push({ key: 'cardTextAlign', icon: 'reorder-three-outline', label: 'Text horizontal alignment', value: this.cardAligns.find((a) => a.id === v)?.label || v });
       }
