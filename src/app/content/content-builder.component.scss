@@ -396,3 +396,113 @@ table.sum td:first-child {
 
 /* Category mode: API-sourced names are read-only (case transform only). */
 .inp.locked { background: var(--nt-surface-2, #f3f3ef); color: var(--nt-text-2, #6b6b66); cursor: not-allowed; }
+
+/* ===== Editor Deck (Home step) =====
+   Chips → value pills → single editor card is rendered by the shared nt-*
+   components (src/app/shared/ui); these rules only cover the content-builder-
+   local step header row, matching theme-wizard's identical row exactly. */
+.step-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0 4px; }
+.step-title-row .step-title { margin: 0; }
+.all-settings-btn {
+  display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto;
+  padding: 7px 13px; border-radius: var(--nt-r-full);
+  border: 1.5px solid var(--nt-border); background: var(--nt-card); color: var(--nt-brand-ink);
+  font-family: inherit; font-size: 12px; font-weight: 800; white-space: nowrap; cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.all-settings-btn ion-icon { font-size: 15px; }
+.all-settings-btn:hover { background: var(--nt-tint); }
+.all-settings-btn:focus-visible { outline: 3px solid rgba(255,205,0,.55); outline-offset: 2px; }
+
+/* Home cards — collapsed-row + bottom-sheet pattern (repeating list, NOT part
+   of the deck above, per UI-REDESIGN-PROMPT.md §5). */
+.home-cards-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+
+/* Home card full editor — bottom sheet (shares .nt-sheet-modal / .nt-sheet
+   chrome from global.scss); constrain height so long editors scroll inside
+   the sheet instead of growing past the viewport. */
+ion-modal.home-card-editor-modal .nt-sheet { max-height: 86vh; overflow-y: auto; }
+ion-modal.home-card-editor-modal .sec { margin-top: 4px; }
+
+/* Intermediate step — collapsed-row + bottom-sheet pattern (repeating lists,
+   NOT part of the deck above, per UI-REDESIGN-PROMPT.md §5): category L{n}
+   cards, prototype-leveled L{n} cards, common-mode intermediate items. */
+.inter-cards-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+
+ion-modal.inter-card-editor-modal .nt-sheet,
+ion-modal.proto-card-editor-modal .nt-sheet,
+ion-modal.inter-item-editor-modal .nt-sheet { max-height: 86vh; overflow-y: auto; }
+ion-modal.inter-card-editor-modal .sec,
+ion-modal.proto-card-editor-modal .sec,
+ion-modal.inter-item-editor-modal .sec { margin-top: 4px; }
+
+/* Result step — collapsed-row + bottom-sheet pattern (repeating lists, NOT
+   part of the deck above, per UI-REDESIGN-PROMPT.md §5): category-mode
+   hierarchy products, per-leaf individual result products, common/shared
+   result products (with nested Specs/Fitments inside their bottom sheet). */
+.result-products-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+
+ion-modal.hier-product-editor-modal .nt-sheet,
+ion-modal.leaf-product-editor-modal .nt-sheet,
+ion-modal.result-product-editor-modal .nt-sheet { max-height: 86vh; overflow-y: auto; }
+ion-modal.hier-product-editor-modal .sec,
+ion-modal.leaf-product-editor-modal .sec,
+ion-modal.result-product-editor-modal .sec { margin-top: 4px; }
+
+/* Screensaver media — collapsed-row list + preview sheet (§5). */
+.saver-media-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.saver-media-preview {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--nt-r);
+  border: 1px solid var(--nt-border);
+  background-size: cover;
+  background-position: center;
+  background-color: var(--nt-card);
+  margin: 8px 0 14px;
+  object-fit: cover;
+}
+ion-modal.saver-media-preview-modal .nt-sheet { max-height: 86vh; overflow-y: auto; }
+
+/* Review step — read-only summary restyled to match the settings-sheet row
+   style (icon + label + value), same treatment as theme-wizard's Review step. */
+.review-summary { margin-top: 14px; background: var(--nt-card); border: 1px solid var(--nt-border); border-radius: var(--nt-r); padding: 4px 12px; }
+.review-summary .grouplabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--nt-muted);
+  margin: 16px 0 4px;
+}
+.review-summary .grouplabel:first-child { margin-top: 10px; }
+.review-summary .row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 2px;
+  border-bottom: 1px solid var(--nt-border);
+}
+.review-summary .row:last-child { border-bottom: none; }
+.review-summary .row .ic { font-size: 16px; color: var(--nt-muted); width: 18px; flex-shrink: 0; text-align: center; }
+.review-summary .row .lbl {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--nt-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.review-summary .row .val {
+  flex-shrink: 0;
+  max-width: 54%;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nt-brand-ink);
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

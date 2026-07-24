@@ -77,3 +77,4 @@ Thumbs.db
 android/
 package-lock.json
 .angular/
+*.md

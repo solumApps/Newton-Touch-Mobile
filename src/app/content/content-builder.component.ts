@@ -2,7 +2,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonModal, AlertController } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonModal, IonIcon, AlertController } from '@ionic/angular/standalone';
 import { ContentService, ContentDraft } from '../services/content.service';
 import { ThemeService } from '../services/theme.service';
 import { CategoryApiService, ApiProduct } from '../services/category-api.service';
@@ -12,9 +12,30 @@ import { SelectFieldComponent, SelectOption } from '../shared/select-field.compo
 import { ColorPickerComponent } from '../shared/color-picker.component';
 import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
 import type { ResultProduct, CardItem, ImageFit, ResultContent, ThemeTokens, FieldSource } from '@contract/layout';
+import { addIcons } from 'ionicons';
+import {
+  addOutline, albumsOutline, appsOutline, bulbOutline, chatboxOutline, chatbubbleOutline, checkboxOutline,
+  cloudDownloadOutline, compassOutline, ellipseOutline, eyeOutline, gitBranchOutline, gitNetworkOutline,
+  gridOutline, hourglassOutline, imageOutline, imagesOutline, layersOutline, listOutline, locateOutline,
+  locationOutline, mapOutline, megaphoneOutline, menuOutline, optionsOutline, pricetagOutline,
+  pricetagsOutline, removeOutline, repeatOutline, resizeOutline, shuffleOutline, swapVerticalOutline,
+  textOutline, timeOutline, timerOutline, toggleOutline,
+} from 'ionicons/icons';
+import {
+  NtDeckChipsComponent, NtDeckChip,
+  NtValuePillRowComponent, NtValuePill,
+  NtEditorCardComponent,
+  NtSettingsSheetComponent, NtSettingsGroup,
+  NtCollapsedItemRowComponent,
+} from '../shared/ui';
 
 type StepKey = 'home' | 'inter' | 'inter1' | 'inter2' | 'inter3' | 'result' | 'saver' | 'review';
 interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' | 'saver'; }
+/** One option inside an Editor Deck category (content-builder Home step).
+ *  `key` selects which existing control markup the editor-card level renders;
+ *  `value` feeds the value-pill and All-settings-sheet row faces. Mirrors the
+ *  `DeckOption` shape used by theme-wizard.component.ts. */
+interface DeckOption { key: string; icon: string; label: string; value: string; swatch?: string; }
 
 /**
  * Prototype / Prototype+ESL data entry + Category fetch/map. Add/remove home cards &
@@ -23,7 +44,8 @@ interface Step { key: StepKey; label: string; page: 'home' | 'inter' | 'result' 
 @Component({
   selector: 'app-content-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonModal, SelectFieldComponent, ColorPickerComponent, ContentPreviewStripComponent],
+  imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonFooter, IonModal, IonIcon, SelectFieldComponent, ColorPickerComponent, ContentPreviewStripComponent,
+    NtDeckChipsComponent, NtValuePillRowComponent, NtEditorCardComponent, NtSettingsSheetComponent, NtCollapsedItemRowComponent],
   templateUrl: './content-builder.component.html',
   styleUrls: ['./content-builder.component.scss'],
 })
@@ -348,6 +370,12 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
       if (this.step?.key === 'result') this.syncResultProducts();
     }
     if (this.protoLeveled && this.interLevel > 0) this.refreshProto();
+    // View-only deck state: the Intermediate step's chip/pill options depend on
+    // `interLevel` (different per inter/inter1/inter2/inter3 instance), so reset
+    // to the first chip/pill whenever the step changes — same as switching chips
+    // manually via onInterChipChange().
+    this.interActiveChip = 0;
+    this.interActivePill = 0;
     setTimeout(() => {
       void this.contentViewport?.scrollToTop(0);
       const host = this.builderSteps?.nativeElement;
@@ -993,7 +1021,527 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     }
   }
 
-  constructor(private content: ContentService, private themes: ThemeService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private alertController: AlertController) {}
+  // ===== Editor Deck (Home step) — view-only UI state (active category chip /
+  // value pill, sheet + card-sheet open flags). Every option below reads/writes
+  // the exact same properties/methods as the original vertical form — only the
+  // presentation (chips → value pills → single editor card, plus an "All
+  // settings" sheet) is restructured. Home cards use the separate collapsed-row
+  // + bottom-sheet pattern (not the deck) per UI-REDESIGN-PROMPT.md §5.
+  // See UI-REDESIGN-INVENTORY.md PART 2 Step A for the full control list.
+  homeActiveChip = 0;
+  homeActivePill = 0;
+  homeSettingsOpen = false;
+
+  private get homeHeaderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const d = this.draft;
+    if (!d) return out;
+    out.push({ key: 'headerVisibility', icon: 'eye-outline', label: 'Header visibility', value: d.themeTokens.showHeader ? 'Visible' : 'Hidden' });
+    if (d.themeTokens.showHeader) {
+      if (this.showLogo) {
+        out.push({ key: 'logoImage', icon: 'image-outline', label: 'Logo image', value: d.header?.logo ? 'Custom' : 'Default (SOLUM)' });
+        out.push({ key: 'logoSize', icon: 'resize-outline', label: 'Logo size', value: `${this.headerLogoScalePct}%` });
+      }
+      if (this.needsHeaderTitle) {
+        out.push({ key: 'headerTitle', icon: 'text-outline', label: 'Title', value: d.header?.title || 'Default (content name)' });
+      }
+      if (this.needsHeaderCaption) {
+        out.push({ key: 'headerCaption', icon: 'chatbubble-outline', label: 'Caption', value: d.header?.caption || 'Default (Welcome)' });
+      }
+    }
+    return out;
+  }
+
+  private get homePromoOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.isPromoCategories) return out;
+    out.push({ key: 'promoEyebrow', icon: 'megaphone-outline', label: 'Promo eyebrow label', value: this.td.promoFeatured || 'Featured' });
+    out.push({ key: 'promoMessage', icon: 'chatbox-outline', label: 'Promo message', value: this.td.promoCopy || 'Default' });
+    return out;
+  }
+
+  private readonly categoryDepthLabels = ['L0 only', 'L0+L1', '+L2', '+L3'];
+  private readonly protoDepthLabels: Record<number, string> = { 1: 'L0+L1', 2: '+L2', 3: '+L3' };
+
+  private get homeCategoryOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const d = this.draft;
+    if (!d || d.appMode !== 'category') return out;
+    out.push({
+      key: 'categoryApi', icon: 'cloud-download-outline', label: 'Category API',
+      value: this.apiProducts.length ? `${this.apiProducts.length} products` : (this.fetching ? 'Fetching…' : 'Not fetched'),
+    });
+    if (this.apiProducts.length) {
+      out.push({ key: 'fieldSource', icon: 'layers-outline', label: 'Hierarchy fields', value: this.fieldSourceOpts.find((o) => o.value === (d.fieldSource || 'category'))?.label || 'Category fields' });
+      if (d.themeTokens.includeIntermediate !== false) {
+        out.push({ key: 'categoryDepth', icon: 'git-branch-outline', label: 'Category depth', value: this.categoryDepthLabels[this.categoryLevelCount] || 'L0 only' });
+      }
+      out.push({ key: 'l0Selection', icon: 'checkbox-outline', label: 'L0 selection', value: `${this.catSel[0].size} selected` });
+      out.push({ key: 'categoryTextCase', icon: 'text-outline', label: 'Category text case', value: this.articleCaseOpts.find((c) => c.id === (d.articleCase || 'asis'))?.label || 'As is' });
+    }
+    return out;
+  }
+
+  private get homePagesOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const d = this.draft;
+    if (!d || d.appMode === 'category' || d.themeTokens.includeIntermediate === false) return out;
+    out.push({ key: 'drillMode', icon: 'git-network-outline', label: 'Intermediate pages mode', value: this.drillMode === 'common' ? 'Common — one shared page' : 'Individual — per card' });
+    if (this.drillMode === 'individual') {
+      out.push({ key: 'protoDepth', icon: 'layers-outline', label: 'Category depth', value: this.protoDepthLabels[this.protoLevelCount] || 'L0+L1' });
+    }
+    return out;
+  }
+
+  get homeCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'header', icon: 'menu-outline', label: 'Header', options: this.homeHeaderOptions },
+      { key: 'promo', icon: 'megaphone-outline', label: 'Promo', options: this.homePromoOptions },
+      { key: 'category', icon: 'grid-outline', label: 'Category', options: this.homeCategoryOptions },
+      { key: 'pages', icon: 'git-network-outline', label: 'Pages', options: this.homePagesOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get homeActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.homeCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.homeActiveChip, cats.length - 1)];
+  }
+  get homeChipsInput(): NtDeckChip[] { return this.homeCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get homePillsInput(): NtValuePill[] {
+    return (this.homeActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get homeActiveOption(): DeckOption | undefined {
+    const opts = this.homeActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.homeActivePill, opts.length - 1)];
+  }
+  get homeActivePillKey(): string { return this.homeActiveOption?.key || ''; }
+  get homeActivePillLabel(): string { return (this.homeActiveOption?.label || '').toUpperCase(); }
+  get homeSettingsGroups(): NtSettingsGroup[] {
+    return this.homeCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onHomeChipChange(i: number): void { this.homeActiveChip = i; this.homeActivePill = 0; }
+  onHomeRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.homeActiveChip = sel.groupIndex;
+    this.homeActivePill = sel.rowIndex;
+  }
+
+  // ----- Home cards — collapsed-row + bottom-sheet pattern (UI-REDESIGN-PROMPT.md §5) -----
+  // Displayed newest-first (same reversed order the original inline list used);
+  // `idx` is the REAL index into `draft.home[]` so reorder/delete call the exact
+  // same `moveHomeCard()` / `removeCard()` methods with the exact same indices
+  // the old template computed via `d.home.length - 1 - i`.
+  homeCardModalOpen = false;
+  homeCardModalIndex: number | null = null;
+
+  get homeCardsReversed(): { card: CardItem; idx: number }[] {
+    const arr = this.draft?.home || [];
+    return arr.map((card, idx) => ({ card, idx })).slice().reverse();
+  }
+  /** Small summary badge for a home-card row, e.g. "Contain · has own page". */
+  homeCardBadge(c: CardItem): string {
+    const parts: string[] = [];
+    if (this.needsImage && c.image) {
+      const fit = this.fitOf(c);
+      parts.push(fit.charAt(0).toUpperCase() + fit.slice(1));
+    }
+    if (this.draft?.themeTokens.includeIntermediate !== false && this.drillMode === 'individual') {
+      parts.push(this.hasCustomSubtree(c) ? 'has own page' : 'shared page');
+    }
+    return parts.join(' · ');
+  }
+  openHomeCardEditor(idx: number): void { this.homeCardModalIndex = idx; this.homeCardModalOpen = true; }
+  closeHomeCardEditor(): void { this.homeCardModalOpen = false; this.homeCardModalIndex = null; }
+  get homeCardModalCard(): CardItem | undefined {
+    return this.homeCardModalIndex != null ? this.draft?.home[this.homeCardModalIndex] : undefined;
+  }
+
+  // ===== Editor Deck (Intermediate step) — view-only UI state (active category
+  // chip / value pill, sheet + card-sheet open flags). Every option below
+  // reads/writes the exact same properties/methods as the original vertical
+  // form — only the presentation is restructured. Reused across all 4 step
+  // instances (inter/inter1/inter2/inter3): the chip/pill option lists below
+  // recompute from `interLevel`/`stepCase` on every access (same mechanism the
+  // original template used), so no extra per-level state is needed. Repeating
+  // lists (Intermediate L{n} Cards, prototype leveled cards, common-mode
+  // Intermediate items) use the separate collapsed-row + bottom-sheet pattern
+  // (not the deck) per UI-REDESIGN-PROMPT.md §5.
+  // See UI-REDESIGN-INVENTORY.md PART 2 Step B for the full control list.
+  interActiveChip = 0;
+  interActivePill = 0;
+  interSettingsOpen = false;
+
+  /** Home Fields (L0) / L1 / L2 selectors — shared pill keys across category
+   *  mode (raw API values) and prototype-leveled mode (home-card ids), which
+   *  are mutually exclusive by `appMode`, so a single option set is safe. */
+  private get interLevelsOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const d = this.draft;
+    if (!d) return out;
+    if (d.appMode === 'category') {
+      if (!this.l0SegList.length) return out;
+      out.push({ key: 'homeFields', icon: 'grid-outline', label: 'Home Fields', value: this.activeL0 || '—' });
+      if (this.interLevel >= 2) {
+        out.push({ key: 'l1Options', icon: 'layers-outline', label: `${this.catLabel(1)} options`, value: this.activeL1 === 'all' ? 'All' : this.activeL1 });
+      }
+      if (this.interLevel >= 3) {
+        out.push({ key: 'l2Options', icon: 'layers-outline', label: `${this.catLabel(2)} options`, value: this.activeL2 === 'all' ? 'All' : this.activeL2 });
+      }
+    } else if (this.protoLeveled && this.interLevel > 0) {
+      if (!this.protoL0Segs.length) return out;
+      out.push({ key: 'homeFields', icon: 'grid-outline', label: 'Home Fields', value: this.protoL0Segs.find((s) => s.id === this.protoL0Id)?.label || '—' });
+      if (this.interLevel >= 2) {
+        out.push({ key: 'l1Options', icon: 'layers-outline', label: 'L1 options', value: this.protoL1Segs.find((s) => s.id === this.protoL1Id)?.label || '—' });
+      }
+      if (this.interLevel >= 3) {
+        out.push({ key: 'l2Options', icon: 'layers-outline', label: 'L2 options', value: this.protoL2Segs.find((s) => s.id === this.protoL2Id)?.label || '—' });
+      }
+    }
+    return out;
+  }
+
+  private get interBrandRailOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.isBrandRail) return out;
+    out.push({ key: 'brandRailMsg', icon: 'chatbox-outline', label: `Brand rail message (L${this.brStepLevel})`, value: this.brandRailMsgForStep || 'Inherits' });
+    return out;
+  }
+
+  private get interFinderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.isFinderSelect || this.interLevel > 1) return out;
+    out.push({ key: 'finderSteps', icon: 'list-outline', label: 'Finder steps', value: `${this.finderStepCount} label${this.finderStepCount === 1 ? '' : 's'}` });
+    out.push({ key: 'heroTitleFinder', icon: 'text-outline', label: 'Hero Title', value: this.draft?.header?.title || 'Default (content name)' });
+    out.push({ key: 'promptFinder', icon: 'chatbubble-outline', label: 'Prompt', value: this.td.promptText || 'Default' });
+    out.push({ key: 'indexMode', icon: 'swap-vertical-outline', label: 'Fast lookup index', value: (this.td.indexMode || 'alpha') === 'alpha' ? 'A–Z' : 'Number' });
+    if (this.td.indexMode === 'number') {
+      out.push({ key: 'indexMin', icon: 'remove-outline', label: 'Fast lookup · Min', value: String(this.td.indexNumberMin ?? 0) });
+      out.push({ key: 'indexMax', icon: 'add-outline', label: 'Fast lookup · Max', value: String(this.td.indexNumberMax ?? 100) });
+      out.push({ key: 'indexInterval', icon: 'repeat-outline', label: 'Fast lookup · Interval', value: String(this.td.indexNumberInterval ?? 10) });
+    }
+    return out;
+  }
+
+  private get interPagesOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const d = this.draft;
+    if (!d || d.appMode === 'category') return out;
+    out.push({ key: 'resultPagesMode', icon: 'git-network-outline', label: 'Result pages mode', value: this.resultMode === 'common' ? 'Common — one result page' : 'Individual — per item' });
+    return out;
+  }
+
+  get interCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'levels', icon: 'grid-outline', label: 'Category', options: this.interLevelsOptions },
+      { key: 'brandrail', icon: 'megaphone-outline', label: 'Brand rail', options: this.interBrandRailOptions },
+      { key: 'finder', icon: 'compass-outline', label: 'Finder', options: this.interFinderOptions },
+      { key: 'pages', icon: 'git-network-outline', label: 'Pages', options: this.interPagesOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get interActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.interCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.interActiveChip, cats.length - 1)];
+  }
+  get interChipsInput(): NtDeckChip[] { return this.interCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get interPillsInput(): NtValuePill[] {
+    return (this.interActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get interActiveOption(): DeckOption | undefined {
+    const opts = this.interActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.interActivePill, opts.length - 1)];
+  }
+  get interActivePillKey(): string { return this.interActiveOption?.key || ''; }
+  get interActivePillLabel(): string { return (this.interActiveOption?.label || '').toUpperCase(); }
+  get interSettingsGroups(): NtSettingsGroup[] {
+    return this.interCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onInterChipChange(i: number): void { this.interActiveChip = i; this.interActivePill = 0; }
+  onInterRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.interActiveChip = sel.groupIndex;
+    this.interActivePill = sel.rowIndex;
+  }
+
+  // ----- Intermediate L{n} Cards (category mode) — collapsed-row + bottom-sheet
+  // (UI-REDESIGN-PROMPT.md §5). Read-only names from the API — no reorder/delete
+  // on the row (matches the original markup, which had none). -----
+  interCardModalOpen = false;
+  interCardModalIndex: number | null = null;
+  /** Small summary badge for a category L{n}-card row — just the image Fit
+   *  (there is no subtree/name concept here; the value is locked from the API). */
+  interCardBadge(node: CardItem): string {
+    if (!(this.intermediateNeedsImage && node.image)) return '';
+    const fit = this.fitOf(node);
+    return fit.charAt(0).toUpperCase() + fit.slice(1);
+  }
+  openInterCardEditor(idx: number): void { this.interCardModalIndex = idx; this.interCardModalOpen = true; }
+  closeInterCardEditor(): void { this.interCardModalOpen = false; this.interCardModalIndex = null; }
+  get interCardModalItem(): { node: CardItem; label: string } | undefined {
+    return this.interCardModalIndex != null ? this.interCardsList[this.interCardModalIndex] : undefined;
+  }
+
+  // ----- Intermediate L{n} cards (prototype leveled mode) — collapsed-row +
+  // bottom-sheet. Reorder/delete stay on the row (moveProtoCard/removeProtoCard,
+  // same as before). -----
+  protoCardModalOpen = false;
+  protoCardModalIndex: number | null = null;
+  /** Small summary badge for a prototype-leveled card row — Fit, plus own
+   *  result-product count for promo-map-rank leaves. */
+  protoCardBadge(node: CardItem): string {
+    const parts: string[] = [];
+    if (this.intermediateNeedsImage && node.image) {
+      const fit = this.fitOf(node);
+      parts.push(fit.charAt(0).toUpperCase() + fit.slice(1));
+    }
+    if (this.interAllowProducts && !(node.children && node.children.length)) {
+      const n = (node.products || []).length;
+      if (n) parts.push(`${n} product${n === 1 ? '' : 's'}`);
+    }
+    return parts.join(' · ');
+  }
+  openProtoCardEditor(idx: number): void { this.protoCardModalIndex = idx; this.protoCardModalOpen = true; }
+  closeProtoCardEditor(): void { this.protoCardModalOpen = false; this.protoCardModalIndex = null; }
+  get protoCardModalItem(): { node: CardItem; parent: CardItem } | undefined {
+    return this.protoCardModalIndex != null ? this.protoCards[this.protoCardModalIndex] : undefined;
+  }
+
+  // ----- Intermediate items (common/shared mode) — collapsed-row + bottom-sheet,
+  // same pattern as Home step's Home Cards (newest-first display; `idx` is the
+  // REAL index into `draft.intermediate[]` so reorder/delete call the exact same
+  // `moveIntermediate()` / `removeIntermediate()` methods with the exact same
+  // indices the old template computed via `d.intermediate.length - 1 - i`). -----
+  interItemModalOpen = false;
+  interItemModalIndex: number | null = null;
+  get intermediateItemsReversed(): { item: CardItem; idx: number }[] {
+    const arr = this.draft?.intermediate || [];
+    return arr.map((item, idx) => ({ item, idx })).slice().reverse();
+  }
+  interItemBadge(it: CardItem): string {
+    if (!(this.intermediateNeedsImage && it.image)) return '';
+    const fit = this.fitOf(it);
+    return fit.charAt(0).toUpperCase() + fit.slice(1);
+  }
+  openInterItemEditor(idx: number): void { this.interItemModalIndex = idx; this.interItemModalOpen = true; }
+  closeInterItemEditor(): void { this.interItemModalOpen = false; this.interItemModalIndex = null; }
+  get interItemModalItem(): CardItem | undefined {
+    return this.interItemModalIndex != null ? this.draft?.intermediate[this.interItemModalIndex] : undefined;
+  }
+
+  // ===== Editor Deck (Result step) — view-only UI state (active category chip
+  // / value pill, sheet + card-sheet open flags). Every option below reads/
+  // writes the exact same properties/methods as the original vertical form —
+  // only the presentation is restructured. Repeating lists (Hierarchy &
+  // matched products, Individual result pages, Result products — the latter
+  // with nested Specs/Fitments) use the separate collapsed-row + bottom-sheet
+  // pattern (not the deck) per UI-REDESIGN-PROMPT.md §5. Marker placement
+  // keeps its full tap-to-place interaction inside its editor-card, unchanged.
+  // See UI-REDESIGN-INVENTORY.md PART 2 Step C for the full control list.
+  resultActiveChip = 0;
+  resultActivePill = 0;
+  resultSettingsOpen = false;
+
+  private get resultFieldsOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const d = this.draft;
+    if (!d) return out;
+    if (d.appMode === 'category') {
+      const on = this.resultFieldOpts.filter((f) => this.resultFieldOn(f.id)).map((f) => f.label);
+      out.push({ key: 'fieldsToShow', icon: 'eye-outline', label: 'Fields to show', value: on.length ? on.join(', ') : 'None selected' });
+    }
+    if (d.appMode === 'category' || d.appMode === 'prototype-esl') {
+      out.push({ key: 'ledBlink', icon: 'bulb-outline', label: 'LED blink', value: `${d.ledColour || 'Red'} · ${d.ledDuration || '10s'}` });
+    }
+    if (d.appMode === 'prototype-esl') {
+      out.push({ key: 'eslBlinkBy', icon: 'pricetag-outline', label: 'ESL blink by', value: this.eslByOpts.find((o) => o.value === (d.eslBlinkBy || 'article'))?.label || 'Article ID' });
+    }
+    return out;
+  }
+
+  private get resultMapOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.resultNeedsMap) return out;
+    out.push({ key: 'resultMapImage', icon: 'map-outline', label: 'Result map image', value: this.curResult.mapImage ? 'Uploaded' : 'Not uploaded' });
+    if (this.curResult.mapImage && this.curResult.products.length) {
+      const placed = this.curResult.products.filter((p) => p.mapX != null && p.mapY != null).length;
+      out.push({ key: 'markerPlacement', icon: 'locate-outline', label: 'Marker placement', value: `${placed} marker${placed === 1 ? '' : 's'} placed` });
+      out.push({ key: 'mapDots', icon: 'ellipse-outline', label: 'Map dots', value: this.mapDotsEnabled ? 'Dot' : 'None', swatch: this.mapDotsEnabled ? (this.mapRoute?.color || this.draft?.themeTokens.result.pathColor) : undefined });
+    }
+    return out;
+  }
+
+  private get resultPanelOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.resultNeedsPromo) return out;
+    const isShelf = this.draft?.themeTokens.resultTemplate === 'shelf';
+    out.push({ key: 'panelImage', icon: 'image-outline', label: isShelf ? 'Side category image' : 'Promo / selection panel image', value: this.curResult.promoImage ? 'Uploaded' : 'Not uploaded' });
+    return out;
+  }
+
+  private get resultPagesOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.skipsIntermediate || this.draft?.appMode === 'category') return out;
+    out.push({ key: 'resultPagesMode', icon: 'git-network-outline', label: 'Result pages mode', value: this.itemResultMode === 'common' ? 'Common — one result page' : 'Per item — one per home card' });
+    return out;
+  }
+
+  private get resultFinderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.isFinder) return out;
+    if (this.isFinderSelect) {
+      out.push({ key: 'finderSteps', icon: 'list-outline', label: 'Finder steps', value: `${this.finderStepCount} inherited label${this.finderStepCount === 1 ? '' : 's'}` });
+    } else {
+      out.push({ key: 'finderSteps', icon: 'list-outline', label: 'Finder steps', value: `${this.crumbStepCount} label${this.crumbStepCount === 1 ? '' : 's'}` });
+    }
+    out.push({ key: 'heroTitleFinder', icon: 'text-outline', label: 'Hero Title', value: this.draft?.header?.title || 'Default (content name)' });
+    out.push({ key: 'finderLabels', icon: 'pricetags-outline', label: 'Finder labels', value: `${this.td.findItLabel || 'Find It'} / ${this.td.findAllLabel || 'Find All'}` });
+    return out;
+  }
+
+  private get resultPromotionOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.isPromoRank) return out;
+    out.push({ key: 'floorLabels', icon: 'layers-outline', label: 'Floor labels', value: this.tplFloorsCsv || 'Not set' });
+    out.push({ key: 'youAreHere', icon: 'location-outline', label: '"You are here" label', value: this.td.youAreHereLabel || 'Not set' });
+    out.push({ key: 'timerSeconds', icon: 'timer-outline', label: 'Timer seconds', value: this.td.timerSeconds != null ? `${this.td.timerSeconds}s` : 'Not set' });
+    return out;
+  }
+
+  get resultCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'fields', icon: 'options-outline', label: 'Fields & display', options: this.resultFieldsOptions },
+      { key: 'map', icon: 'map-outline', label: 'Map & markers', options: this.resultMapOptions },
+      { key: 'panel', icon: 'image-outline', label: 'Panel & promo', options: this.resultPanelOptions },
+      { key: 'pages', icon: 'git-network-outline', label: 'Pages', options: this.resultPagesOptions },
+      { key: 'finder', icon: 'compass-outline', label: 'Finder', options: this.resultFinderOptions },
+      { key: 'promotion', icon: 'megaphone-outline', label: 'Promotion', options: this.resultPromotionOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get resultActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.resultCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.resultActiveChip, cats.length - 1)];
+  }
+  get resultChipsInput(): NtDeckChip[] { return this.resultCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get resultPillsInput(): NtValuePill[] {
+    return (this.resultActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get resultActiveOption(): DeckOption | undefined {
+    const opts = this.resultActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.resultActivePill, opts.length - 1)];
+  }
+  get resultActivePillKey(): string { return this.resultActiveOption?.key || ''; }
+  get resultActivePillLabel(): string { return (this.resultActiveOption?.label || '').toUpperCase(); }
+  get resultSettingsGroups(): NtSettingsGroup[] {
+    return this.resultCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onResultChipChange(i: number): void { this.resultActiveChip = i; this.resultActivePill = 0; }
+  onResultRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.resultActiveChip = sel.groupIndex;
+    this.resultActivePill = sel.rowIndex;
+  }
+
+  // ----- Result product badges (collapsed-row summary text) -----
+  private resultProductBadgeParts(p: ResultProduct, includeFinderCounts: boolean): string {
+    const parts: string[] = [];
+    if (this.resultNeedsImage && p.image) {
+      const fit = this.fitOf(p);
+      parts.push(fit.charAt(0).toUpperCase() + fit.slice(1));
+    }
+    if (p.price) parts.push(p.price);
+    if (includeFinderCounts && this.isFinder) {
+      const specs = p.specs?.length || 0;
+      const fitments = p.fitments?.length || 0;
+      if (specs || fitments) parts.push(`${specs} spec${specs === 1 ? '' : 's'} · ${fitments} fitment${fitments === 1 ? '' : 's'}`);
+    }
+    return parts.join(' · ');
+  }
+  /** Hierarchy & matched products (category mode) — read-only from the API. */
+  hierProductBadge(p: ResultProduct): string { return this.resultProductBadgeParts(p, false); }
+  /** Individual result pages (drill-tree leaves) — no nested specs/fitments UI here. */
+  leafProductBadge(p: ResultProduct): string { return this.resultProductBadgeParts(p, false); }
+  /** Result products (common/shared list) — includes finder-detail specs/fitments counts. */
+  resultProductBadge(p: ResultProduct): string { return this.resultProductBadgeParts(p, true); }
+
+  // ----- Hierarchy & matched products (category mode) — collapsed-row +
+  // bottom-sheet (UI-REDESIGN-PROMPT.md §5). Read-only names from the API —
+  // no reorder/delete on the row (matches the original markup, which had none). -----
+  hierProductModalOpen = false;
+  private hierProductModalNode: CardItem | null = null;
+  private hierProductModalIndex: number | null = null;
+  openHierProductEditor(node: CardItem, idx: number): void { this.hierProductModalNode = node; this.hierProductModalIndex = idx; this.hierProductModalOpen = true; }
+  closeHierProductEditor(): void { this.hierProductModalOpen = false; this.hierProductModalNode = null; this.hierProductModalIndex = null; }
+  get hierProductModalItem(): ResultProduct | undefined {
+    if (!this.hierProductModalNode || this.hierProductModalIndex == null) return undefined;
+    return (this.hierProductModalNode.products || [])[this.hierProductModalIndex];
+  }
+
+  // ----- Individual result pages (drill-tree leaves) — collapsed-row +
+  // bottom-sheet, one list per leaf. No reorder in the original markup — only
+  // delete (removeLeafProduct) stays on the row. The leaf-level Map locator
+  // (tap-to-place) stays inline in the template, outside this modal. -----
+  leafProductModalOpen = false;
+  private leafProductModalNode: CardItem | null = null;
+  private leafProductModalIndex: number | null = null;
+  /** Products for a leaf node, newest-first (matches the original `.slice().reverse()`);
+   *  `idx` is the REAL index into `node.products[]` so delete calls the exact
+   *  same `removeLeafProduct()` with the exact same index the old template
+   *  computed via `node.products.length - 1 - pi`. */
+  leafProductsReversed(node: CardItem): { product: ResultProduct; idx: number }[] {
+    const arr = node.products || [];
+    return arr.map((product, idx) => ({ product, idx })).slice().reverse();
+  }
+  openLeafProductEditor(node: CardItem, idx: number): void { this.leafProductModalNode = node; this.leafProductModalIndex = idx; this.leafProductModalOpen = true; }
+  closeLeafProductEditor(): void { this.leafProductModalOpen = false; this.leafProductModalNode = null; this.leafProductModalIndex = null; }
+  get leafProductModalItem(): ResultProduct | undefined {
+    if (!this.leafProductModalNode || this.leafProductModalIndex == null) return undefined;
+    return (this.leafProductModalNode.products || [])[this.leafProductModalIndex];
+  }
+
+  // ----- Result products (common/shared list) — collapsed-row + bottom-sheet.
+  // Reorder + delete stay on the row (moveProduct/removeProduct, same as
+  // before). The bottom sheet holds the FULL original per-product editor,
+  // including the finder-detail nested Specs/Fitments add-remove lists. -----
+  resultProductModalOpen = false;
+  resultProductModalIndex: number | null = null;
+  /** Products of the ACTIVE result page, newest-first (matches the original
+   *  `curResult.products.slice().reverse()`); `idx` is the REAL index into
+   *  `curResult.products[]` so reorder/delete call the exact same
+   *  `moveProduct()` / `removeProduct()` with the exact same indices the old
+   *  template computed via `curResult.products.length - 1 - i`. */
+  get resultProductsReversed(): { product: ResultProduct; idx: number }[] {
+    const arr = this.curResult.products || [];
+    return arr.map((product, idx) => ({ product, idx })).slice().reverse();
+  }
+  openResultProductEditor(idx: number): void { this.resultProductModalIndex = idx; this.resultProductModalOpen = true; }
+  closeResultProductEditor(): void { this.resultProductModalOpen = false; this.resultProductModalIndex = null; }
+  get resultProductModalItem(): ResultProduct | undefined {
+    return this.resultProductModalIndex != null ? this.curResult.products[this.resultProductModalIndex] : undefined;
+  }
+
+  constructor(private content: ContentService, private themes: ThemeService, private categoryApi: CategoryApiService, private workspace: WorkspaceService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private alertController: AlertController) {
+    // Editor Deck redesign: register every icon name used by this component's
+    // chip/pill/editor-card/settings-sheet option lists (same reasoning as
+    // theme-wizard.component.ts's constructor — see comment there).
+    addIcons({
+      addOutline, albumsOutline, appsOutline, bulbOutline, chatboxOutline, chatbubbleOutline, checkboxOutline,
+      cloudDownloadOutline, compassOutline, ellipseOutline, eyeOutline, gitBranchOutline, gitNetworkOutline,
+      gridOutline, hourglassOutline, imageOutline, imagesOutline, layersOutline, listOutline, locateOutline,
+      locationOutline, mapOutline, megaphoneOutline, menuOutline, optionsOutline, pricetagOutline,
+      pricetagsOutline, removeOutline, repeatOutline, resizeOutline, shuffleOutline, swapVerticalOutline,
+      textOutline, timeOutline, timerOutline, toggleOutline,
+    });
+  }
 
   async pickImage(item: CardItem | ResultProduct): Promise<void> {
     const dataUrl = await this.picker.pick();
@@ -1819,6 +2367,79 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
 
   isVideoDataUrl(s: string | undefined): boolean {
     return !!s && typeof s === 'string' && s.startsWith('data:video');
+  }
+
+  // ----- Screensaver step — Editor Deck (Timing/Behavior chips) — view-only UI
+  // state, same pattern as Home/Intermediate/Result. Every option below
+  // reads/writes the exact same `d.screensaver.*` properties as the original
+  // vertical form — only the presentation is restructured. -----
+  saverActiveChip = 0;
+  saverActivePill = 0;
+  saverSettingsOpen = false;
+
+  private get saverTimingOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const d = this.draft;
+    if (!d) return out;
+    out.push({ key: 'secondsPerSlide', icon: 'time-outline', label: 'Seconds / slide', value: `${d.screensaver.secondsPerSlide || 5}s` });
+    out.push({ key: 'idleTimeout', icon: 'hourglass-outline', label: 'Idle timeout', value: `${d.screensaver.idleTimeoutSec || 30}s` });
+    out.push({ key: 'ctaText', icon: 'chatbubble-outline', label: 'CTA text', value: d.screensaver.ctaText || 'Default' });
+    return out;
+  }
+  private get saverBehaviorOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const d = this.draft;
+    if (!d) return out;
+    out.push({ key: 'loop', icon: 'repeat-outline', label: 'Loop', value: d.screensaver.loop ? 'On' : 'Off' });
+    out.push({ key: 'shuffle', icon: 'shuffle-outline', label: 'Shuffle', value: d.screensaver.shuffle ? 'On' : 'Off' });
+    return out;
+  }
+  get saverCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'timing', icon: 'time-outline', label: 'Timing', options: this.saverTimingOptions },
+      { key: 'behavior', icon: 'toggle-outline', label: 'Behavior', options: this.saverBehaviorOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get saverActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.saverCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.saverActiveChip, cats.length - 1)];
+  }
+  get saverChipsInput(): NtDeckChip[] { return this.saverCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get saverPillsInput(): NtValuePill[] {
+    return (this.saverActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get saverActiveOption(): DeckOption | undefined {
+    const opts = this.saverActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.saverActivePill, opts.length - 1)];
+  }
+  get saverActivePillKey(): string { return this.saverActiveOption?.key || ''; }
+  get saverActivePillLabel(): string { return (this.saverActiveOption?.label || '').toUpperCase(); }
+  get saverSettingsGroups(): NtSettingsGroup[] {
+    return this.saverCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onSaverChipChange(i: number): void { this.saverActiveChip = i; this.saverActivePill = 0; }
+  onSaverRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.saverActiveChip = sel.groupIndex;
+    this.saverActivePill = sel.rowIndex;
+  }
+
+  // ----- Screensaver media — collapsed-row + bottom-sheet (UI-REDESIGN-PROMPT.md
+  // §5). Each media item has no editable fields beyond a larger preview + delete,
+  // so the sheet is a preview/delete view rather than a full form — still the
+  // same pattern (collapsed row on the step, full detail in a modal). No reorder
+  // method exists for media (the original had none either), so both move
+  // affordances stay disabled. -----
+  saverMediaModalOpen = false;
+  saverMediaModalIndex: number | null = null;
+  openSaverMediaPreview(i: number): void { this.saverMediaModalIndex = i; this.saverMediaModalOpen = true; }
+  closeSaverMediaPreview(): void { this.saverMediaModalOpen = false; this.saverMediaModalIndex = null; }
+  get saverMediaModalItem(): string | undefined {
+    return this.saverMediaModalIndex != null ? this.draft?.screensaver.media?.[this.saverMediaModalIndex] : undefined;
   }
 
   eslId(productId: string): string {

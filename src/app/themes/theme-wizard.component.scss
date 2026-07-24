@@ -964,6 +964,9 @@
 .hint { font-size: 12px; line-height: 1.5; color: var(--nt-muted); margin-top: 8px; }
 .media-row { display: flex; gap: 8px; margin: 8px 0 12px; }
 .media-row .media-btn { flex: 1; }
+/* Contains the floated .replay "▶ Preview" action button (Animations step) so it doesn't
+   collapse the row / overlap the tile-group rendered right after it in the editor-card. */
+.editor-actions { overflow: hidden; margin-bottom: 10px; }
 .slider-row { display: flex; align-items: center; gap: 12px; margin: 4px 0 12px; }
 .slider-row .nt-slider { flex: 1; accent-color: var(--nt-brand-ink); height: 28px; }
 .slider-row .slider-val { min-width: 48px; text-align: right; font-weight: 800; font-size: 13px; color: var(--nt-brand-ink); }
@@ -988,9 +991,49 @@
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 .inp:focus { border-color: var(--nt-brand-ink); box-shadow: 0 0 0 3px var(--nt-brand-focus-glow); }
-table.sum { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 14px; background: var(--nt-card); border: 1px solid var(--nt-border); border-radius: var(--nt-r); overflow: hidden; display: table; }
-table.sum td { padding: 10px 12px; border-top: 1px solid var(--nt-border); }
-table.sum td:first-child { color: var(--nt-muted); width: 46%; }
+/* Review step summary — restyled to match the nt-settings-sheet "All settings"
+   row style (icon + label + value) for visual consistency with the rest of
+   the redesigned wizard, while remaining a plain read-only summary (no tap
+   interaction, no chevrons — there is nothing to edit here). */
+.review-summary { margin-top: 14px; background: var(--nt-card); border: 1px solid var(--nt-border); border-radius: var(--nt-r); padding: 4px 12px; }
+.review-summary .grouplabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--nt-muted);
+  margin: 16px 0 4px;
+}
+.review-summary .grouplabel:first-child { margin-top: 10px; }
+.review-summary .row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 2px;
+  border-bottom: 1px solid var(--nt-border);
+}
+.review-summary .row:last-child { border-bottom: none; }
+.review-summary .row .ic { font-size: 16px; color: var(--nt-muted); width: 18px; flex-shrink: 0; text-align: center; }
+.review-summary .row .lbl {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--nt-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.review-summary .row .val {
+  flex-shrink: 0;
+  max-width: 54%;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nt-brand-ink);
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 
 .nav {
   display: flex; gap: 10px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
@@ -1448,6 +1491,30 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
 .prev .stage.result.scroll-horizontal .list .prod { flex: 0 0 30%; }
 
 /* ===== Alignment grid (3H + 3V icon buttons) ===== */
+/* ===== Editor Deck (Colors / Type steps, phase 3a) =====
+   Chips → value pills → single editor card is rendered by the shared nt-*
+   components (src/app/shared/ui); these rules only cover the theme-wizard-local
+   step header row + the horizontal option-row layout used INSIDE the editor
+   card (reusing the existing .tile/.seg button look, just laid out in one
+   scrollable row instead of a grid/wrap, per the locked reference). */
+.step-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0 4px; }
+.step-title-row .step-title { margin: 0; }
+.all-settings-btn {
+  display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto;
+  padding: 7px 13px; border-radius: var(--nt-r-full);
+  border: 1.5px solid var(--nt-border); background: var(--nt-card); color: var(--nt-brand-ink);
+  font-family: inherit; font-size: 12px; font-weight: 800; white-space: nowrap; cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.all-settings-btn ion-icon { font-size: 15px; }
+.all-settings-btn:hover { background: var(--nt-tint); }
+.all-settings-btn:focus-visible { outline: 3px solid rgba(255,205,0,.55); outline-offset: 2px; }
+
+.deck-optrow { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+.deck-optrow::-webkit-scrollbar { display: none; }
+.deck-optrow .tile { flex: 0 0 auto; min-width: 64px; }
+
 .align-grid { display: grid; grid-template-columns: repeat(3, 46px); gap: 6px; margin: 4px 0 12px; }
 .align-btn {
   width: 46px; height: 46px; display: flex; align-items: center; justify-content: center;
@@ -1471,6 +1538,7 @@ table.sum td:first-child { color: var(--nt-muted); width: 46%; }
   padding: 10px 14px;
   font-size: 12px; line-height: 1.5; color: var(--nt-text-2);
   margin-bottom: 14px;
+  margin-top: 10px;
 }
 .inherited-hint span { font-size: 15px; flex-shrink: 0; color: var(--nt-brand-ink); }
 

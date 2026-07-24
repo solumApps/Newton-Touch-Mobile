@@ -2,52 +2,69 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ImagePickerService } from '../services/image-picker.service';
+import { NtCollapsedItemRowComponent } from '../shared/ui';
 import type { CardItem, ImageFit } from '@contract/layout';
 
 /**
- * Recursive card editor — renders a CardItem with name/image inputs and an
- * "Add sub-item" button that pushes onto card.children. Each child is rendered
- * via this same component, so the tree depth is unbounded (capped at maxDepth
- * by the parent when needed — e.g. Category mode caps at 4).
+ * Recursive card editor — renders a CardItem's children as collapsed rows
+ * (thumbnail, name, sub-item/product-count badge, expand chevron); expanding a
+ * row (per-row, UI-REDESIGN-PROMPT.md §5) reveals its full inline editor (name
+ * input, image, Fit, own result products) plus — nested inside that same
+ * expanded block — this same component recursing into `child.children`, so
+ * tree depth is unbounded (capped at maxDepth by the parent when needed — e.g.
+ * Category mode caps at 4). Same recursive structure/inputs/outputs and the
+ * same underlying CardItem tree model / add-remove logic as before — this is a
+ * template-only change (see UI-REDESIGN-INVENTORY.md PART 3).
  */
 @Component({
   selector: 'app-card-tree-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NtCollapsedItemRowComponent],
   template: `
     <div class="branch" *ngFor="let child of card.children; let i = index">
-      <div class="erow">
-        <div class="thumb" *ngIf="needsImage" [style.background-image]="child.image ? 'url('+child.image+')' : null" (click)="pickImage(child)">{{ child.image ? '' : '📷' }}</div>
-        <input class="inp" [(ngModel)]="child.name" placeholder="Sub-item name" />
-        <button class="del" (click)="moveNode(i, -1)" [disabled]="i === 0" title="Move up">↑</button>
-        <button class="del" (click)="moveNode(i, 1)" [disabled]="i === (card.children?.length || 1) - 1" title="Move down">↓</button>
-        <button class="del" (click)="remove(i)">✕</button>
-      </div>
-      <div class="fit-seg" *ngIf="needsImage && child.image">
-        <span class="fit-lbl">Fit</span>
-        <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(child)===f" (click)="setFit(child, f)">{{ f | titlecase }}</button>
-      </div>
-      <!-- Per-leaf result products (Individual result mode): only on nodes WITHOUT children -->
-      <div class="prods" *ngIf="allowProducts && !(child.children && child.children.length)">
-        <div class="erow" *ngFor="let p of child.products || []; let pi = index">
-          <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
-          <input class="inp" [(ngModel)]="p.name" placeholder="Product name" />
-          <input class="inp psm" [(ngModel)]="p.price" placeholder="Price" />
-          <input class="inp psm" [(ngModel)]="p.aisle" placeholder="Aisle" />
-          <button class="del" (click)="moveProduct(child, pi, -1)" [disabled]="pi === 0" title="Move up">↑</button>
-          <button class="del" (click)="moveProduct(child, pi, 1)" [disabled]="pi === (child.products?.length || 1) - 1" title="Move down">↓</button>
-          <button class="del" (click)="removeProduct(child, pi)">✕</button>
+      <nt-collapsed-item-row
+        [thumbnail]="needsImage ? (child.image || null) : null"
+        [name]="child.name || 'Untitled item'"
+        [badge]="childBadge(child)"
+        [canMoveUp]="i !== 0"
+        [canMoveDown]="i !== (card.children?.length || 1) - 1"
+        (rowClick)="toggleExpand(child.id)"
+        (moveUp)="moveNode(i, -1)"
+        (moveDown)="moveNode(i, 1)"
+        (delete)="remove(i)"></nt-collapsed-item-row>
+
+      <div class="branch-editor" *ngIf="isExpanded(child.id)">
+        <div class="erow">
+          <div class="thumb" *ngIf="needsImage" [style.background-image]="child.image ? 'url('+child.image+')' : null" (click)="pickImage(child)">{{ child.image ? '' : '📷' }}</div>
+          <input class="inp" [(ngModel)]="child.name" placeholder="Sub-item name" />
         </div>
-        <button class="mini prod-add" (click)="addProduct(child)">+ Result product (this item's own result page)</button>
-      </div>
-      <div class="nest">
-        <app-card-tree-editor [card]="child" [depth]="depth + 1" [maxDepth]="maxDepth" [needsImage]="needsImage" [allowProducts]="allowProducts"></app-card-tree-editor>
+        <div class="fit-seg" *ngIf="needsImage && child.image">
+          <span class="fit-lbl">Fit</span>
+          <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(child)===f" (click)="setFit(child, f)">{{ f | titlecase }}</button>
+        </div>
+        <!-- Per-leaf result products (Individual result mode): only on nodes WITHOUT children -->
+        <div class="prods" *ngIf="allowProducts && !(child.children && child.children.length)">
+          <div class="erow" *ngFor="let p of child.products || []; let pi = index">
+            <div class="thumb" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
+            <input class="inp" [(ngModel)]="p.name" placeholder="Product name" />
+            <input class="inp psm" [(ngModel)]="p.price" placeholder="Price" />
+            <input class="inp psm" [(ngModel)]="p.aisle" placeholder="Aisle" />
+            <button class="del" (click)="moveProduct(child, pi, -1)" [disabled]="pi === 0" title="Move up">↑</button>
+            <button class="del" (click)="moveProduct(child, pi, 1)" [disabled]="pi === (child.products?.length || 1) - 1" title="Move down">↓</button>
+            <button class="del" (click)="removeProduct(child, pi)">✕</button>
+          </div>
+          <button class="mini prod-add" (click)="addProduct(child)">+ Result product (this item's own result page)</button>
+        </div>
+        <div class="nest">
+          <app-card-tree-editor [card]="child" [depth]="depth + 1" [maxDepth]="maxDepth" [needsImage]="needsImage" [allowProducts]="allowProducts"></app-card-tree-editor>
+        </div>
       </div>
     </div>
     <button class="mini sub-add" [disabled]="atMax" (click)="add()">+ Add sub-item<span *ngIf="atMax"> (max {{ maxDepth }})</span></button>
   `,
   styles: [`
     .branch { border-left: 2px solid var(--nt-border); padding-left: 8px; margin: 6px 0; }
+    .branch-editor { padding: 10px 0 2px 4px; }
     .nest { margin-left: 8px; }
     .sub-add { display: inline-block; margin: 4px 0 10px; font-size: 12px; }
     .sub-add[disabled] { opacity: .5; }
@@ -76,6 +93,28 @@ export class CardTreeEditorComponent {
   @Input() allowProducts = false;
 
   constructor(private picker: ImagePickerService) {}
+
+  /** View-only expand/collapse state for this level's rows — collapsed rows,
+   *  expanding is per-row (UI-REDESIGN-PROMPT.md §5). Local to this component
+   *  instance, so every recursion level tracks its own children independently;
+   *  does not touch the CardItem model. */
+  private expandedIds = new Set<string>();
+  isExpanded(id: string): boolean { return this.expandedIds.has(id); }
+  toggleExpand(id: string): void {
+    if (this.expandedIds.has(id)) this.expandedIds.delete(id);
+    else this.expandedIds.add(id);
+  }
+  /** Collapsed-row summary badge: sub-item count and/or own-product count. */
+  childBadge(c: CardItem): string {
+    const parts: string[] = [];
+    const kids = c.children?.length || 0;
+    if (kids) parts.push(`${kids} sub-item${kids === 1 ? '' : 's'}`);
+    if (this.allowProducts && !(c.children && c.children.length)) {
+      const n = (c.products || []).length;
+      if (n) parts.push(`${n} product${n === 1 ? '' : 's'}`);
+    }
+    return parts.join(' · ');
+  }
 
   get atMax(): boolean { return this.depth + 1 >= this.maxDepth; }
 

@@ -51,78 +51,86 @@
 
     <!-- ============ HOME ============ -->
     <div *ngSwitchCase="'home'">
-      <h2 class="step-title">Home page</h2>
+      <div class="step-title-row">
+        <h2 class="step-title">Home page</h2>
+        <button type="button" class="all-settings-btn" (click)="homeSettingsOpen = true">
+          <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
+        </button>
+      </div>
 
-      <!-- HEADER — conditional on showHeader; style drives which fields appear -->
-      <div class="sec"><span>Header</span><span class="chip" [class.on]="d.themeTokens.showHeader">{{ d.themeTokens.showHeader ? 'Visible' : 'Hidden' }}</span></div>
-      <ng-container *ngIf="d.themeTokens.showHeader">
-        <p class="note">Style: <b>{{ headerStyleLabel }}</b></p>
-        <!-- Logo upload (shown for logo-only and logo+title+caption) -->
-        <ng-container *ngIf="showLogo">
-          <div class="erow">
-            <div class="thumb" [style.background-image]="d.header?.logo ? 'url('+d.header!.logo+')' : null" (click)="pickLogo()">{{ d.header?.logo ? '' : '📷' }}</div>
-            <span class="inp" style="opacity:.6;pointer-events:none">Logo image (optional — defaults to SOLUM)</span>
-            <button class="del" *ngIf="d.header?.logo" (click)="clearLogo()">✕</button>
-          </div>
-          <div class="logo-size-row">
-            <span class="ls-lbl">Logo size</span>
-            <input type="range" min="50" max="250" step="5" [value]="headerLogoScalePct" (input)="setHeaderLogoScale($any($event.target).value)" />
-            <span class="ls-val">{{ headerLogoScalePct }}%</span>
-          </div>
-        </ng-container>
-        <!-- Title (shown for title-only, title+caption, logo+title+caption) -->
-        <div class="erow" *ngIf="needsHeaderTitle">
-          <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Title (default: content name)" />
-        </div>
-        <!-- Caption (shown for title+caption, logo+title+caption) -->
-        <div class="erow" *ngIf="needsHeaderCaption">
-          <input class="inp" [ngModel]="d.header?.caption || ''" (ngModelChange)="setHeader('caption', $event)" placeholder="Caption / subtitle (default: Welcome)" />
-        </div>
-      </ng-container>
-      <p class="note" *ngIf="!d.themeTokens.showHeader">Header is hidden in this theme. Change it in the theme wizard.</p>
+      <nt-deck-chips [chips]="homeChipsInput" [activeIndex]="homeActiveChip" (activeIndexChange)="onHomeChipChange($event)"></nt-deck-chips>
+      <nt-value-pill-row [pills]="homePillsInput" [activeIndex]="homeActivePill" (activeIndexChange)="homeActivePill = $event"></nt-value-pill-row>
 
-      <!-- finder-select: editable prompt text for the home screen -->
-      <ng-container *ngIf="isFinderSelect">
-        <div class="sec"><span>Home page prompt</span></div>
-        <input class="inp" [ngModel]="homePromptText" (ngModelChange)="homePromptText=$event" placeholder="Prompt (e.g. TOUCH YOUR CATEGORY)" />
+      <nt-editor-card [sectionLabel]="homeActivePillLabel">
+        <ng-container [ngSwitch]="homeActivePillKey">
 
-        <div class="sec"><span>Fast lookup index</span></div>
-        <p class="note">How the side index strip is generated for the selection cards.</p>
-        <div class="seg">
-          <button type="button" class="tile" [class.sel]="levelIndexMode==='alpha'" (click)="levelIndexMode='alpha'">A–Z</button>
-          <button type="button" class="tile" [class.sel]="levelIndexMode==='number'" (click)="levelIndexMode='number'">Number</button>
-        </div>
-        <div class="row" *ngIf="levelIndexMode==='number'">
-          <input class="inp" type="number" placeholder="Min" [ngModel]="levelIndexNumberMin" (ngModelChange)="levelIndexNumberMin=($event === '' || $event === null || $event === undefined) ? 0 : (+$event || 0)" />
-          <input class="inp" type="number" placeholder="Max" [ngModel]="levelIndexNumberMax" (ngModelChange)="levelIndexNumberMax=($event === '' || $event === null || $event === undefined) ? 100 : (+$event || 0)" />
-          <input class="inp" type="number" min="1" placeholder="Interval" [ngModel]="levelIndexNumberInterval" (ngModelChange)="levelIndexNumberInterval=($event === '' || $event === null || $event === undefined) ? 10 : (+$event > 0 ? +$event : 10)" />
-        </div>
-      </ng-container>
+          <!-- HEADER — read-only indicator; edited in the theme wizard -->
+          <ng-container *ngSwitchCase="'headerVisibility'">
+            <p class="note">Header is currently <b>{{ d.themeTokens.showHeader ? 'visible' : 'hidden' }}</b> for this theme<ng-container *ngIf="d.themeTokens.showHeader"> — style: <b>{{ headerStyleLabel }}</b></ng-container>.</p>
+            <p class="note" *ngIf="!d.themeTokens.showHeader">Header is hidden in this theme. Change it in the theme wizard.</p>
+          </ng-container>
 
-      <!-- promo-categories: editable eyebrow label + promo message -->
-      <ng-container *ngIf="isPromoCategories">
-        <div class="sec"><span>Promo message</span></div>
-        <input class="inp" [ngModel]="td.promoFeatured" (ngModelChange)="td.promoFeatured=$event" placeholder="Eyebrow label (e.g. Featured)" />
-        <input class="inp" [ngModel]="td.promoCopy" (ngModelChange)="td.promoCopy=$event" placeholder="Promo message (e.g. Find the right product faster)" />
-      </ng-container>
+          <!-- Logo upload (shown for logo-only and logo+title+caption) -->
+          <ng-container *ngSwitchCase="'logoImage'">
+            <div class="erow">
+              <div class="thumb" [style.background-image]="d.header?.logo ? 'url('+d.header!.logo+')' : null" (click)="pickLogo()">{{ d.header?.logo ? '' : '📷' }}</div>
+              <span class="inp" style="opacity:.6;pointer-events:none">Logo image (optional — defaults to SOLUM)</span>
+              <button class="del" *ngIf="d.header?.logo" (click)="clearLogo()">✕</button>
+            </div>
+          </ng-container>
 
-      <!-- CATEGORY: API fetch + selection -->
-      <ng-container *ngIf="d.appMode === 'category'">
-        <div class="sec">
-          <span>Category API</span>
-          <button class="mini" (click)="fetch()">{{ apiProducts.length ? 'Re-fetch' : 'Fetch products' }}</button>
-        </div>
-        <p class="note" *ngIf="!apiProducts.length && !fetchError && !fetching">Pull products from the server (name, price, IDs come from API · images are uploaded).</p>
-        <p class="note err" *ngIf="fetchError">{{ fetchError }}</p>
-        <div *ngIf="fetching">
-          <div class="skel skel-row" *ngFor="let s of [1,2,3,4,5]"></div>
-        </div>
-        <ng-container *ngIf="apiProducts.length">
-          <app-select-field label="Hierarchy fields" placeholder="Choose field source"
-            [options]="fieldSourceOpts" [value]="d.fieldSource || 'category'" (valueChange)="setFieldSource($any($event))"></app-select-field>
+          <ng-container *ngSwitchCase="'logoSize'">
+            <div class="logo-size-row">
+              <span class="ls-lbl">Logo size</span>
+              <input type="range" min="50" max="250" step="5" [value]="headerLogoScalePct" (input)="setHeaderLogoScale($any($event.target).value)" />
+              <span class="ls-val">{{ headerLogoScalePct }}%</span>
+            </div>
+          </ng-container>
+
+          <!-- Title (shown for title-only, title+caption, logo+title+caption) -->
+          <ng-container *ngSwitchCase="'headerTitle'">
+            <div class="erow">
+              <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Title (default: content name)" />
+            </div>
+          </ng-container>
+
+          <!-- Caption (shown for title+caption, logo+title+caption) -->
+          <ng-container *ngSwitchCase="'headerCaption'">
+            <div class="erow">
+              <input class="inp" [ngModel]="d.header?.caption || ''" (ngModelChange)="setHeader('caption', $event)" placeholder="Caption / subtitle (default: Welcome)" />
+            </div>
+          </ng-container>
+
+          <!-- promo-categories: editable eyebrow label + promo message -->
+          <ng-container *ngSwitchCase="'promoEyebrow'">
+            <input class="inp" [ngModel]="td.promoFeatured" (ngModelChange)="td.promoFeatured=$event" placeholder="Eyebrow label (e.g. Featured)" />
+          </ng-container>
+          <ng-container *ngSwitchCase="'promoMessage'">
+            <input class="inp" [ngModel]="td.promoCopy" (ngModelChange)="td.promoCopy=$event" placeholder="Promo message (e.g. Find the right product faster)" />
+          </ng-container>
+
+          <!-- CATEGORY: API fetch -->
+          <ng-container *ngSwitchCase="'categoryApi'">
+            <div class="sec">
+              <span>Category API</span>
+              <button class="mini" (click)="fetch()">{{ apiProducts.length ? 'Re-fetch' : 'Fetch products' }}</button>
+            </div>
+            <p class="note" *ngIf="!apiProducts.length && !fetchError && !fetching">Pull products from the server (name, price, IDs come from API · images are uploaded).</p>
+            <p class="note err" *ngIf="fetchError">{{ fetchError }}</p>
+            <div *ngIf="fetching">
+              <div class="skel skel-row" *ngFor="let s of [1,2,3,4,5]"></div>
+            </div>
+            <p class="note" *ngIf="apiProducts.length">Data has up to <b>L{{ maxCategoryDepth }}</b> ({{ catLabel(maxCategoryDepth) }}).</p>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'fieldSource'">
+            <app-select-field label="Hierarchy fields" placeholder="Choose field source"
+              [options]="fieldSourceOpts" [value]="d.fieldSource || 'category'" (valueChange)="setFieldSource($any($event))"></app-select-field>
+          </ng-container>
+
           <!-- Category depth: how many intermediate sub-levels to drill. Hidden when
                the theme has NO intermediate page — L0 maps straight to Result. -->
-          <ng-container *ngIf="d.themeTokens.includeIntermediate !== false">
+          <ng-container *ngSwitchCase="'categoryDepth'">
             <div class="sec"><span>Category depth</span></div>
             <div class="seg fit-seg">
               <button class="mini" [class.sel]="categoryLevelCount===0" (click)="setCategoryLevelCount(0)">L0 only</button>
@@ -130,124 +138,314 @@
               <button class="mini" *ngIf="maxCategoryDepth>=2" [class.sel]="categoryLevelCount===2" (click)="setCategoryLevelCount(2)">+L2</button>
               <button class="mini" *ngIf="maxCategoryDepth>=3" [class.sel]="categoryLevelCount===3" (click)="setCategoryLevelCount(3)">+L3</button>
             </div>
+            <p class="note" *ngIf="d.themeTokens.includeIntermediate === false">This theme has no intermediate page — every product under the selected L0 category shows on the Result page.</p>
           </ng-container>
-          <p class="note" *ngIf="d.themeTokens.includeIntermediate === false">This theme has no intermediate page — every product under the selected L0 category shows on the Result page.</p>
-          <p class="note" *ngIf="apiProducts.length">Data has up to <b>L{{ maxCategoryDepth }}</b> ({{ catLabel(maxCategoryDepth) }}).</p>
-          <!-- L0 values (category1 / etc0) — unique, deduped. Pick which to build. -->
-          <div class="sec"><span>L0 — {{ catLabel(0) }}</span></div>
-          <label class="pick" *ngFor="let v of catValues(0)">
-            <input type="checkbox" [checked]="catSel[0].has(v)" (change)="toggleCat(0, v, $event)" />
-            <span class="pn">{{ v }}<span class="pm">({{ catCount(0, v) }})</span></span>
-          </label>
-          <button class="btn-o" (click)="applySelection()">Use {{ catSel[0].size }} selected → build pages</button>
+
+          <!-- L0 values (category1 / etc0) — unique, deduped. Pick which to build.
+               "Use N selected → build pages" is kept as an action button inside
+               this same pill's editor (not its own pill), matching the Animations
+               step's Preview-button precedent. -->
+          <ng-container *ngSwitchCase="'l0Selection'">
+            <div class="sec"><span>L0 — {{ catLabel(0) }}</span></div>
+            <label class="pick" *ngFor="let v of catValues(0)">
+              <input type="checkbox" [checked]="catSel[0].has(v)" (change)="toggleCat(0, v, $event)" />
+              <span class="pn">{{ v }}<span class="pm">({{ catCount(0, v) }})</span></span>
+            </label>
+            <button class="btn-o" (click)="applySelection()">Use {{ catSel[0].size }} selected → build pages</button>
+          </ng-container>
+
           <!-- Category VALUES come from the API and are locked; only their text
                case can be changed (applied live to every locked value). -->
-          <div class="sec"><span>Category text case</span></div>
-          <p class="note">API category values are read-only — pick how they're displayed.</p>
-          <div class="seg fit-seg">
-            <button class="mini" *ngFor="let c of articleCaseOpts" [class.sel]="(d.articleCase||'asis')===c.id" (click)="setArticleCase(c.id)">{{ c.label }}</button>
-          </div>
-        </ng-container>
-      </ng-container>
+          <ng-container *ngSwitchCase="'categoryTextCase'">
+            <p class="note">API category values are read-only — pick how they're displayed.</p>
+            <div class="seg fit-seg">
+              <button class="mini" *ngFor="let c of articleCaseOpts" [class.sel]="(d.articleCase||'asis')===c.id" (click)="setArticleCase(c.id)">{{ c.label }}</button>
+            </div>
+          </ng-container>
 
-      <!-- Drill-down mode: shared vs per-card. Hidden for Category mode (the
-           hierarchy is built automatically from the API levels). -->
-      <ng-container *ngIf="d.appMode !== 'category' && d.themeTokens.includeIntermediate !== false">
-        <div class="sec"><span>Intermediate pages</span></div>
-        <div class="seg fit-seg">
-          <button class="mini" [class.sel]="drillMode==='common'" (click)="setDrillMode('common')">Common — one shared page</button>
-          <button class="mini" [class.sel]="drillMode==='individual'" (click)="setDrillMode('individual')">Individual — per card</button>
-        </div>
-        <p class="note">{{ drillMode==='common'
-          ? 'Every home card opens the SAME intermediate page — fill it once on the Intermediate step.'
-          : 'Each home card opens its OWN intermediate page — build each level on the Intermediate steps.' }}</p>
-        <!-- Drill-down depth: mirrors Category mode's "Category depth" — one
-             Intermediate step per level (home cards are L0). -->
-        <ng-container *ngIf="drillMode==='individual'">
-          <div class="sec"><span>Category depth</span></div>
-          <div class="seg fit-seg">
-            <button class="mini" [class.sel]="protoLevelCount===1" (click)="setProtoLevelCount(1)">L0+L1</button>
-            <button class="mini" [class.sel]="protoLevelCount===2" (click)="setProtoLevelCount(2)">+L2</button>
-            <button class="mini" [class.sel]="protoLevelCount===3" (click)="setProtoLevelCount(3)">+L3</button>
-          </div>
-          <p class="note">Home cards are <b>L0</b>. Each extra level adds its own Intermediate step (L1–L{{ protoLevelCount }}).</p>
-        </ng-container>
-      </ng-container>
+          <!-- Drill-down mode: shared vs per-card. Hidden for Category mode (the
+               hierarchy is built automatically from the API levels). -->
+          <ng-container *ngSwitchCase="'drillMode'">
+            <div class="seg fit-seg">
+              <button class="mini" [class.sel]="drillMode==='common'" (click)="setDrillMode('common')">Common — one shared page</button>
+              <button class="mini" [class.sel]="drillMode==='individual'" (click)="setDrillMode('individual')">Individual — per card</button>
+            </div>
+            <p class="note">{{ drillMode==='common'
+              ? 'Every home card opens the SAME intermediate page — fill it once on the Intermediate step.'
+              : 'Each home card opens its OWN intermediate page — build each level on the Intermediate steps.' }}</p>
+          </ng-container>
 
-      <!-- HOME CARDS -->
+          <!-- Drill-down depth: mirrors Category mode's "Category depth" — one
+               Intermediate step per level (home cards are L0). -->
+          <ng-container *ngSwitchCase="'protoDepth'">
+            <div class="seg fit-seg">
+              <button class="mini" [class.sel]="protoLevelCount===1" (click)="setProtoLevelCount(1)">L0+L1</button>
+              <button class="mini" [class.sel]="protoLevelCount===2" (click)="setProtoLevelCount(2)">+L2</button>
+              <button class="mini" [class.sel]="protoLevelCount===3" (click)="setProtoLevelCount(3)">+L3</button>
+            </div>
+            <p class="note">Home cards are <b>L0</b>. Each extra level adds its own Intermediate step (L1–L{{ protoLevelCount }}).</p>
+          </ng-container>
+
+        </ng-container>
+      </nt-editor-card>
+
+      <nt-settings-sheet [groups]="homeSettingsGroups" [(isOpen)]="homeSettingsOpen" title="All settings · Home" (rowSelected)="onHomeRowSelected($event)"></nt-settings-sheet>
+
+      <!-- HOME CARDS — repeating/unbounded list: collapsed-row + bottom-sheet
+           pattern (UI-REDESIGN-PROMPT.md §5), NOT part of the deck above. -->
       <div class="sec">
         <span>Home cards ({{ d.home.length }}<ng-container *ngIf="maxHomeItems"> / {{ maxHomeItems }}</ng-container>)</span>
         <button class="mini" *ngIf="d.appMode !== 'category'" (click)="addCard()" [disabled]="atHomeCap">+ Add</button>
       </div>
       <p class="note" *ngIf="atHomeCap">This featured theme is designed for up to <b>{{ maxHomeItems }}</b> home items — remove one to add another.</p>
-      <div class="pcard" *ngFor="let c of d.home.slice().reverse(); let i = index">
-        <div class="erow">
-          <div class="thumb" *ngIf="needsImage" [style.background-image]="c.image ? 'url('+c.image+')' : null" (click)="pickImage(c)">{{ c.image ? '' : '📷' }}</div>
-          <input *ngIf="!c.fromApi" class="inp" [(ngModel)]="c.name" placeholder="Card name" />
-          <input *ngIf="c.fromApi" class="inp locked" [value]="c.name" readonly title="From API — edit text case below" />
-          <button class="del" (click)="moveHomeCard(d.home.length - 1 - i, 1)" [disabled]="i === 0" title="Move up">↑</button>
-          <button class="del" (click)="moveHomeCard(d.home.length - 1 - i, -1)" [disabled]="i === d.home.length - 1" title="Move down">↓</button>
-          <button class="del" (click)="removeCard(d.home.length - 1 - i)">✕</button>
-        </div>
-        <div class="seg fit-seg" *ngIf="needsImage && c.image">
-          <span class="fit-lbl">Fit</span>
-          <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(c)===f" (click)="setFit(c, f)">{{ f | titlecase }}</button>
-          <button class="mini danger" (click)="clearImage(c)" title="Remove image">✕ Image</button>
-        </div>
-        <div class="prow">
-          <input class="inp" [(ngModel)]="c.price" placeholder="Price (optional)" />
-          <input class="inp" [(ngModel)]="c.unit" placeholder="Unit (optional)" />
-        </div>
-        <div class="subtree-flag" *ngIf="d.themeTokens.includeIntermediate !== false && drillMode==='individual'">
-          <span class="badge" [class.on]="hasCustomSubtree(c)">{{ hasCustomSubtree(c) ? '● Has its own page' : '○ Fill on Intermediate step' }}</span>
-        </div>
+
+      <div class="home-cards-list">
+        <nt-collapsed-item-row *ngFor="let row of homeCardsReversed; let i = index"
+          [thumbnail]="needsImage ? (row.card.image || null) : null"
+          [name]="row.card.name || 'Untitled card'"
+          [badge]="homeCardBadge(row.card)"
+          [canMoveUp]="i !== 0"
+          [canMoveDown]="i !== homeCardsReversed.length - 1"
+          (rowClick)="openHomeCardEditor(row.idx)"
+          (moveUp)="moveHomeCard(row.idx, 1)"
+          (moveDown)="moveHomeCard(row.idx, -1)"
+          (delete)="removeCard(row.idx)"></nt-collapsed-item-row>
       </div>
-      <p class="note" *ngIf="needsImage && !uploadIsIcon">This theme's cards show an image — tap 📷 to upload one per card.</p>
-      <p class="note" *ngIf="uploadIsIcon">This theme's cards show an icon + text — tap 📷 to upload an icon per card.</p>
+
+      <p class="note" *ngIf="needsImage && !uploadIsIcon">This theme's cards show an image — tap a card to upload one.</p>
+      <p class="note" *ngIf="uploadIsIcon">This theme's cards show an icon + text — tap a card to upload an icon.</p>
       <p class="note" *ngIf="d.themeTokens.includeIntermediate !== false">
         <ng-container *ngIf="d.appMode==='category'">Drill-down: sub-levels are built automatically from the API (max 4 levels — matches API <b>category1–4</b> / <b>etc0–3</b>).</ng-container>
         <ng-container *ngIf="d.appMode!=='category' && drillMode==='individual'">Drill-down: add each level's cards on the Intermediate L1–L{{ protoLevelCount }} steps.</ng-container>
         <ng-container *ngIf="d.appMode!=='category' && drillMode!=='individual'">Fill the shared page on the Intermediate step.</ng-container>
       </p>
+
+      <!-- Home card FULL editor — bottom sheet, opened by tapping a collapsed row.
+           Reuses the exact original per-card markup/bindings (image, name, Fit,
+           price/unit, subtree badge). Reorder + delete stay on the row itself. -->
+      <ion-modal class="nt-sheet-modal home-card-editor-modal" [isOpen]="homeCardModalOpen" (didDismiss)="closeHomeCardEditor()">
+        <ng-template>
+          <div class="nt-sheet" *ngIf="homeCardModalCard as c">
+            <div class="nt-sheet-grab"></div>
+            <div class="sec"><span>Edit home card</span><button class="del" (click)="closeHomeCardEditor()">✕</button></div>
+            <div class="erow">
+              <div class="thumb" *ngIf="needsImage" [style.background-image]="c.image ? 'url('+c.image+')' : null" (click)="pickImage(c)">{{ c.image ? '' : '📷' }}</div>
+              <input *ngIf="!c.fromApi" class="inp" [(ngModel)]="c.name" placeholder="Card name" />
+              <input *ngIf="c.fromApi" class="inp locked" [value]="c.name" readonly title="From API — edit text case below" />
+            </div>
+            <div class="seg fit-seg" *ngIf="needsImage && c.image">
+              <span class="fit-lbl">Fit</span>
+              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(c)===f" (click)="setFit(c, f)">{{ f | titlecase }}</button>
+              <button class="mini danger" (click)="clearImage(c)" title="Remove image">✕ Image</button>
+            </div>
+            <div class="prow">
+              <input class="inp" [(ngModel)]="c.price" placeholder="Price (optional)" />
+              <input class="inp" [(ngModel)]="c.unit" placeholder="Unit (optional)" />
+            </div>
+            <div class="subtree-flag" *ngIf="d.themeTokens.includeIntermediate !== false && drillMode==='individual'">
+              <span class="badge" [class.on]="hasCustomSubtree(c)">{{ hasCustomSubtree(c) ? '● Has its own page' : '○ Fill on Intermediate step' }}</span>
+            </div>
+          </div>
+        </ng-template>
+      </ion-modal>
     </div>
 
     <!-- ============ INTERMEDIATE ============ -->
+    <!-- One template reused for the 'inter' / 'inter1' / 'inter2' / 'inter3' steps
+         (stepCase collapses inter1/2/3 → 'inter'; interLevel — 0 for the legacy
+         shared step, 1-3 for category/prototype-leveled — scopes every option
+         below, exactly as the original per-level segment selectors did. -->
     <div *ngSwitchCase="'inter'">
-      <h2 class="step-title">Intermediate page</h2>
+      <div class="step-title-row">
+        <h2 class="step-title">Intermediate page</h2>
+        <button type="button" class="all-settings-btn" *ngIf="interCategories.length" (click)="interSettingsOpen = true">
+          <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
+        </button>
+      </div>
       <p class="note">Style: <b>{{ d.themeTokens.intermediateStyle }}</b><span *ngIf="intermediateNeedsImage"> — this style shows an image per item.</span></p>
 
-      <!-- CATEGORY: Intermediate L{{interLevel}} — segment selectors + cards -->
+      <ng-container *ngIf="interCategories.length">
+      <nt-deck-chips [chips]="interChipsInput" [activeIndex]="interActiveChip" (activeIndexChange)="onInterChipChange($event)"></nt-deck-chips>
+      <nt-value-pill-row [pills]="interPillsInput" [activeIndex]="interActivePill" (activeIndexChange)="interActivePill = $event"></nt-value-pill-row>
+
+      <nt-editor-card [sectionLabel]="interActivePillLabel">
+        <ng-container [ngSwitch]="interActivePillKey">
+
+          <!-- Home Fields (L0) — category mode uses raw API values; prototype
+               leveled mode uses home-card ids/names. Mutually exclusive by
+               appMode, so both branches share one pill/key. -->
+          <ng-container *ngSwitchCase="'homeFields'">
+            <ng-container *ngIf="d.appMode === 'category'; else protoHomeFields">
+              <div class="seg fit-seg">
+                <button class="mini" *ngFor="let v of l0SegList" [class.sel]="activeL0===v" [class.missing-image-seg]="isSegOptionMissingImages('L0', v)" (click)="setActiveL0(v)">{{ v }}</button>
+              </div>
+            </ng-container>
+            <ng-template #protoHomeFields>
+              <div class="seg fit-seg">
+                <button class="mini" *ngFor="let s of protoL0Segs" [class.sel]="protoL0Id===s.id" [class.missing-image-seg]="protoSegMissingImages('L0', s.id)" (click)="setProtoL0(s.id)">{{ s.label }}</button>
+              </div>
+            </ng-template>
+          </ng-container>
+
+          <!-- L1 options (inter2 / inter3) -->
+          <ng-container *ngSwitchCase="'l1Options'">
+            <ng-container *ngIf="d.appMode === 'category'; else protoL1Options">
+              <div class="seg fit-seg">
+                <button class="mini" *ngFor="let v of l1SegList" [class.sel]="activeL1===v" [class.missing-image-seg]="isSegOptionMissingImages('L1', v)" (click)="setActiveL1(v)">{{ v }}</button>
+              </div>
+            </ng-container>
+            <ng-template #protoL1Options>
+              <div class="seg fit-seg">
+                <button class="mini" *ngFor="let s of protoL1Segs" [class.sel]="protoL1Id===s.id" [class.missing-image-seg]="protoSegMissingImages('L1', s.id)" (click)="setProtoL1(s.id)">{{ s.label }}</button>
+              </div>
+            </ng-template>
+          </ng-container>
+
+          <!-- L2 options (inter3) -->
+          <ng-container *ngSwitchCase="'l2Options'">
+            <ng-container *ngIf="d.appMode === 'category'; else protoL2Options">
+              <div class="seg fit-seg">
+                <button class="mini" *ngFor="let v of l2SegList" [class.sel]="activeL2===v" [class.missing-image-seg]="isSegOptionMissingImages('L2', v)" (click)="setActiveL2(v)">{{ v }}</button>
+              </div>
+            </ng-container>
+            <ng-template #protoL2Options>
+              <div class="seg fit-seg">
+                <button class="mini" *ngFor="let s of protoL2Segs" [class.sel]="protoL2Id===s.id" [class.missing-image-seg]="protoSegMissingImages('L2', s.id)" (click)="setProtoL2(s.id)">{{ s.label }}</button>
+              </div>
+            </ng-template>
+          </ng-container>
+
+          <!-- brand-rail: headline message text, per drill level (colors stay in the theme wizard) -->
+          <ng-container *ngSwitchCase="'brandRailMsg'">
+            <input class="inp" [placeholder]="brandRailMsgPlaceholder" [ngModel]="brandRailMsgForStep" (ngModelChange)="setBrandRailMsg($event)" />
+            <p class="note">Shown on the L{{ brStepLevel }} page. Leave blank to inherit the message from a higher level. Message colors are set in the theme wizard's Intermediate colors step.</p>
+          </ng-container>
+
+          <!-- finder-select: steps + prompt + fast lookup (shown once, on the
+               first level; the selection cards are edited per level below) -->
+          <ng-container *ngSwitchCase="'finderSteps'">
+            <p class="note">One label per drill level — the count follows your Category depth. Edit any label, or leave it to use the default.</p>
+            <div class="erow" *ngFor="let i of finderStepIndices; trackBy: trackByIndex">
+              <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
+              <input class="inp" [ngModel]="finderStepValue(i)" (ngModelChange)="setFinderStep(i, $event)" [placeholder]="'Category ' + (i + 1)" />
+            </div>
+          </ng-container>
+          <ng-container *ngSwitchCase="'heroTitleFinder'">
+            <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Hero title (default: content name)" />
+          </ng-container>
+          <ng-container *ngSwitchCase="'promptFinder'">
+            <input class="inp" placeholder="Prompt (e.g. TOUCH YOUR CATEGORY)" [(ngModel)]="td.promptText" />
+          </ng-container>
+          <ng-container *ngSwitchCase="'indexMode'">
+            <p class="note">How the side index strip is generated for the selection cards.</p>
+            <div class="seg">
+              <button type="button" class="tile" [class.sel]="(td.indexMode||'alpha')==='alpha'" (click)="td.indexMode='alpha'">A–Z</button>
+              <button type="button" class="tile" [class.sel]="td.indexMode==='number'" (click)="td.indexMode='number'">Number</button>
+            </div>
+          </ng-container>
+          <ng-container *ngSwitchCase="'indexMin'">
+            <input class="inp" type="number" placeholder="Min" [ngModel]="td.indexNumberMin ?? 0" (ngModelChange)="td.indexNumberMin=+$event" />
+          </ng-container>
+          <ng-container *ngSwitchCase="'indexMax'">
+            <input class="inp" type="number" placeholder="Max" [ngModel]="td.indexNumberMax ?? 100" (ngModelChange)="td.indexNumberMax=+$event" />
+          </ng-container>
+          <ng-container *ngSwitchCase="'indexInterval'">
+            <input class="inp" type="number" min="1" placeholder="Interval" [ngModel]="td.indexNumberInterval ?? 10" (ngModelChange)="td.indexNumberInterval=+$event" />
+          </ng-container>
+
+          <!-- Result-page mode (applies to the NEXT step). Hidden for Category mode. -->
+          <ng-container *ngSwitchCase="'resultPagesMode'">
+            <div class="seg fit-seg">
+              <button class="mini" [class.sel]="resultMode==='common'" (click)="setResultMode('common')">Common — one result page</button>
+              <button class="mini" [class.sel]="resultMode==='individual'" (click)="setResultMode('individual')">Individual — per item</button>
+            </div>
+            <p class="note">{{ resultMode==='common'
+              ? 'Every item ends on the SAME result products — fill them on the Result step.'
+              : 'Each end item gets its OWN products — fill them per item on the Result step.' }}</p>
+          </ng-container>
+
+        </ng-container>
+      </nt-editor-card>
+
+      <nt-settings-sheet [groups]="interSettingsGroups" [(isOpen)]="interSettingsOpen" title="All settings · Intermediate" (rowSelected)="onInterRowSelected($event)"></nt-settings-sheet>
+      </ng-container>
+
+      <p class="note" *ngIf="isFinderSelect && interLevel <= 1">The selection cards for each level are the sub-items you add per card below (each card → its children → … → products).</p>
+
+      <!-- CATEGORY: Intermediate L{{interLevel}} Cards — repeating/unbounded list:
+           collapsed-row + bottom-sheet pattern (UI-REDESIGN-PROMPT.md §5), NOT
+           part of the deck above. Read-only names from the API — no reorder/delete. -->
       <ng-container *ngIf="d.appMode === 'category'">
         <p class="note err" *ngIf="!l0SegList.length">Select L0 values on the Home step first.</p>
 
         <ng-container *ngIf="l0SegList.length">
-          <!-- L0 selector (Home Fields) -->
-          <div class="sec"><span>Home Fields</span></div>
-          <div class="seg fit-seg">
-            <button class="mini" *ngFor="let v of l0SegList" [class.sel]="activeL0===v" [class.missing-image-seg]="isSegOptionMissingImages('L0', v)" (click)="setActiveL0(v)">{{ v }}</button>
-          </div>
-
-          <!-- L1 options selector (inter2 / inter3) -->
-          <ng-container *ngIf="interLevel >= 2">
-            <div class="sec"><span>{{ catLabel(1) }} options</span></div>
-            <div class="seg fit-seg">
-              <button class="mini" *ngFor="let v of l1SegList" [class.sel]="activeL1===v" [class.missing-image-seg]="isSegOptionMissingImages('L1', v)" (click)="setActiveL1(v)">{{ v }}</button>
-            </div>
-          </ng-container>
-
-          <!-- L2 options selector (inter3) -->
-          <ng-container *ngIf="interLevel >= 3">
-            <div class="sec"><span>{{ catLabel(2) }} options</span></div>
-            <div class="seg fit-seg">
-              <button class="mini" *ngFor="let v of l2SegList" [class.sel]="activeL2===v" [class.missing-image-seg]="isSegOptionMissingImages('L2', v)" (click)="setActiveL2(v)">{{ v }}</button>
-            </div>
-          </ng-container>
-
-          <!-- ALL option cards at this level (no selection — every value shown,
-               with its editable fields; labels abbreviated in 'all' mode). -->
           <div class="sec"><span>Intermediate L{{ interLevel }} Cards ({{ catLabel(interLevel) }})</span></div>
           <p class="note" *ngIf="!interCardsList.length">No values at this level — skipped.</p>
-          <div class="pcard" *ngFor="let it of interCardsList; trackBy: trackInterCard">
+          <div class="inter-cards-list">
+            <nt-collapsed-item-row *ngFor="let it of interCardsList; let i = index; trackBy: trackInterCard"
+              [thumbnail]="intermediateNeedsImage ? (it.node.image || null) : null"
+              [name]="it.label"
+              [badge]="interCardBadge(it.node)"
+              [canMoveUp]="false" [canMoveDown]="false" [canDelete]="false"
+              (rowClick)="openInterCardEditor(i)"></nt-collapsed-item-row>
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <!-- PROTOTYPE / +ESL Individual mode: Category-style leveled cards —
+           repeating/unbounded list: collapsed-row + bottom-sheet pattern. -->
+      <ng-container *ngIf="protoLeveled && interLevel > 0">
+        <p class="note err" *ngIf="!protoL0Segs.length">Add home cards on the Home step first.</p>
+
+        <ng-container *ngIf="protoL0Segs.length">
+          <div class="sec">
+            <span>Intermediate L{{ interLevel }} cards ({{ protoCards.length }})</span>
+            <button class="mini" (click)="addProtoCard()" [disabled]="!protoAddParent">+ Add</button>
+          </div>
+          <p class="note" *ngIf="!protoCards.length && protoAddParent">No L{{ interLevel }} cards yet — tap + Add.</p>
+          <p class="note err" *ngIf="!protoAddParent">No L{{ interLevel - 1 }} cards under this selection yet — add them on the previous step first.</p>
+          <div class="inter-cards-list">
+            <nt-collapsed-item-row *ngFor="let it of protoCards; let i = index; trackBy: trackProtoCard"
+              [thumbnail]="intermediateNeedsImage ? (it.node.image || null) : null"
+              [name]="it.node.name || 'Untitled card'"
+              [badge]="protoCardBadge(it.node)"
+              [canMoveUp]="i !== 0"
+              [canMoveDown]="i !== protoCards.length - 1"
+              (rowClick)="openProtoCardEditor(i)"
+              (moveUp)="moveProtoCard(it, -1)"
+              (moveDown)="moveProtoCard(it, 1)"
+              (delete)="removeProtoCard(it)"></nt-collapsed-item-row>
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <!-- Common/shared intermediate items — repeating/unbounded list:
+           collapsed-row + bottom-sheet pattern, same as Home step's Home Cards. -->
+      <ng-container *ngIf="d.appMode !== 'category' && showIntermediateEditor">
+        <p class="note"><b>Common mode</b> — every home card opens this one shared page.</p>
+        <div class="sec"><span>Intermediate items ({{ d.intermediate.length }})</span><button class="mini" (click)="addIntermediate()">+ Add</button></div>
+        <div class="inter-cards-list">
+          <nt-collapsed-item-row *ngFor="let row of intermediateItemsReversed; let i = index"
+            [thumbnail]="intermediateNeedsImage ? (row.item.image || null) : null"
+            [name]="row.item.name || 'Untitled item'"
+            [badge]="interItemBadge(row.item)"
+            [canMoveUp]="i !== 0"
+            [canMoveDown]="i !== intermediateItemsReversed.length - 1"
+            (rowClick)="openInterItemEditor(row.idx)"
+            (moveUp)="moveIntermediate(row.idx, 1)"
+            (moveDown)="moveIntermediate(row.idx, -1)"
+            (delete)="removeIntermediate(row.idx)"></nt-collapsed-item-row>
+        </div>
+      </ng-container>
+
+      <!-- Intermediate L{n} card FULL editor (category mode) — bottom sheet.
+           Reuses the exact original per-card markup (image, locked name, Fit,
+           price/unit). Read-only list — no reorder/delete on the row. -->
+      <ion-modal class="nt-sheet-modal inter-card-editor-modal" [isOpen]="interCardModalOpen" (didDismiss)="closeInterCardEditor()">
+        <ng-template>
+          <div class="nt-sheet" *ngIf="interCardModalItem as it">
+            <div class="nt-sheet-grab"></div>
+            <div class="sec"><span>Edit intermediate card</span><button class="del" (click)="closeInterCardEditor()">✕</button></div>
             <div class="erow">
               <div class="thumb" *ngIf="intermediateNeedsImage" [style.background-image]="it.node.image ? 'url('+it.node.image+')' : null" (click)="pickImage(it.node)">{{ it.node.image ? '' : '📷' }}</div>
               <input class="inp locked" [value]="it.label" readonly title="From API — category value (locked)" />
@@ -262,83 +460,21 @@
               <input class="inp" [(ngModel)]="it.node.unit" placeholder="Unit (optional)" />
             </div>
           </div>
-        </ng-container>
-      </ng-container>
+        </ng-template>
+      </ion-modal>
 
-      <!-- brand-rail: headline message text, per drill level (colors stay in the theme wizard) -->
-      <ng-container *ngIf="isBrandRail">
-        <div class="sec"><span>Brand rail message (L{{ brStepLevel }})</span></div>
-        <input class="inp" [placeholder]="brandRailMsgPlaceholder" [ngModel]="brandRailMsgForStep" (ngModelChange)="setBrandRailMsg($event)" />
-        <p class="note">Shown on the L{{ brStepLevel }} page. Leave blank to inherit the message from a higher level. Message colors are set in the theme wizard's Intermediate colors step.</p>
-      </ng-container>
-
-      <!-- finder-select: steps + prompt (shared config on L1, per-level prompt on every level) -->
-      <ng-container *ngIf="isFinderSelect">
-        <ng-container *ngIf="interLevel <= 1">
-          <div class="sec"><span>Finder steps ({{ finderStepCount }})</span></div>
-          <p class="note">One label per drill level — the count follows your Category depth. Edit any label, or leave it to use the default.</p>
-          <div class="erow" *ngFor="let i of finderStepIndices; trackBy: trackByIndex">
-            <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
-            <input class="inp" [ngModel]="finderStepValue(i)" (ngModelChange)="setFinderStep(i, $event)" [placeholder]="'Category ' + (i + 1)" />
-          </div>
-          <div class="sec"><span>Hero Title</span></div>
-          <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Hero title (default: content name)" />
-        </ng-container>
-        <div class="sec"><span>{{ interLevel === 0 ? 'Prompt' : ('Intermediate L' + interLevel + ' prompt') }}</span></div>
-        <input class="inp" [ngModel]="promptTextForLevel" (ngModelChange)="promptTextForLevel=$event" placeholder="Prompt text" />
-        <div class="sec"><span>Fast lookup index</span></div>
-        <p class="note">How the side index strip is generated for the selection cards.</p>
-        <div class="seg">
-          <button type="button" class="tile" [class.sel]="levelIndexMode==='alpha'" (click)="levelIndexMode='alpha'">A–Z</button>
-          <button type="button" class="tile" [class.sel]="levelIndexMode==='number'" (click)="levelIndexMode='number'">Number</button>
-        </div>
-        <div class="row" *ngIf="levelIndexMode==='number'">
-          <input class="inp" type="number" placeholder="Min" [ngModel]="levelIndexNumberMin" (ngModelChange)="levelIndexNumberMin=($event === '' || $event === null || $event === undefined) ? 0 : (+$event || 0)" />
-          <input class="inp" type="number" placeholder="Max" [ngModel]="levelIndexNumberMax" (ngModelChange)="levelIndexNumberMax=($event === '' || $event === null || $event === undefined) ? 100 : (+$event || 0)" />
-          <input class="inp" type="number" min="1" placeholder="Interval" [ngModel]="levelIndexNumberInterval" (ngModelChange)="levelIndexNumberInterval=($event === '' || $event === null || $event === undefined) ? 10 : (+$event > 0 ? +$event : 10)" />
-        </div>
-      </ng-container>
-      <!-- PROTOTYPE / +ESL Individual mode: Category-style leveled editor —
-           Home Fields + option segments + a flat, editable card list per level -->
-      <ng-container *ngIf="protoLeveled && interLevel > 0">
-        <p class="note err" *ngIf="!protoL0Segs.length">Add home cards on the Home step first.</p>
-
-        <ng-container *ngIf="protoL0Segs.length">
-          <!-- L0 selector (Home Fields) -->
-          <div class="sec"><span>Home Fields</span></div>
-          <div class="seg fit-seg">
-            <button class="mini" *ngFor="let s of protoL0Segs" [class.sel]="protoL0Id===s.id" [class.missing-image-seg]="protoSegMissingImages('L0', s.id)" (click)="setProtoL0(s.id)">{{ s.label }}</button>
-          </div>
-
-          <!-- L1 options selector (inter2 / inter3) -->
-          <ng-container *ngIf="interLevel >= 2">
-            <div class="sec"><span>L1 options</span></div>
-            <div class="seg fit-seg">
-              <button class="mini" *ngFor="let s of protoL1Segs" [class.sel]="protoL1Id===s.id" [class.missing-image-seg]="protoSegMissingImages('L1', s.id)" (click)="setProtoL1(s.id)">{{ s.label }}</button>
-            </div>
-          </ng-container>
-
-          <!-- L2 options selector (inter3) -->
-          <ng-container *ngIf="interLevel >= 3">
-            <div class="sec"><span>L2 options</span></div>
-            <div class="seg fit-seg">
-              <button class="mini" *ngFor="let s of protoL2Segs" [class.sel]="protoL2Id===s.id" [class.missing-image-seg]="protoSegMissingImages('L2', s.id)" (click)="setProtoL2(s.id)">{{ s.label }}</button>
-            </div>
-          </ng-container>
-
-          <div class="sec">
-            <span>Intermediate L{{ interLevel }} cards ({{ protoCards.length }})</span>
-            <button class="mini" (click)="addProtoCard()" [disabled]="!protoAddParent">+ Add</button>
-          </div>
-          <p class="note" *ngIf="!protoCards.length && protoAddParent">No L{{ interLevel }} cards yet — tap + Add.</p>
-          <p class="note err" *ngIf="!protoAddParent">No L{{ interLevel - 1 }} cards under this selection yet — add them on the previous step first.</p>
-          <div class="pcard" *ngFor="let it of protoCards; trackBy: trackProtoCard">
+      <!-- Intermediate L{n} card FULL editor (prototype leveled mode) — bottom
+           sheet. Reuses the exact original per-card markup (image, editable
+           name, Fit, price/unit, nested own-products for promo-map-rank leaves).
+           Reorder + delete stay on the row itself. -->
+      <ion-modal class="nt-sheet-modal proto-card-editor-modal" [isOpen]="protoCardModalOpen" (didDismiss)="closeProtoCardEditor()">
+        <ng-template>
+          <div class="nt-sheet" *ngIf="protoCardModalItem as it">
+            <div class="nt-sheet-grab"></div>
+            <div class="sec"><span>Edit intermediate card</span><button class="del" (click)="closeProtoCardEditor()">✕</button></div>
             <div class="erow">
               <div class="thumb" *ngIf="intermediateNeedsImage" [style.background-image]="it.node.image ? 'url('+it.node.image+')' : null" (click)="pickImage(it.node)">{{ it.node.image ? '' : '📷' }}</div>
               <input class="inp" [(ngModel)]="it.node.name" placeholder="Card name" />
-              <button class="del" (click)="moveProtoCard(it, -1)" title="Move up">↑</button>
-              <button class="del" (click)="moveProtoCard(it, 1)" title="Move down">↓</button>
-              <button class="del" (click)="removeProtoCard(it)">✕</button>
             </div>
             <div class="seg fit-seg" *ngIf="intermediateNeedsImage && it.node.image">
               <span class="fit-lbl">Fit</span>
@@ -360,199 +496,254 @@
               </div>
             </ng-container>
           </div>
-        </ng-container>
-      </ng-container>
+        </ng-template>
+      </ion-modal>
 
-      <ng-container *ngIf="d.appMode !== 'category' && showIntermediateEditor">
-        <p class="note"><b>Common mode</b> — every home card opens this one shared page.</p>
-        <div class="sec"><span>Intermediate items ({{ d.intermediate.length }})</span><button class="mini" (click)="addIntermediate()">+ Add</button></div>
-        <ng-container *ngFor="let it of d.intermediate.slice().reverse(); let i = index">
-          <div class="erow">
-            <div class="thumb" *ngIf="intermediateNeedsImage" [style.background-image]="it.image ? 'url('+it.image+')' : null" (click)="pickImage(it)">{{ it.image ? '' : '📷' }}</div>
-            <input *ngIf="!it.fromApi" class="inp" [(ngModel)]="it.name" placeholder="Item name" />
-            <input *ngIf="it.fromApi" class="inp locked" [value]="it.name" readonly title="From API — edit text case below" />
-            <button class="del" (click)="moveIntermediate(d.intermediate.length - 1 - i, 1)" [disabled]="i === 0" title="Move up">↑</button>
-                <button class="del" (click)="moveIntermediate(d.intermediate.length - 1 - i, -1)" [disabled]="i === d.intermediate.length - 1" title="Move down">↓</button>
-                <button class="del" (click)="removeIntermediate(d.intermediate.length - 1 - i)">✕</button>
+      <!-- Intermediate item FULL editor (common/shared mode) — bottom sheet.
+           Reuses the exact original per-item markup (image, name, Fit).
+           Reorder + delete stay on the row itself. -->
+      <ion-modal class="nt-sheet-modal inter-item-editor-modal" [isOpen]="interItemModalOpen" (didDismiss)="closeInterItemEditor()">
+        <ng-template>
+          <div class="nt-sheet" *ngIf="interItemModalItem as it">
+            <div class="nt-sheet-grab"></div>
+            <div class="sec"><span>Edit intermediate item</span><button class="del" (click)="closeInterItemEditor()">✕</button></div>
+            <div class="erow">
+              <div class="thumb" *ngIf="intermediateNeedsImage" [style.background-image]="it.image ? 'url('+it.image+')' : null" (click)="pickImage(it)">{{ it.image ? '' : '📷' }}</div>
+              <input *ngIf="!it.fromApi" class="inp" [(ngModel)]="it.name" placeholder="Item name" />
+              <input *ngIf="it.fromApi" class="inp locked" [value]="it.name" readonly title="From API — edit text case below" />
+            </div>
+            <div class="seg fit-seg" *ngIf="intermediateNeedsImage && it.image">
+              <span class="fit-lbl">Fit</span>
+              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(it)===f" (click)="setFit(it, f)">{{ f | titlecase }}</button>
+              <button class="mini danger" (click)="clearImage(it)" title="Remove image">✕ Image</button>
+            </div>
           </div>
-          <div class="seg fit-seg" *ngIf="intermediateNeedsImage && it.image">
-            <span class="fit-lbl">Fit</span>
-            <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(it)===f" (click)="setFit(it, f)">{{ f | titlecase }}</button>
-            <button class="mini danger" (click)="clearImage(it)" title="Remove image">✕ Image</button>
-          </div>
-        </ng-container>
-      </ng-container>
-
-      <!-- Result-page mode (applies to the NEXT step). Hidden for Category mode. -->
-      <ng-container *ngIf="d.appMode !== 'category'">
-        <div class="sec"><span>Result pages (next step)</span></div>
-        <div class="seg fit-seg">
-          <button class="mini" [class.sel]="resultMode==='common'" (click)="setResultMode('common')">Common — one result page</button>
-          <button class="mini" [class.sel]="resultMode==='individual'" (click)="setResultMode('individual')">Individual — per item</button>
-        </div>
-        <p class="note">{{ resultMode==='common'
-          ? 'Every item ends on the SAME result products — fill them on the Result step.'
-          : 'Each end item gets its OWN products — fill them per item on the Result step.' }}</p>
-      </ng-container>
+        </ng-template>
+      </ion-modal>
     </div>
 
     <!-- ============ RESULT ============ -->
     <div *ngSwitchCase="'result'">
-      <h2 class="step-title">Result page</h2>
+      <div class="step-title-row">
+        <h2 class="step-title">Result page</h2>
+        <button type="button" class="all-settings-btn" *ngIf="resultCategories.length" (click)="resultSettingsOpen = true">
+          <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
+        </button>
+      </div>
 
-      <!-- CATEGORY: hierarchy + matched products + field-visibility toggles -->
+      <ng-container *ngIf="resultCategories.length">
+      <nt-deck-chips [chips]="resultChipsInput" [activeIndex]="resultActiveChip" (activeIndexChange)="onResultChipChange($event)"></nt-deck-chips>
+      <nt-value-pill-row [pills]="resultPillsInput" [activeIndex]="resultActivePill" (activeIndexChange)="resultActivePill = $event"></nt-value-pill-row>
+
+      <nt-editor-card [sectionLabel]="resultActivePillLabel">
+        <ng-container [ngSwitch]="resultActivePillKey">
+
+          <!-- CATEGORY: which product fields appear on the result page -->
+          <ng-container *ngSwitchCase="'fieldsToShow'">
+            <div class="sec"><span>Fields to show</span></div>
+            <p class="note">Pick which product fields appear on the result page (kiosk + preview).</p>
+            <div class="seg fit-seg">
+              <button class="mini" *ngFor="let f of resultFieldOpts" [class.sel]="resultFieldOn(f.id)" (click)="toggleResultField(f.id)">{{ f.label }}</button>
+            </div>
+          </ng-container>
+
+          <!-- LED blink: the kiosk blinks every article shown here on result entry,
+               and turns the LEDs off (duration 0) when leaving the page. Shared pill
+               for category mode AND prototype-esl mode — both bind to the exact
+               same d.ledColour / d.ledDuration (see inventory note on duplicate rows). -->
+          <ng-container *ngSwitchCase="'ledBlink'">
+            <div class="sec"><span>LED blink</span></div>
+            <app-select-field placeholder="LED colour" [options]="ledColorOpts"
+              [value]="d.ledColour || 'Red'" (valueChange)="setLedColour($any($event))"></app-select-field>
+            <app-select-field placeholder="Blink duration" [options]="ledDurationOpts"
+              [value]="d.ledDuration || '10s'" (valueChange)="setLedDuration($any($event))"></app-select-field>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'eslBlinkBy'">
+            <div class="sec"><span>ESL blink by</span></div>
+            <app-select-field placeholder="Blink by" [options]="eslByOpts"
+              [value]="d.eslBlinkBy || 'article'" (valueChange)="setEslBy($any($event))"></app-select-field>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'resultMapImage'">
+            <div class="sec"><span>Result map image</span></div>
+            <div class="erow">
+              <div class="thumb wide" [style.background-image]="curResult.mapImage ? 'url('+curResult.mapImage+')' : null" (click)="pickMap()">{{ curResult.mapImage ? '' : '📷 Upload map' }}</div>
+              <button class="del" *ngIf="curResult.mapImage" (click)="clearMap()">✕</button>
+            </div>
+            <p class="note">Template <b>{{ d.themeTokens.resultTemplate }}</b> shows a store map.</p>
+          </ng-container>
+
+          <!-- Tap-to-place marker: pick a product, then tap the map to set its
+               mapX/mapY — the interactive click target is preserved byte-identical. -->
+          <ng-container *ngSwitchCase="'markerPlacement'">
+            <div class="sec"><span>Marker placement</span></div>
+            <p class="note">Select a product, then tap the map where it lives — the LCD shows the dot there.</p>
+            <div class="seg fit-seg marker-seg">
+              <button class="mini" *ngFor="let p of curResult.products; let i = index"
+                      [class.sel]="markerIdx===i" (click)="markerIdx=i">{{ p.name || ('Product ' + (i+1)) }}</button>
+            </div>
+            <div class="map-zoombar">
+              <button class="mini" (click)="zoomMapOut()" [disabled]="mapZoom<=1" title="Zoom out">−</button>
+              <span class="map-zoomval">{{ (mapZoom * 100) | number:'1.0-0' }}%</span>
+              <button class="mini" (click)="zoomMapIn()" [disabled]="mapZoom>=3" title="Zoom in">+</button>
+            </div>
+            <div class="map-zoomwrap">
+              <div class="map-place" #mapBox (click)="placeMarker($event, mapBox)"
+                   [style.transform]="'scale('+mapZoom+')'" [style.transformOrigin]="'top left'"
+                   [style.background-image]="'url('+curResult.mapImage+')'">
+                <ng-container *ngFor="let p of curResult.products; let i = index">
+                  <span class="map-dot" *ngIf="mapDotsEnabled && p.mapX != null && p.mapY != null"
+                        [class.sel]="markerIdx===i"
+                        [style.left.%]="p.mapX" [style.top.%]="p.mapY"
+                        [style.background]="mapRoute?.color || d.themeTokens.result.pathColor"></span>
+                </ng-container>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'mapDots'">
+            <div class="sec"><span>Map dots</span></div>
+            <p class="note"><b>Dot</b> lets you place product dots on the map. <b>None</b> hides dots and disables map placement.</p>
+            <div class="seg fit-seg">
+              <button class="mini" [class.sel]="mapDotsEnabled" (click)="setRouteKind('dot')">Dot</button>
+              <button class="mini" [class.sel]="mapRoute?.kind==='none'" (click)="setRouteKind('none')">None</button>
+            </div>
+            <app-color-picker *ngIf="mapDotsEnabled" label="Marker color"
+              [allowTransparent]="false"
+              [value]="mapRoute?.color || d.themeTokens.result.pathColor"
+              (valueChange)="setRouteColor($event)"></app-color-picker>
+            <p class="note" *ngIf="mapDotsEnabled">Marker color comes from the THEME (Result colors step) — override it per content below.</p>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'panelImage'">
+            <div class="sec"><span>{{ d.themeTokens.resultTemplate === 'shelf' ? 'Side category image (left panel)' : 'Promo / selection panel image' }}</span></div>
+            <div class="erow">
+              <div class="thumb wide" [style.background-image]="curResult.promoImage ? 'url('+curResult.promoImage+')' : null" (click)="pickPromo()">{{ curResult.promoImage ? '' : (d.themeTokens.resultTemplate === 'shelf' ? '📷 Upload side category image' : '📷 Upload promo or QR panel') }}</div>
+              <button class="del" *ngIf="curResult.promoImage" (click)="clearPromo()">✕</button>
+            </div>
+            <p class="note" *ngIf="d.themeTokens.resultTemplate === 'shelf'">Shown as the dark side panel on the left of the product shelf.</p>
+            <p class="note" *ngIf="d.themeTokens.resultTemplate !== 'shelf'">Use this for wine/pet promotion panels, QR-code panels, or branded result artwork.</p>
+          </ng-container>
+
+          <!-- Skip-intermediate themes: choose ONE common result page or one PER
+               home card (not for Category — it uses the hierarchy list below). -->
+          <ng-container *ngSwitchCase="'resultPagesMode'">
+            <div class="sec"><span>Result pages</span></div>
+            <div class="seg fit-seg">
+              <button class="mini" [class.sel]="itemResultMode==='common'" (click)="setItemResultMode('common')">Common — one result page</button>
+              <button class="mini" [class.sel]="itemResultMode==='per-item'" (click)="setItemResultMode('per-item')">Per item — one per home card</button>
+            </div>
+            <p class="note">{{ itemResultMode==='common'
+              ? 'Every home card opens the SAME result page (current behavior).'
+              : 'Each home card opens its OWN result page — pick a card below, then edit its map, panel and products. Switching modes keeps both versions.' }}</p>
+            <ng-container *ngIf="itemResultMode==='per-item'">
+              <p class="note" *ngIf="!d.home.length">Add home cards first — each one gets its own result page.</p>
+              <ng-container *ngIf="d.home.length">
+                <div class="seg fit-seg marker-seg">
+                  <button class="mini" *ngFor="let c of d.home; let ci = index"
+                          [class.sel]="activeCardId===c.id" (click)="selectItemCard(c.id)">{{ c.name || ('Card ' + (ci+1)) }}</button>
+                </div>
+                <p class="note">Editing the result page for <b>{{ activeCardLabel }}</b>. Cards with no own products fall back to the common result page.</p>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+
+          <!-- finder-detail: per-content text/data. The breadcrumb chips are the
+               result screen's "Finder steps" — inherited from the Intermediate
+               step's Finder steps when the theme uses finder-select there, else
+               edited here with the same per-drill-level UI. -->
+          <ng-container *ngSwitchCase="'finderSteps'">
+            <ng-container *ngIf="isFinderSelect">
+              <div class="sec"><span>Finder steps (inherited)</span></div>
+              <p class="note">The result breadcrumb chips inherit your Finder steps — edit them on the Intermediate step.</p>
+              <div class="erow" *ngFor="let i of finderStepIndices; trackBy: trackByIndex">
+                <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
+                <span class="inp" style="opacity:.6;pointer-events:none">{{ finderStepLabel(i) }}</span>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="!isFinderSelect">
+              <div class="sec"><span>Finder steps ({{ crumbStepCount }})</span></div>
+              <p class="note">One breadcrumb label per drill level — the count follows your Category depth. Edit any label, or leave it to use the default.</p>
+              <div class="erow" *ngFor="let i of crumbStepIndices; trackBy: trackByIndex">
+                <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
+                <input class="inp" [ngModel]="crumbValue(i)" (ngModelChange)="setCrumb(i, $event)" [placeholder]="'Category ' + (i + 1)" />
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'heroTitleFinder'">
+            <div class="sec"><span>Hero Title</span></div>
+            <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Hero title (default: content name)" />
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'finderLabels'">
+            <div class="sec"><span>Finder labels</span></div>
+            <div class="prow">
+              <input class="inp" placeholder="Find It label" [(ngModel)]="td.findItLabel" />
+              <input class="inp" placeholder="Find All label" [(ngModel)]="td.findAllLabel" />
+            </div>
+          </ng-container>
+
+          <!-- promo-map-rank: per-content text/data (theme keeps only styling) -->
+          <ng-container *ngSwitchCase="'floorLabels'">
+            <div class="sec"><span>Promotion header &amp; map</span></div>
+            <input class="inp" placeholder="Floor labels (comma e.g. 3F,2F,1F)" [ngModel]="tplFloorsCsv" (ngModelChange)="tplFloorsCsv=$event" />
+            <p class="note">Categories → sub-categories → products come from your Home cards &amp; their children/products. The ranked list shows the picked sub-item's products (LED blinks those).</p>
+          </ng-container>
+          <ng-container *ngSwitchCase="'youAreHere'">
+            <input class="inp" placeholder="'You are here' label" [(ngModel)]="td.youAreHereLabel" />
+          </ng-container>
+          <ng-container *ngSwitchCase="'timerSeconds'">
+            <input class="inp" type="number" min="0" max="36000" placeholder="Timer seconds (e.g. 1553)" [ngModel]="td.timerSeconds" (ngModelChange)="setTplTimer($event)" />
+          </ng-container>
+
+        </ng-container>
+      </nt-editor-card>
+
+      <nt-settings-sheet [groups]="resultSettingsGroups" [(isOpen)]="resultSettingsOpen" title="All settings · Result" (rowSelected)="onResultRowSelected($event)"></nt-settings-sheet>
+      </ng-container>
+
+      <!-- CATEGORY: Hierarchy & matched products — repeating/unbounded list,
+           grouped by leaf: collapsed-row + bottom-sheet pattern (UI-REDESIGN-
+           PROMPT.md §5), NOT part of the deck above. Read-only names from the
+           API — no reorder/delete (matches the original markup). -->
       <ng-container *ngIf="d.appMode === 'category'">
-        <div class="sec"><span>Fields to show</span></div>
-        <p class="note">Pick which product fields appear on the result page (kiosk + preview).</p>
-        <div class="seg fit-seg">
-          <button class="mini" *ngFor="let f of resultFieldOpts" [class.sel]="resultFieldOn(f.id)" (click)="toggleResultField(f.id)">{{ f.label }}</button>
-        </div>
-
-        <!-- LED blink: the kiosk blinks every article shown here on result entry,
-             and turns the LEDs off (duration 0) when leaving the page. -->
-        <div class="sec"><span>LED blink</span></div>
-        <app-select-field placeholder="LED colour" [options]="ledColorOpts"
-          [value]="d.ledColour || 'Red'" (valueChange)="setLedColour($any($event))"></app-select-field>
-        <app-select-field placeholder="Blink duration" [options]="ledDurationOpts"
-          [value]="d.ledDuration || '10s'" (valueChange)="setLedDuration($any($event))"></app-select-field>
-
         <div class="sec"><span>Hierarchy &amp; matched products ({{ d.result.products.length }})</span></div>
         <p class="note">Each matched article shows inputs for the fields you enabled above — edit per product as needed.</p>
         <p class="note err" *ngIf="!resultLeaves.length">Select categories on the previous steps first.</p>
-        <div class="pcard" *ngFor="let leaf of resultLeaves">
-          <div class="sec"><span>{{ leaf.label }} ({{ (leaf.node.products || []).length }})</span></div>
-          <div class="pcard sub" *ngFor="let p of leaf.node.products || []">
-            <div class="erow">
-              <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
-              <input class="inp locked" [value]="p.name" readonly title="Article name (from API — locked)" />
-            </div>
-            <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
-              <span class="fit-lbl">Fit</span>
-              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf($any(p))===f" (click)="setFit($any(p), f)">{{ f | titlecase }}</button>
-              <button class="mini danger" (click)="clearImage($any(p))" title="Remove image">✕ Image</button>
-            </div>
-            <div class="prow">
-              <input class="inp" *ngIf="resultFieldOn('price')" [(ngModel)]="p.price" (ngModelChange)="syncResultProducts()" placeholder="Price" />
-              <input class="inp" *ngIf="resultFieldOn('zone')" [(ngModel)]="p.aisle" (ngModelChange)="syncResultProducts()" placeholder="Zone / Aisle" />
-              <input class="inp" *ngIf="resultFieldOn('shelf')" [(ngModel)]="p.shelf" (ngModelChange)="syncResultProducts()" placeholder="Shelf" />
-            </div>
-            <input class="inp" *ngIf="resultFieldOn('articleId')" [(ngModel)]="p.articleId" (ngModelChange)="syncResultProducts()" placeholder="Article ID" />
+        <ng-container *ngFor="let leaf of resultLeaves">
+          <div class="sec sub"><span>{{ leaf.label }} ({{ (leaf.node.products || []).length }})</span></div>
+          <div class="result-products-list">
+            <nt-collapsed-item-row *ngFor="let p of leaf.node.products || []; let pi = index"
+              [thumbnail]="resultNeedsImage ? (p.image || null) : null"
+              [name]="p.name || 'Untitled product'"
+              [badge]="hierProductBadge(p)"
+              [canMoveUp]="false" [canMoveDown]="false" [canDelete]="false"
+              (rowClick)="openHierProductEditor(leaf.node, pi)"></nt-collapsed-item-row>
           </div>
           <p class="note" *ngIf="!(leaf.node.products && leaf.node.products.length)">No matching products.</p>
-        </div>
-      </ng-container>
-
-      <!-- Skip-intermediate themes: choose ONE common result page or one PER home card
-           (not for Category — it uses the hierarchy block above). -->
-      <ng-container *ngIf="skipsIntermediate && d.appMode !== 'category'">
-        <div class="sec"><span>Result pages</span></div>
-        <div class="seg fit-seg">
-          <button class="mini" [class.sel]="itemResultMode==='common'" (click)="setItemResultMode('common')">Common — one result page</button>
-          <button class="mini" [class.sel]="itemResultMode==='per-item'" (click)="setItemResultMode('per-item')">Per item — one per home card</button>
-        </div>
-        <p class="note">{{ itemResultMode==='common'
-          ? 'Every home card opens the SAME result page (current behavior).'
-          : 'Each home card opens its OWN result page — pick a card below, then edit its map, panel and products. Switching modes keeps both versions.' }}</p>
-        <ng-container *ngIf="itemResultMode==='per-item'">
-          <p class="note" *ngIf="!d.home.length">Add home cards first — each one gets its own result page.</p>
-          <ng-container *ngIf="d.home.length">
-            <div class="seg fit-seg marker-seg">
-              <button class="mini" *ngFor="let c of d.home; let ci = index"
-                      [class.sel]="activeCardId===c.id" (click)="selectItemCard(c.id)">{{ c.name || ('Card ' + (ci+1)) }}</button>
-            </div>
-            <p class="note">Editing the result page for <b>{{ activeCardLabel }}</b>. Cards with no own products fall back to the common result page.</p>
-          </ng-container>
         </ng-container>
-      </ng-container>
-
-      <ng-container *ngIf="resultNeedsMap">
-        <div class="sec"><span>Result map image</span></div>
-        <div class="erow">
-          <div class="thumb wide" [style.background-image]="curResult.mapImage ? 'url('+curResult.mapImage+')' : null" (click)="pickMap()">{{ curResult.mapImage ? '' : '📷 Upload map' }}</div>
-          <button class="del" *ngIf="curResult.mapImage" (click)="clearMap()">✕</button>
-        </div>
-        <p class="note">Template <b>{{ d.themeTokens.resultTemplate }}</b> shows a store map.</p>
-
-        <!-- Tap-to-place marker: pick a product, then tap the map to set its mapX/mapY -->
-        <ng-container *ngIf="curResult.mapImage && curResult.products.length">
-          <div class="sec"><span>Marker placement</span></div>
-          <p class="note">Select a product, then tap the map where it lives — the LCD shows the dot there.</p>
-          <div class="seg fit-seg marker-seg">
-            <button class="mini" *ngFor="let p of curResult.products; let i = index"
-                    [class.sel]="markerIdx===i" (click)="markerIdx=i">{{ p.name || ('Product ' + (i+1)) }}</button>
-          </div>
-          <div class="map-zoombar">
-            <button class="mini" (click)="zoomMapOut()" [disabled]="mapZoom<=1" title="Zoom out">−</button>
-            <span class="map-zoomval">{{ (mapZoom * 100) | number:'1.0-0' }}%</span>
-            <button class="mini" (click)="zoomMapIn()" [disabled]="mapZoom>=3" title="Zoom in">+</button>
-          </div>
-          <div class="map-zoomwrap">
-            <div class="map-place" #mapBox (click)="placeMarker($event, mapBox)"
-                 [style.transform]="'scale('+mapZoom+')'" [style.transformOrigin]="'top left'"
-                 [style.background-image]="'url('+curResult.mapImage+')'">
-              <ng-container *ngFor="let p of curResult.products; let i = index">
-                <span class="map-dot" *ngIf="mapDotsEnabled && p.mapX != null && p.mapY != null"
-                      [class.sel]="markerIdx===i"
-                      [style.left.%]="p.mapX" [style.top.%]="p.mapY"
-                      [style.background]="mapRoute?.color || d.themeTokens.result.pathColor"></span>
-              </ng-container>
-            </div>
-          </div>
-
-          <div class="sec"><span>Map dots</span></div>
-          <p class="note"><b>Dot</b> lets you place product dots on the map. <b>None</b> hides dots and disables map placement.</p>
-          <div class="seg fit-seg">
-            <button class="mini" [class.sel]="mapDotsEnabled" (click)="setRouteKind('dot')">Dot</button>
-            <button class="mini" [class.sel]="mapRoute?.kind==='none'" (click)="setRouteKind('none')">None</button>
-          </div>
-          <app-color-picker *ngIf="mapDotsEnabled" label="Marker color"
-            [allowTransparent]="false"
-            [value]="mapRoute?.color || d.themeTokens.result.pathColor"
-            (valueChange)="setRouteColor($event)"></app-color-picker>
-          <p class="note" *ngIf="mapDotsEnabled">Marker color comes from the THEME (Result colors step) — override it per content below.</p>
-        </ng-container>
-      </ng-container>
-
-      <ng-container *ngIf="resultNeedsPromo">
-        <div class="sec"><span>{{ d.themeTokens.resultTemplate === 'shelf' ? 'Side category image (left panel)' : 'Promo / selection panel image' }}</span></div>
-        <div class="erow">
-          <div class="thumb wide" [style.background-image]="curResult.promoImage ? 'url('+curResult.promoImage+')' : null" (click)="pickPromo()">{{ curResult.promoImage ? '' : (d.themeTokens.resultTemplate === 'shelf' ? '📷 Upload side category image' : '📷 Upload promo or QR panel') }}</div>
-          <button class="del" *ngIf="curResult.promoImage" (click)="clearPromo()">✕</button>
-        </div>
-        <p class="note" *ngIf="d.themeTokens.resultTemplate === 'shelf'">Shown as the dark side panel on the left of the product shelf.</p>
-        <p class="note" *ngIf="d.themeTokens.resultTemplate !== 'shelf'">Use this for wine/pet promotion panels, QR-code panels, or branded result artwork.</p>
       </ng-container>
 
       <!-- Individual result pages: per end-item product lists (drill-tree themes;
-           skip-intermediate themes use the Per-item result pages control above) -->
+           skip-intermediate themes use the Per-item result pages control above) —
+           repeating/unbounded list per leaf: collapsed-row + bottom-sheet. The
+           leaf-level Map locator (tap-to-place) stays inline, unchanged. -->
       <ng-container *ngIf="d.appMode !== 'category' && resultMode==='individual' && !skipsIntermediate">
         <div class="sec"><span>Individual result pages ({{ resultLeaves.length }})</span></div>
         <p class="note">Each end item gets its own products. Items left empty fall back to the shared list at the bottom.</p>
-        <div class="pcard" *ngFor="let leaf of resultLeaves">
-          <div class="sec"><span>{{ leaf.label }}</span><button class="mini" [disabled]="leafProductCapReached(leaf.node)" (click)="addLeafProduct(leaf.node)">+ Add</button></div>
-          <p class="note err" *ngIf="leafProductCapReached(leaf.node)">Maximum {{ maxResultProducts }} products can be added.</p>
-          <ng-container *ngFor="let p of (leaf.node.products || []).slice().reverse(); let pi = index">
-            <div class="erow">
-              <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
-              <input *ngIf="!p.fromApi" class="inp" [(ngModel)]="p.name" placeholder="Product name" />
-          <input *ngIf="p.fromApi" class="inp locked" [value]="p.name" readonly title="From API — edit text case below" />
-              <button class="del" (click)="removeLeafProduct(leaf.node, (leaf.node.products || []).length - 1 - pi)">✕</button>
-            </div>
-            <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
-              <span class="fit-lbl">Fit</span>
-              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf($any(p))===f" (click)="setFit($any(p), f)">{{ f | titlecase }}</button>
-              <button class="mini danger" (click)="clearImage($any(p))" title="Remove image">✕ Image</button>
-            </div>
-            <div class="prow">
-              <input class="inp" [(ngModel)]="p.price" placeholder="Price" />
-              <input class="inp" [(ngModel)]="p.aisle" placeholder="Aisle / Zone" />
-              <input class="inp" [(ngModel)]="p.shelf" placeholder="Shelf" />
-            </div>
-            <div class="prow" *ngIf="resultNeedsMap">
-              <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapX" placeholder="Map X % (0–100)" />
-              <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapY" placeholder="Map Y % (0–100)" />
-            </div>
-          </ng-container>
+        <ng-container *ngFor="let leaf of resultLeaves">
+          <div class="sec sub"><span>{{ leaf.label }}</span><button class="mini" (click)="addLeafProduct(leaf.node)">+ Add</button></div>
+          <div class="result-products-list">
+            <nt-collapsed-item-row *ngFor="let row of leafProductsReversed(leaf.node); let pi = index"
+              [thumbnail]="resultNeedsImage ? (row.product.image || null) : null"
+              [name]="row.product.name || 'Untitled product'"
+              [badge]="leafProductBadge(row.product)"
+              [canMoveUp]="false" [canMoveDown]="false"
+              (rowClick)="openLeafProductEditor(leaf.node, row.idx)"
+              (delete)="removeLeafProduct(leaf.node, row.idx)"></nt-collapsed-item-row>
+          </div>
           <ng-container *ngIf="resultNeedsMap && d.result.mapImage && (leaf.node.products?.length || 0)">
             <div class="sec sub"><span>Map locator</span></div>
             <p class="note">Select a product, then tap the shared map to place its marker.</p>
@@ -577,150 +768,234 @@
             </div>
           </ng-container>
           <p class="note" *ngIf="!(leaf.node.products && leaf.node.products.length)">No own products — uses the shared list below.</p>
+        </ng-container>
+      </ng-container>
+
+      <!-- Result products (common/shared list) — repeating/unbounded list:
+           collapsed-row + bottom-sheet pattern. The bottom sheet holds the FULL
+           original per-product editor, including the finder-detail nested
+           Specs / Fitments add-remove lists, unchanged. -->
+      <ng-container *ngIf="d.appMode !== 'category'">
+        <div class="sec"><span>{{ perItemActive ? ('Products — ' + activeCardLabel) : (resultMode==='individual' && !skipsIntermediate) ? 'Shared / fallback products' : 'Result products' }} ({{ curResult.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>
+        <div class="result-products-list">
+          <nt-collapsed-item-row *ngFor="let row of resultProductsReversed; let i = index"
+            [thumbnail]="resultNeedsImage ? (row.product.image || null) : null"
+            [name]="row.product.name || 'Untitled product'"
+            [badge]="resultProductBadge(row.product)"
+            [canMoveUp]="i !== 0"
+            [canMoveDown]="i !== resultProductsReversed.length - 1"
+            (rowClick)="openResultProductEditor(row.idx)"
+            (moveUp)="moveProduct(row.idx, 1)"
+            (moveDown)="moveProduct(row.idx, -1)"
+            (delete)="removeProduct(row.idx)"></nt-collapsed-item-row>
         </div>
       </ng-container>
 
-      <ng-container *ngIf="d.appMode !== 'category'">
-      <div class="sec"><span>{{ perItemActive ? ('Products — ' + activeCardLabel) : (resultMode==='individual' && !skipsIntermediate) ? 'Shared / fallback products' : 'Result products' }} ({{ curResult.products.length }})</span><button class="mini" [disabled]="resultProductCapReached" (click)="addProduct()">+ Add</button></div>
-      <p class="note err" *ngIf="resultProductCapReached">Maximum {{ maxResultProducts }} products can be added.</p>
-      <div class="pcard" *ngFor="let p of curResult.products.slice().reverse(); let i = index">
-        <div class="erow">
-          <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>
-          <input *ngIf="!p.fromApi" class="inp" [(ngModel)]="p.name" placeholder="Product name" />
-          <input *ngIf="p.fromApi" class="inp locked" [value]="p.name" readonly title="From API — edit text case below" />
-          <button class="del" (click)="moveProduct(curResult.products.length - 1 - i, 1)" [disabled]="i === 0" title="Move up">↑</button>
-              <button class="del" (click)="moveProduct(curResult.products.length - 1 - i, -1)" [disabled]="i === curResult.products.length - 1" title="Move down">↓</button>
-              <button class="del" (click)="removeProduct(curResult.products.length - 1 - i)">✕</button>
-        </div>
-        <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
-          <span class="fit-lbl">Fit</span>
-          <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(p)===f" (click)="setFit(p, f)">{{ f | titlecase }}</button>
-          <button class="mini danger" (click)="clearImage(p)" title="Remove image">✕ Image</button>
-        </div>
-        <div class="prow">
-          <input class="inp" [(ngModel)]="p.price" placeholder="Price" />
-          <input class="inp" [(ngModel)]="p.aisle" placeholder="Aisle / Zone" />
-          <input class="inp" [(ngModel)]="p.shelf" placeholder="Shelf" />
-        </div>
-        <!-- Per-product map marker position (only when a map-based result template is selected) -->
-        <div class="prow" *ngIf="resultNeedsMap">
-          <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapX" placeholder="Map X % (0–100)" />
-          <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapY" placeholder="Map Y % (0–100)" />
-        </div>
-        <input class="inp" *ngIf="d.appMode === 'prototype-esl'"
-          [ngModel]="eslId(p.id)" (ngModelChange)="setEslId(p.id, $event)"
-          [placeholder]="(d.eslBlinkBy || 'article') === 'article' ? 'Article ID' : 'Label ID'" />
-
-        <!-- promo-map-rank: zone label shown in the ranked list -->
-        <input class="inp" *ngIf="isPromoRank" [(ngModel)]="p.zone" placeholder="Zone (e.g. Beverage)" />
-
-        <!-- finder-detail: description, sale, attribute grid, fitments -->
-        <ng-container *ngIf="isFinder">
-          <input class="inp" [(ngModel)]="p.description" placeholder="Description (right detail panel)" />
-          <div class="prow">
-            <input class="inp" [(ngModel)]="p.salePrice" placeholder="Sale price" />
-            <label class="chk"><input type="checkbox" [(ngModel)]="p.onSale" /> On sale</label>
-          </div>
-          <div class="sec sub"><span>Attributes</span><button class="mini" (click)="addSpec(p)">+ Attr</button></div>
-          <div class="prow" *ngFor="let s of p.specs; let si = index">
-            <input class="inp" [(ngModel)]="s.label" placeholder="Label (e.g. Color)" />
-            <input class="inp" [(ngModel)]="s.value" placeholder="Value (e.g. Black)" />
-            <button class="del" (click)="removeSpec(p, si)">✕</button>
-          </div>
-          <div class="sec sub"><span>Fitments — each is a Find It target</span><button class="mini" (click)="addFitment(p)">+ Fitment</button></div>
-          <div class="pcard" *ngFor="let f of p.fitments; let fi = index">
+      <!-- Hierarchy & matched products FULL editor (category mode) — bottom sheet.
+           Reuses the exact original per-product markup (locked name, Fit,
+           field-gated price/zone/shelf/articleId inputs). -->
+      <ion-modal class="nt-sheet-modal hier-product-editor-modal" [isOpen]="hierProductModalOpen" (didDismiss)="closeHierProductEditor()">
+        <ng-template>
+          <div class="nt-sheet" *ngIf="hierProductModalItem as p">
+            <div class="nt-sheet-grab"></div>
+            <div class="sec"><span>Edit matched product</span><button class="del" (click)="closeHierProductEditor()">✕</button></div>
             <div class="erow">
-              <div class="thumb" [style.background-image]="f.image ? 'url('+f.image+')' : null" (click)="pickFitImage(f)">{{ f.image ? '' : '📷' }}</div>
-              <input class="inp" [(ngModel)]="f.label" placeholder="Label (e.g. Driver Side)" />
-              <button class="del" (click)="removeFitment(p, fi)">✕</button>
+              <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
+              <input class="inp locked" [value]="p.name" readonly title="Article name (from API — locked)" />
+            </div>
+            <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
+              <span class="fit-lbl">Fit</span>
+              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf($any(p))===f" (click)="setFit($any(p), f)">{{ f | titlecase }}</button>
+              <button class="mini danger" (click)="clearImage($any(p))" title="Remove image">✕ Image</button>
             </div>
             <div class="prow">
-              <input class="inp" [(ngModel)]="f.name" placeholder="Sub-name (e.g. 26 inch)" />
-              <input class="inp" [(ngModel)]="f.price" placeholder="Price" />
-              <input class="inp" [(ngModel)]="f.salePrice" placeholder="Sale price" />
+              <input class="inp" *ngIf="resultFieldOn('price')" [(ngModel)]="p.price" (ngModelChange)="syncResultProducts()" placeholder="Price" />
+              <input class="inp" *ngIf="resultFieldOn('zone')" [(ngModel)]="p.aisle" (ngModelChange)="syncResultProducts()" placeholder="Zone / Aisle" />
+              <input class="inp" *ngIf="resultFieldOn('shelf')" [(ngModel)]="p.shelf" (ngModelChange)="syncResultProducts()" placeholder="Shelf" />
             </div>
-            <input class="inp" *ngIf="d.appMode === 'prototype-esl'" [(ngModel)]="f.articleId" placeholder="Article ID (LED blink target)" />
+            <input class="inp" *ngIf="resultFieldOn('articleId')" [(ngModel)]="p.articleId" (ngModelChange)="syncResultProducts()" placeholder="Article ID" />
           </div>
-        </ng-container>
-      </div>
-      </ng-container>
+        </ng-template>
+      </ion-modal>
 
-      <ng-container *ngIf="d.appMode === 'prototype-esl'">
-        <div class="sec"><span>ESL blink by</span></div>
-        <app-select-field placeholder="Blink by" [options]="eslByOpts"
-          [value]="d.eslBlinkBy || 'article'" (valueChange)="setEslBy($any($event))"></app-select-field>
-
-        <div class="sec"><span>LED colour</span></div>
-        <app-select-field placeholder="LED colour" [options]="ledColorOpts"
-          [value]="d.ledColour || 'Red'" (valueChange)="setLedColour($any($event))"></app-select-field>
-        <div class="sec"><span>Blink duration</span></div>
-        <app-select-field placeholder="Blink duration" [options]="ledDurationOpts"
-          [value]="d.ledDuration || '10s'" (valueChange)="setLedDuration($any($event))"></app-select-field>
-      </ng-container>
-
-      <!-- promo-map-rank: per-content text/data (theme keeps only styling) -->
-      <ng-container *ngIf="isPromoRank">
-        <div class="sec"><span>Promotion header &amp; map</span></div>
-        <input class="inp" placeholder="Floor labels (comma e.g. 3F,2F,1F)" [ngModel]="tplFloorsCsv" (ngModelChange)="tplFloorsCsv=$event" />
-        <input class="inp" placeholder="'You are here' label" [(ngModel)]="td.youAreHereLabel" />
-        <input class="inp" type="number" min="0" max="36000" placeholder="Timer seconds (e.g. 1553)" [ngModel]="td.timerSeconds" (ngModelChange)="setTplTimer($event)" />
-        <p class="note">Categories → sub-categories → products come from your Home cards &amp; their children/products. The ranked list shows the picked sub-item's products (LED blinks those).</p>
-      </ng-container>
-
-      <!-- finder-detail: per-content text/data. The breadcrumb chips are the
-           result screen's "Finder steps" — inherited from the Intermediate
-           step's Finder steps when the theme uses finder-select there, else
-           edited here with the same per-drill-level UI. -->
-      <ng-container *ngIf="isFinder">
-        <ng-container *ngIf="isFinderSelect">
-          <div class="sec"><span>Finder steps (inherited)</span></div>
-          <p class="note">The result breadcrumb chips inherit your Finder steps — edit them on the Intermediate step.</p>
-          <div class="erow" *ngFor="let i of finderStepIndices; trackBy: trackByIndex">
-            <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
-            <span class="inp" style="opacity:.6;pointer-events:none">{{ finderStepLabel(i) }}</span>
+      <!-- Individual result page product FULL editor (drill-tree leaves) —
+           bottom sheet. Reuses the exact original per-product markup. -->
+      <ion-modal class="nt-sheet-modal leaf-product-editor-modal" [isOpen]="leafProductModalOpen" (didDismiss)="closeLeafProductEditor()">
+        <ng-template>
+          <div class="nt-sheet" *ngIf="leafProductModalItem as p">
+            <div class="nt-sheet-grab"></div>
+            <div class="sec"><span>Edit product</span><button class="del" (click)="closeLeafProductEditor()">✕</button></div>
+            <div class="erow">
+              <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage($any(p))">{{ p.image ? '' : '📷' }}</div>
+              <input *ngIf="!p.fromApi" class="inp" [(ngModel)]="p.name" placeholder="Product name" />
+              <input *ngIf="p.fromApi" class="inp locked" [value]="p.name" readonly title="From API — edit text case below" />
+            </div>
+            <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
+              <span class="fit-lbl">Fit</span>
+              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf($any(p))===f" (click)="setFit($any(p), f)">{{ f | titlecase }}</button>
+              <button class="mini danger" (click)="clearImage($any(p))" title="Remove image">✕ Image</button>
+            </div>
+            <div class="prow">
+              <input class="inp" [(ngModel)]="p.price" placeholder="Price" />
+              <input class="inp" [(ngModel)]="p.aisle" placeholder="Aisle / Zone" />
+              <input class="inp" [(ngModel)]="p.shelf" placeholder="Shelf" />
+            </div>
+            <div class="prow" *ngIf="resultNeedsMap">
+              <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapX" placeholder="Map X % (0–100)" />
+              <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapY" placeholder="Map Y % (0–100)" />
+            </div>
           </div>
-        </ng-container>
-        <ng-container *ngIf="!isFinderSelect">
-          <div class="sec"><span>Finder steps ({{ crumbStepCount }})</span></div>
-          <p class="note">One breadcrumb label per drill level — the count follows your Category depth. Edit any label, or leave it to use the default.</p>
-          <div class="erow" *ngFor="let i of crumbStepIndices; trackBy: trackByIndex">
-            <span class="inp" style="flex:0 0 auto;opacity:.6;pointer-events:none">L{{ i + 1 }}</span>
-            <input class="inp" [ngModel]="crumbValue(i)" (ngModelChange)="setCrumb(i, $event)" [placeholder]="'Category ' + (i + 1)" />
+        </ng-template>
+      </ion-modal>
+
+      <!-- Result products (common/shared) FULL editor — bottom sheet. Reuses the
+           exact original per-product markup, including ESL id / promo-map-rank
+           zone / finder-detail description+sale+Specs+Fitments add-remove lists,
+           all unchanged. -->
+      <ion-modal class="nt-sheet-modal result-product-editor-modal" [isOpen]="resultProductModalOpen" (didDismiss)="closeResultProductEditor()">
+        <ng-template>
+          <div class="nt-sheet" *ngIf="resultProductModalItem as p">
+            <div class="nt-sheet-grab"></div>
+            <div class="sec"><span>Edit product</span><button class="del" (click)="closeResultProductEditor()">✕</button></div>
+            <div class="erow">
+              <div class="thumb" *ngIf="resultNeedsImage" [style.background-image]="p.image ? 'url('+p.image+')' : null" (click)="pickImage(p)">{{ p.image ? '' : '📷' }}</div>
+              <input *ngIf="!p.fromApi" class="inp" [(ngModel)]="p.name" placeholder="Product name" />
+              <input *ngIf="p.fromApi" class="inp locked" [value]="p.name" readonly title="From API — edit text case below" />
+            </div>
+            <div class="seg fit-seg" *ngIf="resultNeedsImage && p.image">
+              <span class="fit-lbl">Fit</span>
+              <button class="mini" *ngFor="let f of fitOpts" [class.sel]="fitOf(p)===f" (click)="setFit(p, f)">{{ f | titlecase }}</button>
+              <button class="mini danger" (click)="clearImage(p)" title="Remove image">✕ Image</button>
+            </div>
+            <div class="prow">
+              <input class="inp" [(ngModel)]="p.price" placeholder="Price" />
+              <input class="inp" [(ngModel)]="p.aisle" placeholder="Aisle / Zone" />
+              <input class="inp" [(ngModel)]="p.shelf" placeholder="Shelf" />
+            </div>
+            <!-- Per-product map marker position (only when a map-based result template is selected) -->
+            <div class="prow" *ngIf="resultNeedsMap">
+              <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapX" placeholder="Map X % (0–100)" />
+              <input class="inp" type="number" min="0" max="100" [(ngModel)]="p.mapY" placeholder="Map Y % (0–100)" />
+            </div>
+            <input class="inp" *ngIf="d.appMode === 'prototype-esl'"
+              [ngModel]="eslId(p.id)" (ngModelChange)="setEslId(p.id, $event)"
+              [placeholder]="(d.eslBlinkBy || 'article') === 'article' ? 'Article ID' : 'Label ID'" />
+
+            <!-- promo-map-rank: zone label shown in the ranked list -->
+            <input class="inp" *ngIf="isPromoRank" [(ngModel)]="p.zone" placeholder="Zone (e.g. Beverage)" />
+
+            <!-- finder-detail: description, sale, attribute grid, fitments -->
+            <ng-container *ngIf="isFinder">
+              <input class="inp" [(ngModel)]="p.description" placeholder="Description (right detail panel)" />
+              <div class="prow">
+                <input class="inp" [(ngModel)]="p.salePrice" placeholder="Sale price" />
+                <label class="chk"><input type="checkbox" [(ngModel)]="p.onSale" /> On sale</label>
+              </div>
+              <div class="sec sub"><span>Attributes</span><button class="mini" (click)="addSpec(p)">+ Attr</button></div>
+              <div class="prow" *ngFor="let s of p.specs; let si = index">
+                <input class="inp" [(ngModel)]="s.label" placeholder="Label (e.g. Color)" />
+                <input class="inp" [(ngModel)]="s.value" placeholder="Value (e.g. Black)" />
+                <button class="del" (click)="removeSpec(p, si)">✕</button>
+              </div>
+              <div class="sec sub"><span>Fitments — each is a Find It target</span><button class="mini" (click)="addFitment(p)">+ Fitment</button></div>
+              <div class="pcard" *ngFor="let f of p.fitments; let fi = index">
+                <div class="erow">
+                  <div class="thumb" [style.background-image]="f.image ? 'url('+f.image+')' : null" (click)="pickFitImage(f)">{{ f.image ? '' : '📷' }}</div>
+                  <input class="inp" [(ngModel)]="f.label" placeholder="Label (e.g. Driver Side)" />
+                  <button class="del" (click)="removeFitment(p, fi)">✕</button>
+                </div>
+                <div class="prow">
+                  <input class="inp" [(ngModel)]="f.name" placeholder="Sub-name (e.g. 26 inch)" />
+                  <input class="inp" [(ngModel)]="f.price" placeholder="Price" />
+                  <input class="inp" [(ngModel)]="f.salePrice" placeholder="Sale price" />
+                </div>
+                <input class="inp" *ngIf="d.appMode === 'prototype-esl'" [(ngModel)]="f.articleId" placeholder="Article ID (LED blink target)" />
+              </div>
+            </ng-container>
           </div>
-        </ng-container>
-        <div class="sec"><span>Hero Title</span></div>
-        <input class="inp" [ngModel]="d.header?.title || ''" (ngModelChange)="setHeader('title', $event)" placeholder="Hero title (default: content name)" />
-        <div class="sec"><span>Finder labels</span></div>
-        <div class="prow">
-          <input class="inp" placeholder="Find It label" [(ngModel)]="td.findItLabel" />
-          <input class="inp" placeholder="Find All label" [(ngModel)]="td.findAllLabel" />
-        </div>
-      </ng-container>
+        </ng-template>
+      </ion-modal>
 
     </div>
 
     <!-- ============ SCREENSAVER ============ -->
     <div *ngSwitchCase="'saver'">
-      <h2 class="step-title">Screensaver</h2>
+      <div class="step-title-row">
+        <h2 class="step-title">Screensaver</h2>
+        <button type="button" class="all-settings-btn" (click)="saverSettingsOpen = true">
+          <ion-icon name="options-outline" aria-hidden="true"></ion-icon> All settings
+        </button>
+      </div>
       <p class="note">Mode: <b>{{ d.screensaver.mode }}</b> (set in theme).</p>
+
+      <!-- Media — collapsed-row + bottom-sheet preview (UI-REDESIGN-PROMPT.md §5),
+           NOT part of the deck above. No reorder method exists (original had none). -->
       <div class="sec"><span>Media ({{ d.screensaver.media.length || 0 }})</span><button class="mini" (click)="addSaverMedia()">+ Media</button></div>
-      <div class="erow" *ngFor="let m of d.screensaver.media; let i = index">
-        <ng-container *ngIf="isVideoDataUrl(m); else imgThumb">
-          <video class="thumb" [src]="m" muted playsinline></video>
+      <div class="saver-media-list">
+        <nt-collapsed-item-row *ngFor="let m of d.screensaver.media; let i = index"
+          [thumbnail]="isVideoDataUrl(m) ? null : m"
+          [name]="'Media #' + (i+1)"
+          [badge]="isVideoDataUrl(m) ? 'Video' : 'Image'"
+          [canMoveUp]="false"
+          [canMoveDown]="false"
+          (rowClick)="openSaverMediaPreview(i)"
+          (delete)="removeSaverMedia(i)"></nt-collapsed-item-row>
+      </div>
+
+      <nt-deck-chips [chips]="saverChipsInput" [activeIndex]="saverActiveChip" (activeIndexChange)="onSaverChipChange($event)"></nt-deck-chips>
+      <nt-value-pill-row [pills]="saverPillsInput" [activeIndex]="saverActivePill" (activeIndexChange)="saverActivePill = $event"></nt-value-pill-row>
+
+      <nt-editor-card [sectionLabel]="saverActivePillLabel">
+        <ng-container [ngSwitch]="saverActivePillKey">
+
+          <ng-container *ngSwitchCase="'secondsPerSlide'">
+            <div class="prow">
+              <input class="inp" type="number" min="2" [(ngModel)]="d.screensaver.secondsPerSlide" placeholder="Seconds / slide" />
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'idleTimeout'">
+            <div class="prow">
+              <input class="inp" type="number" min="10" [(ngModel)]="d.screensaver.idleTimeoutSec" placeholder="Idle (s)" />
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'ctaText'">
+            <input class="inp" [(ngModel)]="d.screensaver.ctaText" placeholder="CTA text (e.g. Touch to begin)" />
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'loop'">
+            <div class="seg">
+              <button class="mini" [class.sel]="d.screensaver.loop" (click)="d.screensaver.loop=!d.screensaver.loop">Loop {{ d.screensaver.loop ? '✓' : '' }}</button>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'shuffle'">
+            <div class="seg">
+              <button class="mini" [class.sel]="d.screensaver.shuffle" (click)="d.screensaver.shuffle=!d.screensaver.shuffle">Shuffle {{ d.screensaver.shuffle ? '✓' : '' }}</button>
+            </div>
+          </ng-container>
+
         </ng-container>
-        <ng-template #imgThumb><div class="thumb" [style.background-image]="'url('+m+')'"></div></ng-template>
-        <span class="inp" style="display:flex;align-items:center;opacity:.7">#{{ i+1 }}</span>
-        <button class="del" (click)="removeSaverMedia(i)">✕</button>
-      </div>
-      <div class="prow">
-        <input class="inp" type="number" min="2" [(ngModel)]="d.screensaver.secondsPerSlide" placeholder="Seconds / slide" />
-        <input class="inp" type="number" min="10" [(ngModel)]="d.screensaver.idleTimeoutSec" placeholder="Idle (s)" />
-      </div>
-      <input class="inp" [(ngModel)]="d.screensaver.ctaText" placeholder="CTA text (e.g. Touch to begin)" />
-      <div class="seg" style="margin-top:8px">
-        <button class="mini" [class.sel]="d.screensaver.loop" (click)="d.screensaver.loop=!d.screensaver.loop">Loop {{ d.screensaver.loop ? '✓' : '' }}</button>
-        <button class="mini" [class.sel]="d.screensaver.shuffle" (click)="d.screensaver.shuffle=!d.screensaver.shuffle">Shuffle {{ d.screensaver.shuffle ? '✓' : '' }}</button>
-      </div>
+      </nt-editor-card>
+
+      <nt-settings-sheet [groups]="saverSettingsGroups" [(isOpen)]="saverSettingsOpen" title="All settings · Screensaver" (rowSelected)="onSaverRowSelected($event)"></nt-settings-sheet>
+
+      <!-- Media preview sheet — larger image/video preview + remove, opened by
+           tapping a collapsed media row. -->
+      <ion-modal class="nt-sheet-modal saver-media-preview-modal" [isOpen]="saverMediaModalOpen" (didDismiss)="closeSaverMediaPreview()">
+        <ng-template>
+          <div class="nt-sheet" *ngIf="saverMediaModalItem as m">
+            <div class="nt-sheet-grab"></div>
+            <div class="sec"><span>Media #{{ (saverMediaModalIndex || 0) + 1 }}</span><button class="del" (click)="closeSaverMediaPreview()">✕</button></div>
+            <ng-container *ngIf="isVideoDataUrl(m); else imgPreview">
+              <video class="saver-media-preview" [src]="m" muted playsinline controls></video>
+            </ng-container>
+            <ng-template #imgPreview><div class="saver-media-preview" [style.background-image]="'url('+m+')'"></div></ng-template>
+            <button class="btn-o danger" (click)="removeSaverMedia(saverMediaModalIndex!); closeSaverMediaPreview()">✕ Remove media</button>
+          </div>
+        </ng-template>
+      </ion-modal>
     </div>
 
     <!-- ============ REVIEW — paginated page slider with real data ============ -->
@@ -750,14 +1025,39 @@
                 [class.on]="ri === reviewSlideIdx" (click)="scrollReviewTo(revSlider, ri)"></button>
       </div>
 
-      <table class="sum">
-        <tr><td>Theme</td><td>{{ d.themeName }}</td></tr>
-        <tr><td>Mode</td><td>{{ modeLabel }}</td></tr>
-        <tr><td>Home cards</td><td>{{ d.home.length }}</td></tr>
-        <tr *ngIf="d.themeTokens.includeIntermediate !== false"><td>Intermediate items</td><td>{{ d.intermediate.length || 'per-card children' }}</td></tr>
-        <tr><td>Result products</td><td>{{ d.result.products.length }}</td></tr>
-        <tr><td>Screensaver media</td><td>{{ d.screensaver.media.length || 0 }}</td></tr>
-      </table>
+      <div class="review-summary">
+        <div class="grouplabel">Overview</div>
+        <div class="row">
+          <ion-icon class="ic" name="pricetag-outline" aria-hidden="true"></ion-icon>
+          <span class="lbl">Theme</span>
+          <span class="val">{{ d.themeName }}</span>
+        </div>
+        <div class="row">
+          <ion-icon class="ic" name="apps-outline" aria-hidden="true"></ion-icon>
+          <span class="lbl">Mode</span>
+          <span class="val">{{ modeLabel }}</span>
+        </div>
+        <div class="row">
+          <ion-icon class="ic" name="grid-outline" aria-hidden="true"></ion-icon>
+          <span class="lbl">Home cards</span>
+          <span class="val">{{ d.home.length }}</span>
+        </div>
+        <div class="row" *ngIf="d.themeTokens.includeIntermediate !== false">
+          <ion-icon class="ic" name="layers-outline" aria-hidden="true"></ion-icon>
+          <span class="lbl">Intermediate items</span>
+          <span class="val">{{ d.intermediate.length || 'per-card children' }}</span>
+        </div>
+        <div class="row">
+          <ion-icon class="ic" name="albums-outline" aria-hidden="true"></ion-icon>
+          <span class="lbl">Result products</span>
+          <span class="val">{{ d.result.products.length }}</span>
+        </div>
+        <div class="row">
+          <ion-icon class="ic" name="images-outline" aria-hidden="true"></ion-icon>
+          <span class="lbl">Screensaver media</span>
+          <span class="val">{{ d.screensaver.media.length || 0 }}</span>
+        </div>
+      </div>
       <p class="note">Swipe the preview to check each page with your real content. Tap Save &amp; Deploy when ready.</p>
     </div>
   </ng-container>

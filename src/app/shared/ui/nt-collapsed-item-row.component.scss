@@ -1,0 +1,115 @@
+.nt-collapsed-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--nt-card);
+  border: 1px solid var(--nt-border);
+  border-radius: var(--nt-r);
+}
+
+.handle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  color: var(--nt-muted);
+  font-size: 16px;
+  cursor: grab;
+}
+
+.main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  background: transparent;
+  padding: 4px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: var(--nt-r-sm);
+}
+.main:hover { background: var(--nt-surface); }
+
+.thumb {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--nt-r-sm);
+  overflow: hidden;
+  background: var(--nt-surface);
+  border: 1px solid var(--nt-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb.empty ion-icon { font-size: 18px; color: var(--nt-muted); }
+
+.name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nt-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--nt-brand-ink);
+  background: var(--nt-tint);
+  border: 1px solid var(--nt-brand-tint-border);
+  border-radius: var(--nt-r-full);
+  padding: 3px 9px;
+  white-space: nowrap;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chev {
+  flex-shrink: 0;
+  font-size: 14px;
+  color: var(--nt-muted);
+}
+
+.acts {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ibtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--nt-r-sm);
+  border: none;
+  background: transparent;
+  color: var(--nt-text-2);
+  font-size: 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.ibtn:hover:not(:disabled) { background: var(--nt-surface); }
+.ibtn:disabled { opacity: .35; cursor: not-allowed; }
+.ibtn.danger:hover:not(:disabled) { background: var(--nt-danger-tint); color: var(--nt-danger); }
+
+.main:focus-visible, .ibtn:focus-visible {
+  outline: 3px solid rgba(255, 205, 0, .55);
+  outline-offset: 1px;
+}

@@ -2,7 +2,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter, AlertController } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter, IonIcon, AlertController } from '@ionic/angular/standalone';
 import { ColorPickerComponent } from '../shared/color-picker.component';
 import { ContentPreviewStripComponent } from '../shared/content-preview-strip.component';
 import { ThemeService, SavedTheme } from '../services/theme.service';
@@ -13,16 +13,37 @@ import { Subscription } from 'rxjs';
 import type { ThemeTokens, HomeLayout, CardShape, CardContent, CardTextPos, CardOverlayStyle, OverlayShape, IntermediateStyle, ResultTemplate, TransitionType, AnimSpeed, LoaderStyle, LogoPosition, TextScale, TextFit, TextCase, HeaderStyle, CardSurface, NavStyle, NavButtonPosition, NavButtonMode, NavButtonSize, SaverOverlayPosition, ScrollMode, ScreensaverMode } from '@contract/layout';
 import { MIN_COLUMNS, MAX_COLUMNS, columnsForLayout, coerceColumns, NAV_ICONS, navIconKind } from '@contract/layout';
 import { ThemeCustomColorService } from '../services/theme-custom-color.service';
+import { addIcons } from 'ionicons';
+import {
+  albumsOutline, appsOutline, arrowBackOutline, chatboxOutline, chatbubbleOutline, cloudUploadOutline,
+  colorPaletteOutline, contractOutline, contrastOutline, ellipseOutline, expandOutline, eyeOutline,
+  flagOutline, funnelOutline, gridOutline, homeOutline, imageOutline, imagesOutline, layersOutline,
+  listOutline, locateOutline, locationOutline, mapOutline, megaphoneOutline, menuOutline, moonOutline,
+  moveOutline, navigateOutline, optionsOutline, pricetagOutline, reorderFourOutline, reorderThreeOutline,
+  resizeOutline, searchOutline, speedometerOutline, squareOutline, starOutline, swapHorizontalOutline,
+  swapVerticalOutline, syncOutline, textOutline,
+} from 'ionicons/icons';
+import {
+  NtDeckChipsComponent, NtDeckChip,
+  NtValuePillRowComponent, NtValuePill,
+  NtEditorCardComponent,
+  NtSettingsSheetComponent, NtSettingsGroup,
+} from '../shared/ui';
 
 type PreviewPage = 'home' | 'inter' | 'result' | 'saver';
 interface Step { key: string; page: PreviewPage; }
+/** One option inside an Editor Deck category (Colors / Type steps, phase 3a).
+ *  `key` selects which existing control markup the editor-card level renders;
+ *  `value`/`swatch` feed the value-pill and All-settings-sheet row faces. */
+interface DeckOption { key: string; icon: string; label: string; value: string; swatch?: string; }
 
 /** Visual theme wizard. Live preview re-renders the selected layout/card/intermediate/result
  *  + colours. Steps for intermediate are hidden when intermediate is skipped. */
 @Component({
   selector: 'app-theme-wizard',
   standalone: true,
-  imports: [CommonModule, FormsModule, ColorPickerComponent, ContentPreviewStripComponent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter],
+  imports: [CommonModule, FormsModule, ColorPickerComponent, ContentPreviewStripComponent, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonProgressBar, IonFooter, IonIcon,
+    NtDeckChipsComponent, NtValuePillRowComponent, NtEditorCardComponent, NtSettingsSheetComponent],
   templateUrl: './theme-wizard.component.html',
   styleUrls: ['./theme-wizard.component.scss'],
 })
@@ -817,18 +838,23 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     if (this.t.intermediateStyle === 'brand-rail' || this.t.intermediateStyle === 'card-strip') return 'horizontal';
     return (this.t.intermediate.scrollMode || this.t.scrollMode) === 'horizontal' ? 'horizontal' : 'vertical';
   }
+  get resultTextOnlyVertical(): boolean {
+    return (this.t.result.content || 'image-text') === 'text-only'
+      && ['map-list', 'filter-list'].includes(this.t.resultTemplate);
+  }
   get effectiveResultScrollMode(): 'vertical' | 'horizontal' {
-    if (this.resultTextOnlyUsesVerticalScroll) return 'vertical';
+    if (this.resultTextOnlyVertical) return 'vertical';
     return this.t.result.scrollMode === 'horizontal' ? 'horizontal' : 'vertical';
+  }
+  get availableResultScrollModes(): { id: ScrollMode; label: string }[] {
+    return this.resultTextOnlyVertical
+      ? this.scrollModes.filter((mode) => mode.id === 'vertical')
+      : this.scrollModes;
   }
   setResultContent(content: 'image-text' | 'text-only'): void {
     this.t.result.content = content;
-    if (this.resultTextOnlyUsesVerticalScroll) this.t.result.scrollMode = 'vertical';
-    this.coerceShelfTextOnlyShape();
-  }
-  private coerceShelfTextOnlyShape(): void {
-    if (this.t.resultTemplate === 'shelf' && this.t.result.content === 'text-only') {
-      this.t.result.cardShape = 'rect';
+    if (content === 'text-only' && ['map-list', 'filter-list'].includes(this.t.resultTemplate)) {
+      this.t.result.scrollMode = 'vertical';
     }
   }
   /** Set Home scroll + coerce alignment to a safe, non-clipping default. */
@@ -1189,7 +1215,21 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     return `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'%3E%3Crect width='160' height='100' fill='${fill}'/%3E%3Cpolygon points='0,100 160,18 160,100' fill='rgba(255,255,255,0.22)'/%3E%3C/svg%3E")`;
   }
 
-  constructor(private themes: ThemeService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private sanitizer: DomSanitizer, private customColors: ThemeCustomColorService, private alertController: AlertController) {}
+  constructor(private themes: ThemeService, private picker: ImagePickerService, private route: ActivatedRoute, private router: Router, private sanitizer: DomSanitizer, private customColors: ThemeCustomColorService, private alertController: AlertController) {
+    // Editor Deck redesign: register every icon name used by this component's
+    // chip/pill/editor-card/settings-sheet option lists. Ionic's standalone
+    // IonIcon requires explicit addIcons() registration per name — unregistered
+    // names render blank (this is why some icons were missing before this fix).
+    addIcons({
+      albumsOutline, appsOutline, arrowBackOutline, chatboxOutline, chatbubbleOutline, cloudUploadOutline,
+      colorPaletteOutline, contractOutline, contrastOutline, ellipseOutline, expandOutline, eyeOutline,
+      flagOutline, funnelOutline, gridOutline, homeOutline, imageOutline, imagesOutline, layersOutline,
+      listOutline, locateOutline, locationOutline, mapOutline, megaphoneOutline, menuOutline, moonOutline,
+      moveOutline, navigateOutline, optionsOutline, pricetagOutline, reorderFourOutline, reorderThreeOutline,
+      resizeOutline, searchOutline, speedometerOutline, squareOutline, starOutline, swapHorizontalOutline,
+      swapVerticalOutline, syncOutline, textOutline,
+    });
+  }
 
   async ngOnInit(): Promise<void> { await this.init(); }
   ngOnDestroy(): void {
@@ -1701,6 +1741,1034 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     this.coerceTextPos();
     if (key === 'intStyle' || key === 'intColors') { this.syncInterFromHome(); this.clampIntColumns(); }
     if (key === 'resColors') { this.resultSynced = false; this.syncResultFromHome(); }
+  }
+
+  // ===== Editor Deck (phase 3a/3b) — Home, Colors & Type steps =====
+  // View-only UI state (active category chip / value pill, sheet open flags).
+  // Every option below reads/writes the exact same `t.*` properties and calls
+  // the exact same methods as the original vertical form — only the presentation
+  // (chips → value pills → single editor card, plus an "All settings" sheet) is
+  // restructured. See UI-REDESIGN-INVENTORY.md Step 1 / Step 2 / Step 3 for the full list.
+
+  private capitalize(s: string): string { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+  private pct(v: number): string { return Math.round(v * 100) + '%'; }
+
+  // ----- Home step (phase 3b) -----
+  // Same mutually-exclusive branches as the original template: the Finder-select
+  // arrangement replaces Card size/gap/alignment + Card content/shape + Text
+  // position with its own fs*-prefixed controls, while Card surface and the
+  // "Card gap" slider are literally the same bound property (t.cardSurface /
+  // t.cardGapNum via setCardGap) in both branches — represented as ONE option
+  // here since only one branch is ever visible at a time.
+  homeActiveChip = 0;
+  homeActivePill = 0;
+  homeSettingsOpen = false;
+
+  private get homeArrangementOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    out.push({ key: 'homeLayout', icon: 'grid-outline', label: 'Arrangement', value: this.layoutLabels[this.t.homeLayout] || this.t.homeLayout });
+
+    if (this.scrollMatters && !this.isHeroStart && this.scrollModesVisible.length > 1) {
+      const lbl = this.scrollModesVisible.find((m) => m.id === this.effectiveScrollMode)?.label || this.effectiveScrollMode;
+      out.push({ key: 'scrollMode', icon: 'swap-horizontal-outline', label: 'Overflow scrolling', value: lbl });
+    }
+
+    if (this.columnsMatter) {
+      out.push({ key: 'columns', icon: 'apps-outline', label: this.itemCountMatters ? 'Items' : 'Columns', value: `${this.effectiveColumns}` });
+    }
+
+    if (this.t.homeLayout === 'finder-select') {
+      const showPrompt = this.t.intermediate.fsShowPrompt !== false;
+      out.push({ key: 'fsShowPrompt', icon: 'eye-outline', label: 'Title visibility', value: showPrompt ? 'Show title' : 'Hide title' });
+      if (showPrompt) {
+        out.push({ key: 'fsPromptPos', icon: 'reorder-three-outline', label: 'Title alignment', value: this.capitalize(this.t.intermediate.fsPromptPos || 'center') });
+      }
+      out.push({ key: 'intItemSize', icon: 'resize-outline', label: 'Item size', value: this.pct(this.intItemSizeValue) });
+      out.push({ key: 'cardGap', icon: 'contract-outline', label: 'Card gap', value: `${this.cardGapValue}px` });
+    } else if (!this.isHeroStart) {
+      if (this.sizeMatters) {
+        out.push({ key: 'cardSize', icon: 'expand-outline', label: 'Card size', value: this.pct(this.cardSizeValue) });
+      }
+      if (this.gapMatters) {
+        out.push({ key: 'cardGap', icon: 'contract-outline', label: 'Card gap', value: `${this.cardGapValue}px` });
+      }
+      if (this.alignMatters) {
+        out.push({ key: 'cardAlign', icon: 'reorder-four-outline', label: 'Card alignment', value: this.capitalize(this.t.cardAlign || 'center') });
+      }
+    }
+    return out;
+  }
+
+  private get homeCardStyleOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.homeLayout === 'finder-select') {
+      const fsContent = this.t.intermediate.fsCardContent || 'text-only';
+      out.push({ key: 'fsCardContent', icon: 'albums-outline', label: 'Card content', value: this.fsCardContents.find((c) => c.id === fsContent)?.label || fsContent });
+      if (fsContent !== 'text-only' && fsContent !== 'image-only') {
+        const shape = this.t.intermediate.fsCardShape || 'rect';
+        out.push({ key: 'fsCardShape', icon: 'square-outline', label: 'Card shape', value: this.cardShapes.find((s) => s.id === shape)?.label || shape });
+      }
+      out.push({ key: 'cardSurface', icon: 'layers-outline', label: 'Card surface', value: this.cardSurfaces.find((s) => s.id === (this.t.cardSurface || 'flat'))?.label || 'Flat' });
+    } else if (!this.isHeroStart) {
+      out.push({ key: 'cardContent', icon: 'albums-outline', label: 'Card content', value: this.cardContentsFor.find((c) => c.id === this.t.cardContent)?.label || this.t.cardContent });
+      if (!this.isImageStrip && this.t.cardContent !== 'image-only') {
+        out.push({ key: 'cardShape', icon: 'square-outline', label: 'Card shape', value: this.availableCardShapes.find((s) => s.id === this.t.cardShape)?.label || this.t.cardShape });
+      }
+      out.push({ key: 'cardSurface', icon: 'layers-outline', label: 'Card surface', value: this.cardSurfaces.find((s) => s.id === (this.t.cardSurface || 'flat'))?.label || 'Flat' });
+    }
+    return out;
+  }
+
+  private get homeCardTextOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.homeLayout === 'finder-select') {
+      if (this.finderTextPositionMatters) {
+        const v = this.t.intermediate.fsTextPos || 'center';
+        out.push({ key: 'fsTextPos', icon: 'text-outline', label: 'Text vertical position', value: this.fsTextVPositions.find((p) => p.id === v)?.label || v });
+      }
+      const fsContent = this.t.intermediate.fsCardContent || 'text-only';
+      if (fsContent !== 'image-only' && this.finderTextAlignMatters) {
+        const v = this.t.intermediate.fsTextAlign || 'center';
+        out.push({ key: 'fsTextAlign', icon: 'reorder-three-outline', label: 'Text horizontal alignment', value: this.cardAligns.find((a) => a.id === v)?.label || v });
+      }
+    } else if (this.showTextPos) {
+      out.push({ key: 'cardTextPos', icon: 'text-outline', label: 'Text vertical position', value: this.textPositionsFor.find((p) => p.id === this.t.cardTextPos)?.label || this.t.cardTextPos });
+      if (this.t.cardContent !== 'icon-text') {
+        const v = this.t.cardTextAlign || 'center';
+        out.push({ key: 'cardTextAlign', icon: 'reorder-three-outline', label: 'Text horizontal alignment', value: this.cardAligns.find((a) => a.id === v)?.label || v });
+      }
+      if (this.overlayRelevant) {
+        out.push({ key: 'cardOverlay', icon: 'contrast-outline', label: 'Text Overlay', value: this.homeOverlayStyles.find((s) => s.id === this.cardOverlayEff)?.label || this.cardOverlayEff });
+        if (this.cardOverlayEff !== 'none' && (this.t.cardTextPos || 'overlay-bottom') === 'overlay-bottom') {
+          out.push({ key: 'cardOverlayShape', icon: 'square-outline', label: 'Overlay shape', value: this.overlayShapes.find((s) => s.id === this.cardOverlayShapeEff)?.label || this.cardOverlayShapeEff });
+        }
+        if (this.cardOverlayEff !== 'none') {
+          out.push({ key: 'overlayOpacity', icon: 'contrast-outline', label: 'Overlay opacity', value: `${this.overlayOpacity}%` });
+        }
+      }
+      out.push({ key: 'cardTextShadow', icon: 'moon-outline', label: 'Text shadow', value: this.t.cardTextShadow === true ? 'On' : 'Off' });
+    }
+    return out;
+  }
+
+  private get homeHeaderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.homeLayout !== 'finder-select') {
+      out.push({ key: 'headerBar', icon: 'menu-outline', label: 'Header bar', value: this.t.showHeader ? 'Show' : 'Hide' });
+      if (this.t.showHeader) {
+        out.push({ key: 'headerLayout', icon: 'options-outline', label: 'Header layout', value: this.isCustomHeader ? 'Custom (independent)' : 'Preset combos' });
+        if (!this.isCustomHeader) {
+          const v = this.t.headerStyle || 'logo-only';
+          out.push({ key: 'headerStyle', icon: 'albums-outline', label: 'Header style', value: this.headerStyles.find((h) => h.id === v)?.label || v });
+        } else {
+          out.push({ key: 'logoPos', icon: 'flag-outline', label: 'Logo position', value: this.headerItemPositions.find((p) => p.id === (this.t.logoPos || 'left'))?.label || 'Left' });
+          out.push({ key: 'titlePos', icon: 'text-outline', label: 'Title position', value: this.headerItemPositions.find((p) => p.id === (this.t.titlePos || 'center'))?.label || 'Center' });
+          out.push({ key: 'captionPos', icon: 'chatbubble-outline', label: 'Caption position', value: this.headerItemPositions.find((p) => p.id === (this.t.captionPos || 'center'))?.label || 'Center' });
+        }
+      }
+    }
+    out.push({ key: 'includeIntermediate', icon: 'layers-outline', label: 'Intermediate page', value: this.t.includeIntermediate ? 'Include' : 'Skip → Result' });
+    return out;
+  }
+
+  get homeCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'arrangement', icon: 'grid-outline', label: 'Arrangement', options: this.homeArrangementOptions },
+      { key: 'cardStyle', icon: 'square-outline', label: 'Card style', options: this.homeCardStyleOptions },
+      { key: 'cardText', icon: 'text-outline', label: 'Card content & text', options: this.homeCardTextOptions },
+      { key: 'header', icon: 'menu-outline', label: 'Header', options: this.homeHeaderOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get homeActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.homeCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.homeActiveChip, cats.length - 1)];
+  }
+  get homeChipsInput(): NtDeckChip[] { return this.homeCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get homePillsInput(): NtValuePill[] {
+    return (this.homeActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get homeActiveOption(): DeckOption | undefined {
+    const opts = this.homeActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.homeActivePill, opts.length - 1)];
+  }
+  get homeActivePillKey(): string { return this.homeActiveOption?.key || ''; }
+  get homeActivePillLabel(): string { return (this.homeActiveOption?.label || '').toUpperCase(); }
+  get homeSettingsGroups(): NtSettingsGroup[] {
+    return this.homeCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onHomeChipChange(i: number): void { this.homeActiveChip = i; this.homeActivePill = 0; }
+  onHomeRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.homeActiveChip = sel.groupIndex;
+    this.homeActivePill = sel.rowIndex;
+  }
+
+  // ----- Colors step -----
+  colorsActiveChip = 0;
+  colorsActivePill = 0;
+  colorsSettingsOpen = false;
+
+  private get colorsHeaderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.showHeader) {
+      out.push({ key: 'headerColor', icon: 'color-palette-outline', label: 'Header', value: this.t.headerColor, swatch: this.t.headerColor });
+      const htc = this.t.headerTextColor || '#FFFFFF';
+      out.push({ key: 'headerTextColor', icon: 'text-outline', label: 'Header text', value: htc, swatch: htc });
+    }
+    if (this.t.homeLayout === 'finder-select' || this.t.intermediateStyle === 'finder-select') {
+      const v = this.t.intermediate?.promptTextColor || this.t.intermediate?.headerTextColor || this.t.headerTextColor || '#FFFFFF';
+      out.push({ key: 'promptTextColor', icon: 'chatbubble-outline', label: 'Prompt text', value: v, swatch: v });
+    }
+    return out;
+  }
+
+  private get colorsBackgroundOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (!this.t.backgroundImage || this.t.homeLayout === 'finder-select') {
+      const v = this.t.backgroundImage && this.t.homeLayout === 'finder-select' ? 'transparent' : this.t.background;
+      out.push({ key: 'background', icon: 'image-outline', label: 'Page background', value: v, swatch: v !== 'transparent' ? v : undefined });
+    }
+    out.push({ key: 'backgroundImage', icon: 'cloud-upload-outline', label: 'Background image', value: this.t.backgroundImage ? 'Image set' : 'None' });
+    if (this.t.backgroundImage) {
+      out.push({ key: 'bgImageX', icon: 'resize-outline', label: 'Pan X', value: `${this.t.bgImageX ?? 50}%` });
+      out.push({ key: 'bgImageY', icon: 'resize-outline', label: 'Pan Y', value: `${this.t.bgImageY ?? 50}%` });
+      out.push({ key: 'bgImageZoom', icon: 'expand-outline', label: 'Zoom', value: `${this.t.bgImageZoom ?? 100}%` });
+    }
+    return out;
+  }
+
+  private get colorsCardOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const fsContent = this.t.intermediate.fsCardContent || 'text-only';
+    const showCardBg = (this.t.homeLayout !== 'finder-select' && this.t.cardContent !== 'image-only' && this.t.cardContent !== 'image-text')
+      || (this.t.homeLayout === 'finder-select' && (fsContent === 'text-only' || fsContent === 'icon-text'));
+    if (showCardBg) out.push({ key: 'cardBackground', icon: 'square-outline', label: 'Card background', value: this.t.cardBackground, swatch: this.t.cardBackground });
+    const showCardText = (this.t.homeLayout !== 'finder-select' && this.t.cardContent !== 'image-only')
+      || (this.t.homeLayout === 'finder-select' && fsContent !== 'image-only');
+    if (showCardText) out.push({ key: 'cardText', icon: 'text-outline', label: 'Card text', value: this.t.cardText, swatch: this.t.cardText });
+    if (this.t.homeLayout === 'finder-select') {
+      const hero = this.t.intermediate.heroColor || '#172033';
+      out.push({ key: 'heroColor', icon: 'albums-outline', label: 'Hero panel', value: hero, swatch: hero });
+    }
+    if (this.overlayRelevant || this.t.homeLayout === 'finder-select') {
+      const ov = this.t.overlayColor || 'rgba(0,0,0,0.6)';
+      out.push({ key: 'overlayColor', icon: 'contrast-outline', label: 'Text overlay', value: ov, swatch: ov });
+    }
+    return out;
+  }
+
+  private get colorsAccentOptions(): DeckOption[] {
+    const out: DeckOption[] = [{ key: 'accent', icon: 'color-palette-outline', label: 'Accent / highlight', value: this.t.accent, swatch: this.t.accent }];
+    if (this.t.showHeader && !this.isCustomHeader) {
+      out.push({ key: 'logoPosition', icon: 'flag-outline', label: 'Logo position', value: this.capitalize(this.t.logoPosition || 'left') });
+    }
+    return out;
+  }
+
+  get colorsCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'header', icon: 'menu-outline', label: 'Header', options: this.colorsHeaderOptions },
+      { key: 'background', icon: 'image-outline', label: 'Background', options: this.colorsBackgroundOptions },
+      { key: 'cards', icon: 'albums-outline', label: 'Cards', options: this.colorsCardOptions },
+      { key: 'accent', icon: 'color-palette-outline', label: 'Accent & logo', options: this.colorsAccentOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get colorsActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.colorsCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.colorsActiveChip, cats.length - 1)];
+  }
+  get colorsChipsInput(): NtDeckChip[] { return this.colorsCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get colorsPillsInput(): NtValuePill[] {
+    return (this.colorsActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get colorsActiveOption(): DeckOption | undefined {
+    const opts = this.colorsActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.colorsActivePill, opts.length - 1)];
+  }
+  get colorsActivePillKey(): string { return this.colorsActiveOption?.key || ''; }
+  get colorsActivePillLabel(): string { return (this.colorsActiveOption?.label || '').toUpperCase(); }
+  get colorsSettingsGroups(): NtSettingsGroup[] {
+    return this.colorsCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onColorsChipChange(i: number): void { this.colorsActiveChip = i; this.colorsActivePill = 0; }
+  onColorsRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.colorsActiveChip = sel.groupIndex;
+    this.colorsActivePill = sel.rowIndex;
+  }
+
+  // ----- Type step -----
+  typeActiveChip = 0;
+  typeActivePill = 0;
+  typeSettingsOpen = false;
+
+  private get typeFontFitOptions(): DeckOption[] {
+    const fontLabel = this.fonts.find((f) => f.stack === this.t.typography.fontFamily)?.label || 'Custom';
+    const fitLabel = this.textFits.find((f) => f.id === this.t.typography.textFit)?.label || this.t.typography.textFit;
+    return [
+      { key: 'font', icon: 'text-outline', label: 'Font', value: fontLabel },
+      { key: 'textFit', icon: 'contract-outline', label: 'Text fit', value: fitLabel },
+    ];
+  }
+  private get typeSizeOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.showCardTextScaleControl) out.push({ key: 'cardTextScale', icon: 'resize-outline', label: 'Card label size', value: this.pct(this.cardTextScaleValue) });
+    if (this.showPromoTypographyControls) {
+      out.push({ key: 'promoCopyTextScale', icon: 'resize-outline', label: 'Promo message text size', value: this.pct(this.promoCopyTextScaleValue) });
+      out.push({ key: 'promoCardTextScale', icon: 'resize-outline', label: 'Promo card label size', value: this.pct(this.promoCardTextScaleValue) });
+    }
+    if (this.showIntermediateTextScaleControl) out.push({ key: 'intermediateTextScale', icon: 'resize-outline', label: 'Intermediate item text size', value: this.pct(this.intermediateTextScaleValue) });
+    if (this.showResultTextScaleControl) out.push({ key: 'resultTextScale', icon: 'resize-outline', label: 'Result text size', value: this.pct(this.resultTextScaleValue) });
+    if (this.showHeaderTextScaleControl) out.push({ key: 'headerTextScale', icon: 'resize-outline', label: 'Header text size', value: this.pct(this.headerTextScaleValue) });
+    return out;
+  }
+  private get typeCaseOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.showCardTextCaseControl) {
+      const lbl = this.textCases.find((c) => c.id === (this.t.typography.cardTextCase || 'default'))?.label || 'Default';
+      out.push({ key: 'cardTextCase', icon: 'swap-vertical-outline', label: 'Card text case', value: lbl });
+    }
+    if (this.showHeaderTextScaleControl) {
+      const lbl = this.textCases.find((c) => c.id === (this.t.typography.headerTextCase || 'default'))?.label || 'Default';
+      out.push({ key: 'headerTextCase', icon: 'swap-vertical-outline', label: 'Header text case', value: lbl });
+    }
+    return out;
+  }
+  get typeCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'font', icon: 'text-outline', label: 'Font & fit', options: this.typeFontFitOptions },
+      { key: 'sizes', icon: 'resize-outline', label: 'Text sizes', options: this.typeSizeOptions },
+      { key: 'case', icon: 'swap-vertical-outline', label: 'Text case', options: this.typeCaseOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get typeActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.typeCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.typeActiveChip, cats.length - 1)];
+  }
+  get typeChipsInput(): NtDeckChip[] { return this.typeCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get typePillsInput(): NtValuePill[] {
+    return (this.typeActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get typeActiveOption(): DeckOption | undefined {
+    const opts = this.typeActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.typeActivePill, opts.length - 1)];
+  }
+  get typeActivePillKey(): string { return this.typeActiveOption?.key || ''; }
+  get typeActivePillLabel(): string { return (this.typeActiveOption?.label || '').toUpperCase(); }
+  get typeSettingsGroups(): NtSettingsGroup[] {
+    return this.typeCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onTypeChipChange(i: number): void { this.typeActiveChip = i; this.typeActivePill = 0; }
+  onTypeRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.typeActiveChip = sel.groupIndex;
+    this.typeActivePill = sel.rowIndex;
+  }
+
+  // ----- Intermediate design step (phase 3c) -----
+  // Same pattern as Home (phase 3b): chips Arrangement / Card style / Card content & text /
+  // Header. "Card gap" merges the Finder-select and generic branches into ONE pill — both bind
+  // to the same t.intermediate.gapNum / setIntCardGap() control and are mutually exclusive by
+  // t.intermediateStyle, exactly like Home's Card gap/Card surface merge. "Overflow scrolling"
+  // and "Carousel scrolling" merge into one 'interScroll' key (both call setInterScroll(),
+  // mutually exclusive by style) but stay permanently unreachable while hideVerticalScroll ===
+  // true (see inventory note 2) — the option is never pushed into the array below, so it never
+  // becomes a chip/pill or a settings-sheet row, exactly mirroring the original template's
+  // `*ngIf="... && !hideVerticalScroll"` guards.
+  intActiveChip = 0;
+  intActivePill = 0;
+  intSettingsOpen = false;
+
+  private get intArrangementOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    out.push({ key: 'intermediateStyle', icon: 'grid-outline', label: 'Layout style', value: this.intStyleLabel(this.t.intermediateStyle) });
+
+    if (this.intColumnsMatters) {
+      out.push({ key: 'intColumns', icon: 'apps-outline', label: this.t.intermediateStyle === 'card-strip' ? 'Visible cards' : 'Columns', value: `${this.intColumnsValue}` });
+    }
+
+    // [HIDDEN — hideVerticalScroll, see inventory note 2] — never surfaced while the flag is true.
+    if (!this.hideVerticalScroll && (this.intScrollMatters || this.t.intermediateStyle === 'fullscreen')) {
+      const isCarousel = this.t.intermediateStyle === 'fullscreen';
+      out.push({ key: 'interScroll', icon: 'swap-horizontal-outline', label: isCarousel ? 'Carousel scrolling' : 'Overflow scrolling', value: this.capitalize(this.effectiveInterScrollMode) });
+    }
+
+    if (this.t.intermediateStyle === 'brand-rail') {
+      out.push({ key: 'brandRailMessagePos', icon: 'reorder-three-outline', label: 'Message position', value: this.capitalize(this.t.intermediate.brandRailMessagePos || 'right') });
+      const va = this.t.intermediate.brandRailMessageAlign || 'center';
+      out.push({ key: 'brandRailMessageAlign', icon: 'reorder-four-outline', label: 'Message alignment', value: this.brandRailValigns.find((v) => v.id === va)?.label || va });
+    }
+
+    if (this.t.intermediateStyle === 'finder-select') {
+      const showPrompt = this.t.intermediate.fsShowPrompt !== false;
+      out.push({ key: 'fsShowPrompt', icon: 'eye-outline', label: 'Title visibility', value: showPrompt ? 'Show title' : 'Hide title' });
+      if (showPrompt) {
+        out.push({ key: 'fsPromptPos', icon: 'reorder-three-outline', label: 'Title alignment', value: this.capitalize(this.t.intermediate.fsPromptPos || 'center') });
+      }
+      const showBack = this.t.intermediate.fsShowBack !== false;
+      out.push({ key: 'fsShowBack', icon: 'arrow-back-outline', label: 'Back visibility', value: showBack ? 'Show back' : 'Hide back' });
+    }
+
+    if (this.t.intermediateStyle !== 'drill-stair' && this.t.intermediateStyle !== 'card-strip') {
+      out.push({ key: 'intItemSize', icon: 'resize-outline', label: 'Item size', value: this.pct(this.intItemSizeValue) });
+    }
+
+    // Card gap: same t.intermediate.gapNum / setIntCardGap() control in both the
+    // finder-select and generic branches (mutually exclusive) — ONE pill, mirrors Home.
+    if (this.t.intermediateStyle !== 'drill-stair' && this.t.intermediateStyle !== 'card-strip') {
+      out.push({ key: 'intCardGap', icon: 'contract-outline', label: 'Card gap', value: `${this.intCardGapValue}px` });
+    }
+
+    if (this.intAlignMatters) {
+      const align = this.capitalize(this.t.intermediate.align || 'center');
+      const value = this.t.intermediateStyle !== 'columns' ? `${align} · ${this.capitalize(this.t.intermediate.valign || 'middle')}` : align;
+      out.push({ key: 'intAlign', icon: 'reorder-four-outline', label: 'Card alignment', value });
+    }
+
+    return out;
+  }
+
+  private get intCardStyleOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.intermediateStyle === 'finder-select') {
+      const fsContent = this.t.intermediate.fsCardContent || 'text-only';
+      out.push({ key: 'fsCardContent', icon: 'albums-outline', label: 'Card content', value: this.fsCardContents.find((c) => c.id === fsContent)?.label || fsContent });
+      if (fsContent !== 'text-only' && fsContent !== 'image-only') {
+        const shape = this.t.intermediate.fsCardShape || 'rect';
+        out.push({ key: 'fsCardShape', icon: 'square-outline', label: 'Card shape', value: this.cardShapes.find((s) => s.id === shape)?.label || shape });
+      }
+    } else {
+      if (this.intContentMatters) {
+        const v = this.t.intermediate.content || 'image-text';
+        out.push({ key: 'interContent', icon: 'albums-outline', label: 'Card content', value: this.interContentsFor.find((c) => c.id === v)?.label || v });
+      }
+      if (this.intShapeMatters && this.t.intermediate.content !== 'image-only') {
+        const v = this.t.intermediate.cardShape || 'rect';
+        out.push({ key: 'interShape', icon: 'square-outline', label: 'Card shape', value: this.interShapesFor.find((s) => s.id === v)?.label || v });
+      }
+    }
+    if (this.t.intermediateStyle !== 'drill-stair') {
+      out.push({ key: 'cardSurface', icon: 'layers-outline', label: 'Card surface', value: this.cardSurfaces.find((s) => s.id === (this.t.cardSurface || 'flat'))?.label || 'Flat' });
+    }
+    return out;
+  }
+
+  private get intCardTextOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.intermediateStyle === 'finder-select') {
+      if (this.finderTextPositionMatters) {
+        const v = this.t.intermediate.fsTextPos || 'center';
+        out.push({ key: 'fsTextPos', icon: 'text-outline', label: 'Text vertical position', value: this.fsTextVPositions.find((p) => p.id === v)?.label || v });
+      }
+      const fsContent = this.t.intermediate.fsCardContent || 'text-only';
+      if (fsContent !== 'image-only' && this.finderTextAlignMatters) {
+        const v = this.t.intermediate.fsTextAlign || 'center';
+        out.push({ key: 'fsTextAlign', icon: 'reorder-three-outline', label: 'Text horizontal alignment', value: this.cardAligns.find((a) => a.id === v)?.label || v });
+      }
+    } else {
+      if (this.intTextPosMatters && (this.t.intermediate.content || 'image-text') !== 'image-only') {
+        const v = this.t.intermediate.textPos || 'overlay-bottom';
+        out.push({ key: 'interTextPos', icon: 'text-outline', label: 'Text vertical position', value: this.interTextPositionsFor.find((p) => p.id === v)?.label || v });
+      }
+      if (this.interTextAlignMatters) {
+        const v = this.t.intermediate.textAlign || 'center';
+        out.push({ key: 'interTextAlign', icon: 'reorder-three-outline', label: 'Text horizontal alignment', value: this.cardAligns.find((a) => a.id === v)?.label || v });
+      }
+      if (this.interOverlayRelevant) {
+        out.push({ key: 'interOverlay', icon: 'contrast-outline', label: 'Text Overlay', value: this.interOverlayStyles.find((s) => s.id === this.interOverlayEff)?.label || this.interOverlayEff });
+        if (this.interOverlayEff !== 'none' && (this.t.intermediate.textPos || 'overlay-bottom') === 'overlay-bottom') {
+          out.push({ key: 'interOverlayShape', icon: 'square-outline', label: 'Overlay shape', value: this.overlayShapes.find((s) => s.id === this.interOverlayShapeEff)?.label || this.interOverlayShapeEff });
+        }
+        if (this.interOverlayEff !== 'none') {
+          out.push({ key: 'overlayOpacity', icon: 'contrast-outline', label: 'Overlay opacity', value: `${this.overlayOpacity}%` });
+        }
+      }
+    }
+    if ((this.t.intermediate.content || 'image-text') !== 'image-only') {
+      out.push({ key: 'interTextShadow', icon: 'moon-outline', label: 'Text shadow', value: this.t.intermediate.textShadow === true ? 'On' : 'Off' });
+    }
+    return out;
+  }
+
+  private get intHeaderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.intermediateStyle !== 'finder-select') {
+      out.push({ key: 'interHeaderBar', icon: 'menu-outline', label: 'Header bar', value: this.t.intermediate.showHeader ? 'Show' : 'Hide' });
+      if (this.t.intermediate.showHeader) {
+        out.push({ key: 'interHeaderTracklist', icon: 'list-outline', label: 'Header tracklist', value: this.t.intermediate.showTracklist !== false ? 'Show' : 'Hide' });
+      }
+    }
+    return out;
+  }
+
+  get intCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'arrangement', icon: 'grid-outline', label: 'Arrangement', options: this.intArrangementOptions },
+      { key: 'cardStyle', icon: 'square-outline', label: 'Card style', options: this.intCardStyleOptions },
+      { key: 'cardText', icon: 'text-outline', label: 'Card content & text', options: this.intCardTextOptions },
+      { key: 'header', icon: 'menu-outline', label: 'Header', options: this.intHeaderOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get intActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.intCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.intActiveChip, cats.length - 1)];
+  }
+  get intChipsInput(): NtDeckChip[] { return this.intCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get intPillsInput(): NtValuePill[] {
+    return (this.intActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get intActiveOption(): DeckOption | undefined {
+    const opts = this.intActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.intActivePill, opts.length - 1)];
+  }
+  get intActivePillKey(): string { return this.intActiveOption?.key || ''; }
+  get intActivePillLabel(): string { return (this.intActiveOption?.label || '').toUpperCase(); }
+  get intSettingsGroups(): NtSettingsGroup[] {
+    return this.intCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onIntChipChange(i: number): void { this.intActiveChip = i; this.intActivePill = 0; }
+  onIntRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.intActiveChip = sel.groupIndex;
+    this.intActivePill = sel.rowIndex;
+  }
+
+  // ----- Navigation buttons — SHARED `t.nav` state used by BOTH Intermediate-colors and
+  // Result-colors steps (phase 3d). Per UI-REDESIGN-INVENTORY.md note 1: 11 of the 15 controls
+  // bind to the same t.nav / t.navStyle fields regardless of which step they're edited from —
+  // editing "Back icon color" on Intermediate-colors changes the exact same value shown on
+  // Result-colors, and that must keep being true. Only 4 controls (layout/split, position, back
+  // position, home position) are genuinely per-page via navSplitFor()/navPositionFor()/
+  // navBackPositionFor()/navHomePositionFor() (already page-scoped helpers, unchanged above).
+  // ONE options-builder (navOptions) + ONE template (#navEditorTpl in the .html) are used
+  // identically by both steps so there is only ever one code path writing to t.nav. -----
+  private get navSharedOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const backColor = this.t.nav?.backColor || '#FFFFFF';
+    out.push({ key: 'navBackColor', icon: 'color-palette-outline', label: 'Back · Icon color', value: backColor, swatch: backColor });
+    const backBg = this.t.nav?.backBg || '#0f172a';
+    out.push({ key: 'navBackBg', icon: 'square-outline', label: 'Back · Background', value: backBg, swatch: backBg });
+    const homeColor = this.t.nav?.homeColor || '#FFFFFF';
+    out.push({ key: 'navHomeColor', icon: 'color-palette-outline', label: 'Home · Icon color', value: homeColor, swatch: homeColor });
+    const homeBg = this.t.nav?.homeBg || '#0f172a';
+    out.push({ key: 'navHomeBg', icon: 'square-outline', label: 'Home · Background', value: homeBg, swatch: homeBg });
+
+    const mode = this.t.nav?.mode || 'icon';
+    out.push({ key: 'navMode', icon: 'options-outline', label: 'Button style', value: this.navModes.find((m) => m.id === mode)?.label || mode });
+    if (mode !== 'icon') {
+      out.push({ key: 'navBackLabel', icon: 'text-outline', label: 'Back label', value: this.t.nav?.backLabel || 'Back' });
+      out.push({ key: 'navHomeLabel', icon: 'text-outline', label: 'Home label', value: this.t.nav?.homeLabel || 'Home' });
+    }
+    const size = this.t.nav?.size || 'normal';
+    out.push({ key: 'navSize', icon: 'resize-outline', label: 'Button size', value: this.navSizes.find((s) => s.id === size)?.label || size });
+    if (mode !== 'text') {
+      out.push({ key: 'navBackIcon', icon: 'arrow-back-outline', label: 'Back icon', value: this.t.nav?.backIcon ? (this.isCustomNavIcon(this.t.nav.backIcon) ? 'Custom upload' : this.t.nav.backIcon) : 'Default' });
+      out.push({ key: 'navHomeIcon', icon: 'home-outline', label: 'Home icon', value: this.t.nav?.homeIcon ? (this.isCustomNavIcon(this.t.nav.homeIcon) ? 'Custom upload' : this.t.nav.homeIcon) : 'Default' });
+    }
+    const barStyle = this.t.navStyle || 'floating';
+    out.push({ key: 'navBarStyle', icon: 'layers-outline', label: 'Nav bar style', value: this.navStyles.find((s) => s.id === barStyle)?.label || barStyle });
+    return out;
+  }
+
+  /** The 4 genuinely per-page controls — independent state via t.intermediate.nav* / t.result.nav*. */
+  private navPageOptions(page: 'intermediate' | 'result'): DeckOption[] {
+    const out: DeckOption[] = [];
+    const split = this.navSplitFor(page);
+    out.push({ key: 'navSplit', icon: 'swap-horizontal-outline', label: 'Button layout', value: split ? 'Separate (independent)' : 'Grouped together' });
+    if (!split) {
+      const pos = this.navPositionFor(page);
+      out.push({ key: 'navPosition', icon: 'locate-outline', label: 'Button position', value: this.navButtonPositions.find((p) => p.id === pos)?.label || pos });
+    } else {
+      const backPos = this.navBackPositionFor(page);
+      out.push({ key: 'navBackPosition', icon: 'locate-outline', label: 'Back position', value: this.navPositionsFor(page, 'back').find((p) => p.id === backPos)?.label || backPos });
+      const homePos = this.navHomePositionFor(page);
+      out.push({ key: 'navHomePosition', icon: 'locate-outline', label: 'Home position', value: this.navPositionsFor(page, 'home').find((p) => p.id === homePos)?.label || homePos });
+    }
+    return out;
+  }
+
+  /** Full 15-row Navigation buttons category for a given step's page — the 11 t.nav-backed
+   *  options are byte-for-byte identical whichever page calls this (same getter, same object). */
+  navOptions(page: 'intermediate' | 'result'): DeckOption[] {
+    return [...this.navSharedOptions, ...this.navPageOptions(page)];
+  }
+
+  // ----- Intermediate colors step -----
+  intColorsActiveChip = 0;
+  intColorsActivePill = 0;
+  intColorsSettingsOpen = false;
+
+  private get intColorsHeaderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.intermediate.showHeader) {
+      out.push({ key: 'interHeaderColor', icon: 'color-palette-outline', label: 'Header background', value: this.t.intermediate.headerColor, swatch: this.t.intermediate.headerColor });
+      const htc = this.t.intermediate.headerTextColor || '#FFFFFF';
+      out.push({ key: 'interHeaderTextColor', icon: 'text-outline', label: 'Header text color', value: htc, swatch: htc });
+    }
+    return out;
+  }
+
+  private get intColorsBackgroundOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    const v = this.t.intermediate.backgroundImage && this.t.intermediateStyle === 'finder-select' ? 'transparent' : this.t.intermediate.background;
+    out.push({ key: 'interBackground', icon: 'image-outline', label: 'Page background', value: v, swatch: v !== 'transparent' ? v : undefined });
+    out.push({ key: 'interBackgroundImage', icon: 'cloud-upload-outline', label: 'Background image', value: this.t.intermediate.backgroundImage ? 'Image set' : 'None' });
+    if (this.t.intermediate.backgroundImage) {
+      out.push({ key: 'interBgImageX', icon: 'resize-outline', label: 'Pan X', value: `${this.t.intermediate.bgImageX ?? 50}%` });
+      out.push({ key: 'interBgImageY', icon: 'resize-outline', label: 'Pan Y', value: `${this.t.intermediate.bgImageY ?? 50}%` });
+      out.push({ key: 'interBgImageZoom', icon: 'expand-outline', label: 'Zoom', value: `${this.t.intermediate.bgImageZoom ?? 100}%` });
+    }
+    return out;
+  }
+
+  private get intColorsCardOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.showInterCardBackgroundColor) out.push({ key: 'interCardBackground', icon: 'square-outline', label: 'Row / card background', value: this.t.intermediate.cardBackground, swatch: this.t.intermediate.cardBackground });
+    if (this.showInterCardTextColor) out.push({ key: 'interCardText', icon: 'text-outline', label: 'Card text', value: this.t.intermediate.cardText, swatch: this.t.intermediate.cardText });
+    if (this.t.intermediateStyle === 'finder-select') {
+      const hero = this.t.intermediate.heroColor || '#172033';
+      out.push({ key: 'interHeroColor', icon: 'albums-outline', label: 'Hero panel', value: hero, swatch: hero });
+      const ov = this.t.overlayColor || 'rgba(0,0,0,0.6)';
+      out.push({ key: 'interOverlayColor', icon: 'contrast-outline', label: 'Text overlay', value: ov, swatch: ov });
+    }
+    if (this.t.intermediateStyle === 'brand-rail') {
+      const bg = this.t.intermediate.brandRailMessageBgColor || 'rgba(0,0,0,0.35)';
+      out.push({ key: 'brandRailMessageBgColor', icon: 'chatbox-outline', label: 'Message background', value: bg, swatch: bg });
+      const txt = this.t.intermediate.brandRailMessageTextColor || '#ffffff';
+      out.push({ key: 'brandRailMessageTextColor', icon: 'text-outline', label: 'Message text color', value: txt, swatch: txt });
+    }
+    return out;
+  }
+
+  private get intColorsAccentOptions(): DeckOption[] {
+    return [{ key: 'interAccent', icon: 'color-palette-outline', label: 'Accent / active', value: this.t.intermediate.accent, swatch: this.t.intermediate.accent }];
+  }
+
+  get intColorsCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'header', icon: 'menu-outline', label: 'Header', options: this.intColorsHeaderOptions },
+      { key: 'background', icon: 'image-outline', label: 'Background', options: this.intColorsBackgroundOptions },
+      { key: 'cards', icon: 'albums-outline', label: 'Cards', options: this.intColorsCardOptions },
+      { key: 'accent', icon: 'color-palette-outline', label: 'Accent', options: this.intColorsAccentOptions },
+      // Whole nav block is conditional on `t.intermediateStyle !== 'finder-select'` — identical to the original template's guard.
+      { key: 'nav', icon: 'navigate-outline', label: 'Navigation', options: this.t.intermediateStyle !== 'finder-select' ? this.navOptions('intermediate') : [] },
+    ].filter((c) => c.options.length > 0);
+  }
+  get intColorsActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.intColorsCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.intColorsActiveChip, cats.length - 1)];
+  }
+  get intColorsChipsInput(): NtDeckChip[] { return this.intColorsCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get intColorsPillsInput(): NtValuePill[] {
+    return (this.intColorsActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get intColorsActiveOption(): DeckOption | undefined {
+    const opts = this.intColorsActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.intColorsActivePill, opts.length - 1)];
+  }
+  get intColorsActivePillKey(): string { return this.intColorsActiveOption?.key || ''; }
+  get intColorsActivePillLabel(): string { return (this.intColorsActiveOption?.label || '').toUpperCase(); }
+  get intColorsSettingsGroups(): NtSettingsGroup[] {
+    return this.intColorsCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onIntColorsChipChange(i: number): void { this.intColorsActiveChip = i; this.intColorsActivePill = 0; }
+  onIntColorsRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.intColorsActiveChip = sel.groupIndex;
+    this.intColorsActivePill = sel.rowIndex;
+  }
+
+  // ----- Result colors step -----
+  resColorsActiveChip = 0;
+  resColorsActivePill = 0;
+  resColorsSettingsOpen = false;
+
+  private get resColorsHeaderOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.resultTemplate !== 'promo-map-rank' && this.t.resultTemplate !== 'finder-detail') {
+      out.push({ key: 'resHeaderColor', icon: 'color-palette-outline', label: 'Header', value: this.t.result.headerColor, swatch: this.t.result.headerColor !== this.resultTransparentHeaderColor ? this.t.result.headerColor : undefined });
+    }
+    if (this.t.resultTemplate !== 'finder-detail') {
+      out.push({ key: 'resHeaderBar', icon: 'menu-outline', label: 'Header bar', value: this.t.result.showHeader ? 'Show' : 'Hide' });
+      if (this.t.result.showHeader) {
+        out.push({ key: 'resHeaderTracklist', icon: 'list-outline', label: 'Header tracklist', value: this.t.result.showTracklist !== false ? 'Show' : 'Hide' });
+      }
+    }
+    return out;
+  }
+
+  private get resColorsBackgroundOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.resultTemplate !== 'promo-map-rank') {
+      if (!this.t.result.backgroundImage) {
+        out.push({ key: 'resBackground', icon: 'image-outline', label: 'Page background', value: this.t.result.background, swatch: this.t.result.background });
+      }
+      out.push({ key: 'resBackgroundImage', icon: 'cloud-upload-outline', label: 'Background image', value: this.t.result.backgroundImage ? 'Image set' : 'None' });
+    }
+    return out;
+  }
+
+  private get resColorsCardOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.resultTemplate !== 'finder-detail' && this.t.resultTemplate !== 'hero-product') {
+      out.push({ key: 'resCardBackground', icon: 'square-outline', label: 'Product card background', value: this.t.result.cardBackground, swatch: this.t.result.cardBackground });
+    }
+    if (this.t.resultTemplate !== 'hero-product' && this.t.resultTemplate !== 'finder-detail') {
+      out.push({ key: 'resCardText', icon: 'text-outline', label: 'Card text', value: this.t.result.cardText, swatch: this.t.result.cardText });
+    }
+    if (this.t.resultTemplate === 'map-list') {
+      const v = this.t.result.popularText || this.t.result.cardText;
+      out.push({ key: 'resPopularText', icon: 'star-outline', label: 'Popular button text', value: v, swatch: v });
+    }
+    return out;
+  }
+
+  private get resColorsTemplateOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.resultTemplate === 'finder-detail') {
+      const find = this.t.result.findColor || '#2f006d';
+      out.push({ key: 'resFindColor', icon: 'search-outline', label: 'Find button', value: find, swatch: find });
+      const listBg = this.t.result.listBg || '#ffffff';
+      out.push({ key: 'resListBg', icon: 'list-outline', label: 'List background', value: listBg, swatch: listBg });
+      const cardBg = this.t.result.cardBg || '#ffffff';
+      out.push({ key: 'resCardBg', icon: 'square-outline', label: 'Product / detail card', value: cardBg, swatch: cardBg });
+      const cardTextColor = this.t.result.cardTextColor || '#0F172A';
+      out.push({ key: 'resCardTextColor', icon: 'text-outline', label: 'Card text', value: cardTextColor, swatch: cardTextColor });
+    }
+    // promo-map-rank is a legacy value with no selectable tile in the picker (see inventory note 3)
+    // — still fully editable here for any theme that already has it saved.
+    if (this.t.resultTemplate === 'promo-map-rank') {
+      const panel = this.t.result.panelColor || '#001973';
+      out.push({ key: 'resPanelColor', icon: 'albums-outline', label: 'Promo panel', value: panel, swatch: panel });
+      const rail = this.t.result.railBg || 'transparent';
+      out.push({ key: 'resRailBg', icon: 'reorder-three-outline', label: 'Category rail', value: rail, swatch: rail !== 'transparent' ? rail : undefined });
+      const subPanel = this.t.result.subPanelColor || '#0f172a';
+      out.push({ key: 'resSubPanelColor', icon: 'square-outline', label: 'Sub-category panel', value: subPanel, swatch: subPanel });
+      const secText = this.t.result.secondaryTextColor || '#ffffff';
+      out.push({ key: 'resSecondaryTextColor', icon: 'text-outline', label: 'Sub-category text', value: secText, swatch: secText });
+      const pin = this.t.result.pinColor || '#7f77dd';
+      out.push({ key: 'resPinColor', icon: 'location-outline', label: 'Map pin', value: pin, swatch: pin });
+      const dot = this.t.result.dotColor || '#e24b4a';
+      out.push({ key: 'resDotColor', icon: 'ellipse-outline', label: 'Location dots', value: dot, swatch: dot });
+      const mapBg = this.t.result.mapBg || '#ffffff';
+      out.push({ key: 'resMapBg', icon: 'map-outline', label: 'Map area', value: mapBg, swatch: mapBg });
+    }
+    return out;
+  }
+
+  private get resColorsAccentOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.resultTemplate !== 'promo-map-rank' && this.t.resultTemplate !== 'hero-product') {
+      out.push({ key: 'resAccent', icon: 'color-palette-outline', label: 'Accent / highlight', value: this.t.result.accent, swatch: this.t.result.accent });
+    }
+    return out;
+  }
+
+  get resColorsCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'header', icon: 'menu-outline', label: 'Header', options: this.resColorsHeaderOptions },
+      { key: 'background', icon: 'image-outline', label: 'Background', options: this.resColorsBackgroundOptions },
+      { key: 'cards', icon: 'albums-outline', label: 'Cards', options: this.resColorsCardOptions },
+      { key: 'template', icon: 'options-outline', label: 'Template', options: this.resColorsTemplateOptions },
+      { key: 'accent', icon: 'color-palette-outline', label: 'Accent', options: this.resColorsAccentOptions },
+      // Navigation block is unconditional on this step (unlike Intermediate colors) — same as the original template.
+      { key: 'nav', icon: 'navigate-outline', label: 'Navigation', options: this.navOptions('result') },
+    ].filter((c) => c.options.length > 0);
+  }
+  get resColorsActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.resColorsCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.resColorsActiveChip, cats.length - 1)];
+  }
+  get resColorsChipsInput(): NtDeckChip[] { return this.resColorsCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get resColorsPillsInput(): NtValuePill[] {
+    return (this.resColorsActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get resColorsActiveOption(): DeckOption | undefined {
+    const opts = this.resColorsActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.resColorsActivePill, opts.length - 1)];
+  }
+  get resColorsActivePillKey(): string { return this.resColorsActiveOption?.key || ''; }
+  get resColorsActivePillLabel(): string { return (this.resColorsActiveOption?.label || '').toUpperCase(); }
+  get resColorsSettingsGroups(): NtSettingsGroup[] {
+    return this.resColorsCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onResColorsChipChange(i: number): void { this.resColorsActiveChip = i; this.resColorsActivePill = 0; }
+  onResColorsRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.resColorsActiveChip = sel.groupIndex;
+    this.resColorsActivePill = sel.rowIndex;
+  }
+
+  // ----- Result template step (phase 3e) -----
+  // Chips: Template / Promotion (promo-map-rank only) / Sorting & filters (finder-detail's Sort
+  // tabs + SALE badge, map-filter-list's Filter position) / Card layout (Card content / shape /
+  // text position / Overflow scrolling). Category names taken from the step's `.step-title.sm`
+  // labels per the redesign prompt. The two multi-toggle rows (Promotion panel's 5 toggles,
+  // finder-detail's Sort tabs multi-select) each stay ONE pill/settings-sheet row — same as the
+  // original inventory's "counted as 1 row" guidance — with a value summarizing which sub-options
+  // are currently on; the editor-card still renders all sub-toggles for that one pill.
+  resTemplateActiveChip = 0;
+  resTemplateActivePill = 0;
+  resTemplateSettingsOpen = false;
+
+  /** Summarizes the 5 promo-map-rank panel toggles for the pill/sheet-row face. */
+  get resPromoToggleSummary(): string {
+    const items: { label: string; on: boolean }[] = [
+      { label: 'Timer', on: !!this.t.result.showTimer },
+      { label: 'Bell', on: !!this.t.result.showBell },
+      { label: 'Ranks', on: this.t.result.showRanks !== false },
+      { label: 'Sort tabs', on: this.t.result.showSortTabs !== false },
+      { label: 'Zone', on: this.t.result.showZone !== false },
+    ];
+    const on = items.filter((i) => i.on).map((i) => i.label);
+    return on.length ? on.join(', ') : 'All hidden';
+  }
+
+  /** Summarizes the finder-detail sort-tab multi-select for the pill/sheet-row face. */
+  get resSortTabsSummary(): string {
+    const on = this.finderSortOpts.filter((s) => this.hasSortTab(s.id)).map((s) => s.label);
+    return on.length ? on.join(', ') : 'None';
+  }
+
+  private get resTemplatePickOptions(): DeckOption[] {
+    return [{ key: 'resTemplatePick', icon: 'grid-outline', label: 'Template', value: this.tplLabel(this.t.resultTemplate) }];
+  }
+
+  private get resPromotionOptions(): DeckOption[] {
+    if (this.t.resultTemplate !== 'promo-map-rank') return [];
+    return [{ key: 'resPromoToggles', icon: 'megaphone-outline', label: 'Promotion panel', value: this.resPromoToggleSummary }];
+  }
+
+  private get resSortingFilterOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.t.resultTemplate === 'finder-detail') {
+      out.push({ key: 'resSortTabs', icon: 'swap-vertical-outline', label: 'Sort tabs', value: this.resSortTabsSummary });
+      out.push({ key: 'resSaleBadge', icon: 'pricetag-outline', label: 'SALE badge', value: this.t.result.showSaleBadge !== false ? 'On' : 'Off' });
+    }
+    if (this.t.resultTemplate === 'map-filter-list') {
+      const pos = this.t.result.filterPos || 'center';
+      out.push({ key: 'resFilterPos', icon: 'funnel-outline', label: 'Filter position', value: this.filterPositions.find((p) => p.id === pos)?.label || this.capitalize(pos) });
+    }
+    return out;
+  }
+
+  private get resCardLayoutOptions(): DeckOption[] {
+    const out: DeckOption[] = [];
+    if (this.resCardContentMatters) {
+      const v = this.t.result.content || 'image-text';
+      out.push({ key: 'resContent', icon: 'albums-outline', label: 'Card content', value: this.resultContents.find((c) => c.id === v)?.label || v });
+    }
+    if (this.resShapeMatters && (this.t.result.content || 'image-text') === 'image-text') {
+      const v = this.t.result.cardShape;
+      out.push({ key: 'resCardShape', icon: 'square-outline', label: 'Card shape', value: v ? (this.resShapesFor.find((s) => s.id === v)?.label || v) : 'Default' });
+    }
+    if (this.resTextPosMatters && (this.t.result.content || 'image-text') === 'image-text') {
+      const v = this.t.result.textPos || 'below';
+      out.push({ key: 'resTextPos', icon: 'text-outline', label: 'Text position', value: this.cardTextPositions.find((p) => p.id === v)?.label || v });
+    }
+    if (this.resOverflowMatters) {
+      out.push({ key: 'resScrollMode', icon: 'swap-horizontal-outline', label: 'Overflow scrolling', value: this.capitalize(this.effectiveResultScrollMode) });
+    }
+    return out;
+  }
+
+  get resTemplateCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'template', icon: 'grid-outline', label: 'Template', options: this.resTemplatePickOptions },
+      { key: 'promotion', icon: 'megaphone-outline', label: 'Promotion', options: this.resPromotionOptions },
+      { key: 'sortingFilters', icon: 'funnel-outline', label: 'Sorting & filters', options: this.resSortingFilterOptions },
+      { key: 'cardLayout', icon: 'square-outline', label: 'Card layout', options: this.resCardLayoutOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get resTemplateActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.resTemplateCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.resTemplateActiveChip, cats.length - 1)];
+  }
+  get resTemplateChipsInput(): NtDeckChip[] { return this.resTemplateCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get resTemplatePillsInput(): NtValuePill[] {
+    return (this.resTemplateActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get resTemplateActiveOption(): DeckOption | undefined {
+    const opts = this.resTemplateActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.resTemplateActivePill, opts.length - 1)];
+  }
+  get resTemplateActivePillKey(): string { return this.resTemplateActiveOption?.key || ''; }
+  get resTemplateActivePillLabel(): string { return (this.resTemplateActiveOption?.label || '').toUpperCase(); }
+  get resTemplateSettingsGroups(): NtSettingsGroup[] {
+    return this.resTemplateCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onResTemplateChipChange(i: number): void { this.resTemplateActiveChip = i; this.resTemplateActivePill = 0; }
+  onResTemplateRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.resTemplateActiveChip = sel.groupIndex;
+    this.resTemplateActivePill = sel.rowIndex;
+  }
+
+  // ----- Animations & loader step (phase 3f) -----
+  // Chips: Transition (Page transition + Speed) / Loader (Loader style + Loader color) — the
+  // step's two `.step-title.sm` groupings. The "▶ Preview" replay buttons are action buttons
+  // rendered inside the relevant editor-card (Page transition / Loader style) alongside their
+  // tile-group, not pills of their own — they replay the same demo the original inline buttons
+  // triggered (`replayTransition()` / `replayLoader()`), unchanged.
+  animActiveChip = 0;
+  animActivePill = 0;
+  animSettingsOpen = false;
+
+  transitionLabels: Partial<Record<TransitionType, string>> = {
+    'fade-slide': 'Fade + slide', 'scale-up': 'Scale up', 'slide-left': 'Slide left', 'shimmer': 'Shimmer', 'none': 'None',
+  };
+  transitionLabel(s: TransitionType): string { return this.transitionLabels[s] || s; }
+  loaderLabels: Partial<Record<LoaderStyle, string>> = {
+    'spinner': 'Spinner', 'dot-pulse': 'Dot pulse', 'progress': 'Progress bar', 'logo': 'Logo', 'skeleton': 'Skeleton',
+  };
+  loaderLabel(s: LoaderStyle): string { return this.loaderLabels[s] || s; }
+
+  private get animTransitionOptions(): DeckOption[] {
+    return [
+      { key: 'transitionPick', icon: 'swap-horizontal-outline', label: 'Page transition', value: this.transitionLabel(this.t.animation.transition) },
+      { key: 'speed', icon: 'speedometer-outline', label: 'Speed', value: this.capitalize(this.t.animation.speed) },
+    ];
+  }
+  private get animLoaderOptions(): DeckOption[] {
+    return [
+      { key: 'loaderStyle', icon: 'sync-outline', label: 'Loader style', value: this.loaderLabel(this.t.loader.style) },
+      { key: 'loaderColor', icon: 'color-palette-outline', label: 'Loader color', value: this.t.loader.color, swatch: this.t.loader.color },
+    ];
+  }
+  get animCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'transition', icon: 'swap-horizontal-outline', label: 'Transition', options: this.animTransitionOptions },
+      { key: 'loader', icon: 'sync-outline', label: 'Loader', options: this.animLoaderOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get animActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.animCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.animActiveChip, cats.length - 1)];
+  }
+  get animChipsInput(): NtDeckChip[] { return this.animCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get animPillsInput(): NtValuePill[] {
+    return (this.animActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get animActiveOption(): DeckOption | undefined {
+    const opts = this.animActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.animActivePill, opts.length - 1)];
+  }
+  get animActivePillKey(): string { return this.animActiveOption?.key || ''; }
+  get animActivePillLabel(): string { return (this.animActiveOption?.label || '').toUpperCase(); }
+  get animSettingsGroups(): NtSettingsGroup[] {
+    return this.animCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onAnimChipChange(i: number): void { this.animActiveChip = i; this.animActivePill = 0; }
+  onAnimRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.animActiveChip = sel.groupIndex;
+    this.animActivePill = sel.rowIndex;
+  }
+
+  // ----- Screensaver step (phase 3f) -----
+  // Chips: Mode (Screensaver mode — no step-title.sm of its own, kept as its own chip since it's
+  // semantically distinct from the overlay-styling controls) / Overlay content (Show/Hide toggle)
+  // / Overlay text (Title, Subtitle, Text color, Box background — all fall under the step's
+  // "Overlay text" sm heading, nothing new before "Overlay position") / Position (Overlay
+  // position). The three overlay-related chips return no options (and so disappear, matching the
+  // original *ngIf on the whole block) whenever `t.saverOverlay.showContent === false`.
+  saverActiveChip = 0;
+  saverActivePill = 0;
+  saverSettingsOpen = false;
+
+  saverModeLabels: Partial<Record<ScreensaverMode, string>> = {
+    'slideshow': 'Slideshow', 'single-image': 'Single image', 'video': 'Video',
+  };
+  saverModeLabel(s: ScreensaverMode): string { return this.saverModeLabels[s] || s; }
+
+  private get saverModeOptions(): DeckOption[] {
+    return [{ key: 'saverMode', icon: 'images-outline', label: 'Screensaver mode', value: this.saverModeLabel(this.saverMode) }];
+  }
+  private get saverOverlayContentOptions(): DeckOption[] {
+    return [{ key: 'saverOverlayContent', icon: 'eye-outline', label: 'Overlay content', value: this.t.saverOverlay?.showContent !== false ? 'Show' : 'Hide' }];
+  }
+  private get saverTextOptions(): DeckOption[] {
+    if (this.t.saverOverlay?.showContent === false) return [];
+    const textColor = this.t.saverOverlay?.textColor || '#FFFFFF';
+    const bg = this.t.saverOverlay?.bgColor || 'transparent';
+    return [
+      { key: 'saverTitle', icon: 'text-outline', label: 'Title', value: this.t.saverOverlay?.title || 'Newton Touch' },
+      { key: 'saverSubtitle', icon: 'chatbubble-outline', label: 'Subtitle / CTA', value: this.t.saverOverlay?.subtitle || 'Touch screen to begin' },
+      { key: 'saverTextColor', icon: 'color-palette-outline', label: 'Text color', value: textColor, swatch: textColor },
+      { key: 'saverBoxBg', icon: 'square-outline', label: 'Box background', value: bg, swatch: bg !== 'transparent' ? bg : undefined },
+    ];
+  }
+  private get saverPositionOptions(): DeckOption[] {
+    if (this.t.saverOverlay?.showContent === false) return [];
+    const pos = this.t.saverOverlay?.position || 'center';
+    return [{ key: 'saverPosition', icon: 'move-outline', label: 'Overlay position', value: this.saverPositions.find((p) => p.id === pos)?.label || this.capitalize(pos) }];
+  }
+  get saverCategories(): { key: string; icon: string; label: string; options: DeckOption[] }[] {
+    return [
+      { key: 'mode', icon: 'images-outline', label: 'Mode', options: this.saverModeOptions },
+      { key: 'overlayContent', icon: 'eye-outline', label: 'Overlay content', options: this.saverOverlayContentOptions },
+      { key: 'overlayText', icon: 'text-outline', label: 'Overlay text', options: this.saverTextOptions },
+      { key: 'position', icon: 'move-outline', label: 'Position', options: this.saverPositionOptions },
+    ].filter((c) => c.options.length > 0);
+  }
+  get saverActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {
+    const cats = this.saverCategories;
+    if (!cats.length) return undefined;
+    return cats[Math.min(this.saverActiveChip, cats.length - 1)];
+  }
+  get saverChipsInput(): NtDeckChip[] { return this.saverCategories.map((c) => ({ icon: c.icon, label: c.label })); }
+  get saverPillsInput(): NtValuePill[] {
+    return (this.saverActiveCategory?.options || []).map((o) => ({ label: o.label, value: o.value, swatch: o.swatch }));
+  }
+  get saverActiveOption(): DeckOption | undefined {
+    const opts = this.saverActiveCategory?.options || [];
+    if (!opts.length) return undefined;
+    return opts[Math.min(this.saverActivePill, opts.length - 1)];
+  }
+  get saverActivePillKey(): string { return this.saverActiveOption?.key || ''; }
+  get saverActivePillLabel(): string { return (this.saverActiveOption?.label || '').toUpperCase(); }
+  get saverSettingsGroups(): NtSettingsGroup[] {
+    return this.saverCategories.map((c) => ({
+      label: c.label.toUpperCase(),
+      rows: c.options.map((o) => ({ icon: o.icon, label: o.label, value: o.value, swatch: o.swatch })),
+    }));
+  }
+  onSaverChipChange(i: number): void { this.saverActiveChip = i; this.saverActivePill = 0; }
+  onSaverRowSelected(sel: { groupIndex: number; rowIndex: number }): void {
+    this.saverActiveChip = sel.groupIndex;
+    this.saverActivePill = sel.rowIndex;
   }
 
   async cancel(): Promise<void> {
