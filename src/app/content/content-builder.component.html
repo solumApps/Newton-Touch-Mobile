@@ -776,7 +776,8 @@
            original per-product editor, including the finder-detail nested
            Specs / Fitments add-remove lists, unchanged. -->
       <ng-container *ngIf="d.appMode !== 'category'">
-        <div class="sec"><span>{{ perItemActive ? ('Products — ' + activeCardLabel) : (resultMode==='individual' && !skipsIntermediate) ? 'Shared / fallback products' : 'Result products' }} ({{ curResult.products.length }})</span><button class="mini" (click)="addProduct()">+ Add</button></div>
+        <div class="sec"><span>{{ perItemActive ? ('Products — ' + activeCardLabel) : (resultMode==='individual' && !skipsIntermediate) ? 'Shared / fallback products' : 'Result products' }} ({{ curResult.products.length }}{{ maxResultProducts ? ' / ' + maxResultProducts : '' }})</span><button class="mini" [disabled]="atResultProductCap" (click)="addProduct()">+ Add</button></div>
+        <p class="note" *ngIf="atResultProductCap">Product Focus supports up to 8 products.</p>
         <div class="result-products-list">
           <nt-collapsed-item-row *ngFor="let row of resultProductsReversed; let i = index"
             [thumbnail]="resultNeedsImage ? (row.product.image || null) : null"

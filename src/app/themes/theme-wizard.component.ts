@@ -214,6 +214,9 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
         this.t.cardTextPos = center ? center.id : opts[0].id;
       }
     }
+    if (this.t.homeLayout === 'promo-categories' && c === 'image-text') {
+      this.t.cardTextPos = 'overlay-bottom';
+    }
   }
   pickInterContent(c: CardContent): void {
     this.t.intermediate.content = c;
@@ -288,6 +291,9 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   pickLayout(l: HomeLayout): void {
     const wasFinderSelect = this.t.homeLayout === 'finder-select';
     this.t.homeLayout = l;
+    if (l === 'promo-categories' && this.t.cardContent === 'image-text') {
+      this.t.cardTextPos = 'overlay-bottom';
+    }
     // #2 full-bleed fullscreen must use an inner text position.
     if (l === 'fullscreen') this.coerceHomeInnerTextPos();
     if (this.columnLayouts.includes(l)) {
@@ -796,8 +802,8 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
     // finder-select has its own fs-card horizontal-align control — the generic
     // one must NOT also appear (avoids the duplicate Text H-align section).
     if (this.t.intermediateStyle === 'finder-select') return false;
-    // brand-rail: only text-only cards expose horizontal alignment.
-    if (this.t.intermediateStyle === 'brand-rail') return c === 'text-only';
+    // Brand rail owns centered label alignment for every content mode.
+    if (this.t.intermediateStyle === 'brand-rail') return false;
     return c !== 'image-only';
   }
   /** brand-rail is a single horizontal row — only horizontal scroll allowed. */
@@ -853,6 +859,9 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   }
   setResultContent(content: 'image-text' | 'text-only'): void {
     this.t.result.content = content;
+    if (this.t.resultTemplate === 'shelf' && content === 'text-only') {
+      this.t.result.cardShape = 'rect';
+    }
     if (content === 'text-only' && ['map-list', 'filter-list'].includes(this.t.resultTemplate)) {
       this.t.result.scrollMode = 'vertical';
     }
@@ -904,6 +913,9 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
   pickResultTemplate(o: ResultTemplate): void {
     const changed = this.t.resultTemplate !== o;
     this.t.resultTemplate = o;
+    if (o === 'shelf' && (this.t.result.content || 'image-text') === 'text-only') {
+      this.t.result.cardShape = 'rect';
+    }
     if (!changed) return;
     if (o === 'card-grid' && (this.t.result.cardShape === 'circle' || this.t.result.cardShape === 'hexagon')) {
       this.t.result.cardShape = undefined;
@@ -1832,8 +1844,15 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
         out.push({ key: 'fsTextAlign', icon: 'reorder-three-outline', label: 'Text horizontal alignment', value: this.cardAligns.find((a) => a.id === v)?.label || v });
       }
     } else if (this.showTextPos) {
-      out.push({ key: 'cardTextPos', icon: 'text-outline', label: 'Text vertical position', value: this.textPositionsFor.find((p) => p.id === this.t.cardTextPos)?.label || this.t.cardTextPos });
-      if (this.t.cardContent !== 'icon-text') {
+      const hidePromoImageTextPosition =
+        this.t.homeLayout === 'promo-categories' && this.t.cardContent === 'image-text';
+      const hidePromoTextAlign =
+        this.t.homeLayout === 'promo-categories' &&
+        (this.t.cardContent === 'image-text' || this.t.cardContent === 'text-only');
+      if (!hidePromoImageTextPosition) {
+        out.push({ key: 'cardTextPos', icon: 'text-outline', label: 'Text vertical position', value: this.textPositionsFor.find((p) => p.id === this.t.cardTextPos)?.label || this.t.cardTextPos });
+      }
+      if (this.t.cardContent !== 'icon-text' && !hidePromoTextAlign) {
         const v = this.t.cardTextAlign || 'center';
         out.push({ key: 'cardTextAlign', icon: 'reorder-three-outline', label: 'Text horizontal alignment', value: this.cardAligns.find((a) => a.id === v)?.label || v });
       }
@@ -2419,6 +2438,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
 
   private get resColorsBackgroundOptions(): DeckOption[] {
     const out: DeckOption[] = [];
+    if (this.t.resultTemplate === 'finder-detail') return out;
     if (this.t.resultTemplate !== 'promo-map-rank') {
       if (!this.t.result.backgroundImage) {
         out.push({ key: 'resBackground', icon: 'image-outline', label: 'Page background', value: this.t.result.background, swatch: this.t.result.background });
@@ -2450,10 +2470,6 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
       out.push({ key: 'resFindColor', icon: 'search-outline', label: 'Find button', value: find, swatch: find });
       const listBg = this.t.result.listBg || '#ffffff';
       out.push({ key: 'resListBg', icon: 'list-outline', label: 'List background', value: listBg, swatch: listBg });
-      const cardBg = this.t.result.cardBg || '#ffffff';
-      out.push({ key: 'resCardBg', icon: 'square-outline', label: 'Product / detail card', value: cardBg, swatch: cardBg });
-      const cardTextColor = this.t.result.cardTextColor || '#0F172A';
-      out.push({ key: 'resCardTextColor', icon: 'text-outline', label: 'Card text', value: cardTextColor, swatch: cardTextColor });
     }
     // promo-map-rank is a legacy value with no selectable tile in the picker (see inventory note 3)
     // — still fully editable here for any theme that already has it saved.
@@ -2492,7 +2508,7 @@ export class ThemeWizardComponent implements OnInit, OnDestroy {
       { key: 'template', icon: 'options-outline', label: 'Template', options: this.resColorsTemplateOptions },
       { key: 'accent', icon: 'color-palette-outline', label: 'Accent', options: this.resColorsAccentOptions },
       // Navigation block is unconditional on this step (unlike Intermediate colors) — same as the original template.
-      { key: 'nav', icon: 'navigate-outline', label: 'Navigation', options: this.navOptions('result') },
+      { key: 'nav', icon: 'navigate-outline', label: 'Navigation', options: this.t.resultTemplate === 'finder-detail' ? [] : this.navOptions('result') },
     ].filter((c) => c.options.length > 0);
   }
   get resColorsActiveCategory(): { key: string; icon: string; label: string; options: DeckOption[] } | undefined {

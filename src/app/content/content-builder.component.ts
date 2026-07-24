@@ -2153,6 +2153,14 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     const cap = this.maxHomeItems;
     return cap !== undefined && (this.draft?.home.length ?? 0) >= cap;
   }
+  /** Product Focus is designed for a maximum list of eight products. */
+  get maxResultProducts(): number | undefined {
+    return this.draft?.themeTokens.resultTemplate === 'product-focus' ? 8 : undefined;
+  }
+  get atResultProductCap(): boolean {
+    const cap = this.maxResultProducts;
+    return cap !== undefined && this.curResult.products.length >= cap;
+  }
 
   /** All add methods create a NEW array reference so the preview component detects
    *  the input change immediately (not on the next unrelated CD cycle). */
@@ -2161,6 +2169,7 @@ export class ContentBuilderComponent implements OnInit, OnDestroy {
     this.draft!.home = [...this.draft!.home, { id: 'c' + Date.now(), name: '' }];
   }
   addProduct(): void {
+    if (this.atResultProductCap) return;
     const r = this.curResult;
     if (r.products.length >= this.maxResultProducts) return;
     this.setCurResult({ ...r, products: [...r.products, { id: 'p' + Date.now(), name: '' }] });

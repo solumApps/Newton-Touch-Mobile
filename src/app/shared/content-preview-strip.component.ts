@@ -369,7 +369,7 @@ type FinderSortInput = FinderSortKey | 'alphabet' | 'alphabetical' | 'lowprice' 
             </div>
             <div class="focus-image" *ngIf="resUsePh" [style.background-image]="found?.image ? 'url('+found?.image+')' : phImg(activeResultIndex)" [style.background-size]="fitSize(found?.imageFit)" [style.background-repeat]="found?.imageFit ? 'no-repeat' : null"></div>
             <div class="focus-list">
-              <div class="mini" *ngFor="let p of resultCells let i = index" [class.found]="isFound(i)" (click)="selectResult(i)">{{ p.name }}</div>
+              <div class="mini" *ngFor="let p of resultCells; let i = index" [class.found]="isFound(i)" (click)="selectResult(i)">{{ p.name }}</div>
             </div>
           </div>
           <!-- hero-product -->
