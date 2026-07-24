@@ -353,6 +353,9 @@
 .prev .stage.layout-promo-categories .promo-rail .card.shape-pill {
   flex: 0 0 66px;
 }
+.prev .stage.layout-promo-categories .promo-rail .card.shape-pill.content-text-only {
+  height: 48%;
+}
 .prev .stage.layout-promo-categories .promo-rail .card.shape-pill:not(.content-icon-text) .img {
   border-radius: 999px;
   width: 66px !important;
